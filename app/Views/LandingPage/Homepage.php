@@ -55,7 +55,7 @@
         <div class="col-md-6 d-flex flex-column justify-content-start text-top">
             <h2 class="mb-4 black-text">Apa itu Tracer Study?</h2>
             <p>
-                Tracer Study adalah survei yang dilakukan kepada alumni suatu institusi pendidikan untuk mengetahui sejauh mana lulusan telah terserap di dunia kerja, bidang kerja yang digeluti, serta relevansi antara pendidikan yang diterima dengan pekerjaan mereka sekarang.
+                Tracer Study adalah survei                                                                                                                                                                                                                                                                       yang dilakukan kepada alumni suatu institusi pendidikan untuk mengetahui sejauh mana lulusan telah terserap di dunia kerja, bidang kerja yang digeluti, serta relevansi antara pendidikan yang diterima dengan pekerjaan mereka sekarang.
             </p>
             <p>
                 Tujuannya adalah untuk mengevaluasi kualitas pendidikan dan memperbaiki sistem pembelajaran agar lebih sesuai dengan kebutuhan dunia kerja, sehingga kampus dapat melakukan penyesuaian kurikulum secara tepat sasaran.
@@ -76,7 +76,7 @@
             <p>
                 POLBAN mendorong alumni untuk berpartisipasi dalam studi penelusuran guna melacak kemajuan karir mereka dan meningkatkan program institusi. Terdapat video profil POLBAN dari tahun 2020, serta diskusi mengenai tantangan dan manfaat belajar di POLBAN.
             </p>
-            <a href="#" class="btn btn-primary login-btn">Login</a>
+            <a href="<?= base_url('/admin') ?>" class="btn btn-primary login-btn">Login</a>
         </div>
 
         <!-- Kolom kanan: Video -->
