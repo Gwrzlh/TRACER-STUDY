@@ -5,10 +5,20 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Home::index'); // Halaman utama
-$routes->get('tentang', 'Tracer::tentang'); // Route untuk halaman tentang
-$routes->get('kontak', 'Tracer::kontak');   // Route untuk halaman kontak
 
+// Routes untuk login
+$routes->get('/', 'Auth::login');
+$routes->get('/login', 'Auth::login');
+$routes->post('/do-login', 'Auth::doLogin');
+$routes->get('/logout', 'Auth::logout');
+$routes->get('/dashboard', 'Auth::dashboard', ['filter' => 'auth']);
 
+// Routes tambahan dari controller lain
+$routes->get('test-db','testController::index');    
 
-
+// Main Routes
+$routes->get('/home', 'Homepage::index');
+$routes->get('/admin', 'adminController::index');                                                                                
+$routes->get('/admin/pengguna', 'penggunaController::index');
+$routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
+$routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
