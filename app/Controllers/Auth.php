@@ -41,7 +41,7 @@ class Auth extends Controller
                 'logged_in' => true
             ]);
 
-            return redirect()->to('/dashboard');
+            return redirect()->to('dashboard');
         }
 
         return redirect()->back()->with('error', 'Username atau password salah.');
@@ -53,7 +53,7 @@ class Auth extends Controller
             return redirect()->to('/login');
         }
 
-        return view('dashboard');
+        return view('adminpage/dashboard');
     }
 
     public function logout()
