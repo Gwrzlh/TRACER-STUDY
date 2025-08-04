@@ -19,17 +19,3 @@ $routes->get('/admin/pengguna', 'penggunaController::index');
 $routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
 $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
 
-
-
-// Routes tambahan dari controller lain
-$routes->get('test-db','testController::index');    
-
-
-//ajax route
-$routes->group('api', function($routes) {
-    $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
-});
-
-// Main Routes
-
-
