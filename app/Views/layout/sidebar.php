@@ -15,13 +15,10 @@
     <div>
       <!-- Logo -->
       <div class="p-4 font-bold text-xl flex items-center gap-2 border-b border-gray-200">
-        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2"
-             viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3 7l8.5 4.5L20 7M3 17l8.5-4.5L20 17"></path>
-        </svg>
-        ADMIN
-      </div>
+  <img src="/images/logo.png" alt="Logo POLBAN" class="w-8 h-8 object-contain" />
+  POLBAN
+</div>
+
 
       <!-- Menu -->
       <nav class="mt-4 space-y-2">
@@ -94,7 +91,7 @@
     <div class="mt-6 px-4 space-y-2">
       <div class="flex items-center gap-4">
         <div class="relative">
-          <img src="/img/emily.jpg" class="w-12 h-12 rounded-full object-cover border">
+          <img src="/img/idk.jpeg" class="w-12 h-12 rounded-full object-cover border">
           <span class="absolute bottom-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
         </div>
         <div>
@@ -103,7 +100,11 @@
         </div>
       </div>
 
-      <a href="/logout" class="text-sm text-red-600 hover:underline block">Logout</a>
+      <form action="/logout" method="get">
+    <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white text-sm py-2 px-4 rounded transition">
+      Logout
+    </button>
+  </form>
     </div>
   </aside>
 
