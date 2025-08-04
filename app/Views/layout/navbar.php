@@ -21,7 +21,7 @@
     <div class="collapse navbar-collapse" id="navbarContent">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link text-#000080" href="/">Tracer Study</a>
+          <a class="nav-link text-#000080" href="#">Tracer Study</a>
         </li>
         <li class="nav-item">
           <a class="nav-link text-#000080" href="#">Tentang</a>
