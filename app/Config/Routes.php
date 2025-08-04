@@ -3,21 +3,33 @@
 use CodeIgniter\Router\RouteCollection;
 
 /**
- * @var RouteCollection $routes                                                                     
+ * @var RouteCollection $routes
  */
 
-// test-controller
+// Routes untuk login
+$routes->get('/', 'Auth::login');
+$routes->get('/login', 'Auth::login');
+$routes->post('/do-login', 'Auth::doLogin');
+$routes->get('/logout', 'Auth::logout');
+$routes->get('/dashboard', 'Auth::dashboard', ['filter' => 'auth']);
+//route admin
+$routes->get('/home', 'Homepage::index');
+$routes->get('/admin', 'adminController::index');                                                                                
+$routes->get('/admin/pengguna', 'penggunaController::index');
+$routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
+$routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
+
+
+
+// Routes tambahan dari controller lain
 $routes->get('test-db','testController::index');    
 
-// main-route
-$routes->get('/', 'Homepage::index');
-$routes->get('/admin','adminController::index');                                                                                
-$routes->get('/admin/pengguna','penggunaController::index');
-$routes->get('/admin/pengguna/tambahPengguna','penggunaController::create');
-$routes->post('/admin/pengguna/tambahPengguna/post','penggunaController::store');
 
 //ajax route
 $routes->group('api', function($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
+
+// Main Routes
+
 
