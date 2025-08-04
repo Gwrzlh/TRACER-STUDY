@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\AccountModel;
 use CodeIgniter\Controller;
 
 class Auth extends Controller
@@ -14,58 +15,46 @@ class Auth extends Controller
     public function doLogin()
     {
         $request = service('request');
-        $usernameOrEmail = $request->getPost('username'); // bisa username atau email
+        $session = session();
+        $model = new AccountModel();
+
+        $usernameOrEmail = $request->getPost('username');
         $password = $request->getPost('password');
 
-        // Simulasi data user
-        $users = [
-            [
-                'username' => 'admin',
-                'email'    => 'admin@example.com',
-                'password' => 'admin123',
-                'role'     => 'admin'
-            ],
-            [
-                'username' => 'alumni',
-                'email'    => 'alumni@example.com',
-                'password' => 'alumni123',
-                'role'     => 'alumni'
-            ],
-            [
-                'username' => 'perusahaan',
-                'email'    => 'perusahaan@example.com',
-                'password' => 'perusahaan123',
-                'role'     => 'perusahaan'
-            ],
-            [
-                'username' => 'jurusan',
-                'email'    => 'jurusan@example.com',
-                'password' => 'jurusan123',
-                'role'     => 'jurusan'
-            ]
-        ];
+        $user = $model->getByUsernameOrEmail($usernameOrEmail);
 
-        // Cek login pakai username ATAU email
-        foreach ($users as $user) {
-            if (
-                ($usernameOrEmail === $user['username'] || $usernameOrEmail === $user['email']) &&
-                $password === $user['password']
-            ) {
-                session()->set([
-                    'username'  => $user['username'],
-                    'email'     => $user['email'],
-                    'role'      => $user['role'],
-                    'logged_in' => true
-                ]);
+        // Debug sementara (hapus ini jika login sudah berhasil)
+        // dd($user);
+        // dd(password_verify('password123', '$2y$10$uMm0YI1d6kfCRV09ulHYaevNYRj2cht3iU4evCbYzUcO9Sw/1DbQG'));
+        // Tes manual password_verify
+        // $plain = 'password123';
+        // $hash  = '$2y$10$uMm0YI1d6kfCRV09ulHYaevNYRj2cht3iU4evCbYzUcO9Sw/1DbQG';
 
-                return redirect()->to('/dashboard');
-            }
+        // dd(password_verify($plain, $hash));
+
+        if ($user && password_verify($password, $user['password'])) {
+            $session->set([
+                'id'        => $user['id'],
+                'username'  => $user['username'],
+                'email'     => $user['email'],
+                'role_id'   => $user['id_role'],
+                'logged_in' => true
+            ]);
+
+            return redirect()->to('/dashboard');
         }
 
-        // Jika tidak cocok
-        return redirect()->back()->with('error', 'Username atau password salah');
+        return redirect()->back()->with('error', 'Username atau password salah.');
     }
 
+    public function dashboard()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login');
+        }
+
+        return view('dashboard');
+    }
 
     public function logout()
     {
@@ -73,19 +62,17 @@ class Auth extends Controller
         return redirect()->to('/login');
     }
 
-    public function dashboard()
-    {
-        $role = session()->get('role');
-        if ($role === 'admin') {
-            return view('admin');
-        } elseif ($role === 'alumni') {
-            return view('alumni');
-        } elseif ($role === 'perusahaan') {
-            return view('perusahaan');
-        } elseif ($role === 'jurusan') {
-            return view('jurusan');
-        }
+    // public function hashPasswordManual()
+    // {
+    //     $plain = 'password123';
+    //     $hash = password_hash($plain, PASSWORD_DEFAULT);
 
-        return redirect()->to('/login');
-    }
+    //     dd($hash);
+    // }
+    // public function generateHashAdmin()
+    // {
+    //     $plain = 'admin123';
+    //     $hash = password_hash($plain, PASSWORD_DEFAULT);
+    //     dd($hash);
+    // }
 }

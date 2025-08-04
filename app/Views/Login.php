@@ -17,7 +17,6 @@
             height: 100vh;
             color: white;
             font-family: 'Segoe UI', sans-serif;
-            overflow: hidden;
         }
 
         .login-box {
@@ -26,12 +25,14 @@
             border-radius: 10px;
             backdrop-filter: blur(8px);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            position: relative;
-            z-index: 1;
         }
 
         .logo {
             max-height: 50px;
+        }
+
+        .form-floating {
+            position: relative;
         }
 
         .form-floating input {
@@ -53,11 +54,12 @@
         .form-icon {
             position: absolute;
             top: 50%;
-            right: 15px;
+            right: 20px;
             transform: translateY(-50%);
             font-size: 1.1rem;
             color: #333;
-            pointer-events: none;
+            z-index: 10;
+            cursor: pointer;
         }
 
         .btn-biru {
@@ -87,60 +89,68 @@
             text-decoration: underline;
         }
 
+        /* Alert animation */
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(-10px);
+                top: 0;
             }
 
             to {
                 opacity: 1;
-                transform: translateY(0);
+                top: 20px;
             }
         }
 
-        /* Alert Styling */
-        #custom-alert {
-            animation: fadeIn 0.5s ease-in-out;
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                top: 20px;
+            }
+
+            to {
+                opacity: 0;
+                top: 0;
+            }
         }
 
-        /* Tambahan posisi tombol close */
-        .custom-close {
+        .alert.fade-custom {
+            animation: fadeIn 0.5s ease-out;
             position: absolute;
-            top: 12px;
-            right: 12px;
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            color: #a70000;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1050;
+            width: 90%;
+            max-width: 500px;
         }
 
-        .custom-close:hover {
-            color: black;
+        .alert.fade-custom.hide {
+            animation: fadeOut 0.5s ease-in forwards;
+        }
+
+        .alert .btn-close {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Flashdata Alert -->
+    <!-- ALERT ERROR -->
     <?php if (session()->getFlashdata('error')): ?>
-        <div id="custom-alert"
-            class="position-absolute top-0 start-50 translate-middle-x mt-3 px-4 py-3 rounded-3 shadow fade show d-flex align-items-center justify-content-between gap-3"
-            style="background-color: #ffe0e0; color: #a70000; max-width: 460px; z-index: 1050; border: 1px solid #ffbdbd;">
-            <div class="d-flex align-items-center gap-2">
-                <i class="fas fa-exclamation-circle fa-lg"></i>
-                <div class="me-4"><?= session()->getFlashdata('error') ?></div>
-            </div>
-            <button type="button" class="custom-close" onclick="closeAlert()" aria-label="Close">
-                &times;
-            </button>
+        <div class="alert alert-danger alert-dismissible fade-custom show shadow" id="customAlert" role="alert">
+            <?= session()->getFlashdata('error') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
-    <!-- Login Form -->
+    <!-- FORM LOGIN -->
     <div class="container h-100 d-flex justify-content-center align-items-center">
-        <div class="col-md-5 login-box">
+        <div class="col-md-5 login-box position-relative">
             <div class="text-center mb-4">
                 <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2">
                 <h3 class="fw-bold">Selamat Datang!</h3>
@@ -164,7 +174,7 @@
                         <input type="password" class="form-control pe-5" name="password" id="floatingPassword"
                             placeholder="Password" required>
                         <label for="floatingPassword">Password</label>
-                        <i class="fas fa-lock form-icon"></i>
+                        <i class="fas fa-eye form-icon toggle-password" onclick="togglePassword()"></i>
                     </div>
                 </div>
 
@@ -183,27 +193,26 @@
 
     <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-        // Auto close alert after 4 seconds
-        setTimeout(() => {
-            const alertEl = document.getElementById('custom-alert');
-            if (alertEl) {
-                alertEl.classList.remove('show');
-                alertEl.classList.add('fade');
-                setTimeout(() => alertEl.remove(), 300);
-            }
-        }, 4000);
+        function togglePassword() {
+            const input = document.getElementById("floatingPassword");
+            const icon = document.querySelector(".toggle-password");
 
-        // Manual close alert
-        function closeAlert() {
-            const alertEl = document.getElementById('custom-alert');
-            if (alertEl) {
-                alertEl.classList.remove('show');
-                alertEl.classList.add('fade');
-                setTimeout(() => alertEl.remove(), 300);
-            }
+            const isPassword = input.getAttribute("type") === "password";
+            input.setAttribute("type", isPassword ? "text" : "password");
+
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
         }
+
+        // Auto-hide alert after 5 seconds
+        setTimeout(() => {
+            const alert = document.getElementById('customAlert');
+            if (alert) {
+                alert.classList.add('hide');
+                setTimeout(() => alert.remove(), 600);
+            }
+        }, 5000);
     </script>
 
 </body>
