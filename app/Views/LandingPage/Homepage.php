@@ -56,7 +56,7 @@ $data = $model->first();
         }
 
         .video-custom iframe {
-            border-radius: 30   px;
+            border-radius: 30px;
             box-shadow: 0 6px 15px rgba(0,0,0,0.1);
         }
 
