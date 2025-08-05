@@ -10,20 +10,25 @@
 <div class="flex min-h-screen">
   <!-- Sidebar -->
   <aside class="w-64 bg-white rounded-3xl m-4 p-4 flex flex-col justify-between shadow-xl">
-    
-    <!-- Bagian Atas: Logo & Menu -->
-    <div>
-      <!-- Logo -->
-      <div class="p-4 font-bold text-xl flex items-center gap-2 border-b border-gray-200">
-  <img src="/images/logo.png" alt="Logo POLBAN" class="w-8 h-8 object-contain" />
-  POLBAN
-</div>
 
+    <!-- Logo -->
+    <div>
+      <div class="p-4 font-bold text-xl flex items-center gap-2 border-b border-gray-200">
+        <img src="/images/logo.png" alt="Logo POLBAN" class="w-8 h-8 object-contain" />
+        POLBAN
+      </div>
 
       <!-- Menu -->
       <nav class="mt-4 space-y-2">
-        <a href="dashboard"
-           class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
+        <?php
+          $current = current_url();
+          function active($url) {
+            return current_url() === base_url($url) ? 'bg-gray-100 text-black' : 'text-gray-700 hover:text-black hover:bg-gray-100';
+          }
+        ?>
+
+        <a href="<?= base_url('dashboard') ?>"
+           class="flex items-center gap-2 px-4 py-2 rounded-lg <?= active('dashboard') ?>">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
                viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -32,8 +37,8 @@
           <span>Dashboard</span>
         </a>
 
-        <a href="#"
-           class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
+        <a href="<?= base_url('projects') ?>"
+           class="flex items-center gap-2 px-4 py-2 rounded-lg <?= active('projects') ?>">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
                viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -42,19 +47,18 @@
           <span>Projects</span>
         </a>
 
-        <!-- Aktif -->
-        <a href="#"
-           class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
+        <a href="<?= base_url('task-list') ?>"
+           class="flex items-center gap-2 px-4 py-2 rounded-lg <?= active('task-list') ?>">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-               viewBox="0 0 24 24">     
+               viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
                   d="M9 17v-6h13V7H9v10zm-6-4h.01M3 13h.01M3 17h.01M3 21h.01"></path>
           </svg>
           <span>Task list</span>
         </a>
 
-        <a href="#"
-           class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
+        <a href="<?= base_url('services') ?>"
+           class="flex items-center gap-2 px-4 py-2 rounded-lg <?= active('services') ?>">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
                viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -63,8 +67,8 @@
           <span>Services</span>
         </a>
 
-        <a href="#"
-           class="flex items-center justify-between px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
+        <a href="<?= base_url('notifications') ?>"
+           class="flex items-center justify-between px-4 py-2 rounded-lg <?= active('notifications') ?>">
           <div class="flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
                  viewBox="0 0 24 24">
@@ -75,8 +79,8 @@
           </div>
         </a>
 
-        <a href="#"
-           class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
+        <a href="<?= base_url('chat') ?>"
+           class="flex items-center gap-2 px-4 py-2 rounded-lg <?= active('chat') ?>">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
                viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -87,7 +91,7 @@
       </nav>
     </div>
 
-    <!-- Bagian Bawah Sidebar: Profile + Logout -->
+    <!-- User Info -->
     <div class="mt-6 px-4 space-y-2">
       <div class="flex items-center gap-4">
         <div class="relative">
@@ -100,11 +104,12 @@
         </div>
       </div>
 
-      <form action="/logout" method="get">
-    <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white text-sm py-2 px-4 rounded transition">
-      Logout
-    </button>
-  </form>
+      <form action="<?= base_url('logout') ?>" method="get">
+        <button type="submit"
+                class="w-full bg-red-500 hover:bg-red-600 text-white text-sm py-2 px-4 rounded transition">
+          Logout
+        </button>
+      </form>
     </div>
   </aside>
 
