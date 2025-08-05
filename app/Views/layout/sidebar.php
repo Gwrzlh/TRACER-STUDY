@@ -1,5 +1,9 @@
+<?php
+  $currentRoute = service('request')->uri->getPath();
+?>
 <!DOCTYPE html>
 <html lang="en">
+  
 <head>
   <meta charset="UTF-8">
   <title><?= $title ?? 'Dashboard' ?></title>
@@ -9,104 +13,160 @@
 
 <div class="flex min-h-screen">
   <!-- Sidebar -->
-  <aside class="w-64 bg-white rounded-3xl m-4 p-4 flex flex-col justify-between shadow-xl">
+<aside class="w-64 bg-white rounded-3xl m-4 p-4 flex flex-col justify-between shadow-xl">
+  <!-- Logo -->
+  <div>
+    <div class="p-4 font-bold text-xl flex items-center gap-2 border-b border-gray-200">
+      <img src="/images/logo.png" alt="Logo POLBAN" class="w-8 h-8 object-contain" />
+      Tracer Study
+    </div>
+
+    <!-- Menu -->
+    <nav class="mt-4 space-y-2">
+
+      <!-- Welcome Page -->
+      <a href="/dashboard"
+         class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
+         <?= $currentRoute == 'dashboard' ? 'bg-gray-200 text-blue-600 font-semibold' : 'text-gray-700 hover:text-black hover:bg-gray-100' ?>">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6"></path>
+        </svg>
+        <span>Welcome Page</span>
+      </a>
+
+      <!-- Pengguna -->
+      <a href="/admin/pengguna"
+         class="flex items-center gap-2 px-4 py-2 rounded-lg transition
+         <?= $currentRoute == 'admin/pengguna' ? 'bg-gray-200 text-blue-600 font-semibold' : 'text-gray-700 hover:text-black hover:bg-gray-100' ?>">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span>Pengguna</span>
+      </a>
+
+      <!-- Kuesioner -->
+      <a href="#"
+         class="flex items-center gap-2 px-4 py-2 rounded-lg transition
+         <?= $currentRoute == 'kuesioner' ? 'bg-gray-200 text-blue-600 font-semibold' : 'text-gray-700 hover:text-black hover:bg-gray-100' ?>">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12h6M9 16h6M9 8h6"></path>
+        </svg>
+        <span>Kuesioner</span>
+      </a>
+
+      <!-- Organisasi (Dropdown) -->
+<details class="group" <?= str_contains($currentRoute, 'organisasi') ? 'open' : '' ?>>
+  <summary class="flex items-center justify-between gap-2 px-4 py-2 rounded-lg cursor-pointer transition
+    <?= str_contains($currentRoute, 'organisasi') ? 'bg-gray-200 text-blue-600 font-semibold' : 'text-gray-700 hover:text-black hover:bg-gray-100' ?>">
     
-    <!-- Bagian Atas: Logo & Menu -->
-    <div>
-      <!-- Logo -->
-      <div class="p-4 font-bold text-xl flex items-center gap-2 border-b border-gray-200">
-  <img src="/images/logo.png" alt="Logo POLBAN" class="w-8 h-8 object-contain" />
-  POLBAN
-</div>
-
-
-      <!-- Menu -->
-      <nav class="mt-4 space-y-2">
-        <a href="dashboard"
-           class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-               viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6"></path>
-          </svg>
-          <span>Dashboard</span>
-        </a>
-
-        <a href="/admin/pengguna"
-           class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-               viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path>
-          </svg>
-          <span>Pengguna</span>
-        </a>
-
-        <!-- Aktif -->
-        <a href="#"
-           class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-               viewBox="0 0 24 24">     
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M9 17v-6h13V7H9v10zm-6-4h.01M3 13h.01M3 17h.01M3 21h.01"></path>
-          </svg>
-          <span>Task list</span>
-        </a>
-
-        <a href="#"
-           class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-               viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M4 4h16v16H4z"></path>
-          </svg>
-          <span>Services</span>
-        </a>
-
-        <a href="#"
-           class="flex items-center justify-between px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
-          <div class="flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-                 viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-            </svg>
-            <span>Notifications</span>
-          </div>
-        </a>
-
-        <a href="#"
-           class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg">
-          <svg class="w-5 h-5" zzfill="none" stroke="currentColor" stroke-width="2"
-               viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M8 10h.01M12 10h.01M16 10h.01M21 10a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <span>Chat</span>
-        </a>
-      </nav>
+    <div class="flex items-center gap-2">
+      <!-- Icon menu -->
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+           viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 6h16M4 12h16M4 18h7"></path>
+      </svg>
+      <span>Organisasi</span>
     </div>
 
-    <!-- Bagian Bawah Sidebar: Profile + Logout -->
-    <div class="mt-6 px-4 space-y-2">
-      <div class="flex items-center gap-4">
-        <div class="relative">
-          <img src="/img/idk.jpeg" class="w-12 h-12 rounded-full object-cover border">
-          <span class="absolute bottom-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
-        </div>
-        <div>
-          <p class="font-semibold text-gray-800 text-sm"><?= session()->get('username') ?></p>
-          <p class="text-gray-500 text-xs"><?= session()->get('email') ?></p>
-        </div>
+    <!-- Arrow (rotate saat open) -->
+    <svg class="w-4 h-4 transition-transform duration-300 group-open:rotate-180" fill="none"
+         stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M19 9l-7 7-7-7" />
+    </svg>
+  </summary>
+
+  <div class="ml-8 mt-1 space-y-1">
+    <a href="#" class="flex items-center gap-2 px-2 py-1 rounded hover:text-black <?= $currentRoute == 'organisasi/struktur' ? 'text-blue-600 font-semibold' : 'text-gray-600' ?>">
+      <!-- Icon Struktur -->
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+           viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 6h16M4 12h8m-8 6h16"></path>
+      </svg>
+      Satuan Organisasi
+    </a>
+
+    <a href="#" class="flex items-center gap-2 px-2 py-1 rounded hover:text-black <?= $currentRoute == 'organisasi/prodi' ? 'text-blue-600 font-semibold' : 'text-gray-600' ?>">
+      <!-- Icon Prodi -->
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+           viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 10h11M9 21V3m0 0L5 7m4-4l4 4"></path>
+      </svg>
+      Tipe Organisasi
+    </a>
+  </div>
+</details>
+
+
+      <!-- Pengaturan Situs -->
+      <a href="#"
+         class="flex items-center gap-2 px-4 py-2 rounded-lg transition
+         <?= $currentRoute == 'pengaturan' ? 'bg-gray-200 text-blue-600 font-semibold' : 'text-gray-700 hover:text-black hover:bg-gray-100' ?>">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 6V4m0 16v-2m8-8h2M4 12H2m15.364 6.364l1.414 1.414M6.222 6.222L4.808 4.808m12.728 0l1.414 1.414M6.222 17.778l-1.414 1.414"></path>
+        </svg>
+        <span>Pengaturan Situs</span>
+      </a>
+
+      <!-- Kontak -->
+      <a href="#"
+         class="flex items-center gap-2 px-4 py-2 rounded-lg transition
+         <?= $currentRoute == 'kontak' ? 'bg-gray-200 text-blue-600 font-semibold' : 'text-gray-700 hover:text-black hover:bg-gray-100' ?>">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 5h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
+        </svg>
+        <span>Kontak</span>
+      </a>
+
+      <!-- Tentang -->
+      <a href="#"
+         class="flex items-center gap-2 px-4 py-2 rounded-lg transition
+         <?= $currentRoute == 'tentang' ? 'bg-gray-200 text-blue-600 font-semibold' : 'text-gray-700 hover:text-black hover:bg-gray-100' ?>">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
+        </svg>
+        <span>Tentang</span>
+      </a>
+
+    </nav>
+  </div>
+
+  <!-- Profile + Logout -->
+  <div class="mt-6 px-4 space-y-2">
+    <div class="flex items-center gap-4">
+      <div class="relative">
+        <img src="/img/idk.jpeg" class="w-12 h-12 rounded-full object-cover border">
+        <span class="absolute bottom-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
       </div>
-
-      <form action="/logout" method="get">
-    <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm py-2 px-4 rounded transition">
-      Logout
-    </button>
-  </form>
+      <div>
+        <p class="font-semibold text-gray-800 text-sm"><?= session()->get('username') ?></p>
+        <p class="text-gray-500 text-xs"><?= session()->get('email') ?></p>
+      </div>
     </div>
-  </aside>
+
+    <form action="/logout" method="get">
+      <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm py-2 px-4 rounded transition">
+        Logout
+      </button>
+    </form>
+  </div>
+</aside>
+
 
   <!-- Konten utama -->
   <main class="flex-1 p-8">
