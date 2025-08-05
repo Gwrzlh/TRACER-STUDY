@@ -14,7 +14,7 @@ $routes->get('/logout', 'Auth::logout');
 $routes->get('/dashboard', 'Auth::dashboard', ['filter' => 'auth']);
 //route admin
 $routes->get('/', 'Homepage::index');
-$routes->get('/admin', 'adminController::index');                                                                                
+$routes->get('/admin', 'adminController::index');
 $routes->get('/admin/pengguna', 'penggunaController::index');
 $routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
 $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
@@ -22,8 +22,25 @@ $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store'
 
 
 //route ajax 
-$routes->group('api', function($routes) {
+$routes->group('api', function ($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
 
 
+
+// Route untuk satuan organisasi
+$routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('satuanorganisasi', 'SatuanOrganisasi::index');
+    $routes->get('satuanorganisasi/create', 'SatuanOrganisasi::create');
+    $routes->post('satuanorganisasi/store', 'SatuanOrganisasi::store');
+    $routes->get('satuanorganisasi/edit/(:num)', 'SatuanOrganisasi::edit/$1');
+    $routes->post('satuanorganisasi/update/(:num)', 'SatuanOrganisasi::update/$1');
+    $routes->post('satuanorganisasi/delete/(:num)', 'SatuanOrganisasi::delete/$1');
+});
+
+// $routes->get('/satuanorganisasi', 'SatuanOrganisasi::index');
+// $routes->get('/satuanorganisasi/create', 'SatuanOrganisasi::create');
+// $routes->post('/satuanorganisasi/store', 'SatuanOrganisasi::store');
+// $routes->get('/satuanorganisasi/edit/(:num)', 'SatuanOrganisasi::edit/$1');
+// $routes->post('/satuanorganisasi/update/(:num)', 'SatuanOrganisasi::update/$1');
+// $routes->get('/satuanorganisasi/delete/(:num)', 'SatuanOrganisasi::delete/$1');
