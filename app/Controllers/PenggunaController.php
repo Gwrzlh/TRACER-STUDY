@@ -93,7 +93,7 @@ public function store()
             'angkatan'        => 'required|numeric',
             'tahun_lulus'     => 'required|numeric',
             'ipk'             => 'required|decimal',
-            'jeniskelamin' => 'required|in_list[Laki-Laki,Perempuan]',
+            'jeniskelamin'    => 'required|in_list[Laki-Laki,Perempuan]',
             'notlp'           => 'required|min_length[10]',
             'kota'            => 'required|numeric',
             'province'        => 'required|numeric',
