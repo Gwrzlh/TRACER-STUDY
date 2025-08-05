@@ -19,11 +19,16 @@ $routes->get('/admin/pengguna', 'penggunaController::index');
 $routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
 $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
 
+$routes->get('/tentang', 'Homepage::tentang');
+$routes->get('/kontak', 'Homepage::kontak');
+=======
+
 
 
 //route ajax 
 $routes->group('api', function($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
+
 
 
