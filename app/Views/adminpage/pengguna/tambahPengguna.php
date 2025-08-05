@@ -38,6 +38,7 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
+                        <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2" style="height: 60px;">
                         <h4 class="mb-0">Tambah Pengguna</h4>
                     </div>
                     <div class="card-body">
@@ -226,8 +227,8 @@
                             </div>
 
                             <div class="mt-4">
-                                <button type="submit" class="btn btn-primary">Simpan</button>
-                                <a href="<?= base_url('/admin/pengguna') ?>" class="btn btn-secondary">Batal</a>
+                                <button type="submit" class="btn" style="background-color: #001BB7; color: white;">Simpan</button>
+                                <button type="button" class="btn" style="background-color: orange; color: white;">Batal</button>
                             </div>
                         </form>
                     </div>
