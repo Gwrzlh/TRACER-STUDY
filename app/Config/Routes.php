@@ -18,8 +18,10 @@ $routes->get('/admin', 'adminController::index');
 $routes->get('/admin/pengguna', 'penggunaController::index');
 $routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
 $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
-
-
+//route organisasi
+$routes->get('/admin/tipeorganisasi','TipeOrganisasiController::index');
+$routes->get('/admin/tipeorganisasi/form','TipeOrganisasiController::create');
+$routes->post('/admin/tipeorganisasi/insert','TipeOrganisasiController::store');
 
 //route ajax 
 $routes->group('api', function($routes) {
