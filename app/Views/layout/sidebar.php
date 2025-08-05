@@ -84,7 +84,7 @@
   </summary>
 
   <div class="ml-8 mt-1 space-y-1">
-    <a href="#" class="flex items-center gap-2 px-2 py-1 rounded hover:text-black <?= $currentRoute == 'organisasi/struktur' ? 'text-blue-600 font-semibold' : 'text-gray-600' ?>">
+    <a href="<?= base_url('satuanorganisasi')?>" class="flex items-center gap-2 px-2 py-1 rounded hover:text-black <?= $currentRoute == 'organisasi/struktur' ? 'text-blue-600 font-semibold' : 'text-gray-600' ?>">
       <!-- Icon Struktur -->
       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
            viewBox="0 0 24 24">
@@ -94,7 +94,7 @@
       Satuan Organisasi
     </a>
 
-    <a href="#" class="flex items-center gap-2 px-2 py-1 rounded hover:text-black <?= $currentRoute == 'organisasi/prodi' ? 'text-blue-600 font-semibold' : 'text-gray-600' ?>">
+    <a href="<?=  base_url('/admin/tipeorganisasi')?>" class="flex items-center gap-2 px-2 py-1 rounded hover:text-black <?= $currentRoute == 'organisasi/prodi' ? 'text-blue-600 font-semibold' : 'text-gray-600' ?>">
       <!-- Icon Prodi -->
       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
            viewBox="0 0 24 24">
