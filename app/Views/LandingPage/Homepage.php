@@ -76,7 +76,7 @@
             <p>
                 POLBAN mendorong alumni untuk berpartisipasi dalam studi penelusuran guna melacak kemajuan karir mereka dan meningkatkan program institusi. Terdapat video profil POLBAN dari tahun 2020, serta diskusi mengenai tantangan dan manfaat belajar di POLBAN.
             </p>
-            <a href="<?= base_url('/admin') ?>" class="btn btn-primary login-btn">Login</a>
+            <a href="<?= base_url('/login') ?>" class="btn btn-primary login-btn">Login</a>
         </div>
 
         <!-- Kolom kanan: Video -->
