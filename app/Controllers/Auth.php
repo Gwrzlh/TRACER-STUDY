@@ -53,7 +53,7 @@ class Auth extends Controller
             return redirect()->to('/login');
         }
 
-        return view('dashboard');
+        return view('adminpage/welcome/dashboard');
     }
 
     public function logout()

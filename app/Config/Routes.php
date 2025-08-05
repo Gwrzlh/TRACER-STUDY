@@ -22,3 +22,4 @@ $routes->get('/admin', 'adminController::index');
 $routes->get('/admin/pengguna', 'penggunaController::index');
 $routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
 $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
+    
