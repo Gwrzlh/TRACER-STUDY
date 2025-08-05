@@ -28,7 +28,8 @@ $routes->post('/admin/tipeorganisasi/insert','TipeOrganisasiController::store');
 
 //route ajax 
 $routes->group('api', function ($routes) {
-=======
+// Add your API routes here
+});
 $routes->get('/tentang', 'Homepage::tentang');
 $routes->get('/kontak', 'Homepage::kontak');
 
