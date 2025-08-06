@@ -44,6 +44,8 @@
                 <textarea name="desc_2" rows="4" class="w-full border border-gray-300 rounded px-3 py-2" required><?= esc($welcome['desc_2']) ?></textarea>
             </div>
 
+          
+
             <div>
                 <label class="block font-medium mb-2">Gambar Saat Ini</label>
                 <img src="<?= esc($welcome['image_path']) ?>" alt="Preview" class="w-48 rounded mb-2">
