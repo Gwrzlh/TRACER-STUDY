@@ -20,32 +20,48 @@ $routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
 $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
 
 //route organisasi
-$routes->get('/admin/tipeorganisasi','TipeOrganisasiController::index');
-$routes->get('/admin/tipeorganisasi/form','TipeOrganisasiController::create');
-$routes->post('/admin/tipeorganisasi/insert','TipeOrganisasiController::store');
+$routes->get('/admin/tipeorganisasi', 'TipeOrganisasiController::index');
+$routes->get('/admin/tipeorganisasi/form', 'TipeOrganisasiController::create');
+$routes->post('/admin/tipeorganisasi/insert', 'TipeOrganisasiController::store');
 
 
 
 //route ajax 
 $routes->group('api', function ($routes) {
-// Add your API routes here
+    // Add your API routes here
 });
 $routes->get('/tentang', 'Homepage::tentang');
 $routes->get('/kontak', 'Homepage::kontak');
 
-// Route untuk satuan organisasi
-$routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
-    $routes->get('satuanorganisasi', 'SatuanOrganisasi::index');
-    $routes->get('satuanorganisasi/create', 'SatuanOrganisasi::create');
-    $routes->post('satuanorganisasi/store', 'SatuanOrganisasi::store');
-    $routes->get('satuanorganisasi/edit/(:num)', 'SatuanOrganisasi::edit/$1');
-    $routes->post('satuanorganisasi/update/(:num)', 'SatuanOrganisasi::update/$1');
-    $routes->post('satuanorganisasi/delete/(:num)', 'SatuanOrganisasi::delete/$1');
+// Group namespace dan prefix 'satuanorganisasi'
+$routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function ($routes) {
+    // Halaman utama tab (gabungan)
+    $routes->get('', 'SatuanOrganisasi::index');
+
+    // CRUD Satuan Organisasi
+    $routes->get('create', 'SatuanOrganisasi::create');
+    $routes->post('store', 'SatuanOrganisasi::store');
+    $routes->get('edit/(:num)', 'SatuanOrganisasi::edit/$1');
+    $routes->post('update/(:num)', 'SatuanOrganisasi::update/$1');
+    $routes->post('delete/(:num)', 'SatuanOrganisasi::delete/$1');
+
+    // CRUD Jurusan (nested di dalam satuanorganisasi/jurusan)
+    $routes->group('jurusan', function ($routes) {
+        $routes->get('', 'Jurusan::index');
+        $routes->get('create', 'Jurusan::create');
+        $routes->post('store', 'Jurusan::store');
+        $routes->get('edit/(:num)', 'Jurusan::edit/$1');
+        $routes->post('update/(:num)', 'Jurusan::update/$1');
+        $routes->post('delete/(:num)', 'Jurusan::delete/$1');
+    });
+
+    // CRUD Prodi (nested di dalam satuanorganisasi/prodi)
+    $routes->group('prodi', function ($routes) {
+        $routes->get('', 'ProdiController::index');
+        $routes->get('create', 'ProdiController::create');
+        $routes->post('store', 'ProdiController::store');
+        $routes->get('edit/(:num)', 'ProdiController::edit/$1');
+        $routes->post('update/(:num)', 'ProdiController::update/$1');
+        $routes->post('delete/(:num)', 'ProdiController::delete/$1');
+    });
 });
-
- 
-
-
-
-
-
