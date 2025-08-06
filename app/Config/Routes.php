@@ -30,8 +30,10 @@ $routes->post('/admin/tipeorganisasi/insert','TipeOrganisasiController::store');
 
 
 //route ajax 
-$routes->group('api', function ($routes) {
-=======
+$routes->group('api', function($routes) {
+    $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
+});
+
 $routes->get('/tentang', 'Homepage::tentang');
 $routes->get('/kontak', 'Homepage::kontak');
 
