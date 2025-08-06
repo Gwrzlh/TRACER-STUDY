@@ -33,8 +33,8 @@ $routes->post('/admin/welcome-page/update', 'AdminWelcomePage::update');
 $routes->group('api', function ($routes) {
 // Add your API routes here
 });
-$routes->get('/tentang', 'Homepage::tentang');
-$routes->get('/kontak', 'Homepage::kontak');
+$routes->get('/tentang', 'Tracer::tentang');
+$routes->get('/kontak', 'Tracer::kontak');
 
 // Route untuk satuan organisasi
 $routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
