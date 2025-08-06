@@ -42,72 +42,79 @@
                         <h4 class="mb-0">Tambah Pengguna</h4>
                     </div>
                     <div class="card-body">
-                        <form action="<?= base_url('/admin/pengguna/tambahPengguna/post') ?>" method="post">
+                        <form action="/admin/pengguna/editPengguna/put/<?= $detail['id'] ?>" method="post">
+                            <input type="hidden" name="_method" value="PUT">
                             <?= csrf_field() ?>
                             
                             <!-- Basic User Information -->
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username:</label>
-                                <input type="text" class="form-control" id="username" name="username" required>
+                                <input type="text" class="form-control" id="username" name="username" value="<?= $account['username'] ?>" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email:</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
+                                <input type="email" class="form-control" id="email" name="email" value="<?= $account['email'] ?>" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password:</label>
-                                <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                                <input type="password" class="form-control" id="password" name="password" >
                                 <small class="text-muted">Minimal 6 karakter</small>
                             </div>
 
                             <div class="mb-3">
                                 <label for="status" class="form-label">Status:</label>
                                 <select class="form-select" id="status" name="status">
-                                    <option value="" disabled selected>-- Status --</option>
-                                    <option value="Aktif">Aktif</option>
-                                    <option value="Tidak-Aktif">Tidak Aktif</option>
+                                    <option value="" disabled <?= ($account['status'] == '') ? 'selected' : '' ?>>-- Status --</option>
+                                    <option value="Aktif" <?= ($account['status'] == 'Aktif') ? 'selected' : '' ?>>Aktif</option>
+                                    <option value="Tidak-Aktif" <?= ($account['status'] == 'Tidak-Aktif') ? 'selected' : '' ?>>Tidak Aktif</option>
                                 </select>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="group" class="form-label">Group (Role):</label>
-                                <select class="form-select" id="group" name="group" required>
-                                    <option value="" disabled selected>-- Pilih Role --</option>
-                                    <?php foreach ($roles as $role): ?>
-                                        <option value="<?= esc($role['id']) ?>"><?= esc($role['nama']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
+                           <div class="mb-3">
+                            <label for="group" class="form-label">Group (Role):</label>
+                            <select class="form-select" id="group" name="group" required>
+                                <option value="" disabled>-- Pilih Role --</option>
+                                <?php foreach ($roles as $role): ?>
+                                    <option value="<?= esc($role['id']) ?>"
+                                        <?= ($role['id'] == $account['id_role']) ? 'selected' : '' ?>>
+                                        <?= esc($role['nama']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
 
                             <hr>
 
                             <!-- Form detail untuk ADMIN (Role ID: 2) -->
-                            <div id="form-detail-2" class="form-detail" style="display: none;">
+                         
+                         <div id="form-detail-2" class="form-detail" style="<?= $account['id_role'] == 2 ? '' : 'display: none;' ?>">
                                 <h5 class="mb-3">Detail Admin</h5>
                                 <div class="mb-3">
                                     <label for="admin_nama_lengkap" class="form-label">Nama Lengkap:</label>
-                                    <input type="text" class="form-control" id="admin_nama_lengkap" name="admin_nama_lengkap">
+                                    <input type="text" class="form-control" id="admin_nama_lengkap" name="admin_nama_lengkap"  value="<?= $detail['nama_lengkap'] ?? '' ?>">
                                 </div>
                             </div>
-
+ 
                             <!-- Form detail untuk ALUMNI (Role ID: 1) -->
-                            <div id="form-detail-1" class="form-detail" style="display: none;">
+                          
+                        <div id="form-detail-2" class="form-detail" style="<?= $account['id_role'] == 1 ? '' : 'display: none;' ?>">
                                 <h5 class="mb-3">Detail Alumni</h5>
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                                        <input type="text" class="form-control" name="nama_lengkap" id="nama_lengkap">
+                                        <input type="text" class="form-control" name="nama_lengkap" id="nama_lengkap"  value="<?= $detail['nama_lengkap'] ?? '' ?>">
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
                                         <label for="jeniskelamin" class="form-label">Jenis Kelamin</label>
                                         <select class="form-select" name="jeniskelamin" id="jeniskelamin">
-                                            <option value="" disabled selected>-Jenis Kelamin-</option>
-                                            <option value="Laki-Laki">Laki-Laki</option>
-                                            <option value="Perempuan">Perempuan</option>
+                                           <option value="" disabled <?= (isset($detail['jenisKelamin']) && $detail['jenisKelamin'] == '') ? 'selected' : '' ?>>-Jenis Kelamin-</option>
+                                            <option value="Laki-Laki" <?= (isset($detail['jenisKelamin']) && $detail['jenisKelamin'] == 'Laki-Laki') ? 'selected' : '' ?>>Laki-Laki</option>
+                                            <option value="Perempuan" <?= (isset($detail['jenisKelamin']) && $detail['jenisKelamin'] == 'Perempuan') ? 'selected' : '' ?>>Perempuan</option>
+
                                         </select>
                                     </div>
                                 </div>
@@ -115,41 +122,47 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="nim" class="form-label">NIM</label>
-                                        <input type="text" class="form-control" name="nim" id="nim">
+                                        <input type="text" class="form-control" name="nim" id="nim"  value="<?= $detail['nim'] ?? '' ?>">
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
                                         <label for="notlp" class="form-label">No. HP</label>
-                                        <input type="text" class="form-control" name="notlp" id="notlp">
+                                        <input type="text" class="form-control" name="notlp" id="notlp"  value="<?= $detail['notlp'] ?? '' ?>">
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="ipk" class="form-label">IPK</label>
-                                    <input type="number" step="0.01" min="0" max="5" class="form-control" name="ipk" id="ipk">
+                                    <input type="number" step="0.01" min="0" max="5" class="form-control" name="ipk" id="ipk"  value="<?= $detail['ipk'] ?? '' ?>">
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="jurusan" class="form-label">Jurusan</label>
                                         <select class="form-select" name="jurusan" id="jurusan">
-                                            <option value="">-- Pilih Jurusan --</option>
-                                            <?php foreach ($datajurusan as $jurusan): ?>
-                                                <option value="<?= esc($jurusan['id']) ?>"><?= esc($jurusan['nama_jurusan']) ?></option>
-                                            <?php endforeach; ?>
+                                            <option value="" disabled>-- Pilih Jurusan --</option>
+                                                <?php foreach ($datajurusan as $jurusan): ?>
+                                                    <option value="<?= esc($jurusan['id']) ?>"
+                                                       <?= (isset($detail['id_jurusan']) && $jurusan['id'] == $detail['id_jurusan']) ? 'selected' : '' ?>>
+
+                                                        <?= esc($jurusan['nama_jurusan']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
                                         </select>
                                     </div>
                                     
-                                    <div class="col-md-6 mb-3">
-                                        <label for="prodi" class="form-label">Program Studi</label>
+                                     <div class="col-md-6 mb-3">
+                                        <label for="prodi" class="form-label">Prodi</label>
                                         <select class="form-select" name="prodi" id="prodi">
-                                            <option value="">-- Pilih Program Studi --</option>
-                                            <?php foreach ($dataProdi as $prodi): ?>
-                                                <option value="<?= esc($prodi['id']) ?>"><?= esc($prodi['nama_prodi']) ?></option>
-                                            <?php endforeach; ?>
+                                            <option value="" disabled>-- Pilih Jurusan --</option>
+                                                <?php foreach ($dataProdi as $prodi): ?>
+                                                    <option value="<?= esc($prodi['id']) ?>"
+                                                    <?= (isset($detail['id_prodi']) && $prodi['id'] == $detail['id_prodi']) ? 'selected' : '' ?>>
+                                                        <?= esc($prodi['nama_prodi']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
                                         </select>
                                     </div>
-                                </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -160,9 +173,10 @@
                                             $tahunSekarang = date('Y');
                                             $tahunAwal = $tahunSekarang - 10;
                                             for ($tahun = $tahunSekarang; $tahun >= $tahunAwal; $tahun--) {
-                                                echo "<option value=\"$tahun\">$tahun</option>";
-                                            }
-                                            ?>
+                                                    $selected = (isset($detail['angkatan']) && $detail['angkatan'] == $tahun) ? 'selected' : '';
+                                                    echo "<option value=\"$tahun\" $selected>$tahun</option>";
+                                                }
+                                                ?>
                                         </select>
                                     </div>
                                     
@@ -173,10 +187,10 @@
                                             <?php
                                             $tahunSekarang = date('Y');
                                             $tahunAwal = $tahunSekarang - 10;
-                                            for ($tahun = $tahunSekarang; $tahun >= $tahunAwal; $tahun--) {
-                                                echo "<option value=\"$tahun\">$tahun</option>";
-                                            }
-                                            ?>
+                                           for ($tahun = $tahunSekarang; $tahun >= $tahunAwal; $tahun--) {
+                                                    $selected = (isset($detail['tahun_kelulusan']) && $detail['tahun_kelulusan'] == $tahun) ? 'selected' : '';
+                                                    echo "<option value=\"$tahun\" $selected>$tahun</option>";
+                                                }?>
                                         </select>
                                     </div>
                                 </div>
@@ -186,12 +200,12 @@
                                         <label for="province" class="form-label">Provinsi</label>
                                         <select class="form-select" id="province" name="province">
                                             <option value="">-- Pilih Provinsi --</option>
-                                            <?php foreach($provinces as $province): ?>
-                                                <option value="<?= esc($province['id']) ?>" 
-                                                        <?= old('province') == $province['id'] ? 'selected' : '' ?>>
-                                                    <?= esc($province['name']) ?>
+                                            <?php foreach ($provinces as $pro): ?>
+                                                <option value="<?= esc($pro['id']) ?>"
+                                                    <?= (isset($detail['id_provinsi']) && $pro['id'] == $detail['id_provinsi']) ? 'selected' : '' ?>>
+                                                    <?= esc($pro['name']) ?>
                                                 </option>
-                                            <?php endforeach; ?>
+                                        <?php endforeach; ?>
                                         </select>
                                     </div>
 
@@ -211,33 +225,35 @@
 
                                 <div class="mb-3">
                                     <label for="kode_pos" class="form-label">Kode Pos</label>
-                                    <input type="text" class="form-control" name="kode_pos" id="kode_pos" maxlength="5" pattern="\d{5}" placeholder="12345">
+                                    <input type="text" class="form-control" name="kode_pos" id="kode_pos" maxlength="5" pattern="\d{5}" placeholder="12345" value="<?= $detail['kodepos'] ?? '' ?>">
                                     <small class="text-muted">5 digit angka</small>
                                 </div>
                                 <div class="mb-3">
                                     <label for="alamat" class="form-label">Alamat:</label>
-                                    <input type="text" class="form-control" name="alamat" id="alamat"  >
+                                    <input type="text" class="form-control" name="alamat" id="alamat" value="<?= $detail['alamat'] ?? '' ?>" >
                                     <!-- <small class="text-muted">Tuliskan Alamat Lengkap</small> -->
                                 </div>
                                 <div class="mb-3">
                                     <label for="alamat2" class="form-label">Alamat 2:</label>
-                                    <input type="text" class="form-control" name="alamat2" id="alamat2"  >
+                                    <input type="text" class="form-control" name="alamat2" id="alamat2" value="<?= $detail['alamat2'] ?? '' ?>"  >
                                     <!-- <small class="text-muted">Tuliskan alamat cadangan anda</small> -->
                                 </div>
-                            </div>
-
+                              </div>
                             <div class="mt-4">
                                 <button type="submit" class="btn" style="background-color: #001BB7; color: white;">Simpan</button>
                                <a href="<?= base_url('/admin/pengguna') ?>"><button type="button" class="btn" style="background-color: orange; color: white;">Batal</button></a>
                             </div>
                         </form>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+    var detailProvince = "<?= $detail['id_provinsi'] ?? '' ?>";
+    var detailCity = "<?= $detail['id_cities'] ?? '' ?>";
+    var detailGroup = "<?= $detail['group'] ?? '' ?>";
+
     $(document).ready(function() {
         // Function untuk menampilkan form detail berdasarkan role
         $('#group').change(function() {
@@ -272,6 +288,7 @@
             citySelect.html('<option value="">-- Pilih Kota/Kabupaten --</option>');
             citySelect.prop('disabled', true);
 
+
             if (provinceId) {
                 // Tampilkan loading
                 cityLoading.removeClass('d-none');
@@ -299,10 +316,13 @@
                             citySelect.prop('disabled', false);
                             
                             // Restore selected city if exist (untuk old input)
-                            var oldCity = '<?= old("kota") ?>';
+                           var oldCity = '<?= old("kota") ?>';
                             if (oldCity) {
                                 citySelect.val(oldCity);
+                            } else if (detailCity) {
+                                citySelect.val(detailCity);
                             }
+
                         } else {
                             citySelect.html('<option value="">-- Tidak ada kota yang tersedia --</option>');
                             showAlert('warning', 'Tidak ada kota yang tersedia untuk provinsi ini');
@@ -339,12 +359,16 @@
         var oldProvince = '<?= old("province") ?>';
         if (oldProvince) {
             $('#province').val(oldProvince).trigger('change');
+        }if (!oldProvince && detailProvince) {
+            $('#province').val(detailProvince).trigger('change');
         }
 
         // Trigger change event jika ada old group value
         var oldGroup = '<?= old("group") ?>';
         if (oldGroup) {
             $('#group').val(oldGroup).trigger('change');
+        }else if(detailGroup){
+            $('#group').val(detailGroup).trigger('change');
         }
 
         // Form validation
@@ -366,10 +390,6 @@
                 isValid = false;
             }
             
-            if (!$('#password').val() || $('#password').val().length < 6) {
-                $('#password').addClass('is-invalid');
-                isValid = false;
-            }
             
             if (!$('#group').val()) {
                 $('#group').addClass('is-invalid');
