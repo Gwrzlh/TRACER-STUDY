@@ -14,6 +14,7 @@ use App\Models\Provincies;
 use App\Models\DetailaccountAlumni;
 use App\Models\DetailaccountCompany;
 use App\Models\JurusanModel;
+use Exception;
 
 class PenggunaController extends BaseController
 {
@@ -181,37 +182,53 @@ public function store()
 }
 public function edit($id)
 {
-     $accountModel = new Accounts();
-     $detailAlumni = new DetailaccountAlumni();
-     $detailAdmin = new DetailaccountAdmins();
-     $detailPerusahaan = new DetailaccountCompany();
-     $roleModels = new Roles();
-     $jurusans= new Jurusan();
-     $prodis= new Prodi();
-     $cityModel = new Cities();
-     $provincesModel = new Provincies();
+    $accountModel = new Accounts();
+    $detailAlumni = new DetailaccountAlumni();
+    $detailAdmin = new DetailaccountAdmins();
+    $detailPerusahaan = new DetailaccountCompany();
+    $roleModels = new Roles();
+    $jurusans = new Jurusan();
+    $prodis = new Prodi();
+    $cityModel = new Cities();
+    $provincesModel = new Provincies();
 
-     
-     $roles = $roleModels->findAll();
-     $dataAccount = $accountModel->find($id);
-     $role = $dataAccount['id_role'];
+    $roles = $roleModels->findAll();
+    $dataAccount = $accountModel->find($id);
+    
+    if (!$dataAccount) {
+        return redirect()->back()->with('error', 'Data akun tidak ditemukan.');
+    }
+    
+    $role = $dataAccount['id_role'];
+    $dataDetail = null;
 
-    if ($role == 2) {
-        $dataDetail = $detailAdmin->where('id_account', $id)->first();
-    } elseif ($role == 1) {
-        $dataDetail = $detailAlumni->where('id_account', $id)->first();
-    } 
-     return view('adminpage\pengguna\edit', [
+    // Get detail data based on current role
+    switch ($role) {
+        case 1: // Alumni
+            $dataDetail = $detailAlumni->where('id_account', $id)->first();
+            break;
+        case 2: // Admin
+            $dataDetail = $detailAdmin->where('id_account', $id)->first();
+            break;
+        case 3: // Company
+            $dataDetail = $detailPerusahaan->where('id_account', $id)->first();
+            break;
+        default:
+            $dataDetail = null;
+    }
+
+    return view('adminpage\pengguna\edit', [
         'account' => $dataAccount,
         'detail' => $dataDetail,
         'role' => $role,
         'roles' => $roles,
         'datajurusan' => $jurusans->findAll(),
-        'dataProdi'   => $prodis->findAll(),
-        'cities'      => $cityModel->getCitiesWithProvince(),
-        'provinces'   => $provincesModel->findAll()
-     ]); 
+        'dataProdi' => $prodis->findAll(),
+        'cities' => $cityModel->getCitiesWithProvince(),
+        'provinces' => $provincesModel->findAll()
+    ]); 
 }
+
 public function update($id)
 {
     $accountModel = new Accounts();
@@ -219,154 +236,218 @@ public function update($id)
     $detailAdmin = new DetailaccountAdmins();
     $detailPerusahaan = new DetailaccountCompany();
 
-    $validation = \Config\Services::validation();
-
-    // Ambil data account lama berdasarkan ID
+    // Get existing account data
     $account = $accountModel->find($id);
     if (!$account) {
         return redirect()->back()->with('error', 'Data akun tidak ditemukan.');
     }
-    
-
 
     $existingRole = $account['id_role'];
-    $group = $this->request->getPost('group');
+    $newRole = $this->request->getPost('group');
     $username = $this->request->getPost('username');
     $password = $this->request->getPost('password');
     $status = $this->request->getPost('status');
 
+    // Basic validation rules
     $rules = [
         'username' => "required|is_unique[account.username,id,{$id}]",
-        'group'    => 'required'
+        // 'email' => "required|valid_email|is_unique[account.email,id,{$id}]",
+        'group' => 'required',
+        'status' => 'required'
     ];
 
-    // Validasi password hanya jika diisi
+    // Password validation (only if filled)
     if (!empty($password)) {
         $rules['password'] = 'min_length[6]';
     }
 
-    // Validasi berdasarkan role
-    if ($group == 1) { // Alumni
-        $rules['nama_lengkap'] = 'required';
-        $rules['prodi'] = 'required';
-        $rules['jurusan'] = 'required';
-        $rules['alamat'] = 'required';
-    } elseif ($group == 2) { // Admin
-        $rules['nama_lengkap'] = 'required';
-    } elseif ($group == 3) { // Perusahaan
-        $rules['nama_perusahaan'] = 'required';
-        $rules['alamat_perusahaan'] = 'required';
+    // Role-specific validation
+    switch ($newRole) {
+        case '1': // Alumni
+            $rules = array_merge($rules, [
+                'nama_lengkap' => 'required',
+                'nim' => 'required|numeric',
+                'jurusan' => 'required',
+                'prodi' => 'required',
+                'notlp' => 'required|numeric'
+            ]);
+            break;
+        case '2': // Admin
+            $rules['admin_nama_lengkap'] = 'required';
+            break;
+        case '3': // Company
+            $rules = array_merge($rules, [
+                'nama_perusahaan' => 'required',
+                'alamat_perusahaan' => 'required'
+            ]);
+            break;
     }
 
+    // Validate input
     if (!$this->validate($rules)) {
-    return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-}
+        return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+    }
 
-    // Data update akun
+    // Prepare account update data
     $updateData = [
         'username' => $username,
-        'status'   => $status,
-        'id_role' => $group,
+        'email' => $this->request->getPost('email'),
+        'status' => $status,
+        'id_role' => $newRole,
     ];
 
-    if (!$accountModel->update($id, $updateData)) {
-    dd($accountModel->errors()); // tampilkan error dari model
-}
-
+    // Add password to update data only if provided
     if (!empty($password)) {
         $updateData['password'] = password_hash($password, PASSWORD_DEFAULT);
     }
 
-    // Update data akun utama
-    $accountModel->update($id, $updateData);
+    // Start transaction
+    $db = \Config\Database::connect();
+    $db->transStart();
 
-   $newRole = $group;
+    try {
+        // Update account data
+        if (!$accountModel->update($id, $updateData)) {
+            throw new Exception('Failed to update account data');
+        }
 
-// Jika role berubah, hapus data lama
-if ($existingRole != $newRole) {
-    if ($existingRole == 1) {
-        $detailAlumni->where('id_account', $id)->delete();
-    } elseif ($existingRole == 2) {
-        $detailAdmin->where('id_account', $id)->delete();
-    } elseif ($existingRole == 3) {
-        $detailPerusahaan->where('id_account', $id)->delete();
-    }
+        // Handle role change or update
+        $this->handleDetailAccountUpdate($id, $existingRole, $newRole, $detailAlumni, $detailAdmin, $detailPerusahaan);
 
-    // INSERT detail baru berdasarkan $newRole
-    if ($newRole == 1) {
-        $alumniData = [
-            'id_account' => $id,
-            'nama_lengkap' => $this->request->getPost('nama_lengkap'),
-            'id_prodi'     => $this->request->getPost('prodi'),
-            'id_jurusan'   => $this->request->getPost('jurusan'),
-            'jenisKelamin' => $this->request->getPost('jeniskelamin'),
-            'nim'          => $this->request->getPost('nim'),
-            'notlp'        => $this->request->getPost('notlp'),
-            'ipk'          => $this->request->getPost('ipk'),
-            'angkatan'     => $this->request->getPost('angkatan'),
-            'tahun_kelulus'=> $this->request->getPost('tahun_lulus'),
-            'id_cities'    => $this->request->getPost('kota'),
-            'id_provinsi'  => $this->request->getPost('province'),
-            'kodepos'      => $this->request->getPost('kode_pos'),
-            'alamat'       => $this->request->getPost('alamat'),
-            'alamat2'      => $this->request->getPost('alamat2'),
-        ];
-        $detailAlumni->insert($alumniData);
+        $db->transCommit();
+        return redirect()->to('/admin/pengguna')->with('success', 'Data pengguna berhasil diperbarui.');
 
-    } elseif ($newRole == 2) {
-        $adminData = [
-            'id_account' => $id,
-            'nama_lengkap' => $this->request->getPost('admin_nama_lengkap'),
-        ];
-        $detailAdmin->insert($adminData);
-
-    } elseif ($newRole == 3) {
-        $companyData = [
-            'id_account' => $id,
-            'nama_perusahaan'   => $this->request->getPost('nama_perusahaan'),
-            'alamat_perusahaan' => $this->request->getPost('alamat_perusahaan'),
-        ];
-        $detailPerusahaan->insert($companyData);
-    }
-
-} else {
-    // Jika role tidak berubah, lakukan UPDATE
-    if ($existingRole == 1) {
-        $alumniData = [
-            'nama_lengkap' => $this->request->getPost('nama_lengkap'),
-            'id_prodi'     => $this->request->getPost('prodi'),
-            'id_jurusan'   => $this->request->getPost('jurusan'),
-            'jenisKelamin' => $this->request->getPost('jeniskelamin'),
-            'nim'          => $this->request->getPost('nim'),
-            'notlp'        => $this->request->getPost('notlp'),
-            'ipk'          => $this->request->getPost('ipk'),
-            'angkatan'     => $this->request->getPost('angkatan'),
-            'tahun_kelulus'=> $this->request->getPost('tahun_lulus'),
-            'id_cities'    => $this->request->getPost('kota'),
-            'id_provinsi'  => $this->request->getPost('province'),
-            'kodepos'      => $this->request->getPost('kode_pos'),
-            'alamat'       => $this->request->getPost('alamat'),
-            'alamat2'      => $this->request->getPost('alamat2'),
-        ];
-        $detailAlumni->where('id_account', $id)->set($alumniData)->update();
-
-    } elseif ($existingRole == 2) {
-        $adminData = [
-            'nama_lengkap' => $this->request->getPost('admin_nama_lengkap'),
-        ];
-        $detailAdmin->where('id_account', $id)->set($adminData)->update();
-
-    } elseif ($existingRole == 3) {
-        $companyData = [
-            'nama_perusahaan'   => $this->request->getPost('nama_perusahaan'),
-            'alamat_perusahaan' => $this->request->getPost('alamat_perusahaan'),
-        ];
-        $detailPerusahaan->where('id_account', $id)->set($companyData)->update();
+    } catch (Exception $e) {
+        $db->transRollback();
+        log_message('error', 'Update user failed: ' . $e->getMessage());
+        return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
 }
-    return redirect()->to('/admin/pengguna')->with('success', 'Data pengguna berhasil disimpan.');
 
+private function handleDetailAccountUpdate($accountId, $existingRole, $newRole, $detailAlumni, $detailAdmin, $detailPerusahaan)
+{
+    // If role changed, delete old detail and create new one
+    if ($existingRole != $newRole) {
+        // Delete old detail
+        $this->deleteDetailByRole($accountId, $existingRole, $detailAlumni, $detailAdmin, $detailPerusahaan);
+        
+        // Create new detail
+        $this->createDetailByRole($accountId, $newRole, $detailAlumni, $detailAdmin, $detailPerusahaan);
+    } else {
+        // Update existing detail
+        $this->updateDetailByRole($accountId, $existingRole, $detailAlumni, $detailAdmin, $detailPerusahaan);
+    }
 }
+
+private function deleteDetailByRole($accountId, $role, $detailAlumni, $detailAdmin, $detailPerusahaan)
+{
+    switch ($role) {
+        case 1:
+            $detailAlumni->where('id_account', $accountId)->delete();
+            break;
+        case 2:
+            $detailAdmin->where('id_account', $accountId)->delete();
+            break;
+        case 3:
+            $detailPerusahaan->where('id_account', $accountId)->delete();
+            break;
+    }
+}
+
+private function createDetailByRole($accountId, $role, $detailAlumni, $detailAdmin, $detailPerusahaan)
+{
+    switch ($role) {
+        case '1': // Alumni
+            $alumniData = [
+                'id_account' => $accountId,
+                'nama_lengkap' => $this->request->getPost('nama_lengkap'),
+                'nim' => $this->request->getPost('nim'),
+                'id_jurusan' => $this->request->getPost('jurusan'),
+                'id_prodi' => $this->request->getPost('prodi'),
+                'angkatan' => $this->request->getPost('angkatan'),
+                'tahun_kelulusan' => $this->request->getPost('tahun_lulus'), // Fixed field name
+                'ipk' => $this->request->getPost('ipk'),
+                'alamat' => $this->request->getPost('alamat'),
+                'alamat2' => $this->request->getPost('alamat2'),
+                'kodepos' => $this->request->getPost('kode_pos'),
+                'jenisKelamin' => $this->request->getPost('jeniskelamin'),
+                'notlp' => $this->request->getPost('notlp'),
+                'id_provinsi' => $this->request->getPost('province'),
+                'id_cities' => $this->request->getPost('kota'),
+            ];
+            if (!$detailAlumni->insert($alumniData)) {
+                throw new Exception('Failed to create alumni detail');
+            }
+            break;
+
+        case '2': // Admin
+            $adminData = [
+                'id_account' => $accountId,
+                'nama_lengkap' => $this->request->getPost('admin_nama_lengkap'),
+            ];
+            if (!$detailAdmin->insert($adminData)) {
+                throw new Exception('Failed to create admin detail');
+            }
+            break;
+
+        case '3': // Company
+            $companyData = [
+                'id_account' => $accountId,
+                'nama_perusahaan' => $this->request->getPost('nama_perusahaan'),
+                'alamat_perusahaan' => $this->request->getPost('alamat_perusahaan'),
+            ];
+            if (!$detailPerusahaan->insert($companyData)) {
+                throw new Exception('Failed to create company detail');
+            }
+            break;
+    }
+}
+
+private function updateDetailByRole($accountId, $role, $detailAlumni, $detailAdmin, $detailPerusahaan)
+{
+    switch ($role) {
+        case 1: // Alumni
+            $alumniData = [
+                'nama_lengkap' => $this->request->getPost('nama_lengkap'),
+                'nim' => $this->request->getPost('nim'),
+                'id_jurusan' => $this->request->getPost('jurusan'),
+                'id_prodi' => $this->request->getPost('prodi'),
+                'angkatan' => $this->request->getPost('angkatan'),
+                'tahun_kelulusan' => $this->request->getPost('tahun_lulus'), // Fixed field name
+                'ipk' => $this->request->getPost('ipk'),
+                'alamat' => $this->request->getPost('alamat'),
+                'alamat2' => $this->request->getPost('alamat2'),
+                'kodepos' => $this->request->getPost('kode_pos'),
+                'jenisKelamin' => $this->request->getPost('jeniskelamin'),
+                'notlp' => $this->request->getPost('notlp'),
+                'id_provinsi' => $this->request->getPost('province'),
+                'id_cities' => $this->request->getPost('kota'),
+            ];
+            if (!$detailAlumni->where('id_account', $accountId)->set($alumniData)->update()) {
+                throw new Exception('Failed to update alumni detail');
+            }
+            break;
+
+        case 2: // Admin
+            $adminData = [
+                'nama_lengkap' => $this->request->getPost('admin_nama_lengkap'),
+            ];
+            if (!$detailAdmin->where('id_account', $accountId)->set($adminData)->update()) {
+                throw new Exception('Failed to update admin detail');
+            }
+            break;
+
+        case 3: // Company
+            $companyData = [
+                'nama_perusahaan' => $this->request->getPost('nama_perusahaan'),
+                'alamat_perusahaan' => $this->request->getPost('alamat_perusahaan'),
+            ];
+            if (!$detailPerusahaan->where('id_account', $accountId)->set($companyData)->update()) {
+                throw new Exception('Failed to update company detail');
+            }
+            break;
+    }
+} 
 public function delete($id)
 {
     $model = new DetailaccountAlumni();
