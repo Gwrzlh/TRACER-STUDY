@@ -1,41 +1,73 @@
+<?php
+use App\Models\WelcomePageModel;
+$model = new WelcomePageModel();
+$data = $model->first();
+?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Homepage</title>
+    <meta charset="UTF-8">
+    <title>Landing Page</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <style>
-        .rounded-image {
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .section {
+            padding: 80px 0;
+        }
+
+        .section h2 {
+             margin-top: 0;
+             margin-bottom: 20px;
+        }
+
+
+        .hero-image {
+            max-width: 100%;
+            height: auto;
             border-radius: 30px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
         }
 
-        .video-custom {
-            border-radius: 30px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .orange-text {
-            color: orange;
-        }
-
-        .login-btn {
-            background-color: orange;
-            border: none;
-        }
-
-        .login-btn:hover {
-            background-color: darkorange;
-        }
-
-        .text-top {
-            margin-top: -20px;
-        }
-
-        .black-text {
+        h2 {
+            font-weight: 700;
+            font-size: 2.5rem;
             color: #212529;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #555;
+        }
+
+        .btn-primary {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 8px; 
+        }
+
+        .video-custom iframe {
+            border-radius: 30px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 767px) {
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -43,55 +75,46 @@
 
 <?= view('layout/navbar') ?>
 
-<!-- Bagian Bawah: Gambar di kiri, Penjelasan di kanan -->
-<div class="container py-5">
-    <div class="row align-items-center g-5">
-        <!-- Kolom kiri: Gambar -->
-        <div class="col-md-6 text-center">
-            <img src="/img/polban.jpg" alt="Tracer Study" class="img-fluid rounded-image">
-        </div>
-
-        <!-- Kolom kanan: Penjelasan Tracer Study -->
-        <div class="col-md-6 d-flex flex-column justify-content-start text-top">
-            <h2 class="mb-4 black-text">Apa itu Tracer Study?</h2>
-            <p>
-                Tracer Study adalah survei                                                                                                                                                                                                                                                                       yang dilakukan kepada alumni suatu institusi pendidikan untuk mengetahui sejauh mana lulusan telah terserap di dunia kerja, bidang kerja yang digeluti, serta relevansi antara pendidikan yang diterima dengan pekerjaan mereka sekarang.
-            </p>
-            <p>
-                Tujuannya adalah untuk mengevaluasi kualitas pendidikan dan memperbaiki sistem pembelajaran agar lebih sesuai dengan kebutuhan dunia kerja, sehingga kampus dapat melakukan penyesuaian kurikulum secara tepat sasaran.
-            </p>
-        </div>
-    </div>
-</div>
-
-<!-- Bagian Atas: Judul dan Video -->
-<div class="container py-5">
-    <div class="row align-items-center g-5">
-        <!-- Kolom kiri: Judul dan Deskripsi -->
-        <div class="col-md-6 text-top">
-            <h2 class="mb-4 black-text">Kenapa Tracer Study Penting?</h2>
-            <p>
-                Artikel ini menampilkan berbagai informasi terkait Politeknik Negeri Bandung (POLBAN), termasuk pengumuman, studi penelusuran alumni, peringkat, pengalaman mahasiswa, dan tutorial pendidikan.
-            </p>
-            <p>
-                POLBAN mendorong alumni untuk berpartisipasi dalam studi penelusuran guna melacak kemajuan karir mereka dan meningkatkan program institusi. Terdapat video profil POLBAN dari tahun 2020, serta diskusi mengenai tantangan dan manfaat belajar di POLBAN.
-            </p>
-            <a href="<?= base_url('/login') ?>" class="btn btn-primary login-btn">Login</a>
-        </div>
-
-        <!-- Kolom kanan: Video -->
-        <div class="col-md-6 text-center">
-            <div class="ratio ratio-16x9 video-custom">
-                <iframe 
-                    src="https://www.youtube.com/embed/dZsTR26OP84" 
-                    title="YouTube video"
-                    allowfullscreen>
-                </iframe>
+<!-- Section 1: Gambar + Teks -->
+<section class="section bg-white">
+    <div class="container">
+        <div class="row align-items-top g-5">
+            <div class="col-md-6">
+                <img src="<?= base_url($data['image_path']) ?>" alt="Tracer Study" class="hero-image">
+            </div>
+            <div class="col-md-6">
+                <h2><?= esc($data['title_1']) ?></h2>
+                <p><?= esc($data['desc_1']) ?></p>
             </div>
         </div>
     </div>
-</div>
+</section>
 
+<!-- Section 2: Teks + Video -->
+<section class="section bg-light">
+    <div class="container">
+        <div class="row align-items-top g-5">
+            <div class="col-md-6">
+                <h2><?= esc($data['title_2']) ?></h2>
+                <p><?= esc($data['desc_2']) ?></p>
+                <a href="<?= base_url('/login') ?>" class="btn btn-primary mt-3">Login</a>
+            </div>
+            <div class="col-md-6">
+                <div class="ratio ratio-16x9 video-custom">
+                    <iframe 
+                        src="<?= esc($data['youtube_url']) ?>" 
+                        title="YouTube video"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<?= view('layout/footer') ?>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?= view('layout/footer') ?>
