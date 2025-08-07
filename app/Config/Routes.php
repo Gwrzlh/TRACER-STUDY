@@ -24,15 +24,22 @@ $routes->get('/admin/tipeorganisasi','TipeOrganisasiController::index');
 $routes->get('/admin/tipeorganisasi/form','TipeOrganisasiController::create');
 $routes->post('/admin/tipeorganisasi/insert','TipeOrganisasiController::store');
 
+$routes->get('/admin/welcome-page', 'AdminWelcomePage::index'); // jika kamu punya filter role
+$routes->post('/admin/welcome-page/update', 'AdminWelcomePage::update');
+
 
 
 //route ajax 
+
 $routes->group('api', function($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
 
 $routes->get('/tentang', 'Homepage::tentang');
 $routes->get('/kontak', 'Homepage::kontak');
+
+
+
 
 // Route untuk satuan organisasi
 $routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
@@ -43,6 +50,8 @@ $routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
     $routes->post('satuanorganisasi/update/(:num)', 'SatuanOrganisasi::update/$1');
     $routes->post('satuanorganisasi/delete/(:num)', 'SatuanOrganisasi::delete/$1');
 });
+
+
 
  
 
