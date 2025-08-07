@@ -227,8 +227,8 @@
                             </div>
 
                             <div class="mt-4">
-                                <button type="submit" class="btn" style="background-color: #001BB7; color: white;">Simpan</button>
-                                <button type="button" class="btn" style="background-color: orange; color: white;">Batal</button>
+                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                <a href="<?= base_url('/admin/pengguna') ?>" class="btn btn-secondary">Batal</a>
                             </div>
                         </form>
                     </div>
