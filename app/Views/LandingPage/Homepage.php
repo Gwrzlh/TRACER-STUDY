@@ -52,7 +52,7 @@ $data = $model->first();
         .btn-primary {
             padding: 12px 30px;
             font-size: 1rem;
-            border-radius: 8px;
+            border-radius: 8px; 
         }
 
         .video-custom iframe {
