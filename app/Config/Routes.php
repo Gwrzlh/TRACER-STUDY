@@ -24,20 +24,36 @@ $routes->get('/admin/tipeorganisasi', 'TipeOrganisasiController::index');
 $routes->get('/admin/tipeorganisasi/form', 'TipeOrganisasiController::create');
 $routes->post('/admin/tipeorganisasi/insert', 'TipeOrganisasiController::store');
 
+$routes->get('/admin/welcome-page', 'AdminWelcomePage::index'); // jika kamu punya filter role
+$routes->post('/admin/welcome-page/update', 'AdminWelcomePage::update');
+
 
 
 //route ajax 
-$routes->group('api', function ($routes) {
-    // Add your API routes here
+$routes->group('api', function($routes) {
+    $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
+
+
+
+
 $routes->get('/tentang', 'Homepage::tentang');
 $routes->get('/kontak', 'Homepage::kontak');
+
 
 // Group namespace dan prefix 'satuanorganisasi'
 $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function ($routes) {
     // Halaman utama tab (gabungan)
     $routes->get('', 'SatuanOrganisasi::index');
-
+// Route untuk satuan organisasi
+$routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('satuanorganisasi', 'SatuanOrganisasi::index');
+    $routes->get('satuanorganisasi/create', 'SatuanOrganisasi::create');
+    $routes->post('satuanorganisasi/store', 'SatuanOrganisasi::store');
+    $routes->get('satuanorganisasi/edit/(:num)', 'SatuanOrganisasi::edit/$1');
+    $routes->post('satuanorganisasi/update/(:num)', 'SatuanOrganisasi::update/$1');
+    $routes->post('satuanorganisasi/delete/(:num)', 'SatuanOrganisasi::delete/$1');
+});
     // CRUD Satuan Organisasi
     $routes->get('create', 'SatuanOrganisasi::create');
     $routes->post('store', 'SatuanOrganisasi::store');
