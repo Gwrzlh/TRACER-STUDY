@@ -12,16 +12,15 @@ class Prodi extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','nama_prodi','id_jurusan'];
 
-    protected bool $allowEmptyInserts = false;
 
-    // Dates
-    protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    protected $allowedFields    = ['nama_prodi', 'id_jurusan'];
+
+    protected $useTimestamps    = false;
+    protected $dateFormat       = 'datetime';
+    protected $createdField     = 'created_at';
+    protected $updatedField     = 'updated_at';
+    protected $deletedField     = 'deleted_at';
 
     // Validation
     protected $validationRules      = [];
@@ -29,7 +28,7 @@ class Prodi extends Model
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
-    // Callbacks
+    // Callbacks (kosong = tidak masalah)
     protected $allowCallbacks = true;
     protected $beforeInsert   = [];
     protected $afterInsert    = [];
@@ -39,4 +38,14 @@ class Prodi extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    /**
+     * Ambil data prodi + nama jurusan terkait (join)
+     */
+    public function getWithJurusan()
+    {
+        return $this->select('prodi.*, jurusan.nama_jurusan')
+            ->join('jurusan', 'jurusan.id = prodi.id_jurusan')
+            ->findAll();
+    }
 }
