@@ -20,7 +20,7 @@ $routes->get('/admin/pengguna', 'penggunaController::index');
 $routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
 $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
 $routes->get('/admin/pengguna/editPengguna/(:num)', 'penggunaController::edit/$1');
-$routes->put('/admin/pengguna/editPengguna/put/(:num)', 'penggunaController::update/$1');
+$routes->post('admin/pengguna/update/(:num)', 'PenggunaController::update/$1'); 
 $routes->post('/admin/pengguna/delete/(:num)','penggunaController::delete/$1');
 
 
@@ -28,6 +28,9 @@ $routes->post('/admin/pengguna/delete/(:num)','penggunaController::delete/$1');
 $routes->get('/admin/tipeorganisasi','TipeOrganisasiController::index');
 $routes->get('/admin/tipeorganisasi/form','TipeOrganisasiController::create');
 $routes->post('/admin/tipeorganisasi/insert','TipeOrganisasiController::store');
+$routes->get('/admin/tipeorganisasi/edit/(:num)', 'TipeOrganisasiController::edit/$1');
+$routes->post('/admin/tipeorganisasi/edit/update/(:num)', 'TipeOrganisasiController::update/$1');
+$routes->post('/admin/tipeorganisasi/delete/(:num)','TipeOrganisasiController::delete/$1');
 
 
 

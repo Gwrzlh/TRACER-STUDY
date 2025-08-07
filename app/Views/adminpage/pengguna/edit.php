@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Pengguna</title>
+    <title>Edit Pengguna</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- jQuery -->
@@ -39,82 +39,98 @@
                 <div class="card">
                     <div class="card-header">
                         <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2" style="height: 60px;">
-                        <h4 class="mb-0">Tambah Pengguna</h4>
+                        <h4 class="mb-0">Edit Pengguna</h4>
                     </div>
                     <div class="card-body">
-                        <form action="/admin/pengguna/editPengguna/put/<?= $detail['id'] ?>" method="post">
-                            <input type="hidden" name="_method" value="PUT">
+                        <!-- Display validation errors -->
+                        <?php if (session()->has('errors')): ?>
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    <?php foreach (session('errors') as $error): ?>
+                                        <li><?= esc($error) ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Display success/error messages -->
+                        <?php if (session()->has('error')): ?>
+                            <div class="alert alert-danger"><?= session('error') ?></div>
+                        <?php endif; ?>
+
+                        <form action="<?= base_url('/admin/pengguna/update/' . $account['id']) ?>" method="post">
                             <?= csrf_field() ?>
                             
                             <!-- Basic User Information -->
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username:</label>
-                                <input type="text" class="form-control" id="username" name="username" value="<?= $account['username'] ?>" required>
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       value="<?= old('username', $account['username']) ?>" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email:</label>
-                                <input type="email" class="form-control" id="email" name="email" value="<?= $account['email'] ?>" required>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="<?= old('email', $account['email']) ?>" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password:</label>
-                                <input type="password" class="form-control" id="password" name="password" >
-                                <small class="text-muted">Minimal 6 karakter</small>
+                                <input type="password" class="form-control" id="password" name="password" minlength="6">
+                                <small class="text-muted">Kosongkan jika tidak ingin mengubah password</small>
                             </div>
 
                             <div class="mb-3">
                                 <label for="status" class="form-label">Status:</label>
-                                <select class="form-select" id="status" name="status">
-                                    <option value="" disabled <?= ($account['status'] == '') ? 'selected' : '' ?>>-- Status --</option>
-                                    <option value="Aktif" <?= ($account['status'] == 'Aktif') ? 'selected' : '' ?>>Aktif</option>
-                                    <option value="Tidak-Aktif" <?= ($account['status'] == 'Tidak-Aktif') ? 'selected' : '' ?>>Tidak Aktif</option>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="" disabled>-- Status --</option>
+                                    <option value="Aktif" <?= old('status', $account['status']) == 'Aktif' ? 'selected' : '' ?>>Aktif</option>
+                                    <option value="Tidak-Aktif" <?= old('status', $account['status']) == 'Tidak-Aktif' ? 'selected' : '' ?>>Tidak Aktif</option>
                                 </select>
                             </div>
 
-                           <div class="mb-3">
-                            <label for="group" class="form-label">Group (Role):</label>
-                            <select class="form-select" id="group" name="group" required>
-                                <option value="" disabled>-- Pilih Role --</option>
-                                <?php foreach ($roles as $role): ?>
-                                    <option value="<?= esc($role['id']) ?>"
-                                        <?= ($role['id'] == $account['id_role']) ? 'selected' : '' ?>>
-                                        <?= esc($role['nama']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                            <div class="mb-3">
+                                <label for="group" class="form-label">Group (Role):</label>
+                                <select class="form-select" id="group" name="group" required>
+                                    <option value="" disabled>-- Pilih Role --</option>
+                                    <?php foreach ($roles as $roleItem): ?>
+                                        <option value="<?= esc($roleItem['id']) ?>" 
+                                                <?= old('group', $account['id_role']) == $roleItem['id'] ? 'selected' : '' ?>>
+                                            <?= esc($roleItem['nama']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
 
                             <hr>
 
                             <!-- Form detail untuk ADMIN (Role ID: 2) -->
-                         
-                         <div id="form-detail-2" class="form-detail" style="<?= $account['id_role'] == 2 ? '' : 'display: none;' ?>">
+                            <div id="form-detail-2" class="form-detail" style="display: none;">
                                 <h5 class="mb-3">Detail Admin</h5>
                                 <div class="mb-3">
                                     <label for="admin_nama_lengkap" class="form-label">Nama Lengkap:</label>
-                                    <input type="text" class="form-control" id="admin_nama_lengkap" name="admin_nama_lengkap"  value="<?= $detail['nama_lengkap'] ?? '' ?>">
+                                    <input type="text" class="form-control" id="admin_nama_lengkap" name="admin_nama_lengkap"
+                                           value="<?= old('admin_nama_lengkap', isset($detail['nama_lengkap']) ? $detail['nama_lengkap'] : '') ?>">
                                 </div>
                             </div>
- 
+
                             <!-- Form detail untuk ALUMNI (Role ID: 1) -->
-                          
-                        <div id="form-detail-2" class="form-detail" style="<?= $account['id_role'] == 1 ? '' : 'display: none;' ?>">
+                            <div id="form-detail-1" class="form-detail" style="display: none;">
                                 <h5 class="mb-3">Detail Alumni</h5>
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                                        <input type="text" class="form-control" name="nama_lengkap" id="nama_lengkap"  value="<?= $detail['nama_lengkap'] ?? '' ?>">
+                                        <input type="text" class="form-control" name="nama_lengkap" id="nama_lengkap"
+                                               value="<?= old('nama_lengkap', isset($detail['nama_lengkap']) ? $detail['nama_lengkap'] : '') ?>">
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
                                         <label for="jeniskelamin" class="form-label">Jenis Kelamin</label>
                                         <select class="form-select" name="jeniskelamin" id="jeniskelamin">
-                                           <option value="" disabled <?= (isset($detail['jenisKelamin']) && $detail['jenisKelamin'] == '') ? 'selected' : '' ?>>-Jenis Kelamin-</option>
-                                            <option value="Laki-Laki" <?= (isset($detail['jenisKelamin']) && $detail['jenisKelamin'] == 'Laki-Laki') ? 'selected' : '' ?>>Laki-Laki</option>
-                                            <option value="Perempuan" <?= (isset($detail['jenisKelamin']) && $detail['jenisKelamin'] == 'Perempuan') ? 'selected' : '' ?>>Perempuan</option>
-
+                                            <option value="" disabled>-Jenis Kelamin-</option>
+                                            <option value="Laki-Laki" <?= old('jeniskelamin', isset($detail['jenisKelamin']) ? $detail['jenisKelamin'] : '') == 'Laki-Laki' ? 'selected' : '' ?>>Laki-Laki</option>
+                                            <option value="Perempuan" <?= old('jeniskelamin', isset($detail['jenisKelamin']) ? $detail['jenisKelamin'] : '') == 'Perempuan' ? 'selected' : '' ?>>Perempuan</option>
                                         </select>
                                     </div>
                                 </div>
@@ -122,47 +138,50 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="nim" class="form-label">NIM</label>
-                                        <input type="text" class="form-control" name="nim" id="nim"  value="<?= $detail['nim'] ?? '' ?>">
+                                        <input type="text" class="form-control" name="nim" id="nim"
+                                               value="<?= old('nim', isset($detail['nim']) ? $detail['nim'] : '') ?>">
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
                                         <label for="notlp" class="form-label">No. HP</label>
-                                        <input type="text" class="form-control" name="notlp" id="notlp"  value="<?= $detail['notlp'] ?? '' ?>">
+                                        <input type="text" class="form-control" name="notlp" id="notlp"
+                                               value="<?= old('notlp', isset($detail['notlp']) ? $detail['notlp'] : '') ?>">
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="ipk" class="form-label">IPK</label>
-                                    <input type="number" step="0.01" min="0" max="5" class="form-control" name="ipk" id="ipk"  value="<?= $detail['ipk'] ?? '' ?>">
+                                    <input type="number" step="0.01" min="0" max="4" class="form-control" name="ipk" id="ipk"
+                                           value="<?= old('ipk', isset($detail['ipk']) ? $detail['ipk'] : '') ?>">
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="jurusan" class="form-label">Jurusan</label>
                                         <select class="form-select" name="jurusan" id="jurusan">
-                                            <option value="" disabled>-- Pilih Jurusan --</option>
-                                                <?php foreach ($datajurusan as $jurusan): ?>
-                                                    <option value="<?= esc($jurusan['id']) ?>"
-                                                       <?= (isset($detail['id_jurusan']) && $jurusan['id'] == $detail['id_jurusan']) ? 'selected' : '' ?>>
-
-                                                        <?= esc($jurusan['nama_jurusan']) ?>
-                                                    </option>
-                                                <?php endforeach; ?>
+                                            <option value="">-- Pilih Jurusan --</option>
+                                            <?php foreach ($datajurusan as $jurusan): ?>
+                                                <option value="<?= esc($jurusan['id']) ?>"
+                                                        <?= old('jurusan', isset($detail['id_jurusan']) ? $detail['id_jurusan'] : '') == $jurusan['id'] ? 'selected' : '' ?>>
+                                                    <?= esc($jurusan['nama_jurusan']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
                                         </select>
                                     </div>
                                     
-                                     <div class="col-md-6 mb-3">
-                                        <label for="prodi" class="form-label">Prodi</label>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="prodi" class="form-label">Program Studi</label>
                                         <select class="form-select" name="prodi" id="prodi">
-                                            <option value="" disabled>-- Pilih Jurusan --</option>
-                                                <?php foreach ($dataProdi as $prodi): ?>
-                                                    <option value="<?= esc($prodi['id']) ?>"
-                                                    <?= (isset($detail['id_prodi']) && $prodi['id'] == $detail['id_prodi']) ? 'selected' : '' ?>>
-                                                        <?= esc($prodi['nama_prodi']) ?>
-                                                    </option>
-                                                <?php endforeach; ?>
+                                            <option value="">-- Pilih Program Studi --</option>
+                                            <?php foreach ($dataProdi as $prodi): ?>
+                                                <option value="<?= esc($prodi['id']) ?>"
+                                                        <?= old('prodi', isset($detail['id_prodi']) ? $detail['id_prodi'] : '') == $prodi['id'] ? 'selected' : '' ?>>
+                                                    <?= esc($prodi['nama_prodi']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
                                         </select>
                                     </div>
+                                </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -172,11 +191,12 @@
                                             <?php
                                             $tahunSekarang = date('Y');
                                             $tahunAwal = $tahunSekarang - 10;
+                                            $selectedAngkatan = old('angkatan', isset($detail['angkatan']) ? $detail['angkatan'] : '');
                                             for ($tahun = $tahunSekarang; $tahun >= $tahunAwal; $tahun--) {
-                                                    $selected = (isset($detail['angkatan']) && $detail['angkatan'] == $tahun) ? 'selected' : '';
-                                                    echo "<option value=\"$tahun\" $selected>$tahun</option>";
-                                                }
-                                                ?>
+                                                $selected = ($selectedAngkatan == $tahun) ? 'selected' : '';
+                                                echo "<option value=\"$tahun\" $selected>$tahun</option>";
+                                            }
+                                            ?>
                                         </select>
                                     </div>
                                     
@@ -187,10 +207,12 @@
                                             <?php
                                             $tahunSekarang = date('Y');
                                             $tahunAwal = $tahunSekarang - 10;
-                                           for ($tahun = $tahunSekarang; $tahun >= $tahunAwal; $tahun--) {
-                                                    $selected = (isset($detail['tahun_kelulusan']) && $detail['tahun_kelulusan'] == $tahun) ? 'selected' : '';
-                                                    echo "<option value=\"$tahun\" $selected>$tahun</option>";
-                                                }?>
+                                            $selectedTahunLulus = old('tahun_lulus', isset($detail['tahun_kelulusan']) ? $detail['tahun_kelulusan'] : '');
+                                            for ($tahun = $tahunSekarang; $tahun >= $tahunAwal; $tahun--) {
+                                                $selected = ($selectedTahunLulus == $tahun) ? 'selected' : '';
+                                                echo "<option value=\"$tahun\" $selected>$tahun</option>";
+                                            }
+                                            ?>
                                         </select>
                                     </div>
                                 </div>
@@ -200,19 +222,33 @@
                                         <label for="province" class="form-label">Provinsi</label>
                                         <select class="form-select" id="province" name="province">
                                             <option value="">-- Pilih Provinsi --</option>
-                                            <?php foreach ($provinces as $pro): ?>
-                                                <option value="<?= esc($pro['id']) ?>"
-                                                    <?= (isset($detail['id_provinsi']) && $pro['id'] == $detail['id_provinsi']) ? 'selected' : '' ?>>
-                                                    <?= esc($pro['name']) ?>
+                                            <?php 
+                                            $selectedProvince = old('province', isset($detail['id_provinsi']) ? $detail['id_provinsi'] : '');
+                                            foreach($provinces as $province): 
+                                            ?>
+                                                <option value="<?= esc($province['id']) ?>" 
+                                                        <?= $selectedProvince == $province['id'] ? 'selected' : '' ?>>
+                                                    <?= esc($province['name']) ?>
                                                 </option>
-                                        <?php endforeach; ?>
+                                            <?php endforeach; ?>
                                         </select>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label for="kota" class="form-label">Kota/Kabupaten</label>
-                                        <select class="form-select" id="kota" name="kota" disabled>
-                                            <option value="">-- Pilih Provinsi Terlebih Dahulu --</option>
+                                        <select class="form-select" id="kota" name="kota">
+                                            <option value="">-- Pilih Kota/Kabupaten --</option>
+                                            <?php if (isset($cities) && !empty($cities)): ?>
+                                                <?php 
+                                                $selectedCity = old('kota', isset($detail['id_cities']) ? $detail['id_cities'] : '');
+                                                foreach($cities as $city): 
+                                                ?>
+                                                    <option value="<?= esc($city['id']) ?>" 
+                                                            <?= $selectedCity == $city['id'] ? 'selected' : '' ?>>
+                                                        <?= esc($city['name']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
                                         </select>
                                         <div id="city-loading" class="d-none mt-1">
                                             <small class="text-muted">
@@ -225,60 +261,117 @@
 
                                 <div class="mb-3">
                                     <label for="kode_pos" class="form-label">Kode Pos</label>
-                                    <input type="text" class="form-control" name="kode_pos" id="kode_pos" maxlength="5" pattern="\d{5}" placeholder="12345" value="<?= $detail['kodepos'] ?? '' ?>">
+                                    <input type="text" class="form-control" name="kode_pos" id="kode_pos" maxlength="5" 
+                                           pattern="\d{5}" placeholder="12345"
+                                           value="<?= old('kode_pos', isset($detail['kodepos']) ? $detail['kodepos'] : '') ?>">
                                     <small class="text-muted">5 digit angka</small>
                                 </div>
+
                                 <div class="mb-3">
                                     <label for="alamat" class="form-label">Alamat:</label>
-                                    <input type="text" class="form-control" name="alamat" id="alamat" value="<?= $detail['alamat'] ?? '' ?>" >
-                                    <!-- <small class="text-muted">Tuliskan Alamat Lengkap</small> -->
+                                    <input type="text" class="form-control" name="alamat" id="alamat"
+                                           value="<?= old('alamat', isset($detail['alamat']) ? $detail['alamat'] : '') ?>">
                                 </div>
+
                                 <div class="mb-3">
                                     <label for="alamat2" class="form-label">Alamat 2:</label>
-                                    <input type="text" class="form-control" name="alamat2" id="alamat2" value="<?= $detail['alamat2'] ?? '' ?>"  >
-                                    <!-- <small class="text-muted">Tuliskan alamat cadangan anda</small> -->
+                                    <input type="text" class="form-control" name="alamat2" id="alamat2"
+                                           value="<?= old('alamat2', isset($detail['alamat2']) ? $detail['alamat2'] : '') ?>">
                                 </div>
-                              </div>
+                            </div>
+
+                            <!-- Form detail untuk COMPANY (Role ID: 3) -->
+                            <div id="form-detail-3" class="form-detail" style="display: none;">
+                                <h5 class="mb-3">Detail Company</h5>
+                                <div class="mb-3">
+                                    <label for="nama_perusahaan" class="form-label">Nama Perusahaan:</label>
+                                    <input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan"
+                                           value="<?= old('nama_perusahaan', isset($detail['nama_perusahaan']) ? $detail['nama_perusahaan'] : '') ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="alamat_perusahaan" class="form-label">Alamat Perusahaan:</label>
+                                    <textarea class="form-control" id="alamat_perusahaan" name="alamat_perusahaan" rows="3"><?= old('alamat_perusahaan', isset($detail['alamat_perusahaan']) ? $detail['alamat_perusahaan'] : '') ?></textarea>
+                                </div>
+                            </div>
+
                             <div class="mt-4">
-                                <button type="submit" class="btn" style="background-color: #001BB7; color: white;">Simpan</button>
-                               <a href="<?= base_url('/admin/pengguna') ?>"><button type="button" class="btn" style="background-color: orange; color: white;">Batal</button></a>
+                                <button type="submit" class="btn" style="background-color: #001BB7; color: white;">Update</button>
+                                <a href="<?= base_url('/admin/pengguna') ?>">
+                                    <button type="button" class="btn" style="background-color: orange; color: white;">Batal</button>
+                                </a>
                             </div>
                         </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-    var detailProvince = "<?= $detail['id_provinsi'] ?? '' ?>";
-    var detailCity = "<?= $detail['id_cities'] ?? '' ?>";
-    var detailGroup = "<?= $detail['group'] ?? '' ?>";
-
     $(document).ready(function() {
+        // Current role dari PHP
+        var currentRole = '<?= $account['id_role'] ?>';
+        
+        // Show form detail berdasarkan role saat load
+        if (currentRole) {
+            showFormDetail(currentRole);
+        }
+
         // Function untuk menampilkan form detail berdasarkan role
-        $('#group').change(function() {
-            var roleId = $(this).val();
-            
+        function showFormDetail(roleId) {
             // Sembunyikan semua form detail
             $('.form-detail').hide();
             
             // Reset required attributes
-            $('.form-detail input, .form-detail select').prop('required', false);
+            $('.form-detail input, .form-detail select, .form-detail textarea').prop('required', false);
             
             // Tampilkan form detail yang sesuai
             if (roleId) {
                 $('#form-detail-' + roleId).show();
                 
                 // Set required attributes untuk form yang aktif
-                if (roleId == '1') { // Alumni
-                    $('#nama_lengkap, #nim, #notlp').prop('required', true);
-                } else if (roleId == '2') { // Admin
-                    $('#admin_nama_lengkap').prop('required', true);
+                switch(roleId) {
+                    case '1': // Alumni
+                        $('#nama_lengkap, #nim, #notlp, #jurusan, #prodi').prop('required', true);
+                        break;
+                    case '2': // Admin
+                        $('#admin_nama_lengkap').prop('required', true);
+                        break;
+                    case '3': // Company
+                        $('#nama_perusahaan, #alamat_perusahaan').prop('required', true);
+                        break;
+                }
+            }
+        }
+
+        // Handle role change
+        $('#group').change(function() {
+            var roleId = $(this).val();
+            var currentRole = '<?= $account['id_role'] ?>';
+            
+            showFormDetail(roleId);
+            
+            // Jika role berubah, bersihkan data detail
+            if (roleId != currentRole) {
+                $('.form-detail input, .form-detail select, .form-detail textarea').val('');
+                
+                // Reset dropdown yang dependent
+                if (roleId == '1') {
+                    $('#kota').html('<option value="">-- Pilih Provinsi Terlebih Dahulu --</option>').prop('disabled', true);
+                }
+                
+                // Show warning
+                if (confirm('Mengubah role akan menghapus data detail yang sudah ada. Yakin ingin melanjutkan?')) {
+                    // User confirmed, continue
+                } else {
+                    // User cancelled, revert role selection
+                    $(this).val(currentRole);
+                    showFormDetail(currentRole);
                 }
             }
         });
 
-        // Event handler ketika provinsi dipilih
+        // Province change handler (same as create)
         $('#province').change(function() {
             var provinceId = $(this).val();
             var citySelect = $('#kota');
@@ -287,7 +380,6 @@
             // Reset dropdown kota
             citySelect.html('<option value="">-- Pilih Kota/Kabupaten --</option>');
             citySelect.prop('disabled', true);
-
 
             if (provinceId) {
                 // Tampilkan loading
@@ -310,19 +402,12 @@
 
                         // Populate dropdown kota
                         if (response.length > 0) {
+                            var selectedCity = '<?= old("kota", isset($detail["id_cities"]) ? $detail["id_cities"] : "") ?>';
                             $.each(response, function(index, city) {
-                                citySelect.append('<option value="' + city.id + '">' + city.name + '</option>');
+                                var selected = (selectedCity == city.id) ? 'selected' : '';
+                                citySelect.append('<option value="' + city.id + '" ' + selected + '>' + city.name + '</option>');
                             });
                             citySelect.prop('disabled', false);
-                            
-                            // Restore selected city if exist (untuk old input)
-                           var oldCity = '<?= old("kota") ?>';
-                            if (oldCity) {
-                                citySelect.val(oldCity);
-                            } else if (detailCity) {
-                                citySelect.val(detailCity);
-                            }
-
                         } else {
                             citySelect.html('<option value="">-- Tidak ada kota yang tersedia --</option>');
                             showAlert('warning', 'Tidak ada kota yang tersedia untuk provinsi ini');
@@ -335,43 +420,22 @@
                         var errorMsg = 'Terjadi kesalahan saat memuat data kota.';
                         if (status === 'timeout') {
                             errorMsg = 'Koneksi timeout. Silakan coba lagi.';
-                        } else if (xhr.status === 404) {
-                            errorMsg = 'API endpoint tidak ditemukan. Periksa konfigurasi.';
-                        } else if (xhr.status === 500) {
-                            errorMsg = 'Terjadi kesalahan server. Silakan hubungi administrator.';
                         }
                         
                         showAlert('error', errorMsg);
-                        console.error('AJAX Error:', {
-                            status: xhr.status,
-                            statusText: xhr.statusText,
-                            responseText: xhr.responseText,
-                            error: error
-                        });
+                        console.error('AJAX Error:', error);
                     }
                 });
-            } else {
-                citySelect.html('<option value="">-- Pilih Provinsi Terlebih Dahulu --</option>');
             }
         });
 
-        // Trigger change event jika ada old province value
-        var oldProvince = '<?= old("province") ?>';
-        if (oldProvince) {
-            $('#province').val(oldProvince).trigger('change');
-        }if (!oldProvince && detailProvince) {
-            $('#province').val(detailProvince).trigger('change');
+        // Auto-load cities jika ada province yang dipilih saat edit
+        var currentProvince = $('#province').val();
+        if (currentProvince) {
+            $('#province').trigger('change');
         }
 
-        // Trigger change event jika ada old group value
-        var oldGroup = '<?= old("group") ?>';
-        if (oldGroup) {
-            $('#group').val(oldGroup).trigger('change');
-        }else if(detailGroup){
-            $('#group').val(detailGroup).trigger('change');
-        }
-
-        // Form validation
+        // Form validation (sama seperti create, tapi untuk update)
         $('form').on('submit', function(e) {
             var isValid = true;
             var roleId = $('#group').val();
@@ -390,6 +454,12 @@
                 isValid = false;
             }
             
+            // Password validation (optional for edit)
+            var password = $('#password').val();
+            if (password && password.length < 6) {
+                $('#password').addClass('is-invalid');
+                isValid = false;
+            }
             
             if (!$('#group').val()) {
                 $('#group').addClass('is-invalid');
@@ -410,53 +480,37 @@
                     $('#notlp').addClass('is-invalid');
                     isValid = false;
                 }
-                
-                // Validate IPK if filled
-                var ipk = $('#ipk').val();
-                if (ipk && (parseFloat(ipk) < 0 || parseFloat(ipk) > 4)) {
-                    $('#ipk').addClass('is-invalid');
-                    showAlert('error', 'IPK harus antara 0 - 4');
-                    isValid = false;
-                }
             } else if (roleId == '2') { // Admin
                 if (!$('#admin_nama_lengkap').val()) {
                     $('#admin_nama_lengkap').addClass('is-invalid');
                     isValid = false;
                 }
-            }
-            
-            // Validate postal code (if filled)
-            var postalCode = $('#kode_pos').val().trim();
-            if (postalCode && (!/^\d{5}$/.test(postalCode))) {
-                $('#kode_pos').addClass('is-invalid');
-                showAlert('error', 'Kode pos harus 5 digit angka');
-                isValid = false;
+            } else if (roleId == '3') { // Company
+                if (!$('#nama_perusahaan').val()) {
+                    $('#nama_perusahaan').addClass('is-invalid');
+                    isValid = false;
+                }
+                if (!$('#alamat_perusahaan').val()) {
+                    $('#alamat_perusahaan').addClass('is-invalid');
+                    isValid = false;
+                }
             }
 
             if (!isValid) {
                 e.preventDefault();
                 showAlert('error', 'Harap lengkapi semua field yang wajib diisi dengan benar!');
-                
-                // Scroll to first invalid field
                 $('.is-invalid').first().focus();
-                
-                // Scroll to top of form
-                $('html, body').animate({
-                    scrollTop: $('.is-invalid').first().offset().top - 100
-                }, 500);
             }
         });
 
-        // Function to validate email
+        // Helper functions (same as create)
         function isValidEmail(email) {
             var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
         }
 
-        // Function to show alert
         function showAlert(type, message) {
-            // Remove existing alerts
-            $('.alert').remove();
+            $('.alert').not('.alert-danger, .alert-success').remove();
             
             var alertClass = 'alert-' + (type === 'error' ? 'danger' : type);
             var alertHtml = '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">' +
@@ -464,35 +518,17 @@
                            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
                            '</div>';
             
-            $('.card-body').prepend(alertHtml);
+            $('.card-body form').prepend(alertHtml);
             
-            // Auto dismiss after 5 seconds
             setTimeout(function() {
-                $('.alert').fadeOut(function() {
+                $('.alert').not('.alert-danger, .alert-success').fadeOut(function() {
                     $(this).remove();
                 });
             }, 5000);
         }
 
-        // Add input event listeners for real-time validation
-        $('#email').on('input', function() {
-            if ($(this).val() && !isValidEmail($(this).val())) {
-                $(this).addClass('is-invalid');
-            } else {
-                $(this).removeClass('is-invalid');
-            }
-        });
-
-        $('#password').on('input', function() {
-            if ($(this).val() && $(this).val().length < 6) {
-                $(this).addClass('is-invalid');
-            } else {
-                $(this).removeClass('is-invalid');
-            }
-        });
-
+        // Input filters
         $('#kode_pos').on('input', function() {
-            // Only allow numbers
             $(this).val($(this).val().replace(/[^\d]/g, ''));
         });
 
