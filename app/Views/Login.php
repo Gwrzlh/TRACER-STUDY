@@ -1,220 +1,297 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login Tracer Study</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap & Font Awesome -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
     <style>
-        body {
-            background: url('/images/polban.jpg') no-repeat center center fixed;
-            background-size: cover;
-            height: 100vh;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
-        .login-box {
-            background: rgba(0, 0, 0, 0.6);
-            padding: 2rem;
-            border-radius: 10px;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+
+        }
+
+        .left {
+            width: 35%;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            z-index: 10;
+            animation: fadeInLeft 1s ease;
         }
 
         .logo {
-            max-height: 50px;
+            width: 70px;
+            position: absolute;
+            top: 30px;
+            left: 50px;
         }
 
-        .form-floating {
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #111827;
+        }
+
+        p {
+            color: #4B5563;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 14px 12px;
+            border: 1.5px solid #D1D5DB;
+            border-radius: 8px;
+            background: #F9FAFB;
+            font-size: 15px;
+            color: #111827;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #13366eff;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-group label {
+            position: absolute;
+            top: 14px;
+            left: 12px;
+            font-size: 13px;
+            color: #9CA3AF;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            background-color: transparent;
+        }
+
+        .form-group input:focus+label,
+        .form-group input:not(:placeholder-shown)+label {
+            top: -8px;
+            font-size: 11px;
+            color: #3B82F6;
+            background-color: #F9FAFB;
+            padding: 0 4px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #3B82F6;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: #3B82F6;
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #2563EB;
+            transform: translateY(-1px);
+        }
+
+        .right {
+            width: 65%;
             position: relative;
         }
 
-        .form-floating input {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding-right: 2.75rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-floating input:focus {
-            background-color: rgba(255, 255, 255, 1);
-            border-color: #0033cc;
-            box-shadow: 0 0 0 0.2rem rgba(0, 51, 204, 0.25);
-        }
-
-        .form-floating label {
-            color: #666;
-        }
-
-        .form-icon {
+        .slide {
             position: absolute;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            font-size: 1.1rem;
-            color: #333;
-            z-index: 10;
-            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transform: scale(1.02);
+            transition: 1s ease-in-out;
+            filter: brightness(0.6) contrast(1.1) saturate(1.1);
         }
 
-        .btn-biru {
-            background-color: #0033cc;
-            color: white;
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+            z-index: 1;
+        }
+
+        .nav {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .nav button {
+            width: 60px;
+            height: 100%;
+            background: transparent;
             border: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            pointer-events: auto;
+            cursor: pointer;
+            font-size: 0;
         }
 
-        .btn-biru:hover {
-            background-color: #0022aa;
+        .nav button:hover {
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
-        .btn-biru:active {
-            opacity: 0.85;
-            transform: scale(0.97);
-        }
-
-        .text-white-50 a {
-            color: rgba(255, 255, 255, 0.6);
+        a.back {
+            display: inline-block;
+            margin-top: 20px;
+            text-align: center;
+            color: #3B82F6;
+            font-size: 14px;
             text-decoration: none;
         }
 
-        .text-white-50 a:hover {
-            color: white;
-            text-decoration: underline;
-        }
-
-        /* Alert animation */
-        @keyframes fadeIn {
-            from {
+        @keyframes fadeInLeft {
+            0% {
                 opacity: 0;
-                top: 0;
+                transform: translateX(-40px);
             }
 
-            to {
+            100% {
                 opacity: 1;
-                top: 20px;
+                transform: translateX(0);
             }
         }
 
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-                top: 20px;
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
             }
 
-            to {
-                opacity: 0;
-                top: 0;
+            .left,
+            .right {
+                width: 100%;
+                height: 50%;
             }
-        }
 
-        .alert.fade-custom {
-            animation: fadeIn 0.5s ease-out;
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1050;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        .alert.fade-custom.hide {
-            animation: fadeOut 0.5s ease-in forwards;
-        }
-
-        .alert .btn-close {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
+            .left {
+                padding: 30px;
+            }
         }
     </style>
 </head>
 
 <body>
+    <div class="container">
+        <div class="left">
+            <img src="images/logo.png" class="logo" alt="Logo POLBAN" />
+            <h1>Selamat Datang</h1>
+            <p>Silakan login menggunakan akun Anda</p>
 
-    <!-- ALERT ERROR -->
-    <?php if (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger alert-dismissible fade-custom show shadow" id="customAlert" role="alert">
-            <?= session()->getFlashdata('error') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
+            <form action="<?= base_url('do-login') ?>" method="post">
 
-    <!-- FORM LOGIN -->
-    <div class="container h-100 d-flex justify-content-center align-items-center">
-        <div class="col-md-5 login-box position-relative">
-            <div class="text-center mb-4">
-                <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2">
-                <h3 class="fw-bold">Selamat Datang!</h3>
-                <p class="text-white-50">Login dengan masukkan Username atau Email</p>
-            </div>
-
-            <form method="post" action="/do-login">
-                <!-- Username -->
-                <div class="form-group mb-3 position-relative">
-                    <div class="form-floating">
-                        <input type="text" class="form-control pe-5" name="username" id="floatingUsername"
-                            placeholder="Username" required>
-                        <label for="floatingUsername">Username atau Email</label>
-                        <i class="fas fa-user form-icon"></i>
-                    </div>
+                <div class="form-group">
+                    <input type="text" name="username" placeholder=" " required />
+                    <label>Username atau Email</label>
                 </div>
 
-                <!-- Password -->
-                <div class="form-group mb-3 position-relative">
-                    <div class="form-floating">
-                        <input type="password" class="form-control pe-5" name="password" id="floatingPassword"
-                            placeholder="Password" required>
-                        <label for="floatingPassword">Password</label>
-                        <i class="fas fa-eye form-icon toggle-password" onclick="togglePassword()"></i>
-                    </div>
+                <div class="form-group">
+                    <input type="password" name="password" placeholder=" " required />
+                    <label>Password</label>
                 </div>
 
-                <!-- Remember -->
-                <div class="form-check mb-3">
-                    <input type="checkbox" class="form-check-input" id="remember">
-                    <label class="form-check-label text-white-50" for="remember">Stay logged in</label>
-                    <a href="#" class="float-end text-white-50">Lupa password?</a>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Tetap login</label>
                 </div>
 
-                <!-- Button -->
-                <button type="submit" class="btn btn-biru w-100 py-2">Masuk</button>
+                <button type="submit">Masuk</button>
+                <a href="/" class="back">&larr; Kembali ke Beranda</a>
             </form>
+        </div>
+
+        <div class="right">
+            <div class="slide active" style="background-image: url('images/polban.jpg');"></div>
+            <div class="slide" style="background-image: url('images/polban2.jpeg');"></div>
+            <div class="slide" style="background-image: url('images/polban3.jpeg');"></div>
+
+            <div class="nav">
+                <button onclick="prevSlide()"></button>
+                <button onclick="nextSlide()"></button>
+            </div>
         </div>
     </div>
 
-    <!-- JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function togglePassword() {
-            const input = document.getElementById("floatingPassword");
-            const icon = document.querySelector(".toggle-password");
+        let currentSlide = 0;
+        const slides = document.querySelectorAll(".slide");
 
-            const isPassword = input.getAttribute("type") === "password";
-            input.setAttribute("type", isPassword ? "text" : "password");
-
-            icon.classList.toggle("fa-eye");
-            icon.classList.toggle("fa-eye-slash");
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove("active");
+                if (i === index) {
+                    slide.classList.add("active");
+                }
+            });
         }
 
-        // Auto-hide alert after 5 seconds
-        setTimeout(() => {
-            const alert = document.getElementById('customAlert');
-            if (alert) {
-                alert.classList.add('hide');
-                setTimeout(() => alert.remove(), 600);
-            }
-        }, 5000);
-    </script>
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
 
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        setInterval(nextSlide, 8000);
+    </script>
 </body>
 
 </html>

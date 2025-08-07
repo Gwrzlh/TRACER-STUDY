@@ -15,11 +15,20 @@ $routes->post('/do-login', 'Auth::doLogin');
 $routes->get('/logout', 'Auth::logout');
 $routes->get('/dashboard', 'Auth::dashboard', ['filter' => 'auth']);
 
+//route admin
+$routes->get('/', 'Homepage::index');
+$routes->get('/admin', 'adminController::index', ['filter' => 'auth']);
+$routes->get('/admin/pengguna', 'penggunaController::index');
+$routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
+$routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
+
+
 
 // --------------------
 // ROUTES: Admin
 // --------------------
 $routes->get('/admin', 'adminController::index');
+
 
 // --- Pengguna ---
 $routes->group('admin/pengguna', function($routes) {
