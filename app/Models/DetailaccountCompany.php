@@ -4,20 +4,18 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Accounts extends Model
+class DetailaccountCompany extends Model
 {
-    protected $table            = 'account';
+    protected $table            = 'detailaccount_perusahaan';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','username','email','password','status','id_role'];
+    protected $allowedFields    = [];
 
     protected bool $allowEmptyInserts = false;
-    public function getroleid(){
-        return $this->select('account.*, role.nama as nama_role')->join('role', 'role.id = account.id_role')->findAll();
-    }
+
     // Dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';
