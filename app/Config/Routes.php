@@ -30,11 +30,16 @@ $routes->post('/admin/welcome-page/update', 'AdminWelcomePage::update');
 
 
 //route ajax 
-$routes->group('api', function ($routes) {
-// Add your API routes here
+
+$routes->group('api', function($routes) {
+    $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
-$routes->get('/tentang', 'Tracer::tentang');
-$routes->get('/kontak', 'Tracer::kontak');
+
+$routes->get('/tentang', 'Homepage::tentang');
+$routes->get('/kontak', 'Homepage::kontak');
+
+
+
 
 // Route untuk satuan organisasi
 $routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
