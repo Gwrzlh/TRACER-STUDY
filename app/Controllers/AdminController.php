@@ -9,6 +9,6 @@ class AdminController extends BaseController
 {
     public function index()
     {
-        return view('adminpage\index');                             
+        return view('adminpage/dashboard');
     }
 }
