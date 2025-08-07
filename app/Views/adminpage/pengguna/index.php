@@ -18,89 +18,119 @@
         Tambah Pengguna
     </button>
 
-    <div style="margin-top: 30px;">
-        <ul class="nav nav-tabs" id="userTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="semua-tab" data-bs-toggle="tab" data-bs-target="#semua" type="button" role="tab">Semua Group</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" role="tab">Site Admin</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="alumni-tab" data-bs-toggle="tab" data-bs-target="#alumni" type="button" role="tab">Alumni</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="jurusan-tab" data-bs-toggle="tab" data-bs-target="#jurusan" type="button" role="tab">Admin Jurusan</button>
-            </li>
-        </ul>
-    </div>
+   <div class="d-flex flex-wrap gap-2 mb-4">
+    <!-- Tombol Semua -->
+     <a class="nav-link <?= ($roleId == null) ? 'active' : '' ?>" href="<?= base_url('admin/pengguna') ?>">Semua</a>
+  
 
-    <div class="tab-content mt-4" id="userTabContent">
-        <?php
-        // Daftar tab dan data dummy
-        $tabs = [
-            'semua' => [
-                ['no' => 1, 'nama' => 'Budi Santoso', 'email' => 'budi@example.com', 'status' => 'Aktif', 'group' => 'Alumni'],
-                ['no' => 2, 'nama' => 'Ani Rahmawati', 'email' => 'ani@example.com', 'status' => 'Aktif', 'group' => 'Site Admin'],
-            ],
-            'admin' => [
-                ['no' => 1, 'nama' => 'Ani Rahmawati', 'email' => 'ani@example.com', 'status' => 'Aktif', 'group' => 'Site Admin'],
-            ],
-            'alumni' => [
-                ['no' => 1, 'nama' => 'Budi Santoso', 'email' => 'budi@example.com', 'status' => 'Aktif', 'group' => 'Alumni'],
-            ],
-            'jurusan' => [
-                ['no' => 1, 'nama' => 'Sari Utami', 'email' => 'sari@example.com', 'status' => 'Aktif', 'group' => 'Admin Jurusan'],
-            ]
-        ];
-        ?>
+    <!-- Tombol per Role -->
+    <?php foreach ($roles as $r): ?>
+        <a href="<?= base_url('/admin/pengguna?role=' . $r['id']) ?>"
+           class="btn btn-outline-primary <?= ($roleId == $r['id']) ? 'active' : '' ?>">
+            <?= esc($r['nama']) ?>
+        </a>
+    <?php endforeach;?>
+</div>
 
-        <?php foreach ($tabs as $id => $rows): ?>
-        <div class="tab-pane fade <?= $id === 'semua' ? 'show active' : '' ?>" id="<?= $id ?>" role="tabpanel">
+
+ <div class="tab-content mt-4" id="userTabContent">
+
+    <!-- Tab Semua -->
+    <div class="tab-pane fade <?= ($roleId === null) ? 'show active' : '' ?>" id="role_all" role="tabpanel">
+        <?php if (!empty($account)): ?>
             <div style="overflow-x:auto;">
-                <table style="
-                    width: 100%;
-                    border-collapse: collapse;
-                    background-color: rgba(255, 255, 255, 0.25);
-                    backdrop-filter: blur(6px);
-                    border-radius: 10px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.06);">
-                    <thead style="background-color: rgba(243, 244, 246, 0.47); color: #111;">
+                <table class="table">
+                    <!-- Header -->
+                    <thead>
                         <tr>
-                            <th style="padding: 14px; text-align: left;">No</th>
-                            <th style="padding: 14px; text-align: left;">Nama Pengguna</th>
-                            <th style="padding: 14px; text-align: left;">Email</th>
-                            <th style="padding: 14px; text-align: left;">Status</th>
-                            <th style="padding: 14px; text-align: left;">Group</th>
-                            <th style="padding: 14px; text-align: left;">Aksi</th>
+                            <th>No</th>
+                            <th>Nama Pengguna</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Group</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
+                    <!-- Body -->
                     <tbody>
-                        <?php foreach ($rows as $user): ?>
-                        <tr>
-                            <td style="padding: 12px;"><?= $user['no'] ?></td>
-                            <td style="padding: 12px;"><?= $user['nama'] ?></td>
-                            <td style="padding: 12px;"><?= $user['email'] ?></td>
-                            <td style="padding: 12px;"><?= $user['status'] ?></td>
-                            <td style="padding: 12px;"><?= $user['group'] ?></td>
-                            <td style="padding: 12px;">
-                                <a href="#" style="background-color: #001BB7; padding: 6px 10px; color: white; border-radius: 4px; text-decoration: none; font-size: 13px;">Edit</a>
-                                <a href="#" style="background-color: #dc3545; padding: 6px 10px; color: white; border-radius: 4px; text-decoration: none; font-size: 13px;">Hapus</a>
-                            </td>
-                        </tr>
-                        <?php endforeach ?>
+                        <?php $no = 1; foreach ($account as $acc): ?>
+                            <tr>
+                                <td><?= $no++ ?></td>
+                                <td><?= $acc['username'] ?></td>
+                                <td><?= $acc['email'] ?></td>
+                                <td><?= $acc['status'] ?></td>
+                                <td><?= $acc['nama_role'] ?></td>
+                                <td>                                        
+                                    <a href="<?= base_url('/admin/pengguna/editPengguna/'. $acc['id'] ) ?>" class="btn btn-sm btn-primary">Edit</a>
+                                    <<form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" method="post" class="inline" onsubmit="return confirm('Yakin hapus?')">
+                                                <?= csrf_field() ?>
+                                                <button type="submit" class="text-red-600 hover:underline">delete</button>
+                                         </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
-        </div>
-        <?php endforeach; ?>
+        <?php else: ?>
+            <p>Tidak ada data pengguna.</p>
+        <?php endif; ?>
     </div>
+
+    <!-- Tab untuk tiap Role -->
+    <?php foreach ($roles as $role): ?>
+        <div class="tab-pane fade <?= ($roleId == $role['id']) ? 'show active' : '' ?>" id="role_<?= $role['id'] ?>" role="tabpanel">
+            <?php
+            // Filter data berdasarkan role yang sedang ditampilkan
+            $filtered = array_filter($account, function ($acc) use ($role) {
+                return $acc['id_role'] == $role['id'];
+            });
+            ?>
+            <?php if (!empty($filtered)): ?>
+                <div style="overflow-x:auto;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Pengguna</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Group</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php $no = 1; foreach ($filtered as $acc): ?>
+                                <tr>
+                                    <td><?= $no++ ?></td>
+                                    <td><?= $acc['username'] ?></td>
+                                    <td><?= $acc['email'] ?></td>
+                                    <td><?= $acc['status'] ?></td>
+                                    <td><?= $acc['nama_role'] ?></td>
+                                    <td>
+                                        <a href="<?= base_url('/admin/pengguna/editPengguna/'. $acc['id'] ) ?>" class="btn btn-sm btn-primary">Edit</a>
+                                        <form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" method="post" class="inline" onsubmit="return confirm('Yakin hapus?')">
+                                                <?= csrf_field() ?>
+                                                <button type="submit" class="text-red-600 hover:underline">delete</button>
+                                         </form>
+
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?>
+                <p>Tidak ada data pengguna untuk role <?= esc($role['nama']) ?>.</p>
+            <?php endif; ?>
+        </div>
+    <?php endforeach; ?>
+</div>
+
 </div>
 
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<?= $this->endSection() ?>
-code index.php
+<?= $this->endSection(); ?>

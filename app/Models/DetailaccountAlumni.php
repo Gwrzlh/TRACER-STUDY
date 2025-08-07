@@ -34,11 +34,13 @@ class DetailaccountAlumni extends Model
         $builder = $this->db->table($this->table);
         $builder->select('
             detailaccount_alumni.*,
+            account.*,
             jurusan.nama_jurusan,
             prodi.nama_prodi
         ');
         $builder->join('jurusan', 'jurusan.id = detailaccount_alumni.id_jurusan', 'left');
         $builder->join('prodi', 'prodi.id = detailaccount_alumni.id_prodi', 'left');
+        $builder->join('account','account.id = detailaccount_alumni.id_account');
 
         if ($id !== null) {
             $builder->where('detailaccount_alumni.id', $id);
