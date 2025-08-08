@@ -233,6 +233,13 @@
             <h1>Selamat Datang</h1>
             <p>Silakan login menggunakan akun Anda</p>
 
+            <?php if (session()->getFlashdata('error')) : ?>
+            <div style="margin-bottom: 15px; padding: 12px; background-color: #fee2e2; color: #991b1b; border-radius: 6px; font-size: 14px;">
+                <?= session()->getFlashdata('error') ?>
+            </div>
+        <?php endif; ?>
+
+
             <form action="<?= base_url('do-login') ?>" method="post">
 
                 <div class="form-group">
