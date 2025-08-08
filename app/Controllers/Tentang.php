@@ -29,13 +29,19 @@ class Tentang extends BaseController
 
     // Admin: simpan perubahan
     public function update()
-    {
-        $id = $this->request->getPost('id');
-        $this->tentangModel->update($id, [
-            'judul' => $this->request->getPost('judul'),
-            'isi'   => $this->request->getPost('isi'),
-        ]);
+{
+    $id = $this->request->getPost('id');
+    $isi = $this->request->getPost('isi');
 
-        return redirect()->to('/admin/tentang/edit')->with('success', 'Data berhasil diupdate.');
-    }
+    // Hapus semua HTML tag, simpan hanya teks polos
+    $isi = strip_tags($isi);
+
+    $this->tentangModel->update($id, [
+        'judul' => $this->request->getPost('judul'),
+        'isi'   => $isi,
+    ]);
+
+    return redirect()->to('/admin/tentang/edit')->with('success', 'Data berhasil diupdate.');
+}
+
 }

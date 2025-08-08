@@ -19,7 +19,7 @@
         display: flex;
         flex-direction: column;
         font-family: 'Inter', 'Segoe UI', sans-serif;
-        background-color: #f9fafb;
+        background-color: #deddddff;
         color: #1f2937;
     }
 
@@ -94,8 +94,9 @@
 <!-- Konten utama -->
 <main>
     <div class="content">
-        <h2><?= esc($tentang['judul']) ?></h2>
-        <?= $tentang['isi'] ?>
+        <<h2><?= esc($tentang['judul']) ?></h2>
+<p><?= nl2br(esc($tentang['isi'])) ?></p>
+
     </div>
 </main>
 
