@@ -46,6 +46,32 @@ class PenggunaController extends BaseController
         
         ];
 
+    // Hitung jumlah akun per role (reset where setiap loop)
+    $counts = [];
+    foreach ($roles as $r) {
+        $counts[$r['id']] = (new \App\Models\Accounts())
+            ->where('id_role', $r['id'])
+            ->countAllResults();
+    }
+
+    // Hitung semua akun (untuk tombol "Semua")
+    $counts['all'] = (new \App\Models\Accounts())->countAllResults();
+
+    // Ambil data akun sesuai filter role
+    if ($roleId) {
+        $account = $accountModel->where('id_role', $roleId)->getroleid();
+    } else {
+        $account = $accountModel->getroleid();
+    }
+
+    $data = [
+        'roles'   => $roles,
+        'counts'  => $counts,
+        'account' => $account,
+        'roleId'  => $roleId
+    ];
+
+
         return view('adminpage\pengguna\index', $data);
 
     }public function create()
