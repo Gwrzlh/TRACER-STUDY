@@ -20,36 +20,41 @@
         + Tambah Pengguna
     </button>
 
-    <!-- Filter Buttons -->
-    <div class="d-flex flex-wrap gap-2 mb-4">
-        <!-- Tombol Semua -->
-        <a class="filter-btn <?= ($roleId == null) ? 'active' : '' ?>" 
-           href="<?= base_url('admin/pengguna') ?>"
+   <!-- Filter Buttons -->
+<div class="role-buttons" style="margin-bottom: 20px; display: flex; gap: 10px;">
+    <!-- Tombol Semua -->
+    <a href="<?= base_url('/admin/pengguna') ?>"
+       class="filter-btn <?= ($roleId == null) ? 'active' : '' ?>"
+       style="padding: 8px 16px;
+              border-radius: 20px;
+              font-size: 13px;
+              font-weight: 500;
+              text-decoration: none;
+              transition: all 0.3s ease;
+              <?= ($roleId == null) 
+                    ? 'background-color: #001BB7; color: white;' 
+                    : 'background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;' ?>">
+        Semua (<?= $counts['all'] ?? 0 ?>)
+    </a>
+
+    <!-- Tombol per Role -->
+    <?php foreach ($roles as $r): ?>
+        <a href="<?= base_url('/admin/pengguna?role=' . $r['id']) ?>"
+           class="filter-btn <?= ($roleId == $r['id']) ? 'active' : '' ?>"
            style="padding: 8px 16px;
                   border-radius: 20px;
                   font-size: 13px;
                   font-weight: 500;
                   text-decoration: none;
                   transition: all 0.3s ease;
-                  <?= ($roleId == null) ? 'background-color: #001BB7; color: white;' : 'background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;' ?>">
-            Semua
+                  <?= ($roleId == $r['id']) 
+                        ? 'background-color: #001BB7; color: white;' 
+                        : 'background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;' ?>">
+            <?= esc($r['nama']) ?> (<?= $counts[$r['id']] ?? 0 ?>)
         </a>
+    <?php endforeach; ?>
+</div>
 
-        <!-- Tombol per Role -->
-        <?php foreach ($roles as $r): ?>
-            <a href="<?= base_url('/admin/pengguna?role=' . $r['id']) ?>"
-               class="filter-btn <?= ($roleId == $r['id']) ? 'active' : '' ?>"
-               style="padding: 8px 16px;
-                      border-radius: 20px;
-                      font-size: 13px;
-                      font-weight: 500;
-                      text-decoration: none;
-                      transition: all 0.3s ease;
-                      <?= ($roleId == $r['id']) ? 'background-color: #001BB7; color: white;' : 'background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;' ?>">
-                <?= esc($r['nama']) ?>
-            </a>
-        <?php endforeach;?>
-    </div>
 
     <!-- Table Container -->
     <div class="table-container" style="background-color: white; 
