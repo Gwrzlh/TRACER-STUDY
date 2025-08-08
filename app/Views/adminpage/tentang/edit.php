@@ -38,6 +38,7 @@
                     <textarea name="isi" rows="15" required class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"><?= esc($tentang['isi']) ?></textarea>
                 </div>
 
+
                 <div>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
                         Simpan Perubahan
