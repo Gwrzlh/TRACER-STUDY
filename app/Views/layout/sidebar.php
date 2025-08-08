@@ -43,7 +43,7 @@
           </a>
 
           <!-- Kuesioner -->
-          <a href="#" class="no-underline flex items-center gap-2 px-4 py-2 rounded-lg transition
+          <a href="<?= base_url('admin/questionnaire') ?>" class="no-underline flex items-center gap-2 px-4 py-2 rounded-lg transition
             <?= $currentRoute == 'kuesioner' ? 'bg-gray-200 text-blue-600 font-semibold' : 'text-gray-700 hover:text-black hover:bg-gray-100' ?>">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M9 8h6"></path>
