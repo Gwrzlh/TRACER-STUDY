@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\AccountModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\Accounts;
 use App\Models\DetailaccountAdmins;
@@ -44,7 +45,41 @@ class PenggunaController extends BaseController
             'detailaccountAlumni' => $detailaccountAlumni->getDetailWithRelations(),
             'roleId'  => $roleId
         
-        ];
+        ];   
+        
+   
+    $roleId = $this->request->getGet('role');
+    $keyword = $this->request->getGet('keyword'); // ambil keyword dari GET
+
+    $rolesModel = new Roles();      
+    $roles = $rolesModel->findAll();
+
+    $accountModel = new Accounts();
+
+    // Jika ada filter role
+    if ($roleId) {
+        $accountModel->where('id_role', $roleId);
+    }
+
+    // Jika ada pencarian nama
+    if (!empty($keyword)) {
+        $accountModel->like('username', $keyword); 
+        // Kalau mau berdasarkan detail alumni/admin, ganti fieldnya
+    }
+
+    $account = $accountModel->getroleid(); // method custom di model Anda
+
+    $detailaccountAdmin = new DetailaccountAdmins();
+    $detailaccountAlumni = new DetailaccountAlumni();
+
+    $data = [
+        'roles' => $roles,
+        'account' => $account,
+        'detailaccountAdmin' => $detailaccountAdmin->getaccountid(),
+        'detailaccountAlumni' => $detailaccountAlumni->getDetailWithRelations(),
+        'roleId'  => $roleId,
+        'keyword' => $keyword // kirim ke view supaya input tidak hilang
+    ];   
 
         return view('adminpage\pengguna\index', $data);
 
@@ -63,6 +98,53 @@ class PenggunaController extends BaseController
             'cities'      => $cityModel->getCitiesWithProvince(),
             'provinces'   => $provincesModel->findAll() // Perbaiki ini
         ];
+          $roleId = $this->request->getGet('role');
+    $keyword = $this->request->getGet('keyword');
+
+    $rolesModel = new Roles();
+    $roles = $rolesModel->findAll();
+
+    $accountModel = new Accounts();
+
+    // Jika ada filter role
+    if ($roleId) {
+        $accountModel->where('id_role', $roleId);
+    }
+
+    // Jika ada pencarian nama
+    if (!empty($keyword)) {
+        $accountModel->like('username', $keyword);
+    }
+
+    $account = $accountModel->getroleid();
+
+    // Ambil jumlah akun per role
+    $db = \Config\Database::connect();
+    $counts = $db->table('account')
+        ->select('id_role, COUNT(*) as total')
+        ->groupBy('id_role')
+        ->get()
+        ->getResultArray();
+
+    // Ubah jadi array [id_role => total]
+    $countsPerRole = [];
+    foreach ($counts as $c) {
+        $countsPerRole[$c['id_role']] = $c['total'];
+    }
+
+    $detailaccountAdmin = new DetailaccountAdmins();
+    $detailaccountAlumni = new DetailaccountAlumni();
+
+    $data = [
+        'roles' => $roles,
+        'account' => $account,
+        'detailaccountAdmin' => $detailaccountAdmin->getaccountid(),
+        'detailaccountAlumni' => $detailaccountAlumni->getDetailWithRelations(),
+        'roleId'  => $roleId,
+        'keyword' => $keyword,
+        'countsPerRole' => $countsPerRole // kirim ke view
+    ];
+
 
         return view('adminpage\pengguna\tambahPengguna', $data);
     }
