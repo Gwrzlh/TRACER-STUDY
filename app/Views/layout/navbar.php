@@ -1,8 +1,9 @@
 <!-- app/Views/layout/navbar.php -->
 <style>
   .bg-custom {
-    background-color:whitesmoke;
+    background-color: whitesmoke;
   }
+
   .text-orange {
     color: orange !important;
   }
@@ -12,7 +13,7 @@
   <div class="container">
     <a class="navbar-brand" href="/">
       <img src="/img/logo.png" alt="Logo" height="55">
-    </a>  
+    </a>
 
     <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
       <span class="navbar-toggler-icon"></span>
@@ -27,7 +28,7 @@
           <a class="nav-link text-#000080" href="/tentang">Tentang</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-#000080" href="#">Kontak</a>
+          <a class="nav-link text-#000080" href="/kontak">Kontak</a>
         </li>
         <li class="nav-item">
           <a class="nav-link text-#000080" href="#">Respon TS</a>
