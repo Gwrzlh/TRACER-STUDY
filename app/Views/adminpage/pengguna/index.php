@@ -63,9 +63,38 @@
                                       overflow: hidden;">
 
         <div class="tab-content" id="userTabContent">
-            <!-- Tab Semua -->
+           <!-- from sreach -->
+    <form method="get" action="<?= base_url('admin/pengguna') ?>" style="margin-bottom:15px;">
+    <?php if ($roleId): ?>
+        <input type="hidden" name="role" value="<?= esc($roleId) ?>">
+    <?php endif; ?>
+
+    <div style="display:flex; gap:10px;">
+        <input type="text" 
+               name="keyword" 
+               value="<?= esc($keyword ?? '') ?>" 
+               placeholder="Cari nama..." 
+               class="search-input" 
+               style="padding:8px 12px; border:1px solid #ccc; border-radius:20px; transition: width 0.3s ease;">
+        
+        <button type="submit" style="padding:8px 16px; background: #001BB7; color:white; border:none; border-radius:20px; cursor:pointer;">
+            Search
+        </button>
+    </div>
+</form>
+
+<style>
+    .search-input {
+        width: 150px; /* Lebar awal */
+    }
+    .search-input:focus {
+        width: 300px; /* Lebar saat fokus */
+        outline: none;
+    }
+</style>  <!-- Tab Semua -->
             <div class="tab-pane fade <?= ($roleId === null) ? 'show active' : '' ?>" id="role_all" role="tabpanel">
                 <?php if (!empty($account)): ?>
+                    
                     <div style="overflow-x:auto;">
                         <table class="modern-table" style="width: 100%; border-collapse: collapse;">
                             <!-- Header -->
@@ -201,7 +230,10 @@
                         return $acc['id_role'] == $role['id'];
                     });
                     ?>
+                    
                     <?php if (!empty($filtered)): ?>
+                      
+    <div style="overflow-x:auto;">
                         <div style="overflow-x:auto;">
                             <table class="modern-table" style="width: 100%; border-collapse: collapse;">
                                 <thead>
