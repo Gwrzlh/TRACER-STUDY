@@ -20,36 +20,41 @@
         + Tambah Pengguna
     </button>
 
-    <!-- Filter Buttons -->
-    <div class="d-flex flex-wrap gap-2 mb-4">
-        <!-- Tombol Semua -->
-        <a class="filter-btn <?= ($roleId == null) ? 'active' : '' ?>" 
-           href="<?= base_url('admin/pengguna') ?>"
+   <!-- Filter Buttons -->
+<div class="role-buttons" style="margin-bottom: 20px; display: flex; gap: 10px;">
+    <!-- Tombol Semua -->
+    <a href="<?= base_url('/admin/pengguna') ?>"
+       class="filter-btn <?= ($roleId == null) ? 'active' : '' ?>"
+       style="padding: 8px 16px;
+              border-radius: 20px;
+              font-size: 13px;
+              font-weight: 500;
+              text-decoration: none;
+              transition: all 0.3s ease;
+              <?= ($roleId == null) 
+                    ? 'background-color: #001BB7; color: white;' 
+                    : 'background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;' ?>">
+        Semua (<?= $counts['all'] ?? 0 ?>)
+    </a>
+
+    <!-- Tombol per Role -->
+    <?php foreach ($roles as $r): ?>
+        <a href="<?= base_url('/admin/pengguna?role=' . $r['id']) ?>"
+           class="filter-btn <?= ($roleId == $r['id']) ? 'active' : '' ?>"
            style="padding: 8px 16px;
                   border-radius: 20px;
                   font-size: 13px;
                   font-weight: 500;
                   text-decoration: none;
                   transition: all 0.3s ease;
-                  <?= ($roleId == null) ? 'background-color: #001BB7; color: white;' : 'background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;' ?>">
-            Semua
+                  <?= ($roleId == $r['id']) 
+                        ? 'background-color: #001BB7; color: white;' 
+                        : 'background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;' ?>">
+            <?= esc($r['nama']) ?> (<?= $counts[$r['id']] ?? 0 ?>)
         </a>
+    <?php endforeach; ?>
+</div>
 
-        <!-- Tombol per Role -->
-        <?php foreach ($roles as $r): ?>
-            <a href="<?= base_url('/admin/pengguna?role=' . $r['id']) ?>"
-               class="filter-btn <?= ($roleId == $r['id']) ? 'active' : '' ?>"
-               style="padding: 8px 16px;
-                      border-radius: 20px;
-                      font-size: 13px;
-                      font-weight: 500;
-                      text-decoration: none;
-                      transition: all 0.3s ease;
-                      <?= ($roleId == $r['id']) ? 'background-color: #001BB7; color: white;' : 'background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;' ?>">
-                <?= esc($r['nama']) ?>
-            </a>
-        <?php endforeach;?>
-    </div>
 
     <!-- Table Container -->
     <div class="table-container" style="background-color: white; 
@@ -58,9 +63,38 @@
                                       overflow: hidden;">
 
         <div class="tab-content" id="userTabContent">
-            <!-- Tab Semua -->
+           <!-- from sreach -->
+    <form method="get" action="<?= base_url('admin/pengguna') ?>" style="margin-bottom:15px;">
+    <?php if ($roleId): ?>
+        <input type="hidden" name="role" value="<?= esc($roleId) ?>">
+    <?php endif; ?>
+
+    <div style="display:flex; gap:10px;">
+        <input type="text" 
+               name="keyword" 
+               value="<?= esc($keyword ?? '') ?>" 
+               placeholder="Cari nama..." 
+               class="search-input" 
+               style="padding:8px 12px; border:1px solid #ccc; border-radius:20px; transition: width 0.3s ease;">
+        
+        <button type="submit" style="padding:8px 16px; background: #001BB7; color:white; border:none; border-radius:20px; cursor:pointer;">
+            Search
+        </button>
+    </div>
+</form>
+
+<style>
+    .search-input {
+        width: 150px; /* Lebar awal */
+    }
+    .search-input:focus {
+        width: 300px; /* Lebar saat fokus */
+        outline: none;
+    }
+</style>  <!-- Tab Semua -->
             <div class="tab-pane fade <?= ($roleId === null) ? 'show active' : '' ?>" id="role_all" role="tabpanel">
                 <?php if (!empty($account)): ?>
+                    
                     <div style="overflow-x:auto;">
                         <table class="modern-table" style="width: 100%; border-collapse: collapse;">
                             <!-- Header -->
@@ -196,7 +230,10 @@
                         return $acc['id_role'] == $role['id'];
                     });
                     ?>
+                    
                     <?php if (!empty($filtered)): ?>
+                      
+    <div style="overflow-x:auto;">
                         <div style="overflow-x:auto;">
                             <table class="modern-table" style="width: 100%; border-collapse: collapse;">
                                 <thead>
