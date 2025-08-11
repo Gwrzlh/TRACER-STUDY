@@ -125,7 +125,7 @@ class PenggunaController extends BaseController
             'provinces'   => $provincesModel->findAll() // Perbaiki ini
         ];
           $roleId = $this->request->getGet('role');
-    $keyword = $this->request->getGet('keyword');
+         $keyword = $this->request->getGet('keyword');
 
     $rolesModel = new Roles();
     $roles = $rolesModel->findAll();
@@ -160,6 +160,10 @@ class PenggunaController extends BaseController
 
     $detailaccountAdmin = new DetailaccountAdmins();
     $detailaccountAlumni = new DetailaccountAlumni();
+    $datajurusan = $jurusans->findAll();
+    $dataprodi = $prodis->findAll();
+    $provinces = $provincesModel->findAll();
+
 
     $data = [
         'roles' => $roles,
@@ -168,7 +172,10 @@ class PenggunaController extends BaseController
         'detailaccountAlumni' => $detailaccountAlumni->getDetailWithRelations(),
         'roleId'  => $roleId,
         'keyword' => $keyword,
-        'countsPerRole' => $countsPerRole // kirim ke view
+        'countsPerRole' => $countsPerRole,
+        'datajurusan'   => $datajurusan,
+        'dataProdi'   => $dataprodi,
+        'provinces'  => $provinces // kirim ke view
     ];
 
 
