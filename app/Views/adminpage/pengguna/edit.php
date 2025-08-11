@@ -278,22 +278,12 @@
                                     <input type="text" class="form-control" name="alamat2" id="alamat2"
                                            value="<?= old('alamat2', isset($detail['alamat2']) ? $detail['alamat2'] : '') ?>">
                                 </div>
-                            </div>
-
-                            <!-- Form detail untuk COMPANY (Role ID: 3) -->
-                            <div id="form-detail-3" class="form-detail" style="display: none;">
-                                <h5 class="mb-3">Detail Company</h5>
-                                <div class="mb-3">
-                                    <label for="nama_perusahaan" class="form-label">Nama Perusahaan:</label>
-                                    <input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan"
-                                           value="<?= old('nama_perusahaan', isset($detail['nama_perusahaan']) ? $detail['nama_perusahaan'] : '') ?>">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="alamat_perusahaan" class="form-label">Alamat Perusahaan:</label>
-                                    <textarea class="form-control" id="alamat_perusahaan" name="alamat_perusahaan" rows="3"><?= old('alamat_perusahaan', isset($detail['alamat_perusahaan']) ? $detail['alamat_perusahaan'] : '') ?></textarea>
+                                <div>
+                                   <label for="hak">Hak Supervisi</label>
+                                        <input type="checkbox" name="hak" id="hak" value="1"
+                                            <?= ($account['jabatan_id'] == 1) ? 'checked' : '' ?>>
                                 </div>
                             </div>
-
                             <div class="mt-4">
                                 <button type="submit" class="btn" style="background-color: #001BB7; color: white;">Update</button>
                                 <a href="<?= base_url('/admin/pengguna') ?>">

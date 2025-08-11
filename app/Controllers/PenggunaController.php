@@ -14,6 +14,7 @@ use App\Models\Cities;
 use App\Models\Provincies;
 use App\Models\DetailaccountAlumni;
 use App\Models\DetailaccountCompany;
+use App\Models\JabatanModels;
 use App\Models\JurusanModel;
 use Exception;
 
@@ -115,7 +116,9 @@ class PenggunaController extends BaseController
         $jurusans = new Jurusan();
         $prodis = new Prodi();
         $cityModel = new Cities();
-        $provincesModel = new Provincies(); // Tambahkan ini
+        $provincesModel = new Provincies();
+        $jabatanModel = new JabatanModels();
+         // Tambahkan ini
 
         $data = [
             'roles'       => $roles->findAll(),
@@ -238,6 +241,8 @@ public function store()
             'kode_pos'        => 'required|numeric',
             'alamat'          => 'required',
             'alamat2'         => 'permit_empty',
+             'hak'            => 'permit_empty'
+
         ]);
     }
 
@@ -254,6 +259,7 @@ public function store()
         'password'  => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
         'status'    => $this->request->getPost('status'),
         'id_role'   => $group,
+        'jabatan_id'=> $this->request->getPost('hak')
     ];
     $accountModel->insert($accountData);
     $accountId = $accountModel->insertID();
@@ -306,6 +312,7 @@ public function edit($id)
     $prodis = new Prodi();
     $cityModel = new Cities();
     $provincesModel = new Provincies();
+    $jabatanModels = new JabatanModels();
 
     $roles = $roleModels->findAll();
     $dataAccount = $accountModel->find($id);
@@ -340,7 +347,8 @@ public function edit($id)
         'datajurusan' => $jurusans->findAll(),
         'dataProdi' => $prodis->findAll(),
         'cities' => $cityModel->getCitiesWithProvince(),
-        'provinces' => $provincesModel->findAll()
+        'provinces' => $provincesModel->findAll(),
+       
     ]); 
 }
 
@@ -362,13 +370,15 @@ public function update($id)
     $username = $this->request->getPost('username');
     $password = $this->request->getPost('password');
     $status = $this->request->getPost('status');
+    $hak = $this->request->getPost('hak');
 
     // Basic validation rules
     $rules = [
         'username' => "required|is_unique[account.username,id,{$id}]",
         // 'email' => "required|valid_email|is_unique[account.email,id,{$id}]",
         'group' => 'required',
-        'status' => 'required'
+        'status' => 'required',
+        // 'hak' => 'permit_empty'
     ];
 
     // Password validation (only if filled)
@@ -384,7 +394,7 @@ public function update($id)
                 'nim' => 'required|numeric',
                 'jurusan' => 'required',
                 'prodi' => 'required',
-                'notlp' => 'required|numeric'
+                'notlp' => 'required|numeric',
             ]);
             break;
         case '2': // Admin
@@ -409,6 +419,7 @@ public function update($id)
         'email' => $this->request->getPost('email'),
         'status' => $status,
         'id_role' => $newRole,
+        'jabatan_id' => $hak
     ];
 
     // Add password to update data only if provided
