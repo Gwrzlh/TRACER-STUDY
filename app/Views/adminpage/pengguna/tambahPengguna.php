@@ -263,8 +263,9 @@
                             </div>
 
                             <div class="mt-4">
+
                                 <button type="submit" class="btn" style="background-color: #001BB7; color: white;">Simpan</button>
-                                <a href="<?= base_url('/admin/pengguna') ?>" class="btn btn-secondary" style="background-color: orange; border-color: orange; color: white;">Batal</a>
+                                <button type="button" class="btn" style="background-color: orange; color: white;">Batal</button>
                             </div>
                         </form>
                     </div>
