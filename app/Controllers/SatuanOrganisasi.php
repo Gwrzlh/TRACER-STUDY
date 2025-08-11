@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\SatuanOrganisasiModel;
 use App\Models\JurusanModel;
+use App\Models\Prodi;
 use App\Models\TipeOrganisasiModel;
 use CodeIgniter\Controller;
 
@@ -13,10 +14,17 @@ class SatuanOrganisasi extends Controller
 
     public function index()
     {
-        $model = new SatuanOrganisasiModel();
-        $data['satuan'] = $model->findAll();
+        $satuanModel = new SatuanOrganisasiModel();
+        $jurusanModel = new JurusanModel();
+        $prodiModel = new Prodi();
+
+        $data['satuan'] = $satuanModel->getWithTipe();
+        $data['jurusan'] = $jurusanModel->findAll();
+        $data['prodi'] = $prodiModel->getWithJurusan(); // pakai join
+
         return view('adminpage/organisasi/satuanorganisasi/index', $data);
     }
+
 
     public function create()
     {

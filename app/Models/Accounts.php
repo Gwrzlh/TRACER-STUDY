@@ -16,7 +16,7 @@ class Accounts extends Model
 
     protected bool $allowEmptyInserts = false;
     public function getroleid(){
-        return $this->select('account.*, role.nama')->join('role', 'role.id = account.id_role')->findAll();
+        return $this->select('account.*, role.nama as nama_role')->join('role', 'role.id = account.id_role')->findAll();
     }
     // Dates
     protected $useTimestamps = false;
