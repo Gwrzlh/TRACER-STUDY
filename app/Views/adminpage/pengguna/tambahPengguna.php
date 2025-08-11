@@ -260,6 +260,10 @@
                                     <input type="text" class="form-control" name="alamat2" id="alamat2"  >
                                     <!-- <small class="text-muted">Tuliskan alamat cadangan anda</small> -->
                                 </div>
+                                <div>
+                                    <label for="hak">Hak Supervisi</label>
+                                    <input type="checkbox" name="hak" id="hak" value="1">
+                                </div>
                             </div>
 
                             <div class="mt-4">
