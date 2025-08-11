@@ -13,6 +13,7 @@ use App\Models\Cities;
 use App\Models\Provincies;
 use App\Models\DetailaccountAlumni;
 use App\Models\DetailaccountCompany;
+use App\Models\JabatanModels;
 use App\Models\JurusanModel;
 use Exception;
 
@@ -54,7 +55,9 @@ class PenggunaController extends BaseController
         $jurusans = new Jurusan();
         $prodis = new Prodi();
         $cityModel = new Cities();
-        $provincesModel = new Provincies(); // Tambahkan ini
+        $provincesModel = new Provincies();
+        $jabatanModel = new JabatanModels();
+         // Tambahkan ini
 
         $data = [
             'roles'       => $roles->findAll(),
@@ -63,6 +66,60 @@ class PenggunaController extends BaseController
             'cities'      => $cityModel->getCitiesWithProvince(),
             'provinces'   => $provincesModel->findAll() // Perbaiki ini
         ];
+          $roleId = $this->request->getGet('role');
+         $keyword = $this->request->getGet('keyword');
+
+    $rolesModel = new Roles();
+    $roles = $rolesModel->findAll();
+
+    $accountModel = new Accounts();
+
+    // Jika ada filter role
+    if ($roleId) {
+        $accountModel->where('id_role', $roleId);
+    }
+
+    // Jika ada pencarian nama
+    if (!empty($keyword)) {
+        $accountModel->like('username', $keyword);
+    }
+
+    $account = $accountModel->getroleid();
+
+    // Ambil jumlah akun per role
+    $db = \Config\Database::connect();
+    $counts = $db->table('account')
+        ->select('id_role, COUNT(*) as total')
+        ->groupBy('id_role')
+        ->get()
+        ->getResultArray();
+
+    // Ubah jadi array [id_role => total]
+    $countsPerRole = [];
+    foreach ($counts as $c) {
+        $countsPerRole[$c['id_role']] = $c['total'];
+    }
+
+    $detailaccountAdmin = new DetailaccountAdmins();
+    $detailaccountAlumni = new DetailaccountAlumni();
+    $datajurusan = $jurusans->findAll();
+    $dataprodi = $prodis->findAll();
+    $provinces = $provincesModel->findAll();
+
+
+    $data = [
+        'roles' => $roles,
+        'account' => $account,
+        'detailaccountAdmin' => $detailaccountAdmin->getaccountid(),
+        'detailaccountAlumni' => $detailaccountAlumni->getDetailWithRelations(),
+        'roleId'  => $roleId,
+        'keyword' => $keyword,
+        'countsPerRole' => $countsPerRole,
+        'datajurusan'   => $datajurusan,
+        'dataProdi'   => $dataprodi,
+        'provinces'  => $provinces // kirim ke view
+    ];
+
 
         return view('adminpage\pengguna\tambahPengguna', $data);
     }
@@ -123,6 +180,8 @@ public function store()
             'kode_pos'        => 'required|numeric',
             'alamat'          => 'required',
             'alamat2'         => 'permit_empty',
+             'hak'            => 'permit_empty'
+
         ]);
     }
 
@@ -139,6 +198,7 @@ public function store()
         'password'  => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
         'status'    => $this->request->getPost('status'),
         'id_role'   => $group,
+        'jabatan_id'=> $this->request->getPost('hak')
     ];
     $accountModel->insert($accountData);
     $accountId = $accountModel->insertID();
@@ -191,6 +251,7 @@ public function edit($id)
     $prodis = new Prodi();
     $cityModel = new Cities();
     $provincesModel = new Provincies();
+    $jabatanModels = new JabatanModels();
 
     $roles = $roleModels->findAll();
     $dataAccount = $accountModel->find($id);
@@ -225,7 +286,8 @@ public function edit($id)
         'datajurusan' => $jurusans->findAll(),
         'dataProdi' => $prodis->findAll(),
         'cities' => $cityModel->getCitiesWithProvince(),
-        'provinces' => $provincesModel->findAll()
+        'provinces' => $provincesModel->findAll(),
+       
     ]); 
 }
 
@@ -247,13 +309,15 @@ public function update($id)
     $username = $this->request->getPost('username');
     $password = $this->request->getPost('password');
     $status = $this->request->getPost('status');
+    $hak = $this->request->getPost('hak');
 
     // Basic validation rules
     $rules = [
         'username' => "required|is_unique[account.username,id,{$id}]",
         // 'email' => "required|valid_email|is_unique[account.email,id,{$id}]",
         'group' => 'required',
-        'status' => 'required'
+        'status' => 'required',
+        // 'hak' => 'permit_empty'
     ];
 
     // Password validation (only if filled)
@@ -269,7 +333,7 @@ public function update($id)
                 'nim' => 'required|numeric',
                 'jurusan' => 'required',
                 'prodi' => 'required',
-                'notlp' => 'required|numeric'
+                'notlp' => 'required|numeric',
             ]);
             break;
         case '2': // Admin
@@ -294,6 +358,7 @@ public function update($id)
         'email' => $this->request->getPost('email'),
         'status' => $status,
         'id_role' => $newRole,
+        'jabatan_id' => $hak
     ];
 
     // Add password to update data only if provided
