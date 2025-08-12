@@ -110,17 +110,19 @@ $currentRoute = service('request')->uri->getPath();
             </svg>
             <span>Tentang</span>
           </a>
-
-          <!-- Pengaturan Situs -->
-          <a href="#" class="no-underline flex items-center gap-2 px-4 py-2 rounded-lg transition
-            <?= $currentRoute == 'pengaturan' ? 'bg-gray-200 text-blue-600 font-semibold' : 'text-gray-700 hover:text-black hover:bg-gray-100' ?>">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 6V4m0 16v-2m8-8h2M4 12H2m15.364 6.364l1.414 1.414M6.222 6.222L4.808 4.808m12.728 0l1.414 1.414M6.222 17.778l-1.414 1.414"></path>
-            </svg>
-            <span>Pengaturan Situs</span>
-          </a>
-        </nav>
+         
+          <!-- Pengaturan Situa -->
+          <a href="<?= base_url('pengaturan-situs') ?>" 
+            class="no-underline flex items-center gap-2 px-4 py-2 rounded-lg transition
+           <?= $currentRoute == 'pengaturan-situs' ? 'bg-gray-200 text-blue-600 font-semibold' : 'text-gray-700 hover:text-black hover:bg-gray-100' ?>">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 6V4m0 16v-2m8-8h2M4 12H2m15.364 6.364l1.414 1.414M6.222 6.222L4.808 4.808m12.728 0l1.414 1.414M6.222 17.778l-1.414 1.414">
+        </path>
+       </svg>
+       <span>Pengaturan Situs</span>
+     </a>
+      </nav>
       </div>
 
       <!-- Profile + Logout -->
