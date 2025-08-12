@@ -4,22 +4,36 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class DetailaccountPerusahaan extends Model
+class AnswerModel extends Model
 {
-    protected $table            = 'detailaccoount_perusahaan';
+    protected $table            = 'answers';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','nama_perusahaan','alamat1','alamat2','id_provinsi','id_kota','noTlp','id_account','kodepos'];
+    protected $allowedFields    = ['response_id',
+        'question_id',
+        'answer_text',
+        'answer_value',
+        'answered_at'];
 
     protected bool $allowEmptyInserts = false;
 
-    public function getaccountidPerusahaan(){
-        return $this->select('detailaccount_perusahaan.*, account.*')
-                    ->join('account', 'account.id = detailaccount_perusahaan.id_account')
-                    ->findAll();
+    public function saveAnswers($responseId, $answers)
+    {
+        $data = [];
+        foreach ($answers as $questionId => $answer) {
+            $data[] = [
+                'response_id' => $responseId,
+                'question_id' => $questionId,
+                'answer_text' => is_array($answer) ? implode(', ', $answer) : $answer,
+                'answer_value' => is_array($answer) ? implode(',', $answer) : $answer,
+                'answered_at' => date('Y-m-d H:i:s')
+            ];
+        }
+        
+        return $this->insertBatch($data);
     }
 
     // Dates

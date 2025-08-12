@@ -4,23 +4,17 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class DetailaccountPerusahaan extends Model
+class QuestionModel extends Model
 {
-    protected $table            = 'detailaccoount_perusahaan';
+    protected $table            = 'questions';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','nama_perusahaan','alamat1','alamat2','id_provinsi','id_kota','noTlp','id_account','kodepos'];
+    protected $allowedFields    = ['questionnaires_id', 'question_text', 'question_type', 'is_required','order_no','parent_question_id','condition_value','created_at','updated_at'];
 
     protected bool $allowEmptyInserts = false;
-
-    public function getaccountidPerusahaan(){
-        return $this->select('detailaccount_perusahaan.*, account.*')
-                    ->join('account', 'account.id = detailaccount_perusahaan.id_account')
-                    ->findAll();
-    }
 
     // Dates
     protected $useTimestamps = false;
