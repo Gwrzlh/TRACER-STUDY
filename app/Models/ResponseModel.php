@@ -4,22 +4,40 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class DetailaccountPerusahaan extends Model
+class ResponseModel extends Model
 {
-    protected $table            = 'detailaccoount_perusahaan';
+    protected $table            = 'responses';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','nama_perusahaan','alamat1','alamat2','id_provinsi','id_kota','noTlp','id_account','kodepos'];
+    protected $allowedFields    = ['questionnaire_id',
+        'account_id',
+        'submitted_at',
+        'status',
+        'ip_address'];
 
     protected bool $allowEmptyInserts = false;
 
-    public function getaccountidPerusahaan(){
-        return $this->select('detailaccount_perusahaan.*, account.*')
-                    ->join('account', 'account.id = detailaccount_perusahaan.id_account')
-                    ->findAll();
+    public function getResponseWithAnswers($responseId)
+    {
+        return $this->db->table('responses r')
+                       ->select('r.*, a.question_id, a.answer_text, a.answer_value, q.question_text')
+                       ->join('answers a', 'r.id = a.response_id')
+                       ->join('questions q', 'a.question_id = q.id')
+                       ->where('r.id', $responseId)
+                       ->get()
+                       ->getResultArray();
+    }
+    
+    // Check if alumni already responded
+    public function hasResponded($questionnaireId, $accountId)
+    {
+        return $this->where('questionnaire_id', $questionnaireId)
+                   ->where('account_id', $accountId)
+                   ->where('status', 'completed')
+                   ->countAllResults() > 0;
     }
 
     // Dates
