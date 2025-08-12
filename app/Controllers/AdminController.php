@@ -9,6 +9,11 @@ class AdminController extends BaseController
 {
     public function index()
     {
-        return view('adminpage/dashboard');
+        return view('adminpage/index');                             
+    }
+
+    public function dashboard()
+    {
+        return view('adminpage/dashboard'); // Pastikan file view-nya ada
     }
 }

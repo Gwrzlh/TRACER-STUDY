@@ -12,24 +12,60 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <style>
-        .form-detail {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        .spinner-border-sm {
-            width: 1rem;
-            height: 1rem;
-            border-width: 0.2em;
-        }
-        .is-invalid {
-            border-color: #dc3545;
-        }
-        .loading-spinner {
-            display: inline-block;
-            margin-left: 10px;
-        }
+        /* Base input style */
+.form-control, .form-select {
+    border-radius: 12px;
+    border: 2px solid #ddd;
+    padding: 12px 14px;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+    background-color: #fff;
+    box-shadow: none;
+}
+
+/* Hover state */
+.form-control:hover, .form-select:hover {
+    border-color: #999;
+}
+
+/* Focus state */
+.form-control:focus, .form-select:focus {
+    border-color: #00b894; /* Green focus */
+    box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.15);
+}
+
+/* Invalid state */
+.is-invalid {
+    border-color: #e74c3c !important;
+    background-color: #fff0f0;
+}
+
+/* Placeholder style */
+.form-control::placeholder,
+.form-select::placeholder {
+    color: #bbb;
+}
+
+/* Label style */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+/* Dropdown style */
+.form-select option {
+    padding: 12px;
+}
+
+/* Section headers like "Detail Alumni" */
+.form-detail h5 {
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+}
+
     </style>
 </head>
 <body>

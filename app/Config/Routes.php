@@ -10,6 +10,7 @@ use CodeIgniter\Router\RouteCollection;
 // ROUTES: Auth/Login
 // --------------------
 $routes->get('/', 'Homepage::index'); // Default landing
+$routes->get('/kontak', 'TracerStudy::kontak');
 $routes->get('/login', 'Auth::login');
 $routes->post('/do-login', 'Auth::doLogin');
 $routes->get('/logout', 'Auth::logout');
@@ -22,16 +23,29 @@ $routes->get('/admin/pengguna', 'penggunaController::index');
 $routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
 $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
 
+$routes->get('admin/dashboard', 'AdminController::dashboard');
+
+//route ajax 
+//route organisasi
+$routes->get('/admin/tipeorganisasi','TipeOrganisasiController::index');
+$routes->get('/admin/tipeorganisasi/form','TipeOrganisasiController::create');
+$routes->post('/admin/tipeorganisasi/insert','TipeOrganisasiController::store');
 
 
 // --------------------
 // ROUTES: Admin
 // --------------------
 $routes->get('/admin', 'adminController::index');
+//route ajax 
+$routes->group('api', function($routes) {
+    $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
+});
 
+$routes->get('/tentang', 'Homepage::tentang');
+$routes->get('/kontak', 'Homepage::kontak');
 
 // --- Pengguna ---
-$routes->group('admin/pengguna', function($routes) {
+$routes->group('admin/pengguna', function ($routes) {
     $routes->get('', 'penggunaController::index');
     $routes->get('tambahPengguna', 'penggunaController::create');
     $routes->post('tambahPengguna/post', 'penggunaController::store');
@@ -39,9 +53,29 @@ $routes->group('admin/pengguna', function($routes) {
     $routes->post('update/(:num)', 'penggunaController::update/$1');
     $routes->post('delete/(:num)', 'penggunaController::delete/$1');
 });
+// --- Kontak ---
+$routes->group('admin/kontak', function ($routes) {
+    $routes->get('', 'KontakController::index');
+    $routes->get('create', 'KontakController::create');
+    $routes->post('store', 'KontakController::store');
+    $routes->get('edit/(:num)', 'KontakController::edit/$1');
+    $routes->post('update/(:num)', 'KontakController::update/$1');
+    $routes->post('delete/(:num)', 'KontakController::delete/$1');
+});
+
+// --- Kontak Deskripsi ---
+$routes->group('admin/kontak-deskripsi', function ($routes) {
+    $routes->get('', 'KontakDeskripsiController::index');
+    $routes->get('edit', 'KontakDeskripsiController::index'); // bisa juga
+    $routes->post('update/(:num)', 'KontakDeskripsiController::update/$1');
+});
+
+
+
+
 
 // --- Tipe Organisasi ---
-$routes->group('admin/tipeorganisasi', function($routes) {
+$routes->group('admin/tipeorganisasi', function ($routes) {
     $routes->get('', 'TipeOrganisasiController::index');
     $routes->get('form', 'TipeOrganisasiController::create');
     $routes->post('insert', 'TipeOrganisasiController::store');
@@ -69,7 +103,7 @@ $routes->get('/home', 'LandingPage::home');
 // --------------------
 // ROUTES: API (AJAX)  JANGAN DI HAPUS!!!!!!!!
 // --------------------
-$routes->group('api', function($routes) {
+$routes->group('api', function ($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
 
@@ -77,7 +111,7 @@ $routes->group('api', function($routes) {
 // --------------------
 // ROUTES: Satuan Organisasi + Nested
 // --------------------
-$routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function($routes) {
+$routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function ($routes) {
 
     // Satuan Organisasi - Main
     $routes->get('', 'SatuanOrganisasi::index');
@@ -88,7 +122,7 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function(
     $routes->post('delete/(:num)', 'SatuanOrganisasi::delete/$1');
 
     // Jurusan - Nested
-    $routes->group('jurusan', function($routes) {
+    $routes->group('jurusan', function ($routes) {
         $routes->get('', 'Jurusan::index');
         $routes->get('create', 'Jurusan::create');
         $routes->post('store', 'Jurusan::store');
@@ -98,7 +132,7 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function(
     });
 
     // Prodi - Nested
-    $routes->group('prodi', function($routes) {
+    $routes->group('prodi', function ($routes) {
         $routes->get('', 'ProdiController::index');
         $routes->get('create', 'ProdiController::create');
         $routes->post('store', 'ProdiController::store');
