@@ -23,13 +23,26 @@ $routes->get('/admin/pengguna', 'penggunaController::index');
 $routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
 $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
 
+$routes->get('admin/dashboard', 'AdminController::dashboard');
+
+//route ajax 
+//route organisasi
+$routes->get('/admin/tipeorganisasi','TipeOrganisasiController::index');
+$routes->get('/admin/tipeorganisasi/form','TipeOrganisasiController::create');
+$routes->post('/admin/tipeorganisasi/insert','TipeOrganisasiController::store');
 
 
 // --------------------
 // ROUTES: Admin
 // --------------------
 $routes->get('/admin', 'adminController::index');
+//route ajax 
+$routes->group('api', function($routes) {
+    $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
+});
 
+$routes->get('/tentang', 'Homepage::tentang');
+$routes->get('/kontak', 'Homepage::kontak');
 
 // --- Pengguna ---
 $routes->group('admin/pengguna', function ($routes) {
@@ -88,7 +101,7 @@ $routes->get('/home', 'LandingPage::home');
 
 
 // --------------------
-// ROUTES: API (AJAX)
+// ROUTES: API (AJAX)  JANGAN DI HAPUS!!!!!!!!
 // --------------------
 $routes->group('api', function ($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
@@ -127,6 +140,7 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
         $routes->post('update/(:num)', 'ProdiController::update/$1');
         $routes->post('delete/(:num)', 'ProdiController::delete/$1');
     });
+  
 });
 
 // questionair route
@@ -178,6 +192,23 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
    $routes->post('pengaturan-situs/simpan', 'PengaturanSitus::simpan');
 
 });
+
+// Route Alumni
+$routes->get('alumni/login', 'Alumni::login');
+$routes->post('alumni/login', 'Alumni::doLogin');
+$routes->get('alumni/dashboard', 'Alumni::dashboard');
+$routes->get('alumni/logout', 'Alumni::logout');
+
+// Pengaturan Situs
+$routes->get('/pengaturan-situs', 'PengaturanSitus::index');
+
+
+
+
+
+
+
+
 
 
 
