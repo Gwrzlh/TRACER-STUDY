@@ -19,97 +19,92 @@ use Exception;
 
 class PenggunaController extends BaseController
 {
-    public function index()
-    {
-        $roleId = $this->request->getGet('role');
+public function index()
+{
+    // Ambil parameter filter dan pagination
+    $roleId  = $this->request->getGet('role');
+    $keyword = $this->request->getGet('keyword');
 
-        $rolesModel = new Roles();      
-        $roles = $rolesModel->findAll(); // ini hasil query berupa array
+    // Ambil perPage dari GET, default 5
+    $perPage = $this->request->getGet('perpage');
+    if (!$perPage || !is_numeric($perPage) || $perPage < 1) {
+        $perPage = 5;
+    } else {
+        $perPage = (int) $perPage;
+    }
 
-        $accountModel = new Accounts();
-        
-        if ($roleId) {
-        $account = $accountModel->where('id_role', $roleId)->getroleid();
-                       
-        } else {
-            $account = $accountModel->getroleid();
-        }
+    // Ambil semua role
+    $rolesModel = new \App\Models\Roles();
+    $roles      = $rolesModel->findAll();
 
-        $detailaccountAdmin = new DetailaccountAdmins();
-        $detailaccountAlumni = new DetailaccountAlumni();
+    // Model akun
+    $accountModel = new \App\Models\Accounts();
 
-        $data = [
-            'roles' => $roles,
-            'account' => $account,
-            'detailaccountAdmin' => $detailaccountAdmin->getaccountid(),
-            'detailaccountAlumni' => $detailaccountAlumni->getDetailWithRelations(),
-            'roleId'  => $roleId
-        
-        ];   
-        
-   
-    $roleId = $this->request->getGet('role');
-    $keyword = $this->request->getGet('keyword'); // ambil keyword dari GET
+    // SELECT + JOIN ke tabel role
+    $accountModel->select('account.*, role.nama AS nama_role')
+                 ->join('role', 'role.id = account.id_role', 'left');
 
-    $rolesModel = new Roles();      
-    $roles = $rolesModel->findAll();
-
-    $accountModel = new Accounts();
-
-    // Jika ada filter role
+    // Filter role
     if ($roleId) {
-        $accountModel->where('id_role', $roleId);
+        $accountModel->where('account.id_role', $roleId);
     }
 
-    // Jika ada pencarian nama
+    // Filter pencarian keyword
     if (!empty($keyword)) {
-        $accountModel->like('username', $keyword); 
-        // Kalau mau berdasarkan detail alumni/admin, ganti fieldnya
+        $accountModel
+            ->groupStart()
+                ->like('account.username', $keyword)
+                ->orLike('account.email', $keyword)
+                ->orLike('account.status', $keyword)
+                ->orLike('role.nama', $keyword)
+            ->groupEnd();
     }
 
-    $account = $accountModel->getroleid(); // method custom di model Anda
+    // Urutkan terbaru
+    $accountModel->orderBy('account.id', 'DESC');
 
-    $detailaccountAdmin = new DetailaccountAdmins();
-    $detailaccountAlumni = new DetailaccountAlumni();
+    // Ambil data dengan pagination dinamis
+    $account = $accountModel->paginate($perPage, 'accounts');
+    $pager   = $accountModel->pager;
+    $currentPage = $this->request->getVar('page_accounts') ?? 1;
 
-    $data = [
-        'roles' => $roles,
-        'account' => $account,
-        'detailaccountAdmin' => $detailaccountAdmin->getaccountid(),
-        'detailaccountAlumni' => $detailaccountAlumni->getDetailWithRelations(),
-        'roleId'  => $roleId,
-        'keyword' => $keyword // kirim ke view supaya input tidak hilang
-    ];   
+    // Agar pagination links membawa semua query string (perpage, role, keyword)
+    $pager->setPath(current_url() . '?' . http_build_query($this->request->getGet()));
 
-    // Hitung jumlah akun per role (reset where setiap loop)
+    // Hitung jumlah akun per role
     $counts = [];
     foreach ($roles as $r) {
         $counts[$r['id']] = (new \App\Models\Accounts())
             ->where('id_role', $r['id'])
             ->countAllResults();
     }
-
-    // Hitung semua akun (untuk tombol "Semua")
     $counts['all'] = (new \App\Models\Accounts())->countAllResults();
 
-    // Ambil data akun sesuai filter role
-    if ($roleId) {
-        $account = $accountModel->where('id_role', $roleId)->getroleid();
-    } else {
-        $account = $accountModel->getroleid();
-    }
+    // Ambil detail akun
+    $detailaccountAdmin  = new \App\Models\DetailaccountAdmins();
+    $detailaccountAlumni = new \App\Models\DetailaccountAlumni();
 
+    // Siapkan data untuk view
     $data = [
-        'roles'   => $roles,
-        'counts'  => $counts,
-        'account' => $account,
-        'roleId'  => $roleId
+        'roles'              => $roles,
+        'counts'             => $counts,
+        'account'            => $account,
+        'pager'              => $pager,
+        'detailaccountAdmin' => $detailaccountAdmin->getaccountid(),
+        'detailaccountAlumni'=> $detailaccountAlumni->getDetailWithRelations(),
+        'roleId'             => $roleId,
+        'keyword'            => $keyword,
+        'perPage'            => $perPage,
+        'currentPage'        => $currentPage,
     ];
 
+    return view('adminpage/pengguna/index', $data);
+}
 
-        return view('adminpage\pengguna\index', $data);
 
-    }public function create()
+
+
+public function create()
     {
         $roles = new Roles();
         $jurusans = new Jurusan();
@@ -125,7 +120,7 @@ class PenggunaController extends BaseController
             'provinces'   => $provincesModel->findAll() // Perbaiki ini
         ];
           $roleId = $this->request->getGet('role');
-    $keyword = $this->request->getGet('keyword');
+         $keyword = $this->request->getGet('keyword');
 
     $rolesModel = new Roles();
     $roles = $rolesModel->findAll();
@@ -160,6 +155,10 @@ class PenggunaController extends BaseController
 
     $detailaccountAdmin = new DetailaccountAdmins();
     $detailaccountAlumni = new DetailaccountAlumni();
+    $datajurusan = $jurusans->findAll();
+    $dataprodi = $prodis->findAll();
+    $provinces = $provincesModel->findAll();
+
 
     $data = [
         'roles' => $roles,
@@ -168,7 +167,10 @@ class PenggunaController extends BaseController
         'detailaccountAlumni' => $detailaccountAlumni->getDetailWithRelations(),
         'roleId'  => $roleId,
         'keyword' => $keyword,
-        'countsPerRole' => $countsPerRole // kirim ke view
+        'countsPerRole' => $countsPerRole,
+        'datajurusan'   => $datajurusan,
+        'dataProdi'   => $dataprodi,
+        'provinces'  => $provinces // kirim ke view
     ];
 
 
