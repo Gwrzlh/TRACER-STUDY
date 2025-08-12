@@ -19,7 +19,7 @@ class PengaturanSitus extends BaseController
             'error'    => session()->getFlashdata('error')
         ];
 
-        return view('adminpage/pengaturan_situs/situs', $data);
+        return view('adminpage/pengaturansitus/index', $data);
     }
 
     public function simpan()
