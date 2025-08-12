@@ -46,44 +46,58 @@ class Auth extends Controller
     }
 
     public function doLogin()
-    {
-        $request = service('request');
-        $session = session();
-        $response = service('response');
-        $model = new AccountModel();
+{
+    $request = service('request');
+    $session = session();
+    $response = service('response');
+    $model = new AccountModel();
 
-        $usernameOrEmail = $request->getPost('username');
-        $password = $request->getPost('password');
-        $remember = $request->getPost('remember'); // ambil checkbox
+    $usernameOrEmail = $request->getPost('username');
+    $password = $request->getPost('password');
+    $remember = $request->getPost('remember'); // ambil checkbox
 
-        $user = $model->getByUsernameOrEmail($usernameOrEmail);
+    /// Login Alumni (statis untuk tes)
+if ($usernameOrEmail === 'alumni' && $password === 'alumni123') {
+    $session->set([
+        'id'        => null,
+        'username'  => 'alumni',
+        'email'     => null,
+        'role_id'   => 'alumni',
+        'logged_in' => true
+    ]);
 
-        if ($user && password_verify($password, $user['password'])) {
-            // Simpan ke session
-            $session->set([
-                'id'        => $user['id'],
-                'username'  => $user['username'],
-                'email'     => $user['email'],
-                'role_id'   => $user['id_role'],
-                'logged_in' => true
+    return redirect()->to('alumni/dashboard'); // arahkan ke halaman alumni
+}
+
+    // 🔹 Login normal via database
+    $user = $model->getByUsernameOrEmail($usernameOrEmail);
+
+    if ($user && password_verify($password, $user['password'])) {
+        // Simpan ke session
+        $session->set([
+            'id'        => $user['id'],
+            'username'  => $user['username'],
+            'email'     => $user['email'],
+            'role_id'   => $user['id_role'],
+            'logged_in' => true
+        ]);
+
+        // Jika centang "Tetap login"
+        if ($remember) {
+            $response->setCookie([
+                'name'     => 'remember_token',
+                'value'    => base64_encode($user['username']),
+                'expire'   => 60 * 60 * 24 * 7, // 7 hari
+                'httponly' => true,
+                'secure'   => false, // ubah ke true jika pakai HTTPS
             ]);
-
-            // Jika centang "Tetap login"
-            if ($remember) {
-                $response->setCookie([
-                    'name'     => 'remember_token',
-                    'value'    => base64_encode($user['username']),
-                    'expire'   => 60 * 60 * 24 * 7, // 7 hari
-                    'httponly' => true,
-                    'secure'   => false, // ubah ke true jika pakai HTTPS
-                ]);
-            }
-
-            return redirect()->to('dashboard');
         }
 
-        return redirect()->back()->with('error', 'Username atau password salah.');
+        return redirect()->to('dashboard');
     }
+
+    return redirect()->back()->with('error', 'Username atau password salah.');
+}
 
     public function dashboard()
     {

@@ -188,5 +188,22 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
     $routes->post('questionnaire/bulk-status', 'QuestionnairController::bulkStatus');                     // Bulk change status
 });
 
+// Route Alumni
+$routes->get('alumni/login', 'Alumni::login');
+$routes->post('alumni/login', 'Alumni::doLogin');
+$routes->get('alumni/dashboard', 'Alumni::dashboard');
+$routes->get('alumni/logout', 'Alumni::logout');
+
+// Pengaturan Situs
+$routes->get('/pengaturan-situs', 'PengaturanSitus::index');
+
+
+
+
+
+
+
+
+
 
 
