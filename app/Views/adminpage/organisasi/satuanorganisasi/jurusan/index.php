@@ -115,7 +115,7 @@
                                 <td style="padding: 16px 20px; text-align: center;">
                                     <a href="<?= base_url('satuanorganisasi/jurusan/edit/' . $row['id']) ?>" 
                                        style="padding: 6px 12px;
-                                              background-color: #ffc107;
+                                              background-color: #001BB7;
                                               color: white;
                                               border: none;
                                               border-radius: 4px;
