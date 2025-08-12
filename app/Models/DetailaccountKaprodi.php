@@ -4,28 +4,31 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Tipeorganisasi extends Model
+class DetailaccountKaprodi extends Model
 {
-    protected $table            = 'tipe_organisasi';
+    protected $table            = 'detailaccount_kaprodi';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['nama_tipe','level','deskripsi','id_group'];
+    protected $allowedFields    = ['nama_lengkap','id_prodi','id_jurusan','notlp','id_account'];
 
     protected bool $allowEmptyInserts = false;
 
-    public function getgroupid(){
-        return $this->select('tipe_organisasi.*, role.nama as nama_role')
-                    ->join('role', 'role.id = tipe_organisasi.id_group');
-        // Tidak pakai findAll() supaya bisa dipanggil paginate()
+     public function getrelationKaprodi(){
+        $builder = $this->db->table($this->table);
+        $builder->select('detailaccount_kaprodi.*, account.*, prodi.nama_prodi as prodi, jurusan.nama_jurusan as jurusan');
+        $builder->join('account', 'account.id = detailaccount_kaprodi.id_account');
+        $builder->join('prodi', 'prodi.id = detailaccount_kaprodi.id_prodi');
+        $builder->join('jurusan', 'jurusan.id = detailaccount_kaprodi.id_jurusan');
+        return $builder->get()->getResult();
     }
 
     // Dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';                                        
+    protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
@@ -45,5 +48,4 @@ class Tipeorganisasi extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-
 }

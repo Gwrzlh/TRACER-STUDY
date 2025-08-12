@@ -12,11 +12,14 @@ class Accounts extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','username','email','password','status','id_role'];
+    protected $allowedFields    = ['id','username','email','password','status','id_role','id_surveyor'];
 
     protected bool $allowEmptyInserts = false;
     public function getroleid(){
         return $this->select('account.*, role.nama as nama_role')->join('role', 'role.id = account.id_role')->findAll();
+    }
+    public function getjabatanid(){
+        return $this->select('account.*, jabatan.jabatan as nama_jabatan')->join('jabatan', 'jabatan.id = account.jabatan_id')->findAll();
     }
     // Dates
     protected $useTimestamps = false;

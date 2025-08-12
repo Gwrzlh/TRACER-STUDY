@@ -101,7 +101,7 @@ $routes->get('/home', 'LandingPage::home');
 
 
 // --------------------
-// ROUTES: API (AJAX)
+// ROUTES: API (AJAX)  JANGAN DI HAPUS!!!!!!!!
 // --------------------
 $routes->group('api', function ($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
@@ -140,6 +140,7 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
         $routes->post('update/(:num)', 'ProdiController::update/$1');
         $routes->post('delete/(:num)', 'ProdiController::delete/$1');
     });
+  
 });
 
 // questionair route

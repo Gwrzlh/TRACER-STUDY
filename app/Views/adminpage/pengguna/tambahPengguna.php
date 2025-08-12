@@ -120,6 +120,7 @@
                             <hr>
 
                             <!-- Form detail untuk ADMIN (Role ID: 2) -->
+
                             <div id="form-detail-2" class="form-detail" style="display: none;">
                                 <h5 class="mb-3">Detail Admin</h5>
                                 <div class="mb-3">
@@ -129,18 +130,19 @@
                             </div>
 
                             <!-- Form detail untuk ALUMNI (Role ID: 1) -->
+
                             <div id="form-detail-1" class="form-detail" style="display: none;">
                                 <h5 class="mb-3">Detail Alumni</h5>
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                                        <input type="text" class="form-control" name="nama_lengkap" id="nama_lengkap">
+                                        <label for="alumni_nama_lengkap" class="form-label">Nama Lengkap</label>
+                                        <input type="text" class="form-control" name="alumni_nama_lengkap" id="alumni_nama_lengkap">
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
-                                        <label for="jeniskelamin" class="form-label">Jenis Kelamin</label>
-                                        <select class="form-select" name="jeniskelamin" id="jeniskelamin">
+                                        <label for="alumni_jeniskelamin" class="form-label">Jenis Kelamin</label>
+                                        <select class="form-select" name="alumni_jeniskelamin" id="alumni_jeniskelamin">
                                             <option value="" disabled selected>-Jenis Kelamin-</option>
                                             <option value="Laki-Laki">Laki-Laki</option>
                                             <option value="Perempuan">Perempuan</option>
@@ -150,25 +152,25 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="nim" class="form-label">NIM</label>
-                                        <input type="text" class="form-control" name="nim" id="nim">
+                                        <label for="alumni_nim" class="form-label">NIM</label>
+                                        <input type="text" class="form-control" name="alumni_nim" id="alumni_nim">
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
-                                        <label for="notlp" class="form-label">No. HP</label>
-                                        <input type="text" class="form-control" name="notlp" id="notlp">
+                                        <label for="alumni_notlp" class="form-label">No. HP</label>
+                                        <input type="text" class="form-control" name="alumni_notlp" id="alumni_notlp">
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="ipk" class="form-label">IPK</label>
-                                    <input type="number" step="0.01" min="0" max="5" class="form-control" name="ipk" id="ipk">
+                                    <label for="alumni_ipk" class="form-label">IPK</label>
+                                    <input type="number" step="0.01" min="0" max="5" class="form-control" name="alumni_ipk" id="alumni_ipk">
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="jurusan" class="form-label">Jurusan</label>
-                                        <select class="form-select" name="jurusan" id="jurusan">
+                                        <label for="alumni_jurusan" class="form-label">Jurusan</label>
+                                        <select class="form-select" name="alumni_jurusan" id="alumni_jurusan">
                                             <option value="">-- Pilih Jurusan --</option>
                                             <?php foreach ($datajurusan as $jurusan): ?>
                                                 <option value="<?= esc($jurusan['id']) ?>"><?= esc($jurusan['nama_jurusan']) ?></option>
@@ -177,8 +179,8 @@
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
-                                        <label for="prodi" class="form-label">Program Studi</label>
-                                        <select class="form-select" name="prodi" id="prodi">
+                                        <label for="alumni_prodi" class="form-label">Program Studi</label>
+                                        <select class="form-select" name="alumni_prodi" id="alumni_prodi">
                                             <option value="">-- Pilih Program Studi --</option>
                                             <?php foreach ($dataProdi as $prodi): ?>
                                                 <option value="<?= esc($prodi['id']) ?>"><?= esc($prodi['nama_prodi']) ?></option>
@@ -189,8 +191,8 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="angkatan" class="form-label">Angkatan</label>
-                                        <select class="form-select" name="angkatan" id="angkatan">
+                                        <label for="alumni_angkatan" class="form-label">Angkatan</label>
+                                        <select class="form-select" name="alumni_angkatan" id="alumni_angkatan">
                                             <option value="">-- Pilih Angkatan --</option>
                                             <?php
                                             $tahunSekarang = date('Y');
@@ -203,8 +205,8 @@
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
-                                        <label for="tahun_lulus" class="form-label">Tahun Lulus</label>
-                                        <select class="form-select" name="tahun_lulus" id="tahun_lulus">
+                                        <label for="alumni_tahun_lulus" class="form-label">Tahun Lulus</label>
+                                        <select class="form-select" name="alumni_tahun_lulus" id="alumni_tahun_lulus">
                                             <option value="">-- Pilih Tahun Lulus --</option>
                                             <?php
                                             $tahunSekarang = date('Y');
@@ -219,12 +221,12 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="province" class="form-label">Provinsi</label>
-                                        <select class="form-select" id="province" name="province">
+                                        <label for="alumni_province" class="form-label">Provinsi</label>
+                                        <select class="form-select province-select" id="alumni_province" name="alumni_province">
                                             <option value="">-- Pilih Provinsi --</option>
                                             <?php foreach($provinces as $province): ?>
                                                 <option value="<?= esc($province['id']) ?>" 
-                                                        <?= old('province') == $province['id'] ? 'selected' : '' ?>>
+                                                        <?= old('alumni_province') == $province['id'] ? 'selected' : '' ?>>
                                                     <?= esc($province['name']) ?>
                                                 </option>
                                             <?php endforeach; ?>
@@ -232,40 +234,190 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label for="kota" class="form-label">Kota/Kabupaten</label>
-                                        <select class="form-select" id="kota" name="kota" disabled>
+                                        <label for="alumni_kota" class="form-label">Kota/Kabupaten</label>
+                                        <select class="form-select city-select" id="alumni_kota" name="alumni_kota" disabled>
                                             <option value="">-- Pilih Provinsi Terlebih Dahulu --</option>
                                         </select>
-                                        <div id="city-loading" class="d-none mt-1">
-                                            <small class="text-muted">
-                                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                                Memuat data kota...
-                                            </small>
-                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="kode_pos" class="form-label">Kode Pos</label>
-                                    <input type="text" class="form-control" name="kode_pos" id="kode_pos" maxlength="5" pattern="\d{5}" placeholder="12345">
+                                    <label for="alumni_kode_pos" class="form-label">Kode Pos</label>
+                                    <input type="text" class="form-control kode-pos-input" name="alumni_kode_pos" id="alumni_kode_pos" maxlength="5" pattern="\d{5}" placeholder="12345">
+                                    <small class="text-muted">5 digit angka</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="alumni_alamat" class="form-label">Alamat:</label>
+                                    <input type="text" class="form-control" name="alumni_alamat" id="alumni_alamat">
+                                    <small class="text-muted">Tuliskan Alamat Lengkap</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="alumni_alamat2" class="form-label">Alamat 2:</label>
+                                    <input type="text" class="form-control" name="alumni_alamat2" id="alumni_alamat2">
+                                    <small class="text-muted">Tuliskan alamat cadangan anda</small>
+                                </div>
+                                
+                                <div>
+                                    <label for="alumni_hak">Hak Supervisi</label>
+                                    <input type="checkbox" name="alumni_hak" id="alumni_hak" value="1">
+                                </div>
+                            </div>
+
+                            <!-- Form detail Kaprodi (Role ID: 6) -->
+                            <div id="form-detail-6" class="form-detail" style="display: none;">
+                                <h5 class="mb-3">Detail Kaprodi</h5>
+                                <div class="mb-3">
+                                    <label for="kaprodi_nama_lengkap" class="form-label">Nama Lengkap:</label>
+                                    <input type="text" class="form-control" name="kaprodi_nama_lengkap" id="kaprodi_nama_lengkap">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="kaprodi_jurusan" class="form-label">Jurusan</label>
+                                    <select class="form-select" name="kaprodi_jurusan" id="kaprodi_jurusan">
+                                        <option value="">-- Pilih Jurusan --</option>
+                                        <?php foreach ($datajurusan as $jurusan): ?>
+                                            <option value="<?= $jurusan['id'] ?>"><?= $jurusan['nama_jurusan'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="kaprodi_prodi" class="form-label">Program Studi</label>
+                                    <select class="form-select" name="kaprodi_prodi" id="kaprodi_prodi">
+                                        <option value="">-- Pilih Program Studi --</option>
+                                        <?php foreach ($dataProdi as $prodi): ?>
+                                            <option value="<?= $prodi['id'] ?>"><?= $prodi['nama_prodi'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="kaprodi_notlp" class="form-label">No.Hp:</label>
+                                    <input type="text" class="form-control" name="kaprodi_notlp" id="kaprodi_notlp">
+                                </div>
+                                <div>
+                                    <label for="kaprodi_hak">Hak Supervisi</label>
+                                    <input type="checkbox" name="kaprodi_hak" id="kaprodi_hak" value="1">
+                                </div>
+                            </div>
+
+                            <!-- Form detail Perusahaan (Role ID: 7) -->
+                            <div id="form-detail-7" class="form-detail" style="display: none;">
+                                <h5 class="mb-3">Detail Perusahaan</h5>
+                                <div class="mb-3">
+                                    <label for="perusahaan_nama_perusahaan" class="form-label">Nama Perusahaan:</label>
+                                    <input type="text" class="form-control" name="perusahaan_nama_perusahaan" id="perusahaan_nama_perusahaan">
+                                </div>
+                                <div class="row">
+                                <div class="col-md-6 mb-3">
+                                        <label for="perusahaan_province" class="form-label">Provinsi</label>
+                                        <select class="form-select province-select" id="perusahaan_province" name="perusahaan_province">
+                                            <option value="">-- Pilih Provinsi --</option>
+                                            <?php foreach($provinces as $province): ?>
+                                                <option value="<?= esc($province['id']) ?>">
+                                                    <?= esc($province['name']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="perusahaan_kota" class="form-label">Kota/Kabupaten</label>
+                                        <select class="form-select city-select" id="perusahaan_kota" name="perusahaan_kota" disabled>
+                                            <option value="">-- Pilih Provinsi Terlebih Dahulu --</option>
+                                        </select>
+                                    </div> 
+                                </div>
+                                <div class="mb-3">
+                                    <label for="perusahaan_alamat1" class="form-label">Alamat Perusahaan 1</label>
+                                    <input type="text" class="form-control" name="perusahaan_alamat1" id="perusahaan_alamat1">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="perusahaan_alamat2" class="form-label">Alamat Perusahaan 2</label>
+                                    <input type="text" class="form-control" name="perusahaan_alamat2" id="perusahaan_alamat2">
+                                </div>
+                            <div class="mb-3">
+                                    <label for="perusahaan_kode_pos" class="form-label">Kode Pos</label>
+                                    <input type="text" class="form-control kode-pos-input" name="perusahaan_kode_pos" id="perusahaan_kode_pos" maxlength="5" pattern="\d{5}" placeholder="12345">
                                     <small class="text-muted">5 digit angka</small>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="alamat" class="form-label">Alamat:</label>
-                                    <input type="text" class="form-control" name="alamat" id="alamat"  >
-                                    <!-- <small class="text-muted">Tuliskan Alamat Lengkap</small> -->
+                                    <label for="perusahaan_notlp" class="form-label">No.Hp</label>
+                                    <input type="text" class="form-control" name="perusahaan_notlp" id="perusahaan_notlp">
+                                </div>
+                            </div>
+
+                            <!-- Form detail Atasan (Role ID: 8) -->
+                            <div id="form-detail-8" class="form-detail" style="display: none;">
+                                <h5 class="mb-3">Detail Atasan</h5>
+                                <div class="mb-3">
+                                    <label for="atasan_nama_lengkap" class="form-label">Nama Lengkap</label>
+                                    <input type="text" class="form-control" name="atasan_nama_lengkap" id="atasan_nama_lengkap">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="atasan_jabatan" class="form-label">Jabatan :</label>
+                                    <select class="form-select" name="atasan_jabatan" id="atasan_jabatan">
+                                        <option value="">-- Pilih Jabatan --</option>
+                                        <?php foreach ($jabatan as $j) : ?>
+                                            <option value="<?= esc($j['id']) ?>">
+                                                <?= esc($j['jabatan']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="alamat2" class="form-label">Alamat 2:</label>
-                                    <input type="text" class="form-control" name="alamat2" id="alamat2"  >
-                                    <!-- <small class="text-muted">Tuliskan alamat cadangan anda</small> -->
+                                    <label for="atasan_notlp" class="form-label">No.Hp</label>
+                                    <input type="text" class="form-control" name="atasan_notlp" id="atasan_notlp">
+                                </div>
+                            </div>
+
+                            <!-- Form detail Jabatan Lainnya (Role ID: 9) -->
+                            <div id="form-detail-9" class="form-detail" style="display: none;">
+                                <h5 class="mb-3">Detail Jabatan Lainnya</h5>
+                            <div class="mb-3">
+                                    <label for="lainnya_nama_lengkap" class="form-label">Nama Lengkap:</label>
+                                    <input type="text" class="form-control" name="lainnya_nama_lengkap" id="lainnya_nama_lengkap">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="lainnya_jabatan" class="form-label">jabatan</label>
+                                    <select class="form-select" name="lainnya_jabatan" id="lainnya_jabatan">
+                                        <option value="">-- Pilih jabatan --</option>
+                                        <?php foreach ($jabatan as $jabatan): ?>
+                                            <option value="<?= $jabatan['id'] ?>"><?= $jabatan['jabatan'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="lainnya_jurusan" class="form-label">Jurusan</label>
+                                    <select class="form-select" name="lainnya_jurusan" id="lainnya_jurusan">
+                                        <option value="">-- Pilih Jurusan --</option>
+                                        <?php foreach ($datajurusan as $jurusan): ?>
+                                            <option value="<?= $jurusan['id'] ?>"><?= $jurusan['nama_jurusan'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="lainnya_prodi" class="form-label">Program Studi</label>
+                                    <select class="form-select" name="lainnya_prodi" id="lainnya_prodi">
+                                        <option value="">-- Pilih Program Studi --</option>
+                                        <?php foreach ($dataProdi as $prodi): ?>
+                                            <option value="<?= $prodi['id'] ?>"><?= $prodi['nama_prodi'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="lainnya_notlp" class="form-label">No.Hp:</label>
+                                    <input type="text" class="form-control" name="lainnya_notlp" id="lainnya_notlp">
+                                </div>
+                                <div>
+                                    <label for="lainnya_hak">Hak Supervisi</label>
+                                    <input type="checkbox" name="lainnya_hak" id="lainnya_hak" value="1">
                                 </div>
                             </div>
 
                             <div class="mt-4">
-
                                 <button type="submit" class="btn" style="background-color: #001BB7; color: white;">Simpan</button>
-                                <button type="button" class="btn" style="background-color: orange; color: white;">Batal</button>
+                               <a href="<?= base_url('/admin/pengguna') ?>"><button type="button" class="btn" style="background-color: orange; color: white;">Batal</button></a>
                             </div>
                         </form>
                     </div>
@@ -292,18 +444,19 @@
                 
                 // Set required attributes untuk form yang aktif
                 if (roleId == '1') { // Alumni
-                    $('#nama_lengkap, #nim, #notlp').prop('required', true);
+                    $('#nama_lengkap, #nim, #alumni_notlp').prop('required', true);
                 } else if (roleId == '2') { // Admin
                     $('#admin_nama_lengkap').prop('required', true);
+                } else if (roleId == '7') { // Perusahaan
+                    $('#nama_perusahaan, #perusahaan_notlp').prop('required', true);
                 }
             }
         });
 
-        // Event handler ketika provinsi dipilih
-        $('#province').change(function() {
-            var provinceId = $(this).val();
-            var citySelect = $('#kota');
-            var cityLoading = $('#city-loading');
+        // Function untuk load data kota berdasarkan provinsi - UNIVERSAL
+        function loadCities(provinceId, citySelectId, loadingId) {
+            var citySelect = $('#' + citySelectId);
+            var cityLoading = $('#' + loadingId);
 
             // Reset dropdown kota
             citySelect.html('<option value="">-- Pilih Kota/Kabupaten --</option>');
@@ -370,12 +523,24 @@
             } else {
                 citySelect.html('<option value="">-- Pilih Provinsi Terlebih Dahulu --</option>');
             }
+        }
+
+        // Event handler untuk Alumni provinsi
+        $('#alumni_province').change(function() {
+            var provinceId = $(this).val();
+            loadCities(provinceId, 'alumni_kota', 'alumni-city-loading');
+        });
+
+        // Event handler untuk Perusahaan provinsi
+        $('#perusahaan_province').change(function() {
+            var provinceId = $(this).val();
+            loadCities(provinceId, 'perusahaan_kota', 'perusahaan-city-loading');
         });
 
         // Trigger change event jika ada old province value
         var oldProvince = '<?= old("province") ?>';
         if (oldProvince) {
-            $('#province').val(oldProvince).trigger('change');
+            $('#alumni_province, #perusahaan_province').val(oldProvince).trigger('change');
         }
 
         // Trigger change event jika ada old group value
@@ -414,54 +579,119 @@
             }
             
             // Validate role-specific fields
-            if (roleId == '1') { // Alumni
-                if (!$('#nama_lengkap').val()) {
-                    $('#nama_lengkap').addClass('is-invalid');
-                    isValid = false;
-                }
-                if (!$('#nim').val()) {
-                    $('#nim').addClass('is-invalid');
-                    isValid = false;
-                }
-                if (!$('#notlp').val()) {
-                    $('#notlp').addClass('is-invalid');
-                    isValid = false;
-                }
-                
-                // Validate IPK if filled
-                var ipk = $('#ipk').val();
-                if (ipk && (parseFloat(ipk) < 0 || parseFloat(ipk) > 4)) {
-                    $('#ipk').addClass('is-invalid');
-                    showAlert('error', 'IPK harus antara 0 - 4');
-                    isValid = false;
-                }
-            } else if (roleId == '2') { // Admin
-                if (!$('#admin_nama_lengkap').val()) {
-                    $('#admin_nama_lengkap').addClass('is-invalid');
-                    isValid = false;
-                }
-            }
-            
-            // Validate postal code (if filled)
-            var postalCode = $('#kode_pos').val().trim();
-            if (postalCode && (!/^\d{5}$/.test(postalCode))) {
-                $('#kode_pos').addClass('is-invalid');
-                showAlert('error', 'Kode pos harus 5 digit angka');
-                isValid = false;
-            }
+           // GANTI BAGIAN VALIDASI ROLE-SPECIFIC INI:
 
-            if (!isValid) {
-                e.preventDefault();
-                showAlert('error', 'Harap lengkapi semua field yang wajib diisi dengan benar!');
-                
-                // Scroll to first invalid field
-                $('.is-invalid').first().focus();
-                
-                // Scroll to top of form
-                $('html, body').animate({
-                    scrollTop: $('.is-invalid').first().offset().top - 100
-                }, 500);
-            }
+// Validate role-specific fields
+if (roleId == '1') { // Alumni
+    if (!$('#alumni_nama_lengkap').val()) {        // ✅ UBAH: dari #nama_lengkap ke #alumni_nama_lengkap
+        $('#alumni_nama_lengkap').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#alumni_nim').val()) {                 // ✅ UBAH: dari #nim ke #alumni_nim
+        $('#alumni_nim').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#alumni_notlp').val()) {               // ✅ BENAR: sudah sesuai
+        $('#alumni_notlp').addClass('is-invalid');
+        isValid = false;
+    }
+    
+    // Validate IPK if filled
+    var ipk = $('#alumni_ipk').val();              // ✅ UBAH: dari #ipk ke #alumni_ipk
+    if (ipk && (parseFloat(ipk) < 0 || parseFloat(ipk) > 4)) {
+        $('#alumni_ipk').addClass('is-invalid');   // ✅ UBAH: dari #ipk ke #alumni_ipk
+        showAlert('error', 'IPK harus antara 0 - 4');
+        isValid = false;
+    }
+    
+    // Validate postal code (if filled)
+    var postalCodeAlumni = $('#alumni_kode_pos').val().trim();  // ✅ BENAR: sudah sesuai
+    if (postalCodeAlumni && (!/^\d{5}$/.test(postalCodeAlumni))) {
+        $('#alumni_kode_pos').addClass('is-invalid');
+        showAlert('error', 'Kode pos harus 5 digit angka');
+        isValid = false;
+    }
+} else if (roleId == '2') { // Admin
+    if (!$('#admin_nama_lengkap').val()) {         // ✅ BENAR: sudah sesuai
+        $('#admin_nama_lengkap').addClass('is-invalid');
+        isValid = false;
+    }
+} else if (roleId == '6') { // Kaprodi - TAMBAH VALIDASI INI
+    if (!$('#kaprodi_nama_lengkap').val()) {
+        $('#kaprodi_nama_lengkap').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#kaprodi_notlp').val()) {
+        $('#kaprodi_notlp').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#kaprodi_jurusan').val()) {
+        $('#kaprodi_jurusan').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#kaprodi_prodi').val()) {
+        $('#kaprodi_prodi').addClass('is-invalid');
+        isValid = false;
+    }
+} else if (roleId == '7') { // Perusahaan
+    if (!$('#perusahaan_nama_perusahaan').val()) { // ✅ UBAH: dari #nama_perusahaan ke #perusahaan_nama_perusahaan
+        $('#perusahaan_nama_perusahaan').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#perusahaan_notlp').val()) {           // ✅ BENAR: sudah sesuai
+        $('#perusahaan_notlp').addClass('is-invalid');
+        isValid = false;
+    }
+    
+    // Validate postal code (if filled)
+    var postalCodePerusahaan = $('#perusahaan_kode_pos').val().trim();  // ✅ BENAR: sudah sesuai
+    if (postalCodePerusahaan && (!/^\d{5}$/.test(postalCodePerusahaan))) {
+        $('#perusahaan_kode_pos').addClass('is-invalid');
+        showAlert('error', 'Kode pos harus 5 digit angka');
+        isValid = false;
+    }
+} else if (roleId == '8') { // Atasan - TAMBAH VALIDASI INI
+    if (!$('#atasan_nama_lengkap').val()) {
+        $('#atasan_nama_lengkap').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#atasan_jabatan').val()) {
+        $('#atasan_jabatan').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#atasan_notlp').val()) {
+        $('#atasan_notlp').addClass('is-invalid');
+        isValid = false;
+    }
+} else if (roleId == '9') { // Jabatan Lainnya - TAMBAH VALIDASI INI
+    if (!$('#lainnya_nama_lengkap').val()) {
+        $('#lainnya_nama_lengkap').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#lainnya_jabatan').val()) {
+        $('#lainnya_jabatan').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#lainnya_jurusan').val()) {
+        $('#lainnya_jurusan').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#lainnya_prodi').val()) {
+        $('#lainnya_prodi').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!$('#lainnya_notlp').val()) {
+        $('#lainnya_notlp').addClass('is-invalid');
+        isValid = false;
+    }
+}
+
+// JUGA UBAH BAGIAN IPK VALIDATION INI:
+$('#alumni_ipk').on('input', function() {         // ✅ UBAH: dari #ipk ke #alumni_ipk
+    var val = parseFloat($(this).val());
+    if (val < 0) $(this).val(0);
+    if (val > 4) $(this).val(4);
+});
         });
 
         // Function to validate email
@@ -508,7 +738,8 @@
             }
         });
 
-        $('#kode_pos').on('input', function() {
+        // Kode pos validation - hanya angka (menggunakan class selector untuk multiple elements)
+        $('.kode-pos-input').on('input', function() {
             // Only allow numbers
             $(this).val($(this).val().replace(/[^\d]/g, ''));
         });
