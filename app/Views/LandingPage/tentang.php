@@ -93,11 +93,11 @@
 
 <!-- Konten utama -->
 <main>
-    <div class="content">
-        <h2><?= esc($tentang['judul']) ?></h2>
-<p><?= nl2br(esc($tentang['isi'])) ?></p>
+   <div class="content">
+    <h2><?= esc($tentang['judul']) ?></h2>
+    <?= $tentang['isi'] ?>
+</div>
 
-    </div>
 </main>
 
 <!-- Footer -->
