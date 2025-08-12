@@ -173,6 +173,10 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
     // Bulk actions
     $routes->post('questionnaire/bulk-delete', 'QuestionnairController::bulkDelete');                      // Bulk delete questionnaires
     $routes->post('questionnaire/bulk-status', 'QuestionnairController::bulkStatus');                     // Bulk change status
+
+    // Pengaturan Situs
+   $routes->post('pengaturan-situs/simpan', 'PengaturanSitus::simpan');
+
 });
 
 

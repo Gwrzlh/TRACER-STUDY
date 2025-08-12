@@ -84,7 +84,7 @@ $data = $model->first();
             </div>
             <div class="col-md-6">
                 <h2><?= esc($data['title_1']) ?></h2>
-                <p><?= esc($data['desc_1']) ?></p>
+                <p><?= $data['desc_1'] ?></p>
             </div>
         </div>
     </div>
@@ -96,7 +96,7 @@ $data = $model->first();
         <div class="row align-items-top g-5">
             <div class="col-md-6">
                 <h2><?= esc($data['title_2']) ?></h2>
-                <p><?= esc($data['desc_2']) ?></p>
+                <p><?= $data['desc_2'] ?></p>
                 <a href="<?= base_url('/login') ?>" class="btn btn-primary mt-3">Login</a>
             </div>
             <div class="col-md-6">

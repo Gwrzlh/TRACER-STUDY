@@ -36,12 +36,12 @@
                     class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400">
             </div>
 
-            <!-- Deskripsi 1 -->
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Deskripsi 1</label>
-                <textarea name="desc_1" rows="4" required
-                    class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"><?= esc($welcome['desc_1']) ?></textarea>
-            </div>
+           <!-- Deskripsi 1 -->
+<div>
+    <label class="block font-medium text-gray-700 mb-1">Deskripsi 1</label>
+    <textarea id="desc_1_editor" name="desc_1" rows="4" required
+        class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"><?= esc($welcome['desc_1']) ?></textarea>
+</div>
 
             <!-- Judul 2 -->
             <div>
@@ -49,13 +49,12 @@
                 <input type="text" name="title_2" value="<?= esc($welcome['title_2']) ?>" required
                     class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400">
             </div>
-
-            <!-- Deskripsi 2 -->
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Deskripsi 2</label>
-                <textarea name="desc_2" rows="4" required
-                    class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"><?= esc($welcome['desc_2']) ?></textarea>
-            </div>
+<!-- Deskripsi 2 -->
+<div>
+    <label class="block font-medium text-gray-700 mb-1">Deskripsi 2</label>
+    <textarea id="desc_2_editor" name="desc_2" rows="4" required
+        class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"><?= esc($welcome['desc_2']) ?></textarea>
+</div>
 
             <!-- Gambar Saat Ini -->
             <div>
@@ -86,6 +85,19 @@
             </div>
         </form>
     </div>
+
+<!-- TinyMCE -->
+<script src="https://cdn.tiny.cloud/1/mulx329q2otm5e08yjpc5fw54t0uqsvqy2zd1fcj2545xggl/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+tinymce.init({
+    selector: '#desc_1_editor, #desc_2_editor',
+    height: 300,
+    menubar: false, // hilangkan menu bar
+    plugins: 'lists link image table code fullscreen', 
+    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist', 
+    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+});
+</script>
 
 </body>
 </html>
