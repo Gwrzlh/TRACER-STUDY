@@ -10,15 +10,20 @@ use App\Models\TipeOrganisasiModel;
 
 class TipeOrganisasiController extends BaseController
 {
-    public function index()
-    {
-       $tipeorganisasi = new Tipeorganisasi();
-       $data = [
-        'Tipeorganisasi'  =>  $tipeorganisasi->getgroupid()
-       ];                                                                   
+public function index()
+{
+    $perPage = $this->request->getGet('per_page') ?? 5; // default 5 data per halaman
 
-        return view('adminpage\organisasi\tipe_organisasi\index', $data);
-    }
+    $tipeorganisasi = new \App\Models\Tipeorganisasi();
+
+    $data = [
+        'Tipeorganisasi' => $tipeorganisasi->getgroupid()->paginate($perPage), // pagination
+        'pager'          => $tipeorganisasi->pager,
+        'perPage'        => $perPage
+    ];
+
+    return view('adminpage/organisasi/tipe_organisasi/index', $data);
+}
     public function create()
     {
         $tipeorganisasi = new Tipeorganisasi();

@@ -24,8 +24,11 @@ class Pager extends BaseConfig
         'default_full'   => 'CodeIgniter\Pager\Views\default_full',
         'default_simple' => 'CodeIgniter\Pager\Views\default_simple',
         'default_head'   => 'CodeIgniter\Pager\Views\default_head',
+         'paginations' => 'App\Views\layout\paginations',
+          'pagination2' => 'App\Views\layout\pagination2',
     ];
-
+public $queryStringSegment = 'page';
+public $retainQueryStrings = true;
     /**
      * --------------------------------------------------------------------------
      * Items Per Page

@@ -2,12 +2,14 @@
 
 namespace App\Controllers;
 
+
 use App\Controllers\BaseController;
 
 class PengaturanSitus extends BaseController
 {
     public function index()
     {
+
         $session = session();
 
         $data = [
@@ -47,5 +49,8 @@ class PengaturanSitus extends BaseController
         return redirect()
             ->to(base_url('pengaturan-situs'))
             ->with('success', 'Pengaturan situs berhasil disimpan!');
+        // Memanggil view yang ada di dalam folder adminpage/pengaturansitus
+        return view('adminpage/pengaturansitus/index');
+
     }
 }
