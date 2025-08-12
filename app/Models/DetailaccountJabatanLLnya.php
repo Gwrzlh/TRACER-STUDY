@@ -4,28 +4,31 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Tipeorganisasi extends Model
+class DetailaccountJabatanLLnya extends Model
 {
-    protected $table            = 'tipe_organisasi';
+    protected $table            = 'detailaccount_jabatan_lainnya';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['nama_tipe','level','deskripsi','id_group'];
+    protected $allowedFields    = ['nama_lengkap','id_prodi','id_jurusan','notlp','id_account','id_jabatan'];
 
     protected bool $allowEmptyInserts = false;
 
-    public function getgroupid(){
-        return $this->select('tipe_organisasi.*, role.nama as nama_role')
-                    ->join('role', 'role.id = tipe_organisasi.id_group');
-        // Tidak pakai findAll() supaya bisa dipanggil paginate()
+    public function getrelationjabatanll(){
+        $builder = $this->db->table($this->table);
+        $builder->select('detailaccount_jabatan_lainnya.*, account.*, prodi.nama_prodi as prodi, jurusan.nama_jurusan as jurusan, jabatan.jabatan as nama_jabatan');
+        $builder->join('account', 'account.id = detailaccount_jabatan_lainnya.id_account');
+        $builder->join('prodi', 'prodi.id = detailaccount_jabatan_lainnya.id_prodi');
+        $builder->join('jurusan', 'jurusan.id = detailaccount_jabatan_lainnya.id_jurusan');
+        $builder->join('jabatan', 'jabatan.id = detailaccount_jabatan_lainnya.id_jabatan');
+        return $builder->get()->getResult();
     }
-
     // Dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';                                        
+    protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
@@ -45,5 +48,4 @@ class Tipeorganisasi extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-
 }

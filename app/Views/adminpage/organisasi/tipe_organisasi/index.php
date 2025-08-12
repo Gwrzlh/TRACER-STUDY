@@ -109,7 +109,7 @@
 }
 
 .btn-edit {
-    background: #28a745;
+    background:#001BB7;
     color: white;
     border: none;
     padding: 8px 16px;
@@ -121,7 +121,7 @@
 }
 
 .btn-edit:hover {
-    background: #218838;
+    background: #001BB7;
     color: white;
     text-decoration: none;
     transform: translateY(-1px);
@@ -174,68 +174,77 @@
 }
 </style>
 
-<div>
-    <div class="table-container">
-        <div class="table-header">
-            <h2 class="table-title">Tipe Organisasi</h2>
-            <a href="<?= base_url('/admin/tipeorganisasi/form') ?>" class="btn-add">
-                <span>+</span>
-                Tambah
-            </a>
-        </div>
-        
-        <div>
-            <table class="custom-table">
-                <thead>
+<div class="table-container">
+    <div class="table-header" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+        <h2 class="table-title">Tipe Organisasi</h2>
+        <a href="<?= base_url('/admin/tipeorganisasi/form') ?>" class="btn-add">
+            <span>+</span>
+            Tambah
+        </a>
+    </div>
+    <!-- Dropdown jumlah data per halaman -->
+    <form method="get" style="margin: 10px 0;">
+        <label for="per_page">Tampilkan data:</label>
+        <select name="per_page" id="per_page" onchange="this.form.submit()">
+            <option value="5" <?= $perPage == 5 ? 'selected' : '' ?>>5</option>
+            <option value="10" <?= $perPage == 10 ? 'selected' : '' ?>>10</option>
+            <option value="25" <?= $perPage == 25 ? 'selected' : '' ?>>25</option>
+            <option value="50" <?= $perPage == 50 ? 'selected' : '' ?>>50</option>
+        </select>   
+    <div>
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Nama Tipe</th>
+                    <th>Level</th>
+                    <th>Deskripsi</th>
+                    <th>Group</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($Tipeorganisasi)): ?>
+                    <?php foreach ($Tipeorganisasi as $tipe): ?>
                     <tr>
-                        <th>Nama Tipe</th>
-                        <th>Level</th>
-                        <th>Deskripsi</th>
-                        <th>Group</th>
-                        <th>Actions</th>
+                        <td>
+                            <span class="customer-name"><?= htmlspecialchars($tipe['nama_tipe']) ?></span>
+                        </td>
+                        <td>
+                            <span class="level-badge"><?= htmlspecialchars($tipe['level']) ?></span>
+                        </td>
+                        <td>
+                            <span class="description-text" title="<?= htmlspecialchars($tipe['deskripsi']) ?>">
+                                <?= htmlspecialchars($tipe['deskripsi']) ?>
+                            </span>
+                        </td>
+                        <td><?= htmlspecialchars($tipe['nama_role']) ?></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="<?= base_url('/admin/tipeorganisasi/edit/'. $tipe['id'] ) ?>" class="btn-edit">Edit</a>
+                                <form action="<?= base_url('/admin/tipeorganisasi/delete/' . $tipe['id']) ?>" method="post" class="inline" onsubmit="return confirm('Yakin hapus data ini?')">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn-delete">Delete</button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($Tipeorganisasi)): ?>
-                        <?php foreach ($Tipeorganisasi as $tipe): ?>
-                        <tr>
-                            <td>
-                                <span class="customer-name"><?= htmlspecialchars($tipe['nama_tipe']) ?></span>
-                            </td>
-                            <td>
-                                <span class="level-badge"><?= htmlspecialchars($tipe['level']) ?></span>
-                            </td>
-                            <td>
-                                <span class="description-text" title="<?= htmlspecialchars($tipe['deskripsi']) ?>">
-                                    <?= htmlspecialchars($tipe['deskripsi']) ?>
-                                </span>
-                            </td>
-                            <td><?= htmlspecialchars($tipe['nama_role']) ?></td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="<?= base_url('/admin/tipeorganisasi/edit/'. $tipe['id'] ) ?>" class="btn-edit">Edit</a>
-                                    <form action="<?= base_url('/admin/tipeorganisasi/delete/' . $tipe['id']) ?>" method="post" class="inline" onsubmit="return confirm('Yakin hapus data ini?')">
-                                        <?= csrf_field() ?>
-                                        <button type="submit" class="btn-delete">Delete</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="5" class="empty-state">
-                                <div>
-                                    <p>Belum ada data tipe organisasi</p>
-                                    <small>Klik tombol "+ Tambah" untuk menambah data baru</small>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <div>
+                                <p>Belum ada data tipe organisasi</p>
+                                <small>Klik tombol "+ Tambah" untuk menambah data baru</small>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+       <?= $pager->links('default', 'pagination2') ?>
+
     </div>
 </div>
+
 
 <?= $this->endSection() ?>
