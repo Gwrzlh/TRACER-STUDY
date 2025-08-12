@@ -6,6 +6,7 @@ use CodeIgniter\Model;
 
 class JabatanModels extends Model
 {
+
     protected $table            = 'jabatan';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
