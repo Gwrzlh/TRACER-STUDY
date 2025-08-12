@@ -140,6 +140,7 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
         $routes->post('update/(:num)', 'ProdiController::update/$1');
         $routes->post('delete/(:num)', 'ProdiController::delete/$1');
     });
+  
 });
 
 // questionair route

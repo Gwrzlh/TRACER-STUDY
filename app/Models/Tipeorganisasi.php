@@ -17,7 +17,9 @@ class Tipeorganisasi extends Model
     protected bool $allowEmptyInserts = false;
 
     public function getgroupid(){
-        return $this->select('tipe_organisasi.*,role.nama as nama_role')->join('role', 'role.id = tipe_organisasi.id_group')->findAll();
+        return $this->select('tipe_organisasi.*, role.nama as nama_role')
+                    ->join('role', 'role.id = tipe_organisasi.id_group');
+        // Tidak pakai findAll() supaya bisa dipanggil paginate()
     }
 
     // Dates
@@ -43,4 +45,5 @@ class Tipeorganisasi extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
 }

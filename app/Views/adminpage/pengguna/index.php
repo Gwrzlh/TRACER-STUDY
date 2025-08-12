@@ -81,6 +81,7 @@
             Search
         </button>
     </div>
+   
 </form>
 
 <style>
@@ -91,7 +92,27 @@
         width: 300px; /* Lebar saat fokus */
         outline: none;
     }
-</style>  <!-- Tab Semua -->
+</style>  
+<form method="get" action="<?= base_url('admin/pengguna') ?>" class="mb-3">
+    <!-- filter role dan keyword tetap sama -->
+    
+    <label for="perpage">Tampilkan per halaman:</label>
+    <input 
+        type="number" 
+        name="perpage" 
+        id="perpage" 
+        min="1" 
+        value="<?= esc($perPage) ?>" 
+        style="width: 80px;"
+        onchange="this.form.submit()"
+    >
+    
+    
+    
+    <!-- kalau mau tombol submit manual bisa dihilangkan karena onchange sudah submit otomatis -->
+</form>
+
+<!-- Tab Semua -->
             <div class="tab-pane fade <?= ($roleId === null) ? 'show active' : '' ?>" id="role_all" role="tabpanel">
                 <?php if (!empty($account)): ?>
                     
@@ -146,7 +167,7 @@
                             </thead>
                             <!-- Body -->
                             <tbody>
-                                <?php $no = 1; foreach ($account as $acc): ?>
+                              <?php $no = 1 + ($perPage * ($currentPage - 1)); foreach ($account as $acc): ?>
                                     <tr style="border-bottom: 1px solid #e9ecef; transition: background-color 0.2s ease;"
                                         onmouseover="this.style.backgroundColor='#f8f9fa'" 
                                         onmouseout="this.style.backgroundColor='white'">
@@ -213,7 +234,9 @@
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-                    </div>
+                       <div style="margin-top: 20px;">
+                         <?= $pager->links('accounts', 'paginations') ?>
+                        </div>
                 <?php else: ?>
                     <div style="padding: 40px; text-align: center; color: #6c757d;">
                         <p style="font-size: 16px; margin: 0;">Tidak ada data pengguna.</p>
