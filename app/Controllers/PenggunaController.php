@@ -16,6 +16,10 @@ use App\Models\DetailaccountAlumni;
 use App\Models\DetailaccountCompany;
 use App\Models\JabatanModels;
 use App\Models\JurusanModel;
+use App\Models\DetailaccountPerusahaan;
+use App\Models\DetailaccountKaprodi;
+use App\Models\DetailaccountAtasan;
+use App\Models\DetailaccountJabatanLLnya;
 use Exception;
 
 class PenggunaController extends BaseController
@@ -166,6 +170,7 @@ class PenggunaController extends BaseController
     $datajurusan = $jurusans->findAll();
     $dataprodi = $prodis->findAll();
     $provinces = $provincesModel->findAll();
+    $jabatan = $jabatanModel->findAll();
 
 
     $data = [
@@ -178,7 +183,8 @@ class PenggunaController extends BaseController
         'countsPerRole' => $countsPerRole,
         'datajurusan'   => $datajurusan,
         'dataProdi'   => $dataprodi,
-        'provinces'  => $provinces // kirim ke view
+        'provinces'  => $provinces,
+        'jabatan'   => $jabatan
     ];
 
 
@@ -210,103 +216,222 @@ class PenggunaController extends BaseController
 public function store()
 {
     $validation = \Config\Services::validation();
-
+    $detailPerusahaan = new DetailaccountPerusahaan();
+    $detailAtasan = new DetailaccountAtasan();
+    $detailKaprodi = new DetailaccountKaprodi();
+    $detailJabatanll = new DetailaccountJabatanLLnya();
+    
     // Ambil group dulu
     $group = $this->request->getPost('group');
-        // dd($this->request->getPost());
+    
+    // DEBUG: Aktifkan untuk melihat data yang dikirim
+    // dd($this->request->getPost());
 
     // RULE VALIDASI DASAR
     $rules = [
         'username'      => 'required|is_unique[account.username]',
         'email'         => 'required|valid_email',
         'password'      => 'required|min_length[6]',
-        'group'         => 'required|in_list[1,2,3]',
+        'group'         => 'required|in_list[1,2,6,7,8,9]',
         'status'        => 'required',
-        // 'nama_lengkap'  => 'required|min_length[3]',
     ];
 
-    // RULE TAMBAHAN JIKA ALUMNI (Group == 1)
+    // RULE TAMBAHAN BERDASARKAN ROLE - SEKARANG DENGAN UNIQUE FIELD NAMES
     if ($group == 1) {
+        // Alumni - Field names dengan prefix alumni_
         $rules = array_merge($rules, [
-            'nim'             => 'required|numeric',
-            'jurusan'         => 'required|numeric',
-            'prodi'           => 'required|numeric',
-            'angkatan'        => 'required|numeric',
-            'tahun_lulus'     => 'required|numeric',
-            'ipk'             => 'required|decimal',
-            'jeniskelamin'    => 'required|in_list[Laki-Laki,Perempuan]',
-            'notlp'           => 'required|min_length[10]',
-            'kota'            => 'required|numeric',
-            'province'        => 'required|numeric',
-            'kode_pos'        => 'required|numeric',
-            'alamat'          => 'required',
-            'alamat2'         => 'permit_empty',
-             'hak'            => 'permit_empty'
-
+            'alumni_nama_lengkap'    => 'required|min_length[3]',
+            'alumni_nim'             => 'required',
+            'alumni_jurusan'         => 'permit_empty|numeric',
+            'alumni_prodi'           => 'permit_empty|numeric',
+            'alumni_angkatan'        => 'permit_empty|numeric',
+            'alumni_tahun_lulus'     => 'permit_empty|numeric',
+            'alumni_ipk'             => 'permit_empty|decimal',
+            'alumni_jeniskelamin'    => 'permit_empty|in_list[Laki-Laki,Perempuan]',
+            'alumni_notlp'           => 'required|min_length[10]',
+            'alumni_kota'            => 'permit_empty|numeric',
+            'alumni_province'        => 'permit_empty|numeric',
+            'alumni_kode_pos'        => 'permit_empty|numeric|max_length[5]',
+            'alumni_alamat'          => 'permit_empty',
+            'alumni_alamat2'         => 'permit_empty',
+        ]);
+    } elseif ($group == 2) {
+        // Admin
+        $rules = array_merge($rules, [
+            'admin_nama_lengkap' => 'required|min_length[3]',
+        ]);
+    } elseif ($group == 6) {
+        // Kaprodi - Field names dengan prefix kaprodi_
+        $rules = array_merge($rules, [
+            'kaprodi_nama_lengkap'    => 'required|min_length[3]',
+            'kaprodi_notlp'           => 'required|min_length[10]',
+            'kaprodi_jurusan'         => 'required|numeric',
+            'kaprodi_prodi'           => 'required|numeric',
+        ]);
+    } elseif ($group == 7) {
+        // Perusahaan - Field names dengan prefix perusahaan_
+        $rules = array_merge($rules, [
+            'perusahaan_nama_perusahaan' => 'required|min_length[3]',
+            'perusahaan_notlp'           => 'required|min_length[10]',
+            'perusahaan_kota'            => 'permit_empty|numeric',
+            'perusahaan_province'        => 'permit_empty|numeric',
+            'perusahaan_kode_pos'        => 'permit_empty|numeric|max_length[5]',
+            'perusahaan_alamat1'         => 'permit_empty',
+            'perusahaan_alamat2'         => 'permit_empty',
+        ]);
+    } elseif ($group == 8) {
+        // Atasan - Field names dengan prefix atasan_
+        $rules = array_merge($rules, [
+            'atasan_nama_lengkap'    => 'required|min_length[3]',
+            'atasan_jabatan'         => 'required|numeric',
+            'atasan_notlp'           => 'required|min_length[10]',
+        ]);
+    } elseif ($group == 9) {
+        // Jabatan Lainnya - Field names dengan prefix lainnya_
+        $rules = array_merge($rules, [
+            'lainnya_nama_lengkap'    => 'required|min_length[3]',
+            'lainnya_notlp'           => 'required|min_length[10]',
+            'lainnya_jabatan'         => 'required|numeric',
+            'lainnya_jurusan'         => 'required|numeric',
+            'lainnya_prodi'           => 'required|numeric',
         ]);
     }
 
     // VALIDASI
     if (!$this->validate($rules)) {
-        return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        // DEBUG: Aktifkan untuk melihat error validasi
+        dd($validation->getErrors());
+        session()->setFlashdata('errors', $validation->getErrors());
+        return redirect()->back()->withInput();
     }
 
-    // SIMPAN AKUN
-    $accountModel = new Accounts();
-    $accountData = [
-        'username'  => $this->request->getPost('username'),
-        'email'     => $this->request->getPost('email'),
-        'password'  => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
-        'status'    => $this->request->getPost('status'),
-        'id_role'   => $group,
-        'jabatan_id'=> $this->request->getPost('hak')
-    ];
-    $accountModel->insert($accountData);
-    $accountId = $accountModel->insertID();
+    try {
+        // SIMPAN AKUN
+        $accountModel = new Accounts();
+        $accountData = [
+            'username'      => $this->request->getPost('username'),
+            'email'         => $this->request->getPost('email'),
+            'password'      => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+            'status'        => $this->request->getPost('status'),
+            'id_role'       => $group,
+            'id_surveyor'   => $this->request->getPost($this->getHakFieldName($group)) ? 1 : null
+        ];
+        
+        $accountModel->insert($accountData);
+        $accountId = $accountModel->insertID();
 
-    // SIMPAN DETAIL BERDASARKAN ROLE
-    if ($group == 2) {
-        // Admin
-        $adminDetail = new DetailaccountAdmins();
-        $dataDetailAdmin = [
-            'nama_lengkap' => $this->request->getPost('admin_nama_lengkap'),
-            'id_account'   => $accountId,
-        ];
-        // dd($dataDetailAdmin);
-        $adminDetail->insert($dataDetailAdmin);
-    } elseif ($group == 1) {
-        // Alumni
-        $alumniDetail = new DetailaccountAlumni();
-        $datadetailAlumni = [
-            'nama_lengkap'     => $this->request->getPost('nama_lengkap'),
-            'nim'              => $this->request->getPost('nim'),
-            'id_jurusan'       => $this->request->getPost('jurusan'),
-            'id_prodi'         => $this->request->getPost('prodi'),
-            'angkatan'         => $this->request->getPost('angkatan'),
-            'tahun_kelulusan'  => $this->request->getPost('tahun_lulus'),
-            'ipk'              => $this->request->getPost('ipk'),
-            'jenisKelamin'     => $this->request->getPost('jeniskelamin'),
-            'notlp'            => $this->request->getPost('notlp'),
-            'id_cities'        => $this->request->getPost('kota'),
-            'id_provinsi'      => $this->request->getPost('province'),
-            'kodepos'          => $this->request->getPost('kode_pos'),
-            'alamat'           => $this->request->getPost('alamat'),
-            'alamat2'          => $this->request->getPost('alamat2'),
-            'id_account'       => $accountId,
-        ];
-        // dd($datadetailAlumni);
-        $alumniDetail->insert($datadetailAlumni);
+        // SIMPAN DETAIL BERDASARKAN ROLE - SEKARANG DENGAN FIELD NAMES YANG BENAR
+        if ($group == 2) {
+            // Admin
+            $adminDetail = new DetailaccountAdmins();
+            $dataDetailAdmin = [
+                'nama_lengkap' => $this->request->getPost('admin_nama_lengkap'),
+                'id_account'   => $accountId,
+            ];
+            $adminDetail->insert($dataDetailAdmin);
+            
+        } elseif ($group == 1) {
+            // Alumni
+            $alumniDetail = new DetailaccountAlumni();
+            $datadetailAlumni = [
+                'nama_lengkap'     => $this->request->getPost('alumni_nama_lengkap'),
+                'nim'              => $this->request->getPost('alumni_nim'),
+                'id_jurusan'       => $this->request->getPost('alumni_jurusan'),
+                'id_prodi'         => $this->request->getPost('alumni_prodi'),
+                'angkatan'         => $this->request->getPost('alumni_angkatan'),
+                'tahun_kelulusan'  => $this->request->getPost('alumni_tahun_lulus'),
+                'ipk'              => $this->request->getPost('alumni_ipk'),
+                'jenisKelamin'     => $this->request->getPost('alumni_jeniskelamin'),
+                'notlp'            => $this->request->getPost('alumni_notlp'),
+                'id_cities'        => $this->request->getPost('alumni_kota'),
+                'id_provinsi'      => $this->request->getPost('alumni_province'),
+                'kodepos'          => $this->request->getPost('alumni_kode_pos'),
+                'alamat'           => $this->request->getPost('alumni_alamat'),
+                'alamat2'          => $this->request->getPost('alumni_alamat2'),
+                'id_account'       => $accountId,
+            ];
+            $alumniDetail->insert($datadetailAlumni);
+            
+        } elseif ($group == 6) {
+            // Kaprodi
+            $dataKaprodi = [
+                'nama_lengkap' => $this->request->getPost('kaprodi_nama_lengkap'),
+                'id_jurusan'   => $this->request->getPost('kaprodi_jurusan'),
+                'id_prodi'     => $this->request->getPost('kaprodi_prodi'),
+                'notlp'        => $this->request->getPost('kaprodi_notlp'),
+                'id_account'   => $accountId,
+            ];
+            $detailKaprodi->insert($dataKaprodi);
+            
+        } elseif ($group == 7) {
+            // Perusahaan
+            $dataPerusahaan = [
+                'nama_perusahaan' => $this->request->getPost('perusahaan_nama_perusahaan'),
+                'id_provinsi'     => $this->request->getPost('perusahaan_province'),
+                'id_kota'         => $this->request->getPost('perusahaan_kota'),
+                'alamat1'         => $this->request->getPost('perusahaan_alamat1'),
+                'alamat2'         => $this->request->getPost('perusahaan_alamat2'),
+                'kodepos'         => $this->request->getPost('perusahaan_kode_pos'),
+                'noTlp'           => $this->request->getPost('perusahaan_notlp'),
+                'id_account'      => $accountId,
+            ];
+            $detailPerusahaan->insert($dataPerusahaan);
+            
+        } elseif ($group == 8) {
+            // Atasan
+            $dataAtasan = [
+                'nama_lengkap' => $this->request->getPost('atasan_nama_lengkap'),
+                'id_jabatan'      => $this->request->getPost('atasan_jabatan'),
+                'notlp'        => $this->request->getPost('atasan_notlp'),
+                'id_account'   => $accountId,
+            ];
+            $detailAtasan->insert($dataAtasan);
+            
+        } elseif ($group == 9) {
+            // Jabatan Lainnya
+            $datajabatanLL = [
+                'nama_lengkap' => $this->request->getPost('lainnya_nama_lengkap'),
+                'id_jabatan'   => $this->request->getPost('lainnya_jabatan'),
+                'id_jurusan'   => $this->request->getPost('lainnya_jurusan'),
+                'id_prodi'     => $this->request->getPost('lainnya_prodi'),
+                'notlp'        => $this->request->getPost('lainnya_notlp'),
+                'id_account'   => $accountId,
+            ];
+            $detailJabatanll->insert($datajabatanLL);
+        }
+
+        // REDIRECT BERHASIL
+        session()->setFlashdata('success', 'Data pengguna berhasil disimpan.');
+        return redirect()->to('/admin/pengguna');
+        
+    } catch (\Exception $e) {
+        log_message('error', 'Error saving user: ' . $e->getMessage());
+        session()->setFlashdata('error', 'Terjadi kesalahan saat menyimpan data.');
+        return redirect()->back()->withInput();
     }
+}
 
-    // REDIRECT BERHASIL
-    return redirect()->to('/admin/pengguna')->with('success', 'Data pengguna berhasil disimpan.');
+// Helper method untuk menentukan field name hak supervisi
+private function getHakFieldName($group)
+{
+    switch($group) {
+        case '1': return 'alumni_hak';
+        case '6': return 'kaprodi_hak';
+        case '9': return 'lainnya_hak';
+        default: return 'hak';
+    }
 }
 public function edit($id)
 {
     $accountModel = new Accounts();
     $detailAlumni = new DetailaccountAlumni();
     $detailAdmin = new DetailaccountAdmins();
-    $detailPerusahaan = new DetailaccountCompany();
+    $detailPerusahaan = new DetailaccountPerusahaan();
+    // Tambahkan model untuk role baru
+    $detailKaprodi = new DetailaccountKaprodi(); // Pastikan model ini ada
+    $detailAtasan = new DetailaccountAtasan(); // Pastikan model ini ada  
+    $detailLainnya = new DetailaccountJabatanLLnya(); // Pastikan model ini ada
+    
     $roleModels = new Roles();
     $jurusans = new Jurusan();
     $prodis = new Prodi();
@@ -316,7 +441,8 @@ public function edit($id)
 
     $roles = $roleModels->findAll();
     $dataAccount = $accountModel->find($id);
-    
+
+  
     if (!$dataAccount) {
         return redirect()->back()->with('error', 'Data akun tidak ditemukan.');
     }
@@ -324,20 +450,57 @@ public function edit($id)
     $role = $dataAccount['id_role'];
     $dataDetail = null;
 
+
+    $cities = [];
+    $kotaPerusahaan = [];
+
     // Get detail data based on current role
     switch ($role) {
         case 1: // Alumni
             $dataDetail = $detailAlumni->where('id_account', $id)->first();
+            
+            if (!empty($dataDetail['id_provinsi'])) {
+                $cities = $cityModel
+                    ->where('province_id', $dataDetail['id_provinsi'])
+                    ->findAll();
+            }
             break;
         case 2: // Admin
             $dataDetail = $detailAdmin->where('id_account', $id)->first();
             break;
-        case 3: // Company
+        case 6: // Kaprodi
+            $dataDetail = $detailKaprodi->where('id_account', $id)->first();
+            // dd($dataDetail);
+            break;
+        case 7: // Perusahaan
+
             $dataDetail = $detailPerusahaan->where('id_account', $id)->first();
+
+             log_message('debug', 'Data Detail Perusahaan: ' . json_encode($dataDetail));
+            
+            if (!empty($dataDetail) && !empty($dataDetail['id_provinsi'])) {
+                $kotaPerusahaan = $cityModel
+                    ->where('province_id', $dataDetail['id_provinsi'])
+                    ->findAll();
+                    
+                // Debug untuk melihat data kota yang diambil
+                log_message('debug', 'Kota Perusahaan: ' . json_encode($kotaPerusahaan));
+            }
+            break;
+
+        case 8: // Atasan
+            $dataDetail = $detailAtasan->where('id_account', $id)->first();
+            break;
+        case 9: // Jabatan Lainnya
+            $dataDetail = $detailLainnya->where('id_account', $id)->first();
             break;
         default:
             $dataDetail = null;
     }
+
+
+
+    // dd($cities);
 
     return view('adminpage\pengguna\edit', [
         'account' => $dataAccount,
@@ -346,9 +509,10 @@ public function edit($id)
         'roles' => $roles,
         'datajurusan' => $jurusans->findAll(),
         'dataProdi' => $prodis->findAll(),
-        'cities' => $cityModel->getCitiesWithProvince(),
+        'cities' => $cities,
+        'kotaPerusahaan' => $kotaPerusahaan,
         'provinces' => $provincesModel->findAll(),
-       
+        'jabatan' => $jabatanModels->findAll(), // Tambahkan data jabatan
     ]); 
 }
 
@@ -357,7 +521,11 @@ public function update($id)
     $accountModel = new Accounts();
     $detailAlumni = new DetailaccountAlumni();
     $detailAdmin = new DetailaccountAdmins();
-    $detailPerusahaan = new DetailaccountCompany();
+    $detailPerusahaan = new DetailaccountPerusahaan();
+    // Tambahkan model untuk role baru
+    $detailKaprodi = new DetailaccountKaprodi();
+    $detailAtasan = new DetailaccountAtasan();
+    $detailLainnya = new DetailaccountJabatanLLnya();
 
     // Get existing account data
     $account = $accountModel->find($id);
@@ -370,15 +538,13 @@ public function update($id)
     $username = $this->request->getPost('username');
     $password = $this->request->getPost('password');
     $status = $this->request->getPost('status');
-    $hak = $this->request->getPost('hak');
 
     // Basic validation rules
     $rules = [
         'username' => "required|is_unique[account.username,id,{$id}]",
-        // 'email' => "required|valid_email|is_unique[account.email,id,{$id}]",
+         'email'    => "required|valid_email|is_unique[account.email,id,{$id}]",
         'group' => 'required',
         'status' => 'required',
-        // 'hak' => 'permit_empty'
     ];
 
     // Password validation (only if filled)
@@ -390,20 +556,44 @@ public function update($id)
     switch ($newRole) {
         case '1': // Alumni
             $rules = array_merge($rules, [
-                'nama_lengkap' => 'required',
-                'nim' => 'required|numeric',
-                'jurusan' => 'required',
-                'prodi' => 'required',
-                'notlp' => 'required|numeric',
+                'alumni_nama_lengkap' => 'required',
+                'alumni_nim' => 'required|numeric',
+                'alumni_jurusan' => 'required',
+                'alumni_prodi' => 'required',
+                'alumni_notlp' => 'required|numeric',
             ]);
             break;
         case '2': // Admin
             $rules['admin_nama_lengkap'] = 'required';
             break;
-        case '3': // Company
+        case '6': // Kaprodi
             $rules = array_merge($rules, [
-                'nama_perusahaan' => 'required',
-                'alamat_perusahaan' => 'required'
+                'kaprodi_nama_lengkap' => 'required',
+                'kaprodi_jurusan' => 'required',
+                'kaprodi_prodi' => 'required',
+                'kaprodi_notlp' => 'required|numeric'
+            ]);
+            break;
+        case '7': // Perusahaan
+            $rules = array_merge($rules, [
+                'perusahaan_nama_perusahaan' => 'required',
+                'perusahaan_notlp' => 'required|numeric'
+            ]);
+            break;
+        case '8': // Atasan
+            $rules = array_merge($rules, [
+                'atasan_nama_lengkap' => 'required',
+                'atasan_jabatan' => 'required',
+                'atasan_notlp' => 'required|numeric'
+            ]);
+            break;
+        case '9': // Jabatan Lainnya
+            $rules = array_merge($rules, [
+                'lainnya_nama_lengkap' => 'required',
+                'lainnya_jabatan' => 'required',
+                'lainnya_jurusan' => 'required',
+                'lainnya_prodi' => 'required',
+                'lainnya_notlp' => 'required|numeric'
             ]);
             break;
     }
@@ -413,13 +603,27 @@ public function update($id)
         return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
     }
 
+    // Determine surveyor status based on role and checkbox
+    $hakSurveyor = null;
+    switch ($newRole) {
+        case '1': // Alumni
+            $hakSurveyor = $this->request->getPost('alumni_hak') ? 1 : null;
+            break;
+        case '6': // Kaprodi
+            $hakSurveyor = $this->request->getPost('kaprodi_hak') ? 1 : null;
+            break;
+        case '9': // Jabatan Lainnya
+            $hakSurveyor = $this->request->getPost('lainnya_hak') ? 1 : null;
+            break;
+    }
+
     // Prepare account update data
     $updateData = [
         'username' => $username,
         'email' => $this->request->getPost('email'),
         'status' => $status,
         'id_role' => $newRole,
-        'jabatan_id' => $hak
+        'id_surveyor' => $hakSurveyor
     ];
 
     // Add password to update data only if provided
@@ -438,7 +642,7 @@ public function update($id)
         }
 
         // Handle role change or update
-        $this->handleDetailAccountUpdate($id, $existingRole, $newRole, $detailAlumni, $detailAdmin, $detailPerusahaan);
+        $this->handleDetailAccountUpdate($id, $existingRole, $newRole, $detailAlumni, $detailAdmin, $detailPerusahaan, $detailKaprodi, $detailAtasan, $detailLainnya);
 
         $db->transCommit();
         return redirect()->to('/admin/pengguna')->with('success', 'Data pengguna berhasil diperbarui.');
@@ -450,22 +654,22 @@ public function update($id)
     }
 }
 
-private function handleDetailAccountUpdate($accountId, $existingRole, $newRole, $detailAlumni, $detailAdmin, $detailPerusahaan)
+private function handleDetailAccountUpdate($accountId, $existingRole, $newRole, $detailAlumni, $detailAdmin, $detailPerusahaan, $detailKaprodi, $detailAtasan, $detailLainnya)
 {
     // If role changed, delete old detail and create new one
     if ($existingRole != $newRole) {
         // Delete old detail
-        $this->deleteDetailByRole($accountId, $existingRole, $detailAlumni, $detailAdmin, $detailPerusahaan);
+        $this->deleteDetailByRole($accountId, $existingRole, $detailAlumni, $detailAdmin, $detailPerusahaan, $detailKaprodi, $detailAtasan, $detailLainnya);
         
         // Create new detail
-        $this->createDetailByRole($accountId, $newRole, $detailAlumni, $detailAdmin, $detailPerusahaan);
+        $this->createDetailByRole($accountId, $newRole, $detailAlumni, $detailAdmin, $detailPerusahaan, $detailKaprodi, $detailAtasan, $detailLainnya);
     } else {
         // Update existing detail
-        $this->updateDetailByRole($accountId, $existingRole, $detailAlumni, $detailAdmin, $detailPerusahaan);
+        $this->updateDetailByRole($accountId, $existingRole, $detailAlumni, $detailAdmin, $detailPerusahaan, $detailKaprodi, $detailAtasan, $detailLainnya);
     }
 }
 
-private function deleteDetailByRole($accountId, $role, $detailAlumni, $detailAdmin, $detailPerusahaan)
+private function deleteDetailByRole($accountId, $role, $detailAlumni, $detailAdmin, $detailPerusahaan, $detailKaprodi, $detailAtasan, $detailLainnya)
 {
     switch ($role) {
         case 1:
@@ -474,32 +678,42 @@ private function deleteDetailByRole($accountId, $role, $detailAlumni, $detailAdm
         case 2:
             $detailAdmin->where('id_account', $accountId)->delete();
             break;
-        case 3:
+       
+        case 7: // Perusahaan
             $detailPerusahaan->where('id_account', $accountId)->delete();
+            break;
+        case 6: // Kaprodi
+            $detailKaprodi->where('id_account', $accountId)->delete();
+            break;
+        case 8: // Atasan
+            $detailAtasan->where('id_account', $accountId)->delete();
+            break;
+        case 9: // Jabatan Lainnya
+            $detailLainnya->where('id_account', $accountId)->delete();
             break;
     }
 }
 
-private function createDetailByRole($accountId, $role, $detailAlumni, $detailAdmin, $detailPerusahaan)
+private function createDetailByRole($accountId, $role, $detailAlumni, $detailAdmin, $detailPerusahaan, $detailKaprodi, $detailAtasan, $detailLainnya)
 {
     switch ($role) {
         case '1': // Alumni
             $alumniData = [
                 'id_account' => $accountId,
-                'nama_lengkap' => $this->request->getPost('nama_lengkap'),
-                'nim' => $this->request->getPost('nim'),
-                'id_jurusan' => $this->request->getPost('jurusan'),
-                'id_prodi' => $this->request->getPost('prodi'),
-                'angkatan' => $this->request->getPost('angkatan'),
-                'tahun_kelulusan' => $this->request->getPost('tahun_lulus'), // Fixed field name
-                'ipk' => $this->request->getPost('ipk'),
-                'alamat' => $this->request->getPost('alamat'),
-                'alamat2' => $this->request->getPost('alamat2'),
-                'kodepos' => $this->request->getPost('kode_pos'),
-                'jenisKelamin' => $this->request->getPost('jeniskelamin'),
-                'notlp' => $this->request->getPost('notlp'),
-                'id_provinsi' => $this->request->getPost('province'),
-                'id_cities' => $this->request->getPost('kota'),
+                'nama_lengkap' => $this->request->getPost('alumni_nama_lengkap'),
+                'nim' => $this->request->getPost('alumni_nim'),
+                'id_jurusan' => $this->request->getPost('alumni_jurusan'),
+                'id_prodi' => $this->request->getPost('alumni_prodi'),
+                'angkatan' => $this->request->getPost('alumni_angkatan'),
+                'tahun_kelulusan' => $this->request->getPost('alumni_tahun_lulus'),
+                'ipk' => $this->request->getPost('alumni_ipk'),
+                'alamat' => $this->request->getPost('alumni_alamat'),
+                'alamat2' => $this->request->getPost('alumni_alamat2'),
+                'kodepos' => $this->request->getPost('alumni_kode_pos'),
+                'jenisKelamin' => $this->request->getPost('alumni_jeniskelamin'),
+                'notlp' => $this->request->getPost('alumni_notlp'),
+                'id_provinsi' => $this->request->getPost('alumni_province'),
+                'id_cities' => $this->request->getPost('alumni_kota'),
             ];
             if (!$detailAlumni->insert($alumniData)) {
                 throw new Exception('Failed to create alumni detail');
@@ -516,45 +730,94 @@ private function createDetailByRole($accountId, $role, $detailAlumni, $detailAdm
             }
             break;
 
-        case '3': // Company
-            $companyData = [
+        case '6': // Kaprodi
+            $kaprodiData = [
                 'id_account' => $accountId,
-                'nama_perusahaan' => $this->request->getPost('nama_perusahaan'),
-                'alamat_perusahaan' => $this->request->getPost('alamat_perusahaan'),
+                'nama_lengkap' => $this->request->getPost('kaprodi_nama_lengkap'),
+                'id_jurusan' => $this->request->getPost('kaprodi_jurusan'),
+                'id_prodi' => $this->request->getPost('kaprodi_prodi'),
+                'notlp' => $this->request->getPost('kaprodi_notlp'),
             ];
-            if (!$detailPerusahaan->insert($companyData)) {
-                throw new Exception('Failed to create company detail');
+            if (!$detailKaprodi->insert($kaprodiData)) {
+                throw new Exception('Failed to create kaprodi detail');
+            }
+            break;
+
+                case '7': // Perusahaan
+            $perusahaanData = [
+                'id_account' => $accountId,
+                'nama_perusahaan' => $this->request->getPost('perusahaan_nama_perusahaan'),
+                'noTlp' => $this->request->getPost('perusahaan_notlp'),
+                'alamat' => $this->request->getPost('perusahaan_alamat'),
+                'alamat2' => $this->request->getPost('perusahaan_alamat2'),
+                'kodepos' => $this->request->getPost('perusahaan_kode_pos'),
+                'id_provinsi' => $this->request->getPost('perusahaan_province'),
+                'id_cities' => $this->request->getPost('perusahaan_kota')
+            ];
+            if (!$detailPerusahaan->insert($perusahaanData)) {
+                throw new \Exception('Failed to create perusahaan detail');
+            }
+            break;
+
+        case '8': // Atasan
+            $atasanData = [
+                'id_account' => $accountId,
+                'nama_lengkap' => $this->request->getPost('atasan_nama_lengkap'),
+                'id_jabatan' => $this->request->getPost('atasan_jabatan'),
+                'notlp' => $this->request->getPost('atasan_notlp'),
+             
+            ];
+            if (!$detailAtasan->insert($atasanData)) {
+                throw new \Exception('Failed to create atasan detail');
+            }
+            break;
+
+        case '9': // Jabatan Lainnya
+            $lainnyaData = [
+                'id_account' => $accountId,
+                'nama_lengkap' => $this->request->getPost('lainnya_nama_lengkap'),
+                'jabatan' => $this->request->getPost('lainnya_jabatan'),
+                'id_jurusan' => $this->request->getPost('lainnya_jurusan'),
+                'id_prodi' => $this->request->getPost('lainnya_prodi'),
+                'notlp' => $this->request->getPost('lainnya_notlp'),    
+                'alamat' => $this->request->getPost('lainnya_alamat'),
+                'alamat2' => $this->request->getPost('lainnya_alamat2'),
+                'kodepos' => $this->request->getPost('lainnya_kode_pos'),
+                'id_provinsi' => $this->request->getPost('lainnya_province'),
+                'id_cities' => $this->request->getPost('lainnya_kota')
+            ];
+            if (!$detailLainnya->insert($lainnyaData)) {
+                throw new \Exception('Failed to create jabatan lainnya detail');
             }
             break;
     }
 }
-
-private function updateDetailByRole($accountId, $role, $detailAlumni, $detailAdmin, $detailPerusahaan)
+public function updateDetailByRole($accountId, $role, $detailAlumni, $detailAdmin, $detailPerusahaan, $detailKaprodi, $detailAtasan, $detailLainnya)
 {
     switch ($role) {
-        case 1: // Alumni
-            $alumniData = [
-                'nama_lengkap' => $this->request->getPost('nama_lengkap'),
-                'nim' => $this->request->getPost('nim'),
-                'id_jurusan' => $this->request->getPost('jurusan'),
-                'id_prodi' => $this->request->getPost('prodi'),
-                'angkatan' => $this->request->getPost('angkatan'),
-                'tahun_kelulusan' => $this->request->getPost('tahun_lulus'), // Fixed field name
-                'ipk' => $this->request->getPost('ipk'),
-                'alamat' => $this->request->getPost('alamat'),
-                'alamat2' => $this->request->getPost('alamat2'),
-                'kodepos' => $this->request->getPost('kode_pos'),
-                'jenisKelamin' => $this->request->getPost('jeniskelamin'),
-                'notlp' => $this->request->getPost('notlp'),
-                'id_provinsi' => $this->request->getPost('province'),
-                'id_cities' => $this->request->getPost('kota'),
+        case '1': // Alumni
+           $alumniData = [
+                'nama_lengkap' => $this->request->getPost('alumni_nama_lengkap'),
+                'nim' => $this->request->getPost('alumni_nim'),
+                'id_jurusan' => $this->request->getPost('alumni_jurusan'),
+                'id_prodi' => $this->request->getPost('alumni_prodi'),
+                'angkatan' => $this->request->getPost('alumni_angkatan'),
+                'tahun_kelulusan' => $this->request->getPost('alumni_tahun_lulus'),
+                'ipk' => $this->request->getPost('alumni_ipk'),
+                'alamat' => $this->request->getPost('alumni_alamat'),
+                'alamat2' => $this->request->getPost('alumni_alamat2'),
+                'kodepos' => $this->request->getPost('alumni_kode_pos'),
+                'jenisKelamin' => $this->request->getPost('alumni_jeniskelamin'),
+                'notlp' => $this->request->getPost('alumni_notlp'),
+                'id_provinsi' => $this->request->getPost('alumni_province'),
+                'id_cities' => $this->request->getPost('alumni_kota'),
             ];
             if (!$detailAlumni->where('id_account', $accountId)->set($alumniData)->update()) {
                 throw new Exception('Failed to update alumni detail');
             }
             break;
 
-        case 2: // Admin
+        case '2': // Admin
             $adminData = [
                 'nama_lengkap' => $this->request->getPost('admin_nama_lengkap'),
             ];
@@ -563,28 +826,81 @@ private function updateDetailByRole($accountId, $role, $detailAlumni, $detailAdm
             }
             break;
 
-        case 3: // Company
-            $companyData = [
-                'nama_perusahaan' => $this->request->getPost('nama_perusahaan'),
-                'alamat_perusahaan' => $this->request->getPost('alamat_perusahaan'),
+        case '7': // Perusahaan
+            $perusahaanData = [
+                'nama_perusahaan' => $this->request->getPost('perusahaan_nama_perusahaan'),
+                'alamat1' => $this->request->getPost('perusahaan_alamat1'),
+                'alamat2' => $this->request->getPost('perusahaan_alamat2'),
+                'kodepos' => $this->request->getPost('perusahaan_kode_pos'),
+                'id_provinsi' => $this->request->getPost('perusahaan_province'),
+                'id_kota' => $this->request->getPost('perusahaan_kota'),
+                'notlp' => $this->request->getPost('perusahaan_notlp'),
             ];
-            if (!$detailPerusahaan->where('id_account', $accountId)->set($companyData)->update()) {
-                throw new Exception('Failed to update company detail');
+            if (!$detailPerusahaan->where('id_account', $accountId)->set($perusahaanData)->update()) {
+                throw new Exception('Failed to update perusahaan detail');
+            }
+            break;
+
+        case '6': // Kaprodi
+            $kaprodiData = [
+                'nama_lengkap' => $this->request->getPost('kaprodi_nama_lengkap'),
+                'id_jurusan'   => $this->request->getPost('kaprodi_jurusan'),
+                'id_prodi'     => $this->request->getPost('kaprodi_prodi'),
+                'notlp'       => $this->request->getPost('kaprodi_notlp'),
+            ];
+            if (!$detailKaprodi->where('id_account', $accountId)->set($kaprodiData)->update()) {
+                throw new Exception('Failed to update kaprodi detail');
+            }
+            break;
+
+        case '8': // Atasan
+            $atasanData = [
+                'nama_lengkap' => $this->request->getPost('atasan_nama_lengkap'),
+                'id_jabatan'   => $this->request->getPost('atasan_jabatan'),
+                'notlp'       => $this->request->getPost('atasan_notlp'),
+            ];
+            if (!$detailAtasan->where('id_account', $accountId)->set($atasanData)->update()) {
+                throw new Exception('Failed to update atasan detail');
+            }
+            break;
+
+        case '9': // Jabatan Lainnya
+            $lainnyaData = [
+                'nama_lengkap' => $this->request->getPost('lainnya_nama_lengkap'),
+                'id_jurusan'   => $this->request->getPost('lainnya_jurusan'),
+                'id_prodi'     => $this->request->getPost('lainnya_prodi'),
+                'id_jabatan'   => $this->request->getPost('lainnya_jabatan'),
+                'notlp'       => $this->request->getPost('lainnya_notlp'),
+            ];
+            if (!$detailLainnya->where('id_account', $accountId)->set($lainnyaData)->update()) {
+                throw new Exception('Failed to update jabatan lainnya detail');
             }
             break;
     }
-} 
+}
 public function delete($id)
 {
     $model = new DetailaccountAlumni();
     $modeladmin = new DetailaccountAdmins();
     $accountModel = new Accounts();
+    $detailPerusahaan = new DetailaccountPerusahaan();
+    $detailKaprodi = new DetailaccountKaprodi();
+    $detailAtasan = new DetailaccountAtasan();
+    $accountJabatanLainnya = new DetailaccountJabatanLLnya();
     $account = $accountModel->find($id);
 
     if ($account['id_role'] == 1) {
         $model->where('id_account', $id)->delete();
     } else if ($account['id_role'] == 2) {
         $modeladmin->where('id_account', $id)->delete();
+    }else if($account['id_role'] == 6){
+        $detailKaprodi->where('id_account', $id)->delete();
+    }else if($account['id_role'] == 7){
+        $detailPerusahaan->where('id_account', $id)->delete();
+    }else if($account['id_role'] == 8){
+        $detailAtasan->where('id_account', $id)->delete();
+    }else if($account['id_role'] == 9){
+        $accountJabatanLainnya->where('id_account', $id)->delete();
     }
 
     $accountModel->delete($id); // Jangan lupa hapus juga akun utama

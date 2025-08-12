@@ -4,18 +4,26 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class JabatanModels extends Model
+class DetailaccountKaprodi extends Model
 {
-
-    protected $table            = 'jabatan';
+    protected $table            = 'detailaccount_kaprodi';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['jabatan'];
+    protected $allowedFields    = ['nama_lengkap','id_prodi','id_jurusan','notlp','id_account'];
 
     protected bool $allowEmptyInserts = false;
+
+     public function getrelationKaprodi(){
+        $builder = $this->db->table($this->table);
+        $builder->select('detailaccount_kaprodi.*, account.*, prodi.nama_prodi as prodi, jurusan.nama_jurusan as jurusan');
+        $builder->join('account', 'account.id = detailaccount_kaprodi.id_account');
+        $builder->join('prodi', 'prodi.id = detailaccount_kaprodi.id_prodi');
+        $builder->join('jurusan', 'jurusan.id = detailaccount_kaprodi.id_jurusan');
+        return $builder->get()->getResult();
+    }
 
     // Dates
     protected $useTimestamps = false;
