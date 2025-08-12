@@ -4,24 +4,27 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class DetailaccountPerusahaan extends Model
+class DetailaccountJabatanLLnya extends Model
 {
-    protected $table            = 'detailaccoount_perusahaan';
+    protected $table            = 'detailaccount_jabatan_lainnya';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','nama_perusahaan','alamat1','alamat2','id_provinsi','id_kota','noTlp','id_account','kodepos'];
+    protected $allowedFields    = ['nama_lengkap','id_prodi','id_jurusan','notlp','id_account','id_jabatan'];
 
     protected bool $allowEmptyInserts = false;
 
-    public function getaccountidPerusahaan(){
-        return $this->select('detailaccount_perusahaan.*, account.*')
-                    ->join('account', 'account.id = detailaccount_perusahaan.id_account')
-                    ->findAll();
+    public function getrelationjabatanll(){
+        $builder = $this->db->table($this->table);
+        $builder->select('detailaccount_jabatan_lainnya.*, account.*, prodi.nama_prodi as prodi, jurusan.nama_jurusan as jurusan, jabatan.jabatan as nama_jabatan');
+        $builder->join('account', 'account.id = detailaccount_jabatan_lainnya.id_account');
+        $builder->join('prodi', 'prodi.id = detailaccount_jabatan_lainnya.id_prodi');
+        $builder->join('jurusan', 'jurusan.id = detailaccount_jabatan_lainnya.id_jurusan');
+        $builder->join('jabatan', 'jabatan.id = detailaccount_jabatan_lainnya.id_jabatan');
+        return $builder->get()->getResult();
     }
-
     // Dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';
