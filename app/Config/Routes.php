@@ -101,7 +101,7 @@ $routes->get('/home', 'LandingPage::home');
 
 
 // --------------------
-// ROUTES: API (AJAX)
+// ROUTES: API (AJAX)  JANGAN DI HAPUS!!!!!!!!
 // --------------------
 $routes->group('api', function ($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
