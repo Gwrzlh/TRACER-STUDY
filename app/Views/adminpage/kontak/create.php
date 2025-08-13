@@ -5,7 +5,7 @@
     <select name="kategori" id="kategori" required>
         <option value="">-- Pilih Kategori --</option>
         <option value="Wakil Direktur">Wakil Direktur</option>
-        <option value="Team Tracer">Team Tracer</option>
+        <option value="Tim Tracer">Tim Tracer</option>
         <option value="Surveyor">Surveyor</option>
     </select>
 
@@ -30,13 +30,9 @@
         dropdown.innerHTML = '<option value="">-- Pilih Nama --</option>';
 
         let data = [];
-        if (kategori === 'Wakil Direktur') {
-            data = dataWakilDirektur;
-        } else if (kategori === 'Team Tracer') {
-            data = dataTeamTracer;
-        } else if (kategori === 'Surveyor') {
-            data = dataSurveyor;
-        }
+        if (kategori === 'Wakil Direktur') data = dataWakilDirektur;
+        else if (kategori === 'Tim Tracer') data = dataTeamTracer;
+        else if (kategori === 'Surveyor') data = dataSurveyor;
 
         data.forEach(item => {
             dropdown.innerHTML += `<option value="${item.id}">${item.nama_lengkap}</option>`;
