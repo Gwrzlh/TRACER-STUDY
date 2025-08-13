@@ -1,53 +1,65 @@
-<?= $this->extend('layout/sidebar') ?>
-<?= $this->section('content') ?>
+<?= session()->getFlashdata('success') ? '<p style="color:green;">' . session()->getFlashdata('success') . '</p>' : '' ?>
 
-<h1 class="text-xl font-bold mb-4">Daftar Kontak</h1>
-<a href="<?= base_url('admin/kontak/create') ?>" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mb-4 inline-block">+ Tambah Kontak</a>
-
-<?php if (session()->getFlashdata('success')) : ?>
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
-        <?= session()->getFlashdata('success') ?>
-    </div>
-<?php endif; ?>
-
-<table class="w-full border border-gray-300">
+<h2>Daftar Kontak - Wakil Direktur & Team Tracer</h2>
+<a href="/admin/kontak/create">Tambah Kontak</a>
+<br><br>
+<table border="1" cellpadding="5" cellspacing="0" width="100%">
     <thead>
-        <tr class="bg-gray-100">
-            <th class="p-2 border">No</th>
-            <th class="p-2 border">Tipe</th>
-            <th class="p-2 border">Nama</th>
-            <th class="p-2 border">Kontak</th>
-            <th class="p-2 border">Prodi/Jurusan</th>
-            <th class="p-2 border">Aksi</th>
+        <tr>
+            <th>No</th>
+            <th>Kategori</th>
+            <th>Nama</th>
+            <th>Email</th>
+            <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($kontaks as $i => $k): ?>
+        <?php $no = 1;
+        foreach ($nonSurveyor as $k): ?>
             <tr>
-                <td class="p-2 border"><?= $i + 1 ?></td>
-                <td class="p-2 border"><?= esc($k['tipe_kontak']) ?></td>
-                <td class="p-2 border"><?= esc($k['nama']) ?></td>
-                <td class="p-2 border"><?= esc($k['kontak']) ?></td>
-                <td class="p-2 border">
-                    <?php
-                    if ($k['tipe_kontak'] == 'surveyor') {
-                        echo esc($k['nama_prodi'] ?? '-');
-                    } elseif ($k['tipe_kontak'] == 'coordinator') {
-                        echo esc($k['nama_jurusan'] ?? '-');
-                    } else {
-                        echo '-';
-                    }
-                    ?>
-                </td>
-                <td class="p-2 border">
-                    <a href="<?= base_url('admin/kontak/edit/' . $k['id']) ?>" class="text-blue-600 hover:underline">Edit</a>
-                    <form action="<?= base_url('admin/kontak/delete/' . $k['id']) ?>" method="post" onsubmit="return confirm('Yakin ingin hapus?')" style="display:inline">
-                        <button type="submit" class="text-red-600 hover:underline ml-2">Hapus</button>
-                    </form>
+                <td><?= $no++ ?></td>
+                <td><?= esc($k['kategori']) ?></td>
+                <td><?= esc($k['nama_lengkap']) ?></td>
+                <td><?= esc($k['email']) ?></td>
+                <td>
+                    <a href="/admin/kontak/edit/<?= $k['id'] ?>">Edit</a> |
+                    <a href="/admin/kontak/delete/<?= $k['id'] ?>" onclick="return confirm('Hapus kontak ini?')">Hapus</a>
                 </td>
             </tr>
         <?php endforeach ?>
     </tbody>
 </table>
 
-<?= $this->endSection() ?>
+<br><br>
+
+<h2>Daftar Kontak - Surveyor</h2>
+<table border="1" cellpadding="5" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Prodi</th>
+            <th>Nama Surveyor</th>
+            <th>Tahun Lulus</th>
+            <th>Email</th>
+            <th>WA</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php $no = 1;
+        foreach ($surveyors as $s): ?>
+            <tr>
+                <td><?= $no++ ?></td>
+                <td><?= esc($s['nama_prodi']) ?></td>
+                <td><?= esc($s['nama_lengkap']) ?></td>
+                <td><?= esc($s['tahun_kelulusan']) ?></td>
+                <td><?= esc($s['email']) ?></td>
+                <td><?= esc($s['notlp']) ?></td>
+                <td>
+                    <a href="/admin/kontak/edit/<?= $s['id'] ?>">Edit</a> |
+                    <a href="/admin/kontak/delete/<?= $s['id'] ?>" onclick="return confirm('Hapus kontak ini?')">Hapus</a>
+                </td>
+            </tr>
+        <?php endforeach ?>
+    </tbody>
+</table>
