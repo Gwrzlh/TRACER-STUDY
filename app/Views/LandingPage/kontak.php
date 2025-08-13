@@ -40,7 +40,6 @@
     <h5 class="mt-5">Surveyor Tahun <?= date('Y') ?></h5>
     <p>
         Surveyor diangkat untuk membantu Tracer Study tahun <?= date('Y') ?>
-        (lulus <?= date('Y') - 1 ?>)
     </p>
 
     <?php if (!empty($surveyors)): ?>
@@ -52,7 +51,6 @@
                         <th>Prodi</th>
                         <th>Nama Surveyor</th>
                         <th>Email / WA</th>
-                        <th>Tahun Lulus</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -66,7 +64,6 @@
                                 <?= esc($s['email'] ?? '-') ?><br>
                                 <?= esc($s['notlp'] ?? '-') ?>
                             </td>
-                            <td><?= esc($s['tahun_kelulusan'] ?? '-') ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
