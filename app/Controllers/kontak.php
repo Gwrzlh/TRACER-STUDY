@@ -16,96 +16,23 @@ class Kontak extends Controller
         $this->db = \Config\Database::connect();
     }
 
-    // Ambil semua data untuk Wakil Direktur (gabungan 3 tabel)
-    private function getWakilDirektur()
-    {
-        return array_merge(
-            $this->db->table('detailaccount_kaprodi')
-                ->select('account.id, nama_lengkap')
-                ->join('account', 'account.id = detailaccount_kaprodi.id_account')
-                ->get()->getResultArray(),
-            $this->db->table('detailaccount_jabatan_lainnya')
-                ->select('account.id, nama_lengkap')
-                ->join('account', 'account.id = detailaccount_jabatan_lainnya.id_account')
-                ->get()->getResultArray(),
-            $this->db->table('detailaccount_atasan')
-                ->select('account.id, nama_lengkap')
-                ->join('account', 'account.id = detailaccount_atasan.id_account')
-                ->get()->getResultArray()
-        );
-    }
-
-    // Ambil semua data untuk Team Tracer (gabungan 3 tabel)
-    private function getTeamTracer()
-    {
-        return array_merge(
-            $this->db->table('detailaccount_kaprodi')
-                ->select('account.id, nama_lengkap')
-                ->join('account', 'account.id = detailaccount_kaprodi.id_account')
-                ->get()->getResultArray(),
-            $this->db->table('detailaccount_jabatan_lainnya')
-                ->select('account.id, nama_lengkap')
-                ->join('account', 'account.id = detailaccount_jabatan_lainnya.id_account')
-                ->get()->getResultArray(),
-            $this->db->table('detailaccount_atasan')
-                ->select('account.id, nama_lengkap')
-                ->join('account', 'account.id = detailaccount_atasan.id_account')
-                ->get()->getResultArray()
-        );
-    }
-
-    // Ambil data Surveyor
-    private function getSurveyors()
-    {
-        return $this->db->table('detailaccount_alumni da')
-            ->select('account.id, da.nama_lengkap, da.notlp, account.email, prodi.nama_prodi, da.tahun_kelulusan')
-            ->join('account', 'account.id = da.id_account')
-            ->join('prodi', 'prodi.id = da.id_prodi', 'left')
-            ->get()->getResultArray();
-    }
-
-    // ---------------- INDEX ----------------
+    // ================== INDEX ==================
     public function index()
     {
-        // Kontak Wakil Direktur
-        $wakilDirektur = $this->db->table('kontak')
-            ->select('kontak.id, kontak.kategori, account.id as account_id, da_kaprodi.nama_lengkap')
-            ->join('account', 'account.id = kontak.id_account', 'left')
-            ->join('detailaccount_kaprodi da_kaprodi', 'da_kaprodi.id_account = account.id', 'left')
-            ->where('kontak.kategori', 'Wakil Direktur')
-            ->get()->getResultArray();
-
-        // Kontak Team Tracer
-        $teamTracer = $this->db->table('kontak')
-            ->select('kontak.id, kontak.kategori, account.id as account_id, da_jabatan.nama_lengkap')
-            ->join('account', 'account.id = kontak.id_account', 'left')
-            ->join('detailaccount_jabatan_lainnya da_jabatan', 'da_jabatan.id_account = account.id', 'left')
-            ->where('kontak.kategori', 'Tim Tracer')
-            ->get()->getResultArray();
-
-        // Kontak Surveyor
-        $surveyors = $this->db->table('kontak')
-            ->select('kontak.id, da.nama_lengkap, da.notlp, account.email, prodi.nama_prodi, da.tahun_kelulusan')
-            ->join('account', 'account.id = kontak.id_account', 'left')
-            ->join('detailaccount_alumni da', 'da.id_account = account.id', 'left')
-            ->join('prodi', 'prodi.id = da.id_prodi', 'left')
-            ->where('kontak.kategori', 'Surveyor')
-            ->get()->getResultArray();
-
         return view('adminpage/kontak/index', [
-            'wakilDirektur' => $wakilDirektur,
-            'teamTracer'    => $teamTracer,
-            'surveyors'     => $surveyors
+            'wakilDirektur' => $this->getWakilDirekturKontak(),
+            'teamTracer'    => $this->getTeamTracerKontak(),
+            'surveyors'     => $this->getSurveyorsKontak()
         ]);
     }
 
-    // ---------------- CREATE ----------------
+    // ================== CREATE ==================
     public function create()
     {
         return view('adminpage/kontak/create', [
-            'wakilDirektur' => $this->getWakilDirektur(),
-            'teamTracer'    => $this->getTeamTracer(),
-            'surveyors'     => $this->getSurveyors()
+            'wakilDirektur' => $this->getAllWakilDirektur(),
+            'teamTracer'    => $this->getAllTeamTracer(),
+            'surveyors'     => $this->getAllSurveyors()
         ]);
     }
 
@@ -126,16 +53,16 @@ class Kontak extends Controller
         return redirect()->to('/admin/kontak')->with('success', 'Kontak berhasil ditambahkan');
     }
 
-    // ---------------- EDIT ----------------
+    // ================== EDIT ==================
     public function edit($id)
     {
         $kontak = $this->kontakModel->find($id);
 
         return view('adminpage/kontak/edit', [
             'kontak'        => $kontak,
-            'wakilDirektur' => $this->getWakilDirektur(),
-            'teamTracer'    => $this->getTeamTracer(),
-            'surveyors'     => $this->getSurveyors()
+            'wakilDirektur' => $this->getAllWakilDirektur(),
+            'teamTracer'    => $this->getAllTeamTracer(),
+            'surveyors'     => $this->getAllSurveyors()
         ]);
     }
 
@@ -152,77 +79,88 @@ class Kontak extends Controller
         return redirect()->to('/admin/kontak')->with('success', 'Kontak berhasil diupdate');
     }
 
-    // ---------------- DELETE ----------------
+    // ================== DELETE ==================
     public function delete($id)
     {
         $this->kontakModel->delete($id);
         return redirect()->to('/admin/kontak')->with('success', 'Kontak berhasil dihapus');
     }
 
-    // ---------------- LANDING PAGE ----------------
+    // ================== landingpage ==================
+    // Di dalam class Kontak extends Controller
     public function landing()
     {
-        // ----------------- WAKIL DIREKTUR -----------------
-        $wakilDirektur = array_merge(
-            $this->db->table('kontak')
-                ->select('da_kaprodi.nama_lengkap as nama_lengkap')
-                ->join('account', 'account.id = kontak.id_account')
-                ->join('detailaccount_kaprodi da_kaprodi', 'da_kaprodi.id_account = account.id', 'left')
-                ->where('kontak.kategori', 'Wakil Direktur')
-                ->get()->getResultArray(),
+        return view('landingpage/kontak', [
+            'wakilDirektur' => $this->getWakilDirekturKontak(),
+            'teamTracer'    => $this->getTeamTracerKontak(),
+            'surveyors'     => $this->getSurveyorsKontak()
+        ]);
+    }
 
-            $this->db->table('kontak')
-                ->select('da_jabatan.nama_lengkap as nama_lengkap')
-                ->join('account', 'account.id = kontak.id_account')
-                ->join('detailaccount_jabatan_lainnya da_jabatan', 'da_jabatan.id_account = account.id', 'left')
-                ->where('kontak.kategori', 'Wakil Direktur')
-                ->get()->getResultArray(),
 
-            $this->db->table('kontak')
-                ->select('da_atasan.nama_lengkap as nama_lengkap')
-                ->join('account', 'account.id = kontak.id_account')
-                ->join('detailaccount_atasan da_atasan', 'da_atasan.id_account = account.id', 'left')
-                ->where('kontak.kategori', 'Wakil Direktur')
-                ->get()->getResultArray()
-        );
-
-        // ----------------- TEAM TRACER -----------------
-        $teamTracer = array_merge(
-            $this->db->table('kontak')
-                ->select('da_kaprodi.nama_lengkap as nama_lengkap')
-                ->join('account', 'account.id = kontak.id_account')
-                ->join('detailaccount_kaprodi da_kaprodi', 'da_kaprodi.id_account = account.id', 'left')
-                ->where('kontak.kategori', 'Tim Tracer')
-                ->get()->getResultArray(),
-
-            $this->db->table('kontak')
-                ->select('da_jabatan.nama_lengkap as nama_lengkap')
-                ->join('account', 'account.id = kontak.id_account')
-                ->join('detailaccount_jabatan_lainnya da_jabatan', 'da_jabatan.id_account = account.id', 'left')
-                ->where('kontak.kategori', 'Tim Tracer')
-                ->get()->getResultArray(),
-
-            $this->db->table('kontak')
-                ->select('da_atasan.nama_lengkap as nama_lengkap')
-                ->join('account', 'account.id = kontak.id_account')
-                ->join('detailaccount_atasan da_atasan', 'da_atasan.id_account = account.id', 'left')
-                ->where('kontak.kategori', 'Tim Tracer')
-                ->get()->getResultArray()
-        );
-
-        // ----------------- SURVEYOR -----------------
-        $surveyors = $this->db->table('kontak')
-            ->select('kontak.id, da.nama_lengkap, da.notlp, account.email, prodi.nama_prodi, da.tahun_kelulusan')
-            ->join('account', 'account.id = kontak.id_account')
-            ->join('detailaccount_alumni da', 'da.id_account = account.id', 'left')
-            ->join('prodi', 'prodi.id = da.id_prodi', 'left')
-            ->where('kontak.kategori', 'Surveyor')
+    // ================== FUNGSI BANTU ==================
+    private function getAllWakilDirektur()
+    {
+        $kaprodi = $this->db->table('detailaccount_kaprodi da')
+            ->select('da.*, a.email')
+            ->join('account a', 'a.id = da.id_account', 'left')
             ->get()->getResultArray();
 
-        return view('LandingPage/kontak', [
-            'wakilDirektur' => $wakilDirektur,
-            'teamTracer'    => $teamTracer,
-            'surveyors'     => $surveyors
-        ]);
+        $jabatan = $this->db->table('detailaccount_jabatan_lainnya da')
+            ->select('da.*, a.email')
+            ->join('account a', 'a.id = da.id_account', 'left')
+            ->get()->getResultArray();
+
+        $atasan = $this->db->table('detailaccount_atasan da')
+            ->select('da.*, a.email')
+            ->join('account a', 'a.id = da.id_account', 'left')
+            ->get()->getResultArray();
+
+        return array_merge($kaprodi, $jabatan, $atasan);
+    }
+
+    private function getAllTeamTracer()
+    {
+        return $this->getAllWakilDirektur();
+    }
+
+    private function getAllSurveyors()
+    {
+        return $this->db->table('detailaccount_alumni da')
+            ->select('da.*, a.email, p.nama_prodi')
+            ->join('account a', 'a.id = da.id_account', 'left')
+            ->join('prodi p', 'p.id = da.id_prodi', 'left')
+            ->get()->getResultArray();
+    }
+
+    private function getWakilDirekturKontak()
+    {
+        return $this->db->table('kontak k')
+            ->select('k.id AS kontak_id, da.*, a.email, k.kategori')
+            ->join('account a', 'a.id = k.id_account', 'left')
+            ->join('detailaccount_kaprodi da', 'da.id_account = a.id', 'left')
+            ->where('k.kategori', 'Wakil Direktur')
+            ->get()->getResultArray();
+    }
+
+    private function getTeamTracerKontak()
+    {
+        return $this->db->table('kontak k')
+            ->select('k.id AS kontak_id, da.*, a.email, k.kategori')
+            ->join('account a', 'a.id = k.id_account', 'left')
+            ->join('detailaccount_jabatan_lainnya da', 'da.id_account = a.id', 'left')
+            ->where('k.kategori', 'Tim Tracer')
+            ->get()->getResultArray();
+    }
+
+    private function getSurveyorsKontak()
+    {
+        return $this->db->table('kontak k')
+            ->select('k.id AS kontak_id, da.*, a.email, p.nama_prodi')
+            ->join('account a', 'a.id = k.id_account', 'left')
+            ->join('detailaccount_alumni da', 'da.id_account = a.id', 'left')
+            ->join('prodi p', 'p.id = da.id_prodi', 'left')
+            ->where('k.kategori', 'Surveyor')
+            ->get()->getResultArray();
     }
 }
