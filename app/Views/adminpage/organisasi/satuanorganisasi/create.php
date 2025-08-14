@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -236,13 +237,14 @@
         }
     </style>
 </head>
+
 <body>
     <div class="form-container">
         <div class="form-header">
             <img src="/images/logo.png" alt="Tracer Study" class="logo">
             <h1 class="form-title">Tambah Satuan Organisasi</h1>
         </div>
-        
+
         <div class="form-body">
             <form action="/satuanorganisasi/store" method="post">
                 <div class="form-group">
@@ -258,46 +260,48 @@
 
                 <div class="form-group">
                     <label for="nama_singkatan" class="form-label required">Singkatan</label>
-                    <input type="text" name="nama_singkatan" id="nama_singkatan" class="form-control" 
-                           placeholder="Masukkan singkatan" required>
+                    <input type="text" name="nama_singkatan" id="nama_singkatan" class="form-control"
+                        placeholder="Masukkan singkatan" required>
                 </div>
 
                 <div class="form-group">
                     <label for="nama_slug" class="form-label required">Slug</label>
-                    <input type="text" name="nama_slug" id="nama_slug" class="form-control" 
-                           placeholder="Masukkan slug" required>
+                    <input type="text" name="nama_slug" id="nama_slug" class="form-control"
+                        placeholder="Masukkan slug" required>
                     <div class="form-help">Slug digunakan untuk URL (contoh: fakultas-teknik)</div>
                 </div>
 
                 <div class="form-group">
                     <label for="deskripsi" class="form-label">Deskripsi</label>
-                    <textarea name="deskripsi" id="deskripsi" class="form-control form-textarea" rows="3" 
-                              placeholder="Masukkan deskripsi satuan organisasi"></textarea>
+                    <textarea name="deskripsi" id="deskripsi" class="form-control form-textarea" rows="3"
+                        placeholder="Masukkan deskripsi satuan organisasi"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="id_tipe" class="form-label required">Tipe Organisasi</label>
                     <select name="id_tipe" id="id_tipe" class="form-control form-select" required>
                         <option value="" disabled selected>-- Pilih Tipe Organisasi --</option>
-                        <option value="1">Fakultas</option>
-                        <option value="2">Jurusan</option>
-                        <option value="3">Program Studi</option>
-                        <option value="4">Unit</option>
+                        <?php foreach ($tipe as $t): ?>
+                            <option value="<?= esc($t['id']) ?>">
+                                <?= esc($t['nama_tipe']) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
+
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="urutan" class="form-label">Urutan</label>
-                        <input type="number" name="urutan" id="urutan" class="form-control" 
-                               placeholder="Nomor urutan" min="1">
+                        <input type="number" name="urutan" id="urutan" class="form-control"
+                            placeholder="Nomor urutan" min="1">
                         <div class="form-help">Urutan tampilan pada sistem</div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="satuan_induk" class="form-label">NIK</label>
-                        <input type="text" name="satuan_induk" id="satuan_induk" class="form-control" 
-                               placeholder="Masukkan NIK">
+                        <input type="text" name="satuan_induk" id="satuan_induk" class="form-control"
+                            placeholder="Masukkan NIK">
                     </div>
                 </div>
 
@@ -338,7 +342,7 @@
         document.querySelector('form').addEventListener('submit', function(e) {
             const requiredFields = this.querySelectorAll('[required]');
             let isValid = true;
-            
+
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
                     isValid = false;
@@ -349,7 +353,7 @@
                     field.classList.add('is-valid');
                 }
             });
-            
+
             if (!isValid) {
                 e.preventDefault();
                 alert('Mohon lengkapi semua field yang wajib diisi!');
@@ -364,4 +368,5 @@
         });
     </script>
 </body>
+
 </html>
