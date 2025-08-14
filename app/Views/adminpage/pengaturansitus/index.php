@@ -90,7 +90,7 @@
 
             <!-- Pilihan Tampilan Data -->
             <div class="form-group" style="margin-bottom:20px;">
-                <label class="form-label" for="view_mode">Mode Tampilan Data</label>
+                <label class="form-label" for="view_mode">Ramdan????</label>
                 <select name="view_mode" id="view_mode" class="form-control">
                     <option value="table" <?= ($view_mode == 'table') ? 'selected' : '' ?>>Tabel</option>
                     <option value="grid" <?= ($view_mode == 'grid') ? 'selected' : '' ?>>Grid</option>
@@ -102,7 +102,7 @@
                 <button type="submit" class="btn-primary">
                     <i class="fas fa-save"></i> Simpan Pengaturan
                 </button>
-            </div>
+            </div>      
         </form>
     </div>
 </div>
