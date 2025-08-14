@@ -200,11 +200,13 @@ $routes->get('alumni/dashboard', 'Alumni::dashboard');
 $routes->get('alumni/logout', 'Alumni::logout');
 
 // Pengaturan Situs
-$routes->get('/pengaturan-situs', 'PengaturanSitus::index');
 
 
 
 
+
+$routes->get('/pengaturan-situs', 'PengaturanSitus::index'); // halaman pengaturan
+$routes->post('/pengaturan-situs/simpan', 'PengaturanSitus::simpan'); // proses simpan
 
 
 
