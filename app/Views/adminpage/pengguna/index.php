@@ -1,4 +1,3 @@
-
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
@@ -53,6 +52,7 @@
 
 
 
+
 <!-- Alert Flashdata -->
 <?php if(session()->getFlashdata('success')): ?>
     <div class="alert alert-success mt-3"><?= session()->getFlashdata('success') ?></div>
@@ -80,9 +80,7 @@
         </form>
     </div>
 </div>
-
-          
-
+  
     <div style="display:flex; gap:10px;">
         <input type="text" 
                name="keyword" 
@@ -95,20 +93,25 @@
             Search
         </button>
     </div>
-   
 </form>
 
 <style>
     .search-input {
-        width: 150px; /* Lebar awal */
+        width: 150px;
     }
     .search-input:focus {
-        width: 300px; /* Lebar saat fokus */
+        width: 300px;
         outline: none;
     }
 </style>  
-<form method="get" action="<?= base_url('admin/pengguna') ?>" class="mb-3">
-    <!-- filter role dan keyword tetap sama -->
+
+<form method="get" action="<?= base_url('admin/pengguna') ?>" class="mb-3" style="padding: 0 20px;">
+    <?php if ($roleId): ?>
+        <input type="hidden" name="role" value="<?= esc($roleId) ?>">
+    <?php endif; ?>
+    <?php if ($keyword): ?>
+        <input type="hidden" name="keyword" value="<?= esc($keyword) ?>">
+    <?php endif; ?>
     
     <label for="perpage">Tampilkan per halaman:</label>
     <input 
@@ -120,281 +123,149 @@
         style="width: 80px;"
         onchange="this.form.submit()"
     >
-    
-    
-    
-    <!-- kalau mau tombol submit manual bisa dihilangkan karena onchange sudah submit otomatis -->
 </form>
 
-<!-- Tab Semua -->
-            <div class="tab-pane fade <?= ($roleId === null) ? 'show active' : '' ?>" id="role_all" role="tabpanel">
-                <?php if (!empty($account)): ?>
-                    
-                    <div style="overflow-x:auto;">
-                        <table class="modern-table" style="width: 100%; border-collapse: collapse;">
-                            <!-- Header -->
-                            <thead>
-                                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #e9ecef;">
-                                    <th style="padding: 16px 20px; 
-                                              font-weight: 600; 
-                                              font-size: 13px; 
-                                              color: #495057; 
-                                              text-align: left;
-                                              text-transform: uppercase;
-                                              letter-spacing: 0.5px;">No</th>
-                                    <th style="padding: 16px 20px; 
-                                              font-weight: 600; 
-                                              font-size: 13px; 
-                                              color: #495057; 
-                                              text-align: left;
-                                              text-transform: uppercase;
-                                              letter-spacing: 0.5px;">Nama Pengguna</th>
-                                    <th style="padding: 16px 20px; 
-                                              font-weight: 600; 
-                                              font-size: 13px; 
-                                              color: #495057; 
-                                              text-align: left;
-                                              text-transform: uppercase;
-                                              letter-spacing: 0.5px;">Email</th>
-                                    <th style="padding: 16px 20px; 
-                                              font-weight: 600; 
-                                              font-size: 13px; 
-                                              color: #495057; 
-                                              text-align: left;
-                                              text-transform: uppercase;
-                                              letter-spacing: 0.5px;">Status</th>
-                                    <th style="padding: 16px 20px; 
-                                              font-weight: 600; 
-                                              font-size: 13px; 
-                                              color: #495057; 
-                                              text-align: left;
-                                              text-transform: uppercase;
-                                              letter-spacing: 0.5px;">Group</th>
-                                    <th style="padding: 16px 20px; 
-                                              font-weight: 600; 
-                                              font-size: 13px; 
-                                              color: #495057; 
-                                              text-align: center;
-                                              text-transform: uppercase;
-                                              letter-spacing: 0.5px;">Aksi</th>
-                                </tr>
-                            </thead>
-                            <!-- Body -->
-                            <tbody>
-                              <?php $no = 1 + ($perPage * ($currentPage - 1)); foreach ($account as $acc): ?>
-                                    <tr style="border-bottom: 1px solid #e9ecef; transition: background-color 0.2s ease;"
-                                        onmouseover="this.style.backgroundColor='#f8f9fa'" 
-                                        onmouseout="this.style.backgroundColor='white'">
-                                        <td style="padding: 16px 20px; font-size: 14px; color: #6c757d; font-weight: 500;"><?= $no++ ?></td>
-                                        <td style="padding: 16px 20px; font-size: 14px; color: #333; font-weight: 500;"><?= $acc['username'] ?></td>
-                                        <td style="padding: 16px 20px; font-size: 14px; color: #6c757d;"><?= $acc['email'] ?></td>
-                                        <td style="padding: 16px 20px;">
-                                            <?php 
-                                            $isActive = (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1');
-                                            ?>
-                                            <span style="padding: 4px 12px;
-                                                        border-radius: 20px;
-                                                        font-size: 12px;
-                                                        font-weight: 600;
-                                                        text-transform: uppercase;
-                                                        letter-spacing: 0.5px;
-                                                        <?= $isActive ? 'background-color: #d4edda; color: #155724;' : 'background-color: #f8d7da; color: #721c24;' ?>">
-                                                <?= $isActive ? 'AKTIF' : 'TIDAK AKTIF' ?>
-                                            </span>
-                                        </td>
-                                        <td style="padding: 16px 20px;">
-                                            <span style="padding: 4px 12px;
-                                                        background-color: #e3f2fd;
-                                                        color: #1565c0;
-                                                        border-radius: 20px;
-                                                        font-size: 12px;
-                                                        font-weight: 500;">
-                                                <?= $acc['nama_role'] ?>
-                                            </span>
-                                        </td>
-                                        <td style="padding: 16px 20px; text-align: center;">
-                                            <a href="<?= base_url('/admin/pengguna/editPengguna/'. $acc['id'] ) ?>" 
-                                               style="padding: 6px 12px;
-                                                      background-color: #007bff;
-                                                      color: white;
-                                                      border: none;
-                                                      border-radius: 4px;
-                                                      font-size: 12px;
-                                                      font-weight: 500;
-                                                      cursor: pointer;
-                                                      margin-right: 6px;
-                                                      text-decoration: none;
-                                                      display: inline-block;
-                                                      transition: all 0.2s ease;">
-                                                Edit
-                                            </a>
-                                            <form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display: inline;" onsubmit="return confirm('Yakin hapus?')">
-                                                <?= csrf_field() ?>
-                                                <button type="submit" 
-                                                        style="padding: 6px 12px;
-                                                               background-color: #dc3545;
-                                                               color: white;
-                                                               border: none;
-                                                               border-radius: 4px;
-                                                               font-size: 12px;
-                                                               font-weight: 500;
-                                                               cursor: pointer;
-                                                               transition: all 0.2s ease;">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                       <div style="margin-top: 20px;">
-                         <?= $pager->links('accounts', 'paginations') ?>
-                        </div>
-                <?php else: ?>
-                    <div style="padding: 40px; text-align: center; color: #6c757d;">
-                        <p style="font-size: 16px; margin: 0;">Tidak ada data pengguna.</p>
-                    </div>
-                <?php endif; ?>
-            </div>
 
-            <!-- Tab untuk tiap Role -->
-            <?php foreach ($roles as $role): ?>
-                <div class="tab-pane fade <?= ($roleId == $role['id']) ? 'show active' : '' ?>" id="role_<?= $role['id'] ?>" role="tabpanel">
-                    <?php
-                    // Filter data berdasarkan role yang sedang ditampilkan
-                    $filtered = array_filter($account, function ($acc) use ($role) {
-                        return $acc['id_role'] == $role['id'];
-                    });
-                    ?>
-                    
-                    <?php if (!empty($filtered)): ?>
-                      
+
+<!-- Main Table Display -->
+<?php if (isset($accounts) && !empty($accounts)): ?>
     <div style="overflow-x:auto;">
-                        <div style="overflow-x:auto;">
-                            <table class="modern-table" style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr style="background-color: #f8f9fa; border-bottom: 2px solid #e9ecef;">
-                                        <th style="padding: 16px 20px; 
-                                                  font-weight: 600; 
-                                                  font-size: 13px; 
-                                                  color: #495057; 
-                                                  text-align: left;
-                                                  text-transform: uppercase;
-                                                  letter-spacing: 0.5px;">No</th>
-                                        <th style="padding: 16px 20px; 
-                                                  font-weight: 600; 
-                                                  font-size: 13px; 
-                                                  color: #495057; 
-                                                  text-align: left;
-                                                  text-transform: uppercase;
-                                                  letter-spacing: 0.5px;">Nama Pengguna</th>
-                                        <th style="padding: 16px 20px; 
-                                                  font-weight: 600; 
-                                                  font-size: 13px; 
-                                                  color: #495057; 
-                                                  text-align: left;
-                                                  text-transform: uppercase;
-                                                  letter-spacing: 0.5px;">Email</th>
-                                        <th style="padding: 16px 20px; 
-                                                  font-weight: 600; 
-                                                  font-size: 13px; 
-                                                  color: #495057; 
-                                                  text-align: left;
-                                                  text-transform: uppercase;
-                                                  letter-spacing: 0.5px;">Status</th>
-                                        <th style="padding: 16px 20px; 
-                                                  font-weight: 600; 
-                                                  font-size: 13px; 
-                                                  color: #495057; 
-                                                  text-align: left;
-                                                  text-transform: uppercase;
-                                                  letter-spacing: 0.5px;">Group</th>
-                                        <th style="padding: 16px 20px; 
-                                                  font-weight: 600; 
-                                                  font-size: 13px; 
-                                                  color: #495057; 
-                                                  text-align: center;
-                                                  text-transform: uppercase;
-                                                  letter-spacing: 0.5px;">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $no = 1; foreach ($filtered as $acc): ?>
-                                        <tr style="border-bottom: 1px solid #e9ecef; transition: background-color 0.2s ease;"
-                                            onmouseover="this.style.backgroundColor='#f8f9fa'" 
-                                            onmouseout="this.style.backgroundColor='white'">
-                                            <td style="padding: 16px 20px; font-size: 14px; color: #6c757d; font-weight: 500;"><?= $no++ ?></td>
-                                            <td style="padding: 16px 20px; font-size: 14px; color: #333; font-weight: 500;"><?= $acc['username'] ?></td>
-                                            <td style="padding: 16px 20px; font-size: 14px; color: #6c757d;"><?= $acc['email'] ?></td>
-                                            <td style="padding: 16px 20px;">
-                                                <?php 
-                                                $isActive = (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1');
-                                                ?>
-                                                <span style="padding: 4px 12px;
-                                                            border-radius: 20px;
-                                                            font-size: 12px;
-                                                            font-weight: 600;
-                                                            text-transform: uppercase;
-                                                            letter-spacing: 0.5px;
-                                                            <?= $isActive ? 'background-color: #d4edda; color: #155724;' : 'background-color: #f8d7da; color: #721c24;' ?>">
-                                                    <?= $isActive ? 'AKTIF' : 'TIDAK AKTIF' ?>
-                                                </span>
-                                            </td>
-                                            <td style="padding: 16px 20px;">
-                                                <span style="padding: 4px 12px;
-                                                            background-color: #e3f2fd;
-                                                            color: #1565c0;
-                                                            border-radius: 20px;
-                                                            font-size: 12px;
-                                                            font-weight: 500;">
-                                                    <?= $acc['nama_role'] ?>
-                                                </span>
-                                            </td>
-                                            <td style="padding: 16px 20px; text-align: center;">
-                                                <a href="<?= base_url('/admin/pengguna/editPengguna/'. $acc['id'] ) ?>" 
-                                                   style="padding: 6px 12px;
-                                                          background-color: #007bff;
-                                                          color: white;
-                                                          border: none;
-                                                          border-radius: 4px;
-                                                          font-size: 12px;
-                                                          font-weight: 500;
-                                                          cursor: pointer;
-                                                          margin-right: 6px;
-                                                          text-decoration: none;
-                                                          display: inline-block;
-                                                          transition: all 0.2s ease;">
-                                                    Edit
-                                                </a>
-                                                <form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display: inline;" onsubmit="return confirm('Yakin hapus?')">
-                                                    <?= csrf_field() ?>
-                                                    <button type="submit" 
-                                                            style="padding: 6px 12px;
-                                                                   background-color: #dc3545;
-                                                                   color: white;
-                                                                   border: none;
-                                                                   border-radius: 4px;
-                                                                   font-size: 12px;
-                                                                   font-weight: 500;
-                                                                   cursor: pointer;
-                                                                   transition: all 0.2s ease;">
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php else: ?>
-                        <div style="padding: 40px; text-align: center; color: #6c757d;">
-                            <p style="font-size: 16px; margin: 0;">Tidak ada data pengguna untuk role <?= esc($role['nama']) ?>.</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            <?php endforeach; ?>
+        <table class="modern-table" style="width: 100%; border-collapse: collapse;">
+            <!-- Header -->
+            <thead>
+                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #e9ecef;">
+                    <th style="padding: 16px 20px; 
+                              font-weight: 600; 
+                              font-size: 13px; 
+                              color: #495057; 
+                              text-align: left;
+                              text-transform: uppercase;
+                              letter-spacing: 0.5px;">No</th>
+                    <th style="padding: 16px 20px; 
+                              font-weight: 600; 
+                              font-size: 13px; 
+                              color: #495057; 
+                              text-align: left;
+                              text-transform: uppercase;
+                              letter-spacing: 0.5px;">Nama Pengguna</th>
+                    <th style="padding: 16px 20px; 
+                              font-weight: 600; 
+                              font-size: 13px; 
+                              color: #495057; 
+                              text-align: left;
+                              text-transform: uppercase;
+                              letter-spacing: 0.5px;">Email</th>
+                    <th style="padding: 16px 20px; 
+                              font-weight: 600; 
+                              font-size: 13px; 
+                              color: #495057; 
+                              text-align: left;
+                              text-transform: uppercase;
+                              letter-spacing: 0.5px;">Status</th>
+                    <th style="padding: 16px 20px; 
+                              font-weight: 600; 
+                              font-size: 13px; 
+                              color: #495057; 
+                              text-align: left;
+                              text-transform: uppercase;
+                              letter-spacing: 0.5px;">Group</th>
+                    <th style="padding: 16px 20px; 
+                              font-weight: 600; 
+                              font-size: 13px; 
+                              color: #495057; 
+                              text-align: center;
+                              text-transform: uppercase;
+                              letter-spacing: 0.5px;">Aksi</th>
+                </tr>
+            </thead>
+            <!-- Body -->
+            <tbody>
+              <?php $no = 1 + ($perPage * ($currentPage - 1)); foreach ($accounts as $acc): ?>
+                    <tr style="border-bottom: 1px solid #e9ecef; transition: background-color 0.2s ease;"
+                        onmouseover="this.style.backgroundColor='#f8f9fa'" 
+                        onmouseout="this.style.backgroundColor='white'">
+                        <td style="padding: 16px 20px; font-size: 14px; color: #6c757d; font-weight: 500;"><?= $no++ ?></td>
+                        <td style="padding: 16px 20px; font-size: 14px; color: #333; font-weight: 500;"><?= esc($acc['username']) ?></td>
+                        <td style="padding: 16px 20px; font-size: 14px; color: #6c757d;"><?= esc($acc['email']) ?></td>
+                        <td style="padding: 16px 20px;">
+                            <?php 
+                            $isActive = (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1');
+                            ?>
+                            <span style="padding: 4px 12px;
+                                        border-radius: 20px;
+                                        font-size: 12px;
+                                        font-weight: 600;
+                                        text-transform: uppercase;
+                                        letter-spacing: 0.5px;
+                                        <?= $isActive ? 'background-color: #d4edda; color: #155724;' : 'background-color: #f8d7da; color: #721c24;' ?>">
+                                <?= $isActive ? 'AKTIF' : 'TIDAK AKTIF' ?>
+                            </span>
+                        </td>
+                        <td style="padding: 16px 20px;">
+                            <span style="padding: 4px 12px;
+                                        background-color: #e3f2fd;
+                                        color: #1565c0;
+                                        border-radius: 20px;
+                                        font-size: 12px;
+                                        font-weight: 500;">
+                                <?= esc($acc['nama_role'] ?? 'Tidak ada role') ?>
+                            </span>
+                        </td>
+                        <td style="padding: 16px 20px; text-align: center;">
+                            <a href="<?= base_url('/admin/pengguna/editPengguna/'. $acc['id'] ) ?>" 
+                               style="padding: 6px 12px;
+                                      background-color: #007bff;
+                                      color: white;
+                                      border: none;
+                                      border-radius: 4px;
+                                      font-size: 12px;
+                                      font-weight: 500;
+                                      cursor: pointer;
+                                      margin-right: 6px;
+                                      text-decoration: none;
+                                      display: inline-block;
+                                      transition: all 0.2s ease;">
+                                Edit
+                            </a>
+                            <form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display: inline;" onsubmit="return confirm('Yakin hapus?')">
+                                <?= csrf_field() ?>
+                                <button type="submit" 
+                                        style="padding: 6px 12px;
+                                               background-color: #dc3545;
+                                               color: white;
+                                               border: none;
+                                               border-radius: 4px;
+                                               font-size: 12px;
+                                               font-weight: 500;
+                                               cursor: pointer;
+                                               transition: all 0.2s ease;">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        
+        <!-- Pagination -->
+        <div style="margin-top: 20px; padding: 20px;">
+            <?php if (isset($pager)): ?>
+                <?= $pager->links('accounts', 'paginations') ?>
+            <?php endif; ?>
+        </div>
+    </div>
+<?php else: ?>
+    <div style="padding: 40px; text-align: center; color: #6c757d;">
+        <p style="font-size: 16px; margin: 0;">Tidak ada data pengguna.</p>
+        <?php if (isset($accounts)): ?>
+            <p style="font-size: 14px; color: #999;">Variable accounts ditemukan tapi kosong.</p>
+        <?php else: ?>
+            <p style="font-size: 14px; color: #999;">Variable accounts tidak ditemukan.</p>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+
         </div>
     </div>
 </div>
