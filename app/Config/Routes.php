@@ -48,17 +48,20 @@ $routes->get('/tentang', 'Homepage::tentang');
 
 
 
-// --- Pengguna ---
+// --- Import Akun ---
 $routes->group('admin/pengguna', function ($routes) {
-    $routes->get('', 'penggunaController::index');
-    $routes->get('tambahPengguna', 'penggunaController::create');
-    $routes->post('tambahPengguna/post', 'penggunaController::store');
-    $routes->get('editPengguna/(:num)', 'penggunaController::edit/$1');
-    $routes->post('update/(:num)', 'penggunaController::update/$1');
-    $routes->post('delete/(:num)', 'penggunaController::delete/$1');
+    $routes->get('', 'PenggunaController::index');
+    $routes->get('tambahPengguna', 'PenggunaController::create');
+    $routes->post('tambahPengguna/post', 'PenggunaController::store');
+    $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
+    $routes->post('update/(:num)', 'PenggunaController::update/$1');
+    $routes->post('delete/(:num)', 'PenggunaController::delete/$1');
+
+    // Import akun
+     $routes->post('import', 'ImportAccount::upload'); 
 });
 
-// --- Kontak ---
+ ---
 $routes->group('admin/kontak', function ($routes) {
     $routes->get('', 'Kontak::index');
     $routes->get('create', 'Kontak::create');
@@ -201,5 +204,10 @@ $routes->get('alumni', 'AlumniController::index');
 $routes->get('alumnisurveyor', 'AlumniController::surveyor');
 
 
-// Pengaturan Situs
-$routes->get('/pengaturan-situs', 'PengaturanSitus::index');
+
+
+
+
+
+$routes->get('/pengaturan-situs', 'PengaturanSitus::index'); // halaman pengaturan
+$routes->post('/pengaturan-situs/simpan', 'PengaturanSitus::simpan'); // proses simpan
