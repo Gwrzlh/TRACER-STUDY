@@ -189,10 +189,13 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
 });
 
 // Route Alumni
-$routes->get('alumni/login', 'Alumni::login');
-$routes->post('alumni/login', 'Alumni::doLogin');
-$routes->get('alumni/dashboard', 'Alumni::dashboard');
-$routes->get('alumni/logout', 'Alumni::logout');
+$routes->get('alumni/login', 'AlumniController::login');
+$routes->post('alumni/login', 'AlumniController::doLogin');
+$routes->get('alumni/dashboard', 'AlumniController::dashboard');
+$routes->get('alumni/logout', 'AlumniController::logout');
+$routes->get('alumni', 'AlumniController::index');
+$routes->get('alumnisurveyor', 'AlumniController::surveyor');
+
 
 // Pengaturan Situs
 $routes->get('/pengaturan-situs', 'PengaturanSitus::index');
