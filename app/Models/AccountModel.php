@@ -8,7 +8,14 @@ class AccountModel extends Model
 {
     protected $table = 'account';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['username', 'email', 'password', 'id_role'];
+    protected $allowedFields = [
+        'username',
+        'email',
+        'password',
+        'status',       // aktif / nonaktif
+        'id_role',
+        'id_surveyor'
+    ];
 
     public function getByUsernameOrEmail($input)
     {

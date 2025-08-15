@@ -22,7 +22,6 @@
     <label for="deskripsi">Deskripsi</label>
     <input type="text" name="deskripsi" id="deskripsi" value="<?= esc($satuan['deskripsi']) ?>"><br><br>
 
-    <label for="id_tipe">Tipe Organisasi</label>
     <select name="id_tipe" id="id_tipe" required>
         <option value="">-- Pilih Tipe --</option>
         <?php foreach ($tipe as $t): ?>
@@ -30,7 +29,8 @@
                 <?= esc($t['nama_tipe']) ?>
             </option>
         <?php endforeach ?>
-    </select><br><br>
+    </select>
+
 
     <label for="urutan">Urutan</label>
     <input type="number" name="urutan" id="urutan" value="<?= esc($satuan['urutan']) ?>"><br><br>
