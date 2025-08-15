@@ -1,81 +1,99 @@
-<div class="container mt-4">
-    <h2>Tambah Kontak</h2>
+    <div class="container mt-4">
+        <h2>Tambah Kontak</h2>
 
-    <?php if (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-    <?php endif; ?>
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+        <?php endif; ?>
 
-    <form action="/admin/kontak/store" method="post">
-        <div class="mb-3">
-            <label>Kategori</label>
-            <select id="kategori" name="kategori" class="form-select" required onchange="showAccounts()">
-                <option value="">-- Pilih Kategori --</option>
-                <option value="Wakil Direktur">Wakil Direktur</option>
-                <option value="Tim Tracer">Tim Tracer</option>
-                <option value="Surveyor">Surveyor</option>
-            </select>
-        </div>
+        <form action="/admin/kontak/store" method="post">
+            <div class="mb-3">
+                <label>Kategori</label>
+                <select id="kategori" name="kategori" class="form-select" required onchange="loadAccounts()">
+                    <option value="">-- Pilih Kategori --</option>
+                    <option value="Wakil Direktur">Wakil Direktur</option>
+                    <option value="Tim Tracer">Tim Tracer</option>
+                    <option value="Surveyor">Surveyor</option>
+                </select>
+            </div>
 
-        <div class="mb-3">
-            <label id="labelNama">Nama/NIM</label>
-            <select name="id_account" id="id_account" class="form-select" required>
-                <option value="">-- Pilih Nama --</option>
-            </select>
-        </div>
+            <div id="accountList" style="display:none;">
+                <h5>Daftar Kontak</h5>
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Pilih</th>
+                            <th>Nama Lengkap</th>
+                            <th>Email</th>
+                            <th>Detail Lainnya</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accountTableBody">
+                        <!-- data akan diisi via AJAX -->
+                    </tbody>
+                </table>
+            </div>
 
-        <div id="previewData" style="border:1px solid #ccc;padding:10px;display:none;">
-            <h5>Preview Data</h5>
-            <div id="previewContent"></div>
-        </div>
+            <button type="submit" class="btn btn-primary mt-3">Simpan</button>
+            <a href="/admin/kontak" class="btn btn-secondary mt-3">Batal</a>
+        </form>
+    </div>
 
-        <button type="submit" class="btn btn-primary">Simpan</button>
-        <a href="/admin/kontak" class="btn btn-secondary">Batal</a>
-    </form>
-</div>
+    <script>
+        function loadAccounts() {
+            const kategori = document.getElementById('kategori').value;
+            const tableBody = document.getElementById('accountTableBody');
+            const accountListDiv = document.getElementById('accountList');
 
-<script>
-    const wakilDirektur = <?= json_encode($wakilDirektur) ?>;
-    const teamTracer = <?= json_encode($teamTracer) ?>;
-    const surveyors = <?= json_encode($surveyors) ?>;
+            tableBody.innerHTML = '';
+            accountListDiv.style.display = 'none';
 
-    function showAccounts() {
-        const kategori = document.getElementById('kategori').value;
-        const select = document.getElementById('id_account');
-        const previewDiv = document.getElementById('previewData');
-        const previewContent = document.getElementById('previewContent');
+            if (!kategori) return;
 
-        select.innerHTML = '<option value="">-- Pilih --</option>';
-        previewDiv.style.display = 'none';
-        previewContent.innerHTML = '';
+            fetch(`/admin/kontak/getByKategori/${encodeURIComponent(kategori)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="4" class="text-center">Tidak ada data tersedia</td></tr>`;
+                    } else {
+                        data.forEach(acc => {
+                            const tr = document.createElement('tr');
 
-        let list = [];
-        if (kategori === 'Wakil Direktur') list = wakilDirektur;
-        else if (kategori === 'Tim Tracer') list = teamTracer;
-        else if (kategori === 'Surveyor') list = surveyors;
+                            // Checkbox
+                            const tdCheck = document.createElement('td');
+                            tdCheck.innerHTML = `<input type="checkbox" name="id_account[]" value="${acc.id_account}">`;
+                            tr.appendChild(tdCheck);
 
-        list.forEach(acc => {
-            const label = kategori === 'Surveyor' ? acc.nim : acc.nama_lengkap;
-            const option = document.createElement('option');
-            option.value = acc.id_account;
-            option.text = label;
-            option.setAttribute('data-item', JSON.stringify(acc));
-            select.appendChild(option);
-        });
-    }
+                            // Nama Lengkap
+                            const tdNama = document.createElement('td');
+                            tdNama.textContent = acc.nama_lengkap || acc.nim || '-';
+                            tr.appendChild(tdNama);
 
-    document.getElementById('id_account').addEventListener('change', function() {
-        const selected = this.options[this.selectedIndex];
-        if (!selected.value) {
-            document.getElementById('previewData').style.display = 'none';
-            return;
+                            // Email
+                            const tdEmail = document.createElement('td');
+                            tdEmail.textContent = acc.email || '-';
+                            tr.appendChild(tdEmail);
+
+                            // Detail lainnya (preview semua field)
+                            const tdDetail = document.createElement('td');
+                            let detailHtml = '<ul style="margin:0;padding-left:16px;">';
+                            for (const key in acc) {
+                                if (key !== 'id_account' && key !== 'nama_lengkap' && key !== 'email') {
+                                    detailHtml += `<li><strong>${key}</strong>: ${acc[key] ?? '-'}</li>`;
+                                }
+                            }
+                            detailHtml += '</ul>';
+                            tdDetail.innerHTML = detailHtml;
+                            tr.appendChild(tdDetail);
+
+                            tableBody.appendChild(tr);
+                        });
+                    }
+
+                    accountListDiv.style.display = 'block';
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Gagal memuat data.');
+                });
         }
-        const data = JSON.parse(selected.getAttribute('data-item'));
-        let html = '<table border="1" cellpadding="5">';
-        for (const key in data) {
-            html += `<tr><td><strong>${key}</strong></td><td>${data[key]}</td></tr>`;
-        }
-        html += '</table>';
-        document.getElementById('previewData').style.display = 'block';
-        document.getElementById('previewContent').innerHTML = html;
-    });
-</script>
+    </script>

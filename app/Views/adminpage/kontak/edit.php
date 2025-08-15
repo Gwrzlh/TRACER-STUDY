@@ -1,10 +1,13 @@
 <div class="container mt-4">
     <h2>Edit Kontak</h2>
 
-    <form action="/admin/kontak/update/<?= $kontak['id'] ?>" method="post">
+    <form action="<?= base_url('admin/kontak/update/' . $kontak['id']) ?>" method="post">
+        <?= csrf_field() ?>
+
+        <!-- Pilih Kategori -->
         <div class="mb-3">
-            <label>Kategori</label>
-            <select id="kategori" name="kategori" class="form-select" required onchange="showAccounts()">
+            <label for="kategori" class="form-label">Kategori</label>
+            <select name="kategori" id="kategori" class="form-control" required>
                 <option value="">-- Pilih Kategori --</option>
                 <option value="Wakil Direktur" <?= $kontak['kategori'] == 'Wakil Direktur' ? 'selected' : '' ?>>Wakil Direktur</option>
                 <option value="Tim Tracer" <?= $kontak['kategori'] == 'Tim Tracer' ? 'selected' : '' ?>>Tim Tracer</option>
@@ -12,87 +15,99 @@
             </select>
         </div>
 
+        <!-- Pilih Account -->
         <div class="mb-3">
-            <label id="labelNama">Nama / NIM</label>
-            <select name="id_account" id="id_account" class="form-select" required>
-                <option value="">-- Pilih --</option>
+            <label for="id_account" class="form-label">Nama / NIM</label>
+            <select name="id_account" id="id_account" class="form-control" required>
+                <option value="">-- Pilih Nama --</option>
+                <?php foreach ($accounts as $acc): ?>
+                    <option value="<?= $acc['id_account'] ?>" data-item='<?= json_encode($acc) ?>'
+                        <?= $kontak['id_account'] == $acc['id_account'] ? 'selected' : '' ?>>
+                        <?= $acc['nama_lengkap'] ?? $acc['nim'] ?? '-' ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
         </div>
 
-        <div id="previewData" style="border:1px solid #ccc;padding:10px;display:none;">
-            <h5>Preview Data</h5>
-            <div id="previewContent"></div>
+        <!-- Preview Data Lengkap -->
+        <div class="mb-3" id="preview" style="display: none;">
+            <h5>Preview Data Lengkap</h5>
+            <table class="table table-bordered" id="previewTable"></table>
         </div>
 
         <button type="submit" class="btn btn-primary">Update</button>
-        <a href="/admin/kontak" class="btn btn-secondary">Batal</a>
+        <a href="<?= base_url('admin/kontak') ?>" class="btn btn-secondary">Batal</a>
     </form>
 </div>
 
 <script>
-    const wakilDirektur = <?= json_encode($wakilDirektur) ?>;
-    const teamTracer = <?= json_encode($teamTracer) ?>;
-    const surveyors = <?= json_encode($surveyors) ?>;
+    document.addEventListener('DOMContentLoaded', function() {
+        const kategoriSelect = document.getElementById('kategori');
+        const accountSelect = document.getElementById('id_account');
+        const previewDiv = document.getElementById('preview');
+        const previewTable = document.getElementById('previewTable');
+        let currentId = '<?= $kontak['id_account'] ?>';
 
-    const kategoriSelect = document.getElementById('kategori');
-    const idAccountSelect = document.getElementById('id_account');
-    const previewDiv = document.getElementById('previewData');
-    const previewContent = document.getElementById('previewContent');
-    const labelNama = document.getElementById('labelNama');
-
-    function showAccounts(selectedId = null) {
-        const kategori = kategoriSelect.value;
-        let list = [];
-        if (kategori === 'Wakil Direktur') list = wakilDirektur;
-        else if (kategori === 'Tim Tracer') list = teamTracer;
-        else if (kategori === 'Surveyor') list = surveyors;
-
-        idAccountSelect.innerHTML = '<option value="">-- Pilih --</option>';
-        previewDiv.style.display = 'none';
-        previewContent.innerHTML = '';
-
-        list.forEach(acc => {
-            const label = kategori === 'Surveyor' ? acc.nim : acc.nama_lengkap;
-            const option = document.createElement('option');
-            option.value = acc.id_account;
-            option.text = label;
-            option.setAttribute('data-item', JSON.stringify(acc));
-            if (selectedId && selectedId == acc.id_account) option.selected = true;
-            idAccountSelect.appendChild(option);
-        });
-
-        if (selectedId) {
-            const selectedOption = idAccountSelect.querySelector('option[selected]');
-            if (selectedOption) {
+        function updatePreview() {
+            const selectedOption = accountSelect.options[accountSelect.selectedIndex];
+            previewTable.innerHTML = '';
+            if (selectedOption && selectedOption.value) {
                 const data = JSON.parse(selectedOption.getAttribute('data-item'));
-                let html = '<table border="1" cellpadding="5">';
-                for (const key in data) html += `<tr><td><strong>${key}</strong></td><td>${data[key]}</td></tr>`;
-                html += '</table>';
+                let html = '';
+                for (const key in data) {
+                    html += `<tr><td><strong>${key}</strong></td><td>${data[key] ?? '-'}</td></tr>`;
+                }
+                previewTable.innerHTML = html;
                 previewDiv.style.display = 'block';
-                previewContent.innerHTML = html;
+            } else {
+                previewDiv.style.display = 'none';
             }
         }
-    }
 
-    kategoriSelect.addEventListener('change', function() {
-        labelNama.textContent = this.value === 'Surveyor' ? 'NIM' : 'Nama';
-        showAccounts();
-    });
+        // Preview awal
+        updatePreview();
 
-    idAccountSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        if (!selectedOption.value) {
+        // Saat kategori berubah
+        kategoriSelect.addEventListener('change', function() {
+            const kategori = this.value;
+            accountSelect.innerHTML = '<option value="">-- Pilih Nama --</option>';
             previewDiv.style.display = 'none';
-            return;
-        }
-        const data = JSON.parse(selectedOption.getAttribute('data-item'));
-        let html = '<table border="1" cellpadding="5">';
-        for (const key in data) html += `<tr><td><strong>${key}</strong></td><td>${data[key]}</td></tr>`;
-        html += '</table>';
-        previewDiv.style.display = 'block';
-        previewContent.innerHTML = html;
-    });
 
-    // Load awal
-    showAccounts('<?= $kontak['id_account'] ?>');
+            if (!kategori) return;
+
+            fetch(`<?= base_url('admin/kontak/getAccountsByKategori') ?>/${kategori}`)
+                .then(res => res.json())
+                .then(data => {
+                    let foundCurrent = false;
+                    data.forEach(acc => {
+                        const option = document.createElement('option');
+                        option.value = acc.id_account;
+                        option.textContent = acc.nama_lengkap ?? acc.nim ?? '-';
+                        option.setAttribute('data-item', JSON.stringify(acc));
+
+                        if (acc.id_account == currentId) {
+                            option.selected = true;
+                            foundCurrent = true;
+                        }
+
+                        accountSelect.appendChild(option);
+                    });
+
+                    // Jika data lama tidak ada di list baru, tambahkan
+                    if (!foundCurrent && currentId) {
+                        const oldOption = document.createElement('option');
+                        oldOption.value = currentId;
+                        oldOption.textContent = selectedOption.textContent;
+                        oldOption.setAttribute('data-item', selectedOption.getAttribute('data-item'));
+                        oldOption.selected = true;
+                        accountSelect.appendChild(oldOption);
+                    }
+
+                    updatePreview();
+                })
+                .catch(err => console.error(err));
+        });
+
+        accountSelect.addEventListener('change', updatePreview);
+    });
 </script>
