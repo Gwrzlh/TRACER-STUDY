@@ -15,16 +15,18 @@ $routes->get('/kontak', 'Kontak::landing');
 $routes->get('/login', 'Auth::login');
 $routes->post('/do-login', 'Auth::doLogin');
 $routes->get('/logout', 'Auth::logout');
-$routes->get('/dashboard', 'Auth::dashboard', ['filter' => 'auth']);
-
+// ini ga kepake
+// $routes->get('/dashboard', 'Auth::dashboard', ['filter' => 'auth']);
+// $routes->get('/admin', 'adminController::index');
+// $routes->get('/admin', 'adminController::index', ['filter' => 'auth']);
 //route admin
 $routes->get('/', 'Homepage::index');
-$routes->get('/admin', 'adminController::index', ['filter' => 'auth']);
-$routes->get('/admin/pengguna', 'penggunaController::index');
+
+$routes->get('/admin/pengguna', 'penggunaController::index',);
 $routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
 $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
 
-$routes->get('admin/dashboard', 'AdminController::dashboard');
+$routes->get('admin/dashboard', 'AdminController::dashboard', ['filter' => 'auth']);
 
 //route ajax 
 //route organisasi
@@ -36,7 +38,7 @@ $routes->post('/admin/tipeorganisasi/insert', 'TipeOrganisasiController::store')
 // --------------------
 // ROUTES: Admin
 // --------------------
-$routes->get('/admin', 'adminController::index');
+
 //route ajax 
 $routes->group('api', function ($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
@@ -64,6 +66,8 @@ $routes->group('admin/kontak', function ($routes) {
     $routes->get('edit/(:num)', 'Kontak::edit/$1');
     $routes->post('update/(:num)', 'Kontak::update/$1');
     $routes->get('delete/(:num)', 'Kontak::delete/$1');
+    $routes->get('deleteKategori/(:segment)', 'Kontak::deletebyKategori/$1');
+    $routes->get('getByKategori/(:any)', 'Kontak::getByKategori/$1');
 });
 
 
