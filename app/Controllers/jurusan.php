@@ -3,14 +3,35 @@
 namespace App\Controllers;
 
 use App\Models\JurusanModel;
+use App\Models\SatuanOrganisasiModel;
+use App\Models\Prodi;
 use CodeIgniter\Controller;
 
 class Jurusan extends Controller
 {
     public function index()
     {
-        $model = new JurusanModel();
-        $data['jurusan'] = $model->findAll();
+        $jurusanModel = new JurusanModel();
+        $satuanModel  = new SatuanOrganisasiModel();
+        $prodiModel   = new Prodi();
+
+        // Ambil keyword dari GET
+        $keyword = $this->request->getGet('keyword');
+
+        // Query untuk badge (hitung total tanpa filter)
+        $data['count_satuan']  = $satuanModel->countAll();
+        $data['count_jurusan'] = $jurusanModel->countAll();
+        $data['count_prodi']   = $prodiModel->countAll();
+
+        // Filter jika ada keyword (pencarian berdasarkan nama_jurusan)
+        if ($keyword) {
+            $jurusanModel->like('nama_jurusan', $keyword);
+        }
+
+        // Ambil data jurusan
+        $data['jurusan'] = $jurusanModel->findAll();
+        $data['keyword'] = $keyword; // supaya input search tetap terisi
+
         return view('adminpage/organisasi/satuanorganisasi/jurusan/index', $data);
     }
 
@@ -22,8 +43,12 @@ class Jurusan extends Controller
     public function store()
     {
         $model = new JurusanModel();
-        $model->insert($this->request->getPost());
-        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
+
+        $model->insert([
+            'nama_jurusan' => $this->request->getPost('nama_jurusan')
+        ]);
+
+        return redirect()->to('/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
     }
 
     public function edit($id)
@@ -36,14 +61,18 @@ class Jurusan extends Controller
     public function update($id)
     {
         $model = new JurusanModel();
-        $model->update($id, $this->request->getPost());
-        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil diperbarui.');
+        $model->update($id, [
+            'nama_jurusan' => $this->request->getPost('nama_jurusan')
+        ]);
+
+        return redirect()->to('/jurusan')->with('success', 'Data jurusan berhasil diperbarui.');
     }
 
     public function delete($id)
     {
         $model = new JurusanModel();
         $model->delete($id);
-        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil dihapus.');
+
+        return redirect()->to('/jurusan')->with('success', 'Data jurusan berhasil dihapus.');
     }
 }
