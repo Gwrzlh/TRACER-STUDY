@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Prodi;
 use App\Models\JurusanModel;
+use App\Models\SatuanOrganisasiModel;
 use CodeIgniter\Controller;
 
 class ProdiController extends Controller
@@ -12,8 +13,33 @@ class ProdiController extends Controller
 
     public function index()
     {
-        $model = new Prodi();
-        $data['prodi'] = $model->getWithJurusan(); // ambil prodi + nama jurusan
+        $satuanModel  = new SatuanOrganisasiModel();
+        $jurusanModel = new JurusanModel();
+        $prodiModel   = new Prodi();
+
+        // Ambil keyword dari GET
+        $keyword = $this->request->getGet('keyword');
+
+        // Query untuk badge (hitung total tanpa filter)
+        $data['count_satuan']  = $satuanModel->countAll();
+        $data['count_jurusan'] = $jurusanModel->countAll();
+        $data['count_prodi']   = $prodiModel->countAll();
+
+        // Ambil data Prodi + Join ke Jurusan
+        $builder = $prodiModel->select('prodi.id, prodi.nama_prodi, jurusan.nama_jurusan')
+                              ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left');
+
+        // Filter jika ada keyword (pencarian nama_prodi atau nama_jurusan)
+        if (!empty($keyword)) {
+            $builder->groupStart()
+                    ->like('prodi.nama_prodi', $keyword)
+                    ->orLike('jurusan.nama_jurusan', $keyword)
+                    ->groupEnd();
+        }
+
+        $data['prodi']   = $builder->findAll();
+        $data['keyword'] = $keyword;
+
         return view('adminpage/organisasi/satuanorganisasi/prodi/index', $data);
     }
 
@@ -27,8 +53,8 @@ class ProdiController extends Controller
     {
         $model = new Prodi();
         $data = [
-            'nama_prodi'  => $this->request->getPost('nama_prodi'),
-            'id_jurusan'  => $this->request->getPost('id_jurusan'),
+            'nama_prodi' => $this->request->getPost('nama_prodi'),
+            'id_jurusan' => $this->request->getPost('id_jurusan'),
         ];
         $model->insert($data);
 
@@ -37,9 +63,12 @@ class ProdiController extends Controller
 
     public function edit($id)
     {
-        $model = new Prodi();
-        $data['prodi'] = $model->find($id);
-        $data['jurusan'] = (new JurusanModel())->findAll();
+        $prodiModel   = new Prodi();
+        $jurusanModel = new JurusanModel();
+
+        $data['prodi']   = $prodiModel->find($id);
+        $data['jurusan'] = $jurusanModel->findAll();
+
         return view('adminpage/organisasi/satuanorganisasi/prodi/edit', $data);
     }
 
@@ -47,8 +76,8 @@ class ProdiController extends Controller
     {
         $model = new Prodi();
         $data = [
-            'nama_prodi'  => $this->request->getPost('nama_prodi'),
-            'id_jurusan'  => $this->request->getPost('id_jurusan'),
+            'nama_prodi' => $this->request->getPost('nama_prodi'),
+            'id_jurusan' => $this->request->getPost('id_jurusan'),
         ];
         $model->update($id, $data);
 
@@ -59,6 +88,6 @@ class ProdiController extends Controller
     {
         $model = new Prodi();
         $model->delete($id);
-        return redirect()->to('satuanorganisasi/prodi')->with('success', 'Data prodi berhasil dihapus.');
+        return redirect()->to('/satuanorganisasi/prodi')->with('success', 'Data prodi berhasil dihapus.');
     }
 }
