@@ -66,6 +66,8 @@ $routes->group('admin/kontak', function ($routes) {
     $routes->get('edit/(:num)', 'Kontak::edit/$1');
     $routes->post('update/(:num)', 'Kontak::update/$1');
     $routes->get('delete/(:num)', 'Kontak::delete/$1');
+    $routes->get('deleteKategori/(:segment)', 'Kontak::deletebyKategori/$1');
+    $routes->get('getByKategori/(:any)', 'Kontak::getByKategori/$1');
 });
 
 
