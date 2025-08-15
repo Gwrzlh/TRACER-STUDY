@@ -4,20 +4,30 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class QuestionnairModel extends Model
+class QuestionnairConditionModel extends Model
 {
-    protected $table            = 'questionnaires';
+    protected $table            = 'questionnaire_conditions';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['title', 'deskripsi', 'is_active','conditional_logic', 'created_at','updated_at'];
+    protected $allowedFields    = [
+    'questionnaire_id',
+    'target_type',
+    'target_id',
+    'condition_question_id',
+    'operator',
+    'condition_value',
+    'logic_group',
+    'created_at',
+    'updated_at'
+    ];
 
     protected bool $allowEmptyInserts = false;
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
