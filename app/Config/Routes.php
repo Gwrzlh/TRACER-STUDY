@@ -144,54 +144,88 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
 });
 
 // questionair route
-   $routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
-    
-    // Main Questionnaire CRUD
-    $routes->get('questionnaire', 'QuestionnairController::index');                    // List all questionnaires
-    $routes->get('questionnaire/create', 'QuestionnairController::create');            // Show create form
-    $routes->post('questionnaire/store', 'QuestionnairController::store');             // Store new questionnaire
-    $routes->get('questionnaire/(:num)', 'QuestionnairController::show/$1');           // Show single questionnaire
-    $routes->get('questionnaire/(:num)/edit', 'QuestionnairController::edit/$1');      // Edit questionnaire form
-    $routes->post('questionnaire/(:num)/update', 'QuestionnairController::update/$1'); // Update questionnaire
-    $routes->post('questionnaire/(:num)/delete', 'QuestionnairController::delete/$1'); // Delete questionnaire
-    
-    // Toggle questionnaire status
-    $routes->post('questionnaire/(:num)/toggle-status', 'QuestionnairController::toggleStatus/$1');
-    
-    // Questions Management Routes
-    $routes->get('questionnaire/(:num)/questions', 'QuestionnairController::manageQuestions/$1');           // List questions
-    $routes->get('questionnaire/(:num)/questions/create', 'QuestionnairController::createQuestion/$1');     // Create question form
-    $routes->post('questionnaire/(:num)/questions/store', 'QuestionnairController::storeQuestion/$1');      // Store question
-    $routes->get('questionnaire/(:num)/questions/(:num)/edit', 'QuestionnairController::editQuestion/$1/$2'); // Edit question form
-    $routes->post('questionnaire/(:num)/questions/(:num)/update', 'QuestionnairController::updateQuestion/$1/$2'); // Update question
-    $routes->post('questionnaire/(:num)/questions/(:num)/delete', 'QuestionnairController::deleteQuestion/$1/$2'); // Delete question
-    
-    // Question ordering (drag & drop)
-    $routes->post('questionnaire/(:num)/questions/reorder', 'QuestionnairController::reorderQuestions/$1');
-    
-    // Question options management
-    $routes->get('questions/(:num)/options', 'QuestionnairController::manageOptions/$1');                   // Manage question options
-    $routes->post('questions/(:num)/options/store', 'QuestionnairController::storeOption/$1');             // Store option
-    $routes->post('questions/options/(:num)/update', 'QuestionnairController::updateOption/$1');           // Update option
-    $routes->post('questions/options/(:num)/delete', 'QuestionnairController::deleteOption/$1');           // Delete option
-    
-    // Preview & Testing
-    $routes->get('questionnaire/(:num)/preview', 'QuestionnairController::preview/$1');                    // Preview questionnaire
-    $routes->get('questionnaire/(:num)/test', 'QuestionnairController::test/$1');                          // Test questionnaire as alumni
-    
-    // Analytics & Reports
-    $routes->get('questionnaire/(:num)/responses', 'QuestionnairController::responses/$1');                // View responses
-    $routes->get('questionnaire/(:num)/analytics', 'QuestionnairController::analytics/$1');               // Analytics dashboard
-    $routes->get('questionnaire/(:num)/export', 'QuestionnairController::exportResponses/$1');            // Export responses to Excel/CSV
-    
-    // Bulk actions
-    $routes->post('questionnaire/bulk-delete', 'QuestionnairController::bulkDelete');                      // Bulk delete questionnaires
-    $routes->post('questionnaire/bulk-status', 'QuestionnairController::bulkStatus');                     // Bulk change status
+  $routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
 
-    // Pengaturan Situs
-   $routes->post('pengaturan-situs/simpan', 'PengaturanSitus::simpan');
+    // === Questionnaire Management ===
+    
+    $routes->group('questionnaire', function($routes) {
+        $routes->get('/', 'QuestionnairController::index');
+        $routes->get('create', 'QuestionnairController::create');
+        $routes->post('store', 'QuestionnairController::store');
+        $routes->get('(:num)', 'QuestionnairController::show/$1');
+        $routes->get('(:num)/edit', 'QuestionnairController::edit/$1');
+        $routes->post('(:num)/update', 'QuestionnairController::update/$1');
+        $routes->get('(:num)/delete', 'QuestionnairController::delete/$1');
+        $routes->post('(:num)/toggle-status', 'QuestionnairController::toggleStatus/$1');
+        $routes->get('(:num)/preview', 'QuestionnairController::preview/$1');
+    });
+
+    // === Page Management ===
+
+    $routes->group('questionnaire/(:num)/pages', function($routes) {
+        $routes->get('/', 'QuestionnairePageController::index/$1');
+        $routes->get('create', 'QuestionnairePageController::create/$1');
+        $routes->post('store', 'QuestionnairePageController::store/$1');
+        $routes->get('(:num)/edit', 'QuestionnairePageController::edit/$1/$2');
+        $routes->post('(:num)/update', 'QuestionnairePageController::update/$1/$2');
+        $routes->post('(:num)/delete', 'QuestionnairePageController::delete/$1/$2');
+    });
+
+    // === Question Management - FIX: Semua route harus explicit ===
+
+    // $routes->group('questionnaire/(:num)/pages/(:num)/questions', function($routes) {
+    //     $routes->get('/', 'QuestionnairController::manageQuestions/$1/$2');
+    //     $routes->get('create', 'QuestionnairController::createQuestion/$1/$2');
+    //     $routes->post('store', 'QuestionnairController::storeQuestion/$1/$2');
+    //     $routes->get('(:num)/edit', 'QuestionnairController::editQuestion/$1/$2/$3');
+    //     $routes->post('(:num)/update', 'QuestionnairController::updateQuestion/$1/$2/$3');
+    //     $routes->post('(:num)/delete', 'QuestionnairController::deleteQuestion/$1/$2/$3');
+    //     $routes->post('reorder', 'QuestionnairController::reorderQuestions/$1/$2');
+    // });
+
+    // FIX: Tambahan route untuk section (siap untuk future implementation)
+    
+    $routes->group('questionnaire/(:num)/pages/(:num)/sections', function($routes) {
+
+    $routes->get('/', 'SectionController::index/$1/$2');
+    $routes->get('create', 'SectionController::create/$1/$2');
+    $routes->post('store', 'SectionController::store/$1/$2');
+    $routes->get('(:num)/edit', 'SectionController::edit/$1/$2/$3');
+    $routes->post('(:num)/update', 'SectionController::update/$1/$2/$3');
+    $routes->post('(:num)/delete', 'SectionController::delete/$1/$2/$3');
+
+    // Questions per section
+
+    $routes->get('(:num)/questions', 'QuestionnairController::manageSectionQuestions/$1/$2/$3');
+    $routes->get('(:num)/questions/create', 'QuestionnairController::createSectionQuestion/$1/$2/$3');
+    $routes->post('(:num)/questions/store', 'QuestionnairController::storeInlineQuestion/$1/$2/$3');
+    $routes->get('(:num)/questions/(:num)/edit', 'QuestionnairController::editSectionQuestion/$1/$2/$3/$4');
+    $routes->post('(:num)/questions/(:num)/update', 'QuestionnairController::updateSectionQuestion/$1/$2/$3/$4');
+    $routes->post('(:num)/questions/(:num)/delete', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
+
+ });
+
+    // === Option Management ===
+
+    $routes->group('questions/(:num)/options', function($routes) {
+        $routes->get('/', 'QuestionnaireController::manageOptions/$1');
+        $routes->post('store', 'QuestionnaireController::storeOption/$1');
+        $routes->post('(:num)/update', 'QuestionnaireController::updateOption/$1');
+        $routes->post('(:num)/delete', 'QuestionnaireController::deleteOption/$1');
+    });
+
+    // === Condition Management ===
+    $routes->group('questions/(:num)/conditions', function($routes) {
+        $routes->get('/', 'QuestionnaireConditionController::index/$1');
+        $routes->get('create', 'QuestionnaireConditionController::create/$1');
+        $routes->post('store', 'QuestionnaireConditionController::store/$1');
+        $routes->get('(:num)/edit', 'QuestionnaireConditionController::edit/$1/$2');
+        $routes->post('(:num)/update', 'QuestionnaireConditionController::update/$1/$2');
+        $routes->post('(:num)/delete', 'QuestionnaireConditionController::delete/$1/$2');
+    });
 
 });
+
 
 // Route Alumni
 $routes->get('alumni/login', 'Alumni::login');
@@ -201,6 +235,17 @@ $routes->get('alumni/logout', 'Alumni::logout');
 
 // Pengaturan Situs
 $routes->get('/pengaturan-situs', 'PengaturanSitus::index');
+
+// ajax conditional_logic 
+
+$routes->get('/admin/get-conditional-options', 'QuestionnairController::getConditionalOptions', ['as' => 'admin.questioner.getOptions']);
+// app/Config/Routes.php
+$routes->get('admin/questionnaire/pages/get-question-options', 'QuestionnairePageController::getQuestionOptions');
+
+// Di Routes.php tambahkan:
+$routes->get('admin/questionnaire/(:num)/questions/(:num)/options', 'QuestionController::getQuestionOptions/$1/$2');
+$routes->get('admin/questionnaire/(:num)/pages/(:num)/sections/(:num)/questions-with-options', 'QuestionController::getQuestionsWithOptions/$1/$2/$3');
+
 
 
 
