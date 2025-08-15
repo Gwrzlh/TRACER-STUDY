@@ -1,6 +1,8 @@
 <div class="container mt-4">
     <h2 class="mb-4">Daftar Kontak - Wakil Direktur & Tim Tracer</h2>
     <a href="/admin/kontak/create" class="btn btn-primary mb-3">Tambah Kontak</a>
+    <a href="/admin/kontak/deleteKategori/Wakil%20Direktur" class="btn btn-danger mb-3" onclick="return confirm('Hapus semua Wakil Direktur?')">Hapus Semua Wakil Direktur</a>
+    <a href="/admin/kontak/deleteKategori/Tim%20Tracer" class="btn btn-danger mb-3" onclick="return confirm('Hapus semua Tim Tracer?')">Hapus Semua Tim Tracer</a>
 
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
@@ -9,7 +11,6 @@
                 <th>Kategori</th>
                 <th>Nama Lengkap</th>
                 <th>Email</th>
-                <th>WA</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -18,10 +19,9 @@
             <?php foreach (array_merge($wakilDirektur, $teamTracer) as $k): ?>
                 <tr>
                     <td><?= $no++ ?></td>
-                    <td><?= esc($k['kategori'] ?? '-') ?></td>
-                    <td><?= esc($k['nama_lengkap'] ?? '-') ?></td>
-                    <td><?= esc($k['email'] ?? '-') ?></td>
-                    <td><?= esc($k['notlp'] ?? '-') ?></td>
+                    <td><?= esc($k['kategori']) ?></td>
+                    <td><?= esc($k['nama_lengkap']) ?></td>
+                    <td><?= esc($k['email']) ?></td>
                     <td>
                         <a href="/admin/kontak/edit/<?= $k['kontak_id'] ?>" class="btn btn-sm btn-warning">Edit</a>
                         <a href="/admin/kontak/delete/<?= $k['kontak_id'] ?>" onclick="return confirm('Hapus kontak ini?')" class="btn btn-sm btn-danger">Hapus</a>
@@ -31,13 +31,15 @@
             <?php endforeach; ?>
             <?php if (empty($wakilDirektur) && empty($teamTracer)): ?>
                 <tr>
-                    <td colspan="7" class="text-center">Belum ada data Wakil Direktur atau Tim Tracer</td>
+                    <td colspan="6" class="text-center">Belum ada data Wakil Direktur atau Tim Tracer</td>
                 </tr>
             <?php endif; ?>
         </tbody>
     </table>
 
     <h2 class="mt-5 mb-3">Daftar Kontak - Surveyor</h2>
+    <a href="/admin/kontak/deleteKategori/Surveyor" class="btn btn-danger mb-3" onclick="return confirm('Hapus semua Surveyor?')">Hapus Semua Surveyor</a>
+
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
             <tr>
@@ -96,12 +98,10 @@
     function showPreview(data) {
         let html = '<table class="table table-bordered">';
         for (const key in data) {
-            if (key !== 'kontak_id' && key !== 'kategori') html += `<tr><td><strong>${key}</strong></td><td>${data[key]}</td></tr>`;
+            html += `<tr><td><strong>${key}</strong></td><td>${data[key] ?? '-'}</td></tr>`;
         }
         html += '</table>';
         document.getElementById('previewContent').innerHTML = html;
-
-        var previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-        previewModal.show();
+        new bootstrap.Modal(document.getElementById('previewModal')).show();
     }
 </script>
