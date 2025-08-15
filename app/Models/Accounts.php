@@ -44,4 +44,8 @@ class Accounts extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+     public function insertMultiple(array $data)
+    {
+        return $this->insertBatch($data);
+    }
 }
