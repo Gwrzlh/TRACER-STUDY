@@ -12,7 +12,7 @@ class Prodi extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-
+    
 
     protected $allowedFields    = ['nama_prodi', 'id_jurusan'];
 

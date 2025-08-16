@@ -1,53 +1,107 @@
-<?= $this->extend('layout/sidebar') ?>
-<?= $this->section('content') ?>
+<div class="container mt-4">
+    <h2 class="mb-4">Daftar Kontak - Wakil Direktur & Tim Tracer</h2>
+    <a href="/admin/kontak/create" class="btn btn-primary mb-3">Tambah Kontak</a>
+    <a href="/admin/kontak/deleteKategori/Wakil%20Direktur" class="btn btn-danger mb-3" onclick="return confirm('Hapus semua Wakil Direktur?')">Hapus Semua Wakil Direktur</a>
+    <a href="/admin/kontak/deleteKategori/Tim%20Tracer" class="btn btn-danger mb-3" onclick="return confirm('Hapus semua Tim Tracer?')">Hapus Semua Tim Tracer</a>
 
-<h1 class="text-xl font-bold mb-4">Daftar Kontak</h1>
-<a href="<?= base_url('admin/kontak/create') ?>" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mb-4 inline-block">+ Tambah Kontak</a>
-
-<?php if (session()->getFlashdata('success')) : ?>
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
-        <?= session()->getFlashdata('success') ?>
-    </div>
-<?php endif; ?>
-
-<table class="w-full border border-gray-300">
-    <thead>
-        <tr class="bg-gray-100">
-            <th class="p-2 border">No</th>
-            <th class="p-2 border">Tipe</th>
-            <th class="p-2 border">Nama</th>
-            <th class="p-2 border">Kontak</th>
-            <th class="p-2 border">Prodi/Jurusan</th>
-            <th class="p-2 border">Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($kontaks as $i => $k): ?>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
             <tr>
-                <td class="p-2 border"><?= $i + 1 ?></td>
-                <td class="p-2 border"><?= esc($k['tipe_kontak']) ?></td>
-                <td class="p-2 border"><?= esc($k['nama']) ?></td>
-                <td class="p-2 border"><?= esc($k['kontak']) ?></td>
-                <td class="p-2 border">
-                    <?php
-                    if ($k['tipe_kontak'] == 'surveyor') {
-                        echo esc($k['nama_prodi'] ?? '-');
-                    } elseif ($k['tipe_kontak'] == 'coordinator') {
-                        echo esc($k['nama_jurusan'] ?? '-');
-                    } else {
-                        echo '-';
-                    }
-                    ?>
-                </td>
-                <td class="p-2 border">
-                    <a href="<?= base_url('admin/kontak/edit/' . $k['id']) ?>" class="text-blue-600 hover:underline">Edit</a>
-                    <form action="<?= base_url('admin/kontak/delete/' . $k['id']) ?>" method="post" onsubmit="return confirm('Yakin ingin hapus?')" style="display:inline">
-                        <button type="submit" class="text-red-600 hover:underline ml-2">Hapus</button>
-                    </form>
-                </td>
+                <th>No</th>
+                <th>Kategori</th>
+                <th>Nama Lengkap</th>
+                <th>Email</th>
+                <th>Aksi</th>
             </tr>
-        <?php endforeach ?>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            <?php $no = 1; ?>
+            <?php foreach (array_merge($wakilDirektur, $teamTracer) as $k): ?>
+                <tr>
+                    <td><?= $no++ ?></td>
+                    <td><?= esc($k['kategori']) ?></td>
+                    <td><?= esc($k['nama_lengkap']) ?></td>
+                    <td><?= esc($k['email']) ?></td>
+                    <td>
+                        <a href="/admin/kontak/edit/<?= $k['kontak_id'] ?>" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="/admin/kontak/delete/<?= $k['kontak_id'] ?>" onclick="return confirm('Hapus kontak ini?')" class="btn btn-sm btn-danger">Hapus</a>
+                        <button type="button" class="btn btn-sm btn-info" onclick='showPreview(<?= json_encode($k) ?>)'>Preview</button>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (empty($wakilDirektur) && empty($teamTracer)): ?>
+                <tr>
+                    <td colspan="6" class="text-center">Belum ada data Wakil Direktur atau Tim Tracer</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
 
-<?= $this->endSection() ?>
+    <h2 class="mt-5 mb-3">Daftar Kontak - Surveyor</h2>
+    <a href="/admin/kontak/deleteKategori/Surveyor" class="btn btn-danger mb-3" onclick="return confirm('Hapus semua Surveyor?')">Hapus Semua Surveyor</a>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>No</th>
+                <th>Prodi</th>
+                <th>Nama Lengkap</th>
+                <th>NIM</th>
+                <th>Email</th>
+                <th>WA</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php $no = 1; ?>
+            <?php foreach ($surveyors as $s): ?>
+                <tr>
+                    <td><?= $no++ ?></td>
+                    <td><?= esc($s['nama_prodi'] ?? '-') ?></td>
+                    <td><?= esc($s['nama_lengkap'] ?? '-') ?></td>
+                    <td><?= esc($s['nim'] ?? '-') ?></td>
+                    <td><?= esc($s['email'] ?? '-') ?></td>
+                    <td><?= esc($s['notlp'] ?? '-') ?></td>
+                    <td>
+                        <a href="/admin/kontak/edit/<?= $s['kontak_id'] ?>" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="/admin/kontak/delete/<?= $s['kontak_id'] ?>" onclick="return confirm('Hapus kontak ini?')" class="btn btn-sm btn-danger">Hapus</a>
+                        <button type="button" class="btn btn-sm btn-info" onclick='showPreview(<?= json_encode($s) ?>)'>Preview</button>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (empty($surveyors)): ?>
+                <tr>
+                    <td colspan="7" class="text-center">Belum ada data Surveyor</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Preview -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Preview Detail Kontak</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="previewContent"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showPreview(data) {
+        let html = '<table class="table table-bordered">';
+        for (const key in data) {
+            html += `<tr><td><strong>${key}</strong></td><td>${data[key] ?? '-'}</td></tr>`;
+        }
+        html += '</table>';
+        document.getElementById('previewContent').innerHTML = html;
+        new bootstrap.Modal(document.getElementById('previewModal')).show();
+    }
+</script>

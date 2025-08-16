@@ -12,45 +12,30 @@ class PengaturanSitus extends BaseController
 
         $session = session();
 
-        $data = [
-            'theme'    => $session->get('theme') ?? 'light',
-            'language' => $session->get('language') ?? 'id',
-            'success'  => session()->getFlashdata('success'),
-            'error'    => session()->getFlashdata('error')
-        ];
+$data = [
+        'theme'      => session()->get('theme') ?? 'light',
+        'per_page'   => session()->get('per_page') ?? 10,
+        'view_mode'  => session()->get('view_mode') ?? 'table',
+    ];
 
-        return view('adminpage/pengaturansitus/index', $data);
-    }
-
-    public function simpan()
-    {
-        // Pastikan requestnya POST
-        if ($this->request->getMethod() !== 'post') {
-            return redirect()->to(base_url('pengaturan-situs'))
-                ->with('error', 'Metode request tidak valid.');
-        }
-
-        // Ambil input
-        $theme    = $this->request->getPost('theme');
-        $language = $this->request->getPost('language');
-
-        // Validasi sederhana
-        if (empty($theme) || empty($language)) {
-            return redirect()->back()->withInput()->with('error', 'Semua field harus diisi.');
-        }
-
-        // Simpan ke session
-        $session = session();
-        $session->set([
-            'theme'    => $theme,
-            'language' => $language
-        ]);
-
-        return redirect()
-            ->to(base_url('pengaturan-situs'))
-            ->with('success', 'Pengaturan situs berhasil disimpan!');
-        // Memanggil view yang ada di dalam folder adminpage/pengaturansitus
-        return view('adminpage/pengaturansitus/index');
+    return view('adminpage/pengaturansitus/index', $data);
 
     }
+
+   public function simpan()
+{
+    $theme = $this->request->getPost('theme');
+    $per_page = (int) $this->request->getPost('per_page');
+    $view_mode = $this->request->getPost('view_mode');
+
+    // Simpan ke session
+    session()->set([
+        'theme' => $theme,
+        'per_page' => $per_page,
+        'view_mode' => $view_mode
+    ]);
+
+    return redirect()->back()->with('success', 'Pengaturan berhasil disimpan.');
+}
+
 }
