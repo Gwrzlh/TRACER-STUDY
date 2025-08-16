@@ -1,161 +1,75 @@
-<!DOCTYPE html>
-<html lang="id">
+<div class="container mt-4">
+    <h2 class="mb-4">Kontak</h2>
 
-<head>
-    <meta charset="UTF-8">
-    <title>Kontak Tracer Study</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f9fafb;
-            padding-bottom: 50px;
-        }
+    <!-- ----------------- WAKIL DIREKTUR ----------------- -->
+    <h5>Wakil Direktur</h5>
+    <?php if (!empty($wakilDirektur)): ?>
+        <?php foreach ($wakilDirektur as $wd): ?>
+            <?php if (!empty($wd['nama_lengkap'])): ?>
+                <p><strong><?= esc($wd['nama_lengkap']) ?></strong></p>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p>-</p>
+    <?php endif; ?>
 
-        .section {
-            margin-top: 40px;
-        }
+    <!-- ----------------- TEAM TRACER ----------------- -->
+    <h5 class="mt-3">Team Tracer Study POLBAN</h5>
+    <?php if (!empty($teamTracer)): ?>
+        <?php foreach ($teamTracer as $tt): ?>
+            <?php if (!empty($tt['nama_lengkap'])): ?>
+                <p><strong><?= esc($tt['nama_lengkap']) ?></strong></p>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p>-</p>
+    <?php endif; ?>
 
-        .section h2 {
-            font-weight: 600;
-            font-size: 1.5rem;
-            border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            background: #fff;
-            border-collapse: collapse;
-            border: 1px solid #ccc;
-        }
-
-        th,
-        td {
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f3f4f6;
-        }
-
-        .container {
-            padding: 30px 15px;
-        }
-
-        p {
-            margin-bottom: 8px;
-        }
-    </style>
-</head>
-
-<body>
-
-    <!-- Navbar -->
-    <?= view('layout/navbar') ?>
-
-    <div class="container">
-
-        <!-- DESKRIPSI UMUM -->
-        <?php if (!empty($deskripsi)): ?>
-            <div class="section">
-                <?= nl2br(esc($deskripsi['isi'] ?? '')) ?>
-            </div>
-        <?php endif ?>
-
-        <!-- Direktorat -->
-        <?php if (!empty($directorates)): ?>
-            <div class="section">
-                <h2><?= esc($directorates[0]['posisi'] ?? 'Direktorat') ?></h2>
-                <?php foreach ($directorates as $d): ?>
-                    <p><strong><?= esc($d['nama']) ?></strong></p>
-                <?php endforeach ?>
-            </div>
-        <?php endif ?>
-
-        <!-- Tim Tracer Study -->
-        <?php if (!empty($teams)): ?>
-            <div class="section">
-                <h2>Team Tracer Study POLBAN</h2>
-                <?php foreach ($teams as $t): ?>
-                    <p><?= esc($t['nama']) ?></p>
-                <?php endforeach ?>
-            </div>
-        <?php endif ?>
-
-        <!-- Alamat -->
-        <?php if (!empty($address)): ?>
-            <div class="section">
-                <h2>Alamat</h2>
-                <?= nl2br(esc($address['kontak'] ?? '')) ?>
-            </div>
-        <?php endif ?>
-
-        <!-- Surveyor -->
-        <?php if (!empty($surveyors)): ?>
-            <div class="section">
-                <h2>Surveyor Tahun 2024</h2>
-                <p>Pada Tahun 2024 Tracer Study dilakukan kepada Alumni POLBAN yang lulus pada Tahun 2023.</p>
-                <p>Adapun nama-nama surveyor yang diangkat untuk membantu meningkatkan jumlah data yang masuk adalah sebagai berikut:</p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Program Studi</th>
-                            <th>Nama Surveyor</th>
-                            <th>Kontak</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($surveyors as $i => $s): ?>
-                            <tr>
-                                <td><?= $i + 1 ?></td>
-                                <td><?= esc($s['nama_prodi'] ?? '-') ?></td>
-                                <td><?= esc($s['nama']) ?></td>
-                                <td><?= esc($s['kontak']) ?></td>
-                            </tr>
-                        <?php endforeach ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif ?>
-
-        <!-- Koordinator -->
-        <?php if (!empty($coordinators)): ?>
-            <div class="section">
-                <h2>Koordinator Surveyor Tahun 2024</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Jurusan</th>
-                            <th>Nama Koordinator</th>
-                            <th>Kontak</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($coordinators as $i => $c): ?>
-                            <tr>
-                                <td><?= $i + 1 ?></td>
-                                <td><?= esc($c['nama_jurusan'] ?? '-') ?></td>
-                                <td><?= esc($c['nama']) ?></td>
-                                <td><?= esc($c['kontak']) ?></td>
-                            </tr>
-                        <?php endforeach ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif ?>
-
+    <!-- ----------------- ALAMAT KANTOR ----------------- -->
+    <div class="mt-4">
+        <p>
+            Gedung Direktorat Lantai Dasar<br>
+            JL Gegerkalong Hilir, Ciwaruga, Parongpong, Kabupaten Bandung Barat, Jawa Barat 40012<br>
+            Telp: 022-2013789<br>
+            Fax: 022-2013889<br>
+            Email: tracer.study@polban.ac.id
+        </p>
     </div>
 
-    <!-- Footer -->
-    <?= view('layout/footer') ?>
+    <!-- ----------------- SURVEYOR ----------------- -->
+    <h5 class="mt-5">Surveyor Tahun <?= date('Y') ?></h5>
+    <p>
+        Surveyor diangkat untuk membantu Tracer Study tahun <?= date('Y') ?>
+    </p>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+    <?php if (!empty($surveyors)): ?>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-primary">
+                    <tr>
+                        <th>No</th>
+                        <th>Prodi</th>
+                        <th>Nama Surveyor</th>
+                        <th>Email / WA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $no = 1; ?>
+                    <?php foreach ($surveyors as $s): ?>
+                        <tr>
+                            <td><?= $no++ ?></td>
+                            <td><?= esc($s['nama_prodi'] ?? '-') ?></td>
+                            <td><?= esc($s['nama_lengkap'] ?? '-') ?></td>
+                            <td>
+                                <?= esc($s['email'] ?? '-') ?><br>
+                                <?= esc($s['notlp'] ?? '-') ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php else: ?>
+        <p>Tidak ada data surveyor.</p>
+    <?php endif; ?>
+</div>

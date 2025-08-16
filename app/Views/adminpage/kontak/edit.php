@@ -1,102 +1,113 @@
-<?= $this->extend('layout/sidebar') ?>
-<?= $this->section('content') ?>
+<div class="container mt-4">
+    <h2>Edit Kontak</h2>
 
-<h1 class="text-xl font-bold mb-4">Edit Kontak</h1>
+    <form action="<?= base_url('admin/kontak/update/' . $kontak['id']) ?>" method="post">
+        <?= csrf_field() ?>
 
-<form action="<?= base_url('admin/kontak/update/' . $kontak['id']) ?>" method="post">
-    <div class="mb-4">
-        <label class="block font-medium mb-1">Nama</label>
-        <input type="text" name="nama" class="border rounded w-full p-2" value="<?= esc($kontak['nama']) ?>">
-    </div>
+        <!-- Pilih Kategori -->
+        <div class="mb-3">
+            <label for="kategori" class="form-label">Kategori</label>
+            <select name="kategori" id="kategori" class="form-control" required>
+                <option value="">-- Pilih Kategori --</option>
+                <option value="Wakil Direktur" <?= $kontak['kategori'] == 'Wakil Direktur' ? 'selected' : '' ?>>Wakil Direktur</option>
+                <option value="Tim Tracer" <?= $kontak['kategori'] == 'Tim Tracer' ? 'selected' : '' ?>>Tim Tracer</option>
+                <option value="Surveyor" <?= $kontak['kategori'] == 'Surveyor' ? 'selected' : '' ?>>Surveyor</option>
+            </select>
+        </div>
 
-    <div class="mb-4">
-        <label class="block font-medium mb-1">Posisi</label>
-        <input type="text" name="posisi" class="border rounded w-full p-2" value="<?= esc($kontak['posisi']) ?>">
-    </div>
+        <!-- Pilih Account -->
+        <div class="mb-3">
+            <label for="id_account" class="form-label">Nama / NIM</label>
+            <select name="id_account" id="id_account" class="form-control" required>
+                <option value="">-- Pilih Nama --</option>
+                <?php foreach ($accounts as $acc): ?>
+                    <option value="<?= $acc['id_account'] ?>" data-item='<?= json_encode($acc) ?>'
+                        <?= $kontak['id_account'] == $acc['id_account'] ? 'selected' : '' ?>>
+                        <?= $acc['nama_lengkap'] ?? $acc['nim'] ?? '-' ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
 
-    <div class="mb-4">
-        <label class="block font-medium mb-1">Kualifikasi</label>
-        <input type="text" name="kualifikasi" class="border rounded w-full p-2" value="<?= esc($kontak['kualifikasi']) ?>">
-    </div>
+        <!-- Preview Data Lengkap -->
+        <div class="mb-3" id="preview" style="display: none;">
+            <h5>Preview Data Lengkap</h5>
+            <table class="table table-bordered" id="previewTable"></table>
+        </div>
 
-    <div class="mb-4">
-        <label class="block font-medium mb-1">Tipe Kontak</label>
-        <select name="tipe_kontak" id="tipe_kontak" class="border rounded w-full p-2" onchange="toggleFields()">
-            <option value="">-- Pilih Tipe --</option>
-            <option value="surveyor" <?= $kontak['tipe_kontak'] === 'surveyor' ? 'selected' : '' ?>>Surveyor</option>
-            <option value="coordinator" <?= $kontak['tipe_kontak'] === 'coordinator' ? 'selected' : '' ?>>Koordinator</option>
-            <option value="team" <?= $kontak['tipe_kontak'] === 'team' ? 'selected' : '' ?>>Tim</option>
-            <option value="directorate" <?= $kontak['tipe_kontak'] === 'directorate' ? 'selected' : '' ?>>Direktorat</option>
-            <option value="address" <?= $kontak['tipe_kontak'] === 'address' ? 'selected' : '' ?>>Alamat</option>
-        </select>
-    </div>
-
-    <!-- Kontak -->
-    <div class="mb-4">
-        <label class="block font-medium mb-1">Kontak</label>
-        <textarea name="kontak" rows="3" class="border rounded w-full p-2"><?= esc($kontak['kontak']) ?></textarea>
-    </div>
-
-    <!-- Prodi -->
-    <div id="prodi_section" class="mb-4 hidden">
-        <label class="block font-medium mb-1">Program Studi</label>
-        <select name="id_prodi" class="border rounded w-full p-2">
-            <option value="">-- Pilih Prodi --</option>
-            <?php foreach ($prodiList as $p): ?>
-                <option value="<?= $p['id'] ?>" <?= $p['id'] == $kontak['id_prodi'] ? 'selected' : '' ?>>
-                    <?= esc($p['nama_prodi']) ?>
-                </option>
-            <?php endforeach ?>
-        </select>
-    </div>
-
-    <!-- Jurusan -->
-    <div id="jurusan_section" class="mb-4 hidden">
-        <label class="block font-medium mb-1">Jurusan</label>
-        <select name="id_jurusan" class="border rounded w-full p-2">
-            <option value="">-- Pilih Jurusan --</option>
-            <?php foreach ($jurusanList as $j): ?>
-                <option value="<?= $j['id'] ?>" <?= $j['id'] == $kontak['id_jurusan'] ? 'selected' : '' ?>>
-                    <?= esc($j['nama_jurusan']) ?>
-                </option>
-            <?php endforeach ?>
-        </select>
-    </div>
-
-    <div class="mb-4">
-        <label class="block font-medium mb-1">Urutan</label>
-        <input type="number" name="urutan" class="border rounded w-full p-2" value="<?= esc($kontak['urutan']) ?>">
-    </div>
-
-    <div class="mb-4">
-        <label class="block font-medium mb-1">Status Aktif</label>
-        <select name="aktif" class="border rounded w-full p-2">
-            <option value="1" <?= $kontak['aktif'] == 1 ? 'selected' : '' ?>>Aktif</option>
-            <option value="0" <?= $kontak['aktif'] == 0 ? 'selected' : '' ?>>Nonaktif</option>
-        </select>
-    </div>
-
-    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Simpan Perubahan</button>
-</form>
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a href="<?= base_url('admin/kontak') ?>" class="btn btn-secondary">Batal</a>
+    </form>
+</div>
 
 <script>
-    function toggleFields() {
-        const tipe = document.getElementById('tipe_kontak').value;
-        const prodiSection = document.getElementById('prodi_section');
-        const jurusanSection = document.getElementById('jurusan_section');
+    document.addEventListener('DOMContentLoaded', function() {
+        const kategoriSelect = document.getElementById('kategori');
+        const accountSelect = document.getElementById('id_account');
+        const previewDiv = document.getElementById('preview');
+        const previewTable = document.getElementById('previewTable');
+        let currentId = '<?= $kontak['id_account'] ?>';
 
-        prodiSection.classList.add('hidden');
-        jurusanSection.classList.add('hidden');
-
-        if (tipe === 'surveyor') {
-            prodiSection.classList.remove('hidden');
-        } else if (tipe === 'coordinator') {
-            jurusanSection.classList.remove('hidden');
+        function updatePreview() {
+            const selectedOption = accountSelect.options[accountSelect.selectedIndex];
+            previewTable.innerHTML = '';
+            if (selectedOption && selectedOption.value) {
+                const data = JSON.parse(selectedOption.getAttribute('data-item'));
+                let html = '';
+                for (const key in data) {
+                    html += `<tr><td><strong>${key}</strong></td><td>${data[key] ?? '-'}</td></tr>`;
+                }
+                previewTable.innerHTML = html;
+                previewDiv.style.display = 'block';
+            } else {
+                previewDiv.style.display = 'none';
+            }
         }
-    }
 
-    // Jalankan saat pertama kali halaman dimuat
-    window.onload = toggleFields;
+        // Preview awal
+        updatePreview();
+
+        // Saat kategori berubah
+        kategoriSelect.addEventListener('change', function() {
+            const kategori = this.value;
+            accountSelect.innerHTML = '<option value="">-- Pilih Nama --</option>';
+            previewDiv.style.display = 'none';
+
+            if (!kategori) return;
+
+            fetch(`<?= base_url('admin/kontak/getAccountsByKategori') ?>/${kategori}`)
+                .then(res => res.json())
+                .then(data => {
+                    let foundCurrent = false;
+                    data.forEach(acc => {
+                        const option = document.createElement('option');
+                        option.value = acc.id_account;
+                        option.textContent = acc.nama_lengkap ?? acc.nim ?? '-';
+                        option.setAttribute('data-item', JSON.stringify(acc));
+
+                        if (acc.id_account == currentId) {
+                            option.selected = true;
+                            foundCurrent = true;
+                        }
+
+                        accountSelect.appendChild(option);
+                    });
+
+                    // Jika data lama tidak ada di list baru, tambahkan
+                    if (!foundCurrent && currentId) {
+                        const oldOption = document.createElement('option');
+                        oldOption.value = currentId;
+                        oldOption.textContent = selectedOption.textContent;
+                        oldOption.setAttribute('data-item', selectedOption.getAttribute('data-item'));
+                        oldOption.selected = true;
+                        accountSelect.appendChild(oldOption);
+                    }
+
+                    updatePreview();
+                })
+                .catch(err => console.error(err));
+        });
+
+        accountSelect.addEventListener('change', updatePreview);
+    });
 </script>
-
-<?= $this->endSection() ?>

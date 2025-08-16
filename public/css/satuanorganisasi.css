@@ -1,0 +1,152 @@
+/* Container utama */
+.page-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+}
+
+/* Judul */
+.page-title {
+    font-weight: 700;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+/* Tombol Tambah */
+.btn-tambah-wrapper {
+    margin-bottom: 20px; /* jarak tombol tambah ke tab navigasi */
+}
+
+.btn-tambah {
+    padding: 12px 20px;
+    background-color: #001BB7;
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0, 27, 183, 0.2);
+}
+
+/* Tabs */
+.tab-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.tab-link {
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 500;
+    text-decoration: none;
+    background-color: #e9ecef;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.tab-link:hover {
+    background-color: #d6d8db;
+}
+
+.tab-link.active {
+    background-color: #001BB7;
+    color: white;
+    font-weight: 600;
+}
+
+/* Search */
+.search-form {
+    margin-bottom: 20px;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid #ccc;
+    border-radius: 30px;
+    outline: none;
+}
+
+.search-button {
+    padding: 10px 20px;
+    background-color: #001BB7;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.search-button:hover {
+    background-color: #0027e6;
+}
+
+/* Table */
+.table-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-container th {
+    padding: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    background: #f8f9fa;
+}
+
+.table-container td {
+    padding: 14px;
+    border-top: 1px solid #e9ecef;
+}
+
+.badge {
+    padding: 4px 10px;
+    background: #e3f2fd;
+    color: #1565c0;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* Tombol Aksi */
+.btn-edit {
+    padding: 6px 12px;
+    background: #007bff;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.btn-edit:hover {
+    background: #0056b3;
+}
+
+.btn-delete {
+    padding: 6px 12px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-delete:hover {
+    background: #b52a37;
+}

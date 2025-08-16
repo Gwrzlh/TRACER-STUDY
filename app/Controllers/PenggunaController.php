@@ -45,67 +45,102 @@ public function index()
     // Model akun
     $accountModel = new \App\Models\Accounts();
 
-    // SELECT + JOIN ke tabel role
-    $accountModel->select('account.*, role.nama AS nama_role')
-                 ->join('role', 'role.id = account.id_role', 'left');
+    // Build query dengan join
+    $builder = $accountModel->builder();
+    $builder->select('account.*, role.nama AS nama_role')
+            ->join('role', 'role.id = account.id_role', 'left');
 
     // Filter role
-    if ($roleId) {
-        $accountModel->where('account.id_role', $roleId);
+    if ($roleId && is_numeric($roleId)) {
+        $builder->where('account.id_role', $roleId);
     }
 
     // Filter pencarian keyword
     if (!empty($keyword)) {
-        $accountModel
-            ->groupStart()
-                ->like('account.username', $keyword)
-                ->orLike('account.email', $keyword)
-                ->orLike('account.status', $keyword)
-                ->orLike('role.nama', $keyword)
-            ->groupEnd();
+        $builder->groupStart()
+                    ->like('account.username', $keyword)
+                    ->orLike('account.email', $keyword)
+                    ->orLike('account.status', $keyword)
+                    ->orLike('role.nama', $keyword)
+                ->groupEnd();
     }
 
     // Urutkan terbaru
-    $accountModel->orderBy('account.id', 'DESC');
+    $builder->orderBy('account.id', 'DESC');
 
-    // Ambil data dengan pagination dinamis
-    $account = $accountModel->paginate($perPage, 'accounts');
-    $pager   = $accountModel->pager;
+    // Debug: Cek query yang dihasilkan (hapus setelah debug)
+    // log_message('info', 'Query: ' . $builder->getCompiledSelect(false));
+
+    // Hitung total records untuk pagination
+    $totalRecords = $builder->countAllResults(false);
+    
+    // Ambil data dengan limit dan offset
     $currentPage = $this->request->getVar('page_accounts') ?? 1;
+    $offset = ($currentPage - 1) * $perPage;
+    
+    $accounts = $builder->limit($perPage, $offset)->get()->getResultArray();
 
-    // Agar pagination links membawa semua query string (perpage, role, keyword)
-    $pager->setPath(current_url() . '?' . http_build_query($this->request->getGet()));
+    // Setup manual pagination
+    $pager = \Config\Services::pager();
+    $pagerConfig = [
+        'baseURL' => current_url(),
+        'totalRows' => $totalRecords,
+        'perPage' => $perPage,
+        'segment' => 0, // Menggunakan query string
+        'pageQueryVar' => 'page_accounts'
+    ];
+    
+    // Generate pagination links dengan query parameters
+    $queryParams = $this->request->getGet();
+    if (isset($queryParams['page_accounts'])) {
+        unset($queryParams['page_accounts']);
+    }
+    $queryString = !empty($queryParams) ? '?' . http_build_query($queryParams) : '';
+    $pagerConfig['baseURL'] = current_url() . $queryString;
+
+    $pager->makeLinks($currentPage, $perPage, $totalRecords, 'default_full', 0);
 
     // Hitung jumlah akun per role
     $counts = [];
     foreach ($roles as $r) {
-        $counts[$r['id']] = (new \App\Models\Accounts())
-            ->where('id_role', $r['id'])
-            ->countAllResults();
+        $counts[$r['id']] = $accountModel->where('id_role', $r['id'])->countAllResults();
+        $accountModel->builder()->resetQuery(); // Reset query untuk count berikutnya
     }
-    $counts['all'] = (new \App\Models\Accounts())->countAllResults();
+    $counts['all'] = $accountModel->countAllResults();
 
-    // Ambil detail akun
+    // Ambil detail akun - pastikan method ini ada dan benar
     $detailaccountAdmin  = new \App\Models\DetailaccountAdmins();
     $detailaccountAlumni = new \App\Models\DetailaccountAlumni();
 
+    // Cek apakah method ada
+    $adminDetails = method_exists($detailaccountAdmin, 'getaccountid') 
+        ? $detailaccountAdmin->getaccountid() 
+        : [];
+        
+    $alumniDetails = method_exists($detailaccountAlumni, 'getDetailWithRelations') 
+        ? $detailaccountAlumni->getDetailWithRelations() 
+        : [];
+
     // Siapkan data untuk view
     $data = [
-        'roles'              => $roles,
-        'counts'             => $counts,
-        'account'            => $account,
-        'pager'              => $pager,
-        'detailaccountAdmin' => $detailaccountAdmin->getaccountid(),
-        'detailaccountAlumni'=> $detailaccountAlumni->getDetailWithRelations(),
-        'roleId'             => $roleId,
-        'keyword'            => $keyword,
-        'perPage'            => $perPage,
-        'currentPage'        => $currentPage,
+        'roles'               => $roles,
+        'counts'              => $counts,
+        'accounts'            => $accounts, // Ubah dari 'account' ke 'accounts' untuk konsistensi
+        'pager'               => $pager,
+        'detailaccountAdmin'  => $adminDetails,
+        'detailaccountAlumni' => $alumniDetails,
+        'roleId'              => $roleId,
+        'keyword'             => $keyword,
+        'perPage'             => $perPage,
+        'currentPage'         => $currentPage,
+        'totalRecords'        => $totalRecords, // Tambahan informasi
     ];
+
+    // Debug: Tampilkan data accounts (hapus setelah debug)
+    // log_message('info', 'Accounts data: ' . json_encode($accounts));
 
     return view('adminpage/pengguna/index', $data);
 }
-
 
 
 
