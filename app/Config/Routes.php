@@ -58,20 +58,20 @@ $routes->group('admin/pengguna', function ($routes) {
     $routes->post('delete/(:num)', 'PenggunaController::delete/$1');
 
     // Import akun
-     $routes->post('import', 'ImportAccount::upload'); 
+    $routes->post('import', 'ImportAccount::upload');
 });
 
 
-$routes->group('admin/kontak', function ($routes) {
-    $routes->get('', 'Kontak::index');
-    $routes->get('create', 'Kontak::create');
-    $routes->post('store', 'Kontak::store');
-    $routes->get('edit/(:num)', 'Kontak::edit/$1');
-    $routes->post('update/(:num)', 'Kontak::update/$1');
-    $routes->get('delete/(:num)', 'Kontak::delete/$1');
-    $routes->get('deleteKategori/(:segment)', 'Kontak::deletebyKategori/$1');
-    $routes->get('getByKategori/(:any)', 'Kontak::getByKategori/$1');
-});
+// ================== Kontak ==================
+$routes->get('admin/kontak', 'Kontak::index');           // Halaman index kontak
+$routes->get('admin/kontak/search', 'Kontak::search');   // AJAX Search
+$routes->post('admin/kontak/store', 'Kontak::store');    // Tambah kontak
+$routes->post('admin/kontak/delete/(:num)', 'Kontak::delete/$1'); // Hapus kontak
+
+// Opsional (Landing Page publik, jika dibutuhkan)
+// $routes->get('kontak', 'Kontak::landing');
+
+
 
 
 
@@ -147,11 +147,11 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
 });
 
 // questionair route
-  $routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
+$routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
 
     // === Questionnaire Management ===
-    
-    $routes->group('questionnaire', function($routes) {
+
+    $routes->group('questionnaire', function ($routes) {
         $routes->get('/', 'QuestionnairController::index');
         $routes->get('create', 'QuestionnairController::create');
         $routes->post('store', 'QuestionnairController::store');
@@ -165,7 +165,7 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
 
     // === Page Management ===
 
-    $routes->group('questionnaire/(:num)/pages', function($routes) {
+    $routes->group('questionnaire/(:num)/pages', function ($routes) {
         $routes->get('/', 'QuestionnairePageController::index/$1');
         $routes->get('create', 'QuestionnairePageController::create/$1');
         $routes->post('store', 'QuestionnairePageController::store/$1');
@@ -187,30 +187,29 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
     // });
 
     // FIX: Tambahan route untuk section (siap untuk future implementation)
-    
-    $routes->group('questionnaire/(:num)/pages/(:num)/sections', function($routes) {
 
-    $routes->get('/', 'SectionController::index/$1/$2');
-    $routes->get('create', 'SectionController::create/$1/$2');
-    $routes->post('store', 'SectionController::store/$1/$2');
-    $routes->get('(:num)/edit', 'SectionController::edit/$1/$2/$3');
-    $routes->post('(:num)/update', 'SectionController::update/$1/$2/$3');
-    $routes->post('(:num)/delete', 'SectionController::delete/$1/$2/$3');
+    $routes->group('questionnaire/(:num)/pages/(:num)/sections', function ($routes) {
 
-    // Questions per section
+        $routes->get('/', 'SectionController::index/$1/$2');
+        $routes->get('create', 'SectionController::create/$1/$2');
+        $routes->post('store', 'SectionController::store/$1/$2');
+        $routes->get('(:num)/edit', 'SectionController::edit/$1/$2/$3');
+        $routes->post('(:num)/update', 'SectionController::update/$1/$2/$3');
+        $routes->post('(:num)/delete', 'SectionController::delete/$1/$2/$3');
 
-    $routes->get('(:num)/questions', 'QuestionnairController::manageSectionQuestions/$1/$2/$3');
-    $routes->get('(:num)/questions/create', 'QuestionnairController::createSectionQuestion/$1/$2/$3');
-    $routes->post('(:num)/questions/store', 'QuestionnairController::storeInlineQuestion/$1/$2/$3');
-    $routes->get('(:num)/questions/(:num)/edit', 'QuestionnairController::editSectionQuestion/$1/$2/$3/$4');
-    $routes->post('(:num)/questions/(:num)/update', 'QuestionnairController::updateSectionQuestion/$1/$2/$3/$4');
-    $routes->post('(:num)/questions/(:num)/delete', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
+        // Questions per section
 
- });
+        $routes->get('(:num)/questions', 'QuestionnairController::manageSectionQuestions/$1/$2/$3');
+        $routes->get('(:num)/questions/create', 'QuestionnairController::createSectionQuestion/$1/$2/$3');
+        $routes->post('(:num)/questions/store', 'QuestionnairController::storeInlineQuestion/$1/$2/$3');
+        $routes->get('(:num)/questions/(:num)/edit', 'QuestionnairController::editSectionQuestion/$1/$2/$3/$4');
+        $routes->post('(:num)/questions/(:num)/update', 'QuestionnairController::updateSectionQuestion/$1/$2/$3/$4');
+        $routes->post('(:num)/questions/(:num)/delete', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
+    });
 
     // === Option Management ===
 
-    $routes->group('questions/(:num)/options', function($routes) {
+    $routes->group('questions/(:num)/options', function ($routes) {
         $routes->get('/', 'QuestionnaireController::manageOptions/$1');
         $routes->post('store', 'QuestionnaireController::storeOption/$1');
         $routes->post('(:num)/update', 'QuestionnaireController::updateOption/$1');
@@ -218,7 +217,7 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
     });
 
     // === Condition Management ===
-    $routes->group('questions/(:num)/conditions', function($routes) {
+    $routes->group('questions/(:num)/conditions', function ($routes) {
         $routes->get('/', 'QuestionnaireConditionController::index/$1');
         $routes->get('create', 'QuestionnaireConditionController::create/$1');
         $routes->post('store', 'QuestionnaireConditionController::store/$1');
@@ -226,7 +225,6 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
         $routes->post('(:num)/update', 'QuestionnaireConditionController::update/$1/$2');
         $routes->post('(:num)/delete', 'QuestionnaireConditionController::delete/$1/$2');
     });
-
 });
 
 
@@ -263,15 +261,3 @@ $routes->get('admin/questionnaire/pages/get-question-options', 'QuestionnairePag
 // Di Routes.php tambahkan:
 $routes->get('admin/questionnaire/(:num)/questions/(:num)/options', 'QuestionController::getQuestionOptions/$1/$2');
 $routes->get('admin/questionnaire/(:num)/pages/(:num)/sections/(:num)/questions-with-options', 'QuestionController::getQuestionsWithOptions/$1/$2/$3');
-
-
-
-
-
-
-
-
-
-
-
-
