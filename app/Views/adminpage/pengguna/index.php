@@ -4,70 +4,83 @@
 <div style="padding: 20px; background-color: #f8f9fa;">
     <h2 style="margin-bottom: 24px; font-weight: 600; font-size: 24px; color: #333;">Daftar Pengguna</h2>
 
-    <!-- Tombol Tambah Pengguna -->
-    <button onclick="window.location.href='<?= base_url('/admin/pengguna/tambahPengguna') ?>'"
-        style="padding: 12px 20px;
-               background-color: #001BB7;
-               color: white;
-               border: none;
-               border-radius: 8px;
-               font-size: 14px;
-               font-weight: 600;
-               cursor: pointer;
-               transition: all 0.3s ease;
-               margin-bottom: 24px;
-               box-shadow: 0 2px 4px rgba(0,27,183,0.2);">
-        + Tambah Pengguna
-    </button>
+<!-- Tombol Tambah Pengguna -->
+<a href="<?= base_url('/admin/pengguna/tambahPengguna') ?>" class="btn btn-primary">
+    <i class="fas fa-plus"></i> Tambah Pengguna
+</a>
 
-   <!-- Filter Buttons -->
-<div class="role-buttons" style="margin-bottom: 20px; display: flex; gap: 10px;">
-    <!-- Tombol Semua -->
-    <a href="<?= base_url('/admin/pengguna') ?>"
-       class="filter-btn <?= ($roleId == null) ? 'active' : '' ?>"
-       style="padding: 8px 16px;
-              border-radius: 20px;
-              font-size: 13px;
-              font-weight: 500;
-              text-decoration: none;
-              transition: all 0.3s ease;
-              <?= ($roleId == null) 
-                    ? 'background-color: #001BB7; color: white;' 
-                    : 'background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;' ?>">
-        Semua (<?= $counts['all'] ?? 0 ?>)
-    </a>
+<!-- Tombol Import -->
+<button class="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#importModal">
+    <i class="fas fa-file-import"></i> Import Akun
+</button>
 
-    <!-- Tombol per Role -->
-    <?php foreach ($roles as $r): ?>
-        <a href="<?= base_url('/admin/pengguna?role=' . $r['id']) ?>"
-           class="filter-btn <?= ($roleId == $r['id']) ? 'active' : '' ?>"
-           style="padding: 8px 16px;
-                  border-radius: 20px;
-                  font-size: 13px;
-                  font-weight: 500;
-                  text-decoration: none;
-                  transition: all 0.3s ease;
-                  <?= ($roleId == $r['id']) 
-                        ? 'background-color: #001BB7; color: white;' 
-                        : 'background-color: #e9ecef; color: #6c757d; border: 1px solid #dee2e6;' ?>">
-            <?= esc($r['nama']) ?> (<?= $counts[$r['id']] ?? 0 ?>)
-        </a>
-    <?php endforeach; ?>
+<!-- Modal Import -->
+<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importModalLabel">Import Akun dari Excel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="<?= base_url('admin/pengguna/import') ?>" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Pilih File (xls, xlsx, csv)</label>
+                        <input type="file" name="file" id="file" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_role" class="form-label">Pilih Role</label>
+                        <select name="id_role" id="id_role" class="form-select" required>
+                            <option value="">-- Pilih Role --</option>
+                            <option value="1">Alumni</option>
+                            <option value="2">Admin</option>
+                            <option value="6">Kaprodi</option>
+                            <option value="7">Perusahaan</option>
+                            <option value="8">Atasan</option>
+                            <option value="9">Jabatan lainnya</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
-    <!-- Table Container -->
-    <div class="table-container" style="background-color: white; 
-                                      border-radius: 12px; 
-                                      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                                      overflow: hidden;">
 
-        <div class="tab-content" id="userTabContent">
-           <!-- Form Search -->
-    <form method="get" action="<?= base_url('admin/pengguna') ?>" style="margin-bottom:15px; padding: 20px;">
-    <?php if ($roleId): ?>
-        <input type="hidden" name="role" value="<?= esc($roleId) ?>">
-    <?php endif; ?>
 
+
+<!-- Alert Flashdata -->
+<?php if(session()->getFlashdata('success')): ?>
+    <div class="alert alert-success mt-3"><?= session()->getFlashdata('success') ?></div>
+<?php endif; ?>
+<?php if(session()->getFlashdata('error')): ?>
+    <div class="alert alert-danger mt-3"><?= session()->getFlashdata('error') ?></div>
+<?php endif; ?>
+
+<!-- Table Container -->
+<div class="table-container" style="background-color: white; 
+                                  border-radius: 12px; 
+                                  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                                  overflow: hidden;">
+    <div class="tab-content" id="userTabContent">
+        <!-- From search -->
+        <form method="get" action="<?= base_url('admin/pengguna') ?>" style="margin-bottom:15px;">
+            <?php if ($roleId): ?>
+                <input type="hidden" name="role" value="<?= esc($roleId) ?>">
+            <?php endif; ?>
+              <!-- from sreach -->
+        <form method="get" action="<?= base_url('admin/pengguna') ?>" style="margin-bottom:15px;">
+        <?php if ($roleId): ?>
+            <input type="hidden" name="role" value="<?= esc($roleId) ?>">
+        <?php endif; ?>
+        </form>
+    </div>
+</div>
+  
     <div style="display:flex; gap:10px;">
         <input type="text" 
                name="keyword" 

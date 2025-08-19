@@ -12,12 +12,12 @@ class QuestionModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['questionnaires_id', 'question_text', 'question_type', 'is_required','order_no','parent_question_id','condition_value','created_at','updated_at'];
+    protected $allowedFields    = ['questionnaires_id','question_text','section_id', 'question_type', 'is_required','order_no','parent_question_id','condition_value','created_at','updated_at','page_id'];
 
     protected bool $allowEmptyInserts = false;
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';

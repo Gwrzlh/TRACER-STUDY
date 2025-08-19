@@ -4,25 +4,28 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Accounts extends Model
+class QuestionnairePageModel extends Model
 {
-    protected $table            = 'account';
+    protected $table            = 'questionnaire_pages';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','username','email','password','status','id_role','id_surveyor'];
+    protected $allowedFields    = [        
+        'questionnaire_id',
+        'page_title',
+        'page_description',
+        'order_no',
+        'conditional_logic', // <-- Tambahkan ini
+        'created_at',
+        'updated_at'
+];
 
     protected bool $allowEmptyInserts = false;
-    public function getroleid(){
-        return $this->select('account.*, role.nama as nama_role')->join('role', 'role.id = account.id_role')->findAll();
-    }
-    public function getjabatanid(){
-        return $this->select('account.*, jabatan.jabatan as nama_jabatan')->join('jabatan', 'jabatan.id = account.jabatan_id')->findAll();
-    }
+
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
@@ -44,8 +47,4 @@ class Accounts extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-     public function insertMultiple(array $data)
-    {
-        return $this->insertBatch($data);
-    }
 }
