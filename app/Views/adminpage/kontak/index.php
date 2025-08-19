@@ -1,53 +1,196 @@
-<?= $this->extend('layout/sidebar') ?>
-<?= $this->section('content') ?>
+<!DOCTYPE html>
+<html lang="id">
 
-<h1 class="text-xl font-bold mb-4">Daftar Kontak</h1>
-<a href="<?= base_url('admin/kontak/create') ?>" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mb-4 inline-block">+ Tambah Kontak</a>
+<head>
+    <meta charset="UTF-8">
+    <title>Manajemen Kontak</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
 
-<?php if (session()->getFlashdata('success')) : ?>
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
-        <?= session()->getFlashdata('success') ?>
-    </div>
-<?php endif; ?>
+<body class="p-4">
 
-<table class="w-full border border-gray-300">
-    <thead>
-        <tr class="bg-gray-100">
-            <th class="p-2 border">No</th>
-            <th class="p-2 border">Tipe</th>
-            <th class="p-2 border">Nama</th>
-            <th class="p-2 border">Kontak</th>
-            <th class="p-2 border">Prodi/Jurusan</th>
-            <th class="p-2 border">Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($kontaks as $i => $k): ?>
-            <tr>
-                <td class="p-2 border"><?= $i + 1 ?></td>
-                <td class="p-2 border"><?= esc($k['tipe_kontak']) ?></td>
-                <td class="p-2 border"><?= esc($k['nama']) ?></td>
-                <td class="p-2 border"><?= esc($k['kontak']) ?></td>
-                <td class="p-2 border">
-                    <?php
-                    if ($k['tipe_kontak'] == 'surveyor') {
-                        echo esc($k['nama_prodi'] ?? '-');
-                    } elseif ($k['tipe_kontak'] == 'coordinator') {
-                        echo esc($k['nama_jurusan'] ?? '-');
-                    } else {
-                        echo '-';
-                    }
-                    ?>
-                </td>
-                <td class="p-2 border">
-                    <a href="<?= base_url('admin/kontak/edit/' . $k['id']) ?>" class="text-blue-600 hover:underline">Edit</a>
-                    <form action="<?= base_url('admin/kontak/delete/' . $k['id']) ?>" method="post" onsubmit="return confirm('Yakin ingin hapus?')" style="display:inline">
-                        <button type="submit" class="text-red-600 hover:underline ml-2">Hapus</button>
+    <div class="container">
+        <h2 class="mb-4">Manajemen Kontak</h2>
+
+        <!-- Pilih kategori & search -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="searchForm" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Pilih Kategori</label>
+                        <select name="kategori" id="kategori" class="form-select" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="Surveyor">Surveyor</option>
+                            <option value="Tim Tracer">Tim Tracer</option>
+                            <option value="Wakil Direktur">Wakil Direktur</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Cari</label>
+                        <input type="text" id="keyword" name="keyword" class="form-control" placeholder="Masukkan NIM / Nama" required>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Cari</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Hasil pencarian -->
+        <div id="searchResult" class="mb-4" style="display:none;">
+            <div class="card">
+                <div class="card-header">Hasil Pencarian</div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tbody id="resultBody"></tbody>
+                    </table>
+                    <form id="addForm" method="post" action="<?= site_url('admin/kontak/store') ?>">
+                        <input type="hidden" name="kategori" id="addKategori">
+                        <input type="hidden" name="id_account" id="addIdAccount">
+                        <button type="submit" class="btn btn-success">Tambah ke Kontak</button>
                     </form>
-                </td>
-            </tr>
-        <?php endforeach ?>
-    </tbody>
-</table>
+                </div>
+            </div>
+        </div>
 
-<?= $this->endSection() ?>
+        <!-- Daftar Kontak per kategori -->
+        <div class="row">
+            <!-- Surveyor -->
+            <div class="col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">Surveyor</div>
+                    <div class="card-body">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>NIM</th>
+                                    <th>No.Telp</th>
+                                    <th>Email</th>
+                                    <th>Prodi</th>
+                                    <th>Jurusan</th>
+                                    <th>Tahun Lulus</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($surveyors as $s): ?>
+                                    <tr>
+                                        <td><?= $s['nama_lengkap'] ?></td>
+                                        <td><?= $s['nim'] ?></td>
+                                        <td><?= $s['notlp'] ?></td>
+                                        <td><?= $s['email'] ?></td>
+                                        <td><?= $s['nama_prodi'] ?></td>
+                                        <td><?= $s['nama_jurusan'] ?></td>
+                                        <td><?= $s['tahun_kelulusan'] ?></td>
+                                        <td>
+                                            <form method="post" action="<?= site_url('admin/kontak/delete/' . $s['kontak_id']) ?>">
+                                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tim Tracer -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-warning">Tim Tracer</div>
+                    <div class="card-body">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Email</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($teamTracer as $t): ?>
+                                    <tr>
+                                        <td><?= $t['nama_lengkap'] ?></td>
+                                        <td><?= $t['email'] ?></td>
+                                        <td>
+                                            <form method="post" action="<?= site_url('admin/kontak/delete/' . $t['kontak_id']) ?>">
+                                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wakil Direktur -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">Wakil Direktur</div>
+                    <div class="card-body">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Email</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($wakilDirektur as $w): ?>
+                                    <tr>
+                                        <td><?= $w['nama_lengkap'] ?></td>
+                                        <td><?= $w['email'] ?></td>
+                                        <td>
+                                            <form method="post" action="<?= site_url('admin/kontak/delete/' . $w['kontak_id']) ?>">
+                                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Ajax -->
+    <script>
+        $(function() {
+            $('#searchForm').on('submit', function(e) {
+                e.preventDefault();
+                let kategori = $('#kategori').val();
+                let keyword = $('#keyword').val();
+
+                $.get("<?= site_url('admin/kontak/search') ?>", {
+                    kategori,
+                    keyword
+                }, function(res) {
+                    if ($.isEmptyObject(res)) {
+                        alert("Data tidak ditemukan!");
+                        $('#searchResult').hide();
+                    } else {
+                        let html = "";
+                        for (let key in res) {
+                            html += "<tr><th>" + key + "</th><td>" + res[key] + "</td></tr>";
+                        }
+                        $('#resultBody').html(html);
+                        $('#addKategori').val(kategori);
+                        $('#addIdAccount').val(res.id_account);
+                        $('#searchResult').show();
+                    }
+                }, 'json');
+            });
+        });
+    </script>
+
+</body>
+
+</html>
