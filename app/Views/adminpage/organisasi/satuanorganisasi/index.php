@@ -32,7 +32,7 @@
     <form method="get" action="<?= base_url('satuanorganisasi') ?>" class="search-form">
         <div class="search-box">
             <input type="text" name="keyword" value="<?= esc($keyword ?? '') ?>"
-                   placeholder="Cari nama atau singkatan..." class="search-input">
+                placeholder="Cari nama, singkatan, tipe, jurusan, atau prodi..." class="search-input">
             <button type="submit" class="search-button">Search</button>
         </div>
     </form>
@@ -46,6 +46,8 @@
                     <th>Singkatan</th>
                     <th>Slug</th>
                     <th>Tipe Organisasi</th>
+                    <th>Jurusan</th>
+                    <th>Prodi</th>
                     <th style="text-align:center;">Aksi</th>
                 </tr>
             </thead>
@@ -56,7 +58,19 @@
                             <td><?= esc($row['nama_satuan']) ?></td>
                             <td><?= esc($row['nama_singkatan']) ?></td>
                             <td><?= esc($row['nama_slug']) ?></td>
-                            <td><span class="badge"><?= esc($row['nama_tipe']) ?></span></td>
+                            <td>
+                                <span class="badge"><?= esc($row['nama_tipe'] ?? '-') ?></span>
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color:#6f42c1; color:white; font-size:0.8rem; padding:2px 6px; border-radius:4px;">
+                                    <?= esc($row['nama_jurusan'] ?? '-') ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color:#20c997; color:white; font-size:0.8rem; padding:2px 6px; border-radius:4px;">
+                                    <?= esc($row['nama_prodi'] ?? '-') ?>
+                                </span>
+                            </td>
                             <td style="text-align:center;">
                                 <a href="<?= base_url('satuanorganisasi/edit/' . $row['id']) ?>" class="btn-edit">Edit</a>
                                 <form action="<?= base_url('satuanorganisasi/delete/' . $row['id']) ?>" method="post" style="display:inline;" onsubmit="return confirm('Yakin hapus?')">
@@ -68,7 +82,7 @@
                     <?php endforeach ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" style="text-align:center; color:#6c757d;">Tidak ada data</td>
+                        <td colspan="7" style="text-align:center; color:#6c757d;">Tidak ada data</td>
                     </tr>
                 <?php endif; ?>
             </tbody>

@@ -125,6 +125,7 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
     $routes->get('edit/(:num)', 'SatuanOrganisasi::edit/$1');
     $routes->post('update/(:num)', 'SatuanOrganisasi::update/$1');
     $routes->post('delete/(:num)', 'SatuanOrganisasi::delete/$1');
+    $routes->get('getProdi/(:num)', 'ProdiController::getProdi/$1');
 
     // Jurusan - Nested
     $routes->group('jurusan', function ($routes) {
