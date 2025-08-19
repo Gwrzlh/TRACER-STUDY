@@ -67,6 +67,7 @@ $routes->get('admin/kontak', 'Kontak::index');           // Halaman index kontak
 $routes->get('admin/kontak/search', 'Kontak::search');   // AJAX Search
 $routes->post('admin/kontak/store', 'Kontak::store');    // Tambah kontak
 $routes->post('admin/kontak/delete/(:num)', 'Kontak::delete/$1'); // Hapus kontak
+$routes->post('admin/kontak/store-multiple', 'Kontak::storeMultiple'); // Tambah kontak multiple
 
 // Opsional (Landing Page publik, jika dibutuhkan)
 // $routes->get('kontak', 'Kontak::landing');
