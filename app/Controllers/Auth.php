@@ -247,7 +247,7 @@ if ($usernameOrEmail === 'alumni' && $password === 'alumni123') {
         session()->destroy();
 
         // Hapus cookie remember_token
-        $response->deleteCookie('remember_token');
+        $response->deleteCookie('remember_token');         
 
         return redirect()->to(site_url('login')); // Gunakan helper agar konsisten
 
