@@ -12,40 +12,45 @@ class SatuanOrganisasi extends Controller
 {
     protected $helpers = ['form'];
 
-   public function index()
-{
-    $satuanModel = new SatuanOrganisasiModel();
-    $jurusanModel = new JurusanModel();
-    $prodiModel   = new Prodi();
+    public function index()
+    {
+        $satuanModel = new SatuanOrganisasiModel();
+        $jurusanModel = new JurusanModel();
+        $prodiModel  = new Prodi();
+        $tipeModel   = new TipeOrganisasiModel();
 
-    // Ambil keyword dari GET
-    $keyword = $this->request->getGet('keyword');
+        $keyword = $this->request->getGet('keyword');
 
-    // Query untuk badge (hitung total tanpa filter)
-    $data['count_satuan']  = $satuanModel->countAll();
-    $data['count_jurusan'] = $jurusanModel->countAll();
-    $data['count_prodi']   = $prodiModel->countAll();
+        // Hitung jumlah
+        $data['count_satuan']  = $satuanModel->countAll();
+        $data['count_jurusan'] = $jurusanModel->countAll();
+        $data['count_prodi']   = $prodiModel->countAll();
 
-    // Jika ada keyword, filter nama_satuan atau nama_singkatan
-    if ($keyword) {
-        $satuanModel->groupStart()
-                    ->like('nama_satuan', $keyword)
-                    ->orLike('nama_singkatan', $keyword)
-                    ->groupEnd();
+        // Query utama (join tipe & prodi)
+        $builder = $satuanModel
+            ->select('satuan_organisasi.*, tipe_organisasi.nama_tipe, prodi.nama_prodi')
+            ->join('tipe_organisasi', 'tipe_organisasi.id = satuan_organisasi.id_tipe', 'left')
+            ->join('prodi', 'prodi.id = satuan_organisasi.id_prodi', 'left');
+
+        if (!empty($keyword)) {
+            $builder->groupStart()
+                ->like('satuan_organisasi.nama_satuan', $keyword)
+                ->orLike('satuan_organisasi.nama_singkatan', $keyword)
+                ->orLike('tipe_organisasi.nama_tipe', $keyword)
+                ->orLike('prodi.nama_prodi', $keyword)
+                ->groupEnd();
+        }
+
+        $data['satuan'] = $builder->findAll();
+        $data['keyword'] = $keyword;
+
+        return view('adminpage/organisasi/satuanorganisasi/index', $data);
     }
-
-    // Ambil data Satuan Organisasi + tipe
-    $data['satuan'] = $satuanModel->getWithTipe();
-    $data['keyword'] = $keyword; // supaya input search tetap terisi
-
-    return view('adminpage/organisasi/satuanorganisasi/index', $data);
-}
-
 
     public function create()
     {
         $data['jurusan'] = (new JurusanModel())->findAll();
-        $data['tipe']    = (new TipeOrganisasiModel())->findAll();
+        $data['tipe'] = (new TipeOrganisasiModel())->findAll();
         return view('adminpage/organisasi/satuanorganisasi/create', $data);
     }
 
@@ -53,13 +58,13 @@ class SatuanOrganisasi extends Controller
     {
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'nama_satuan'     => 'required|min_length[3]|max_length[50]',
-            'nama_singkatan'  => 'required|min_length[1]|max_length[10]',
-            'nama_slug'       => 'required|min_length[3]|max_length[50]',
-            'deskripsi'       => 'permit_empty|max_length[255]',
-            'id_tipe'         => 'required|integer',
-            'urutan'          => 'permit_empty|integer',
-            'satuan_induk'    => 'permit_empty|integer'
+            'nama_satuan'    => 'required|min_length[3]|max_length[50]',
+            'nama_singkatan' => 'required|min_length[1]|max_length[10]',
+            'nama_slug'      => 'required|min_length[3]|max_length[50]',
+            'id_tipe'        => 'required|integer',
+            'id_jurusan'     => 'required|integer',
+            'id_prodi'       => 'required|integer',
+            'deskripsi'      => 'permit_empty|max_length[255]',
         ]);
 
         if (!$this->validate($validation->getRules())) {
@@ -70,33 +75,41 @@ class SatuanOrganisasi extends Controller
             'nama_satuan'    => $this->request->getPost('nama_satuan'),
             'nama_singkatan' => $this->request->getPost('nama_singkatan'),
             'nama_slug'      => $this->request->getPost('nama_slug'),
-            'deskripsi'      => $this->request->getPost('deskripsi'),
             'id_tipe'        => $this->request->getPost('id_tipe'),
-            'urutan'         => $this->request->getPost('urutan'),
-            'satuan_induk'   => $this->request->getPost('satuan_induk')
+            'id_jurusan'     => $this->request->getPost('id_jurusan'),
+            'id_prodi'       => $this->request->getPost('id_prodi'),
+            'deskripsi'      => $this->request->getPost('deskripsi'),
         ]);
 
-        return redirect()->to('/satuanorganisasi')->with('success', 'Data ditambahkan.');
+        return redirect()->to('/satuanorganisasi')->with('success', 'Data berhasil ditambahkan.');
     }
 
     public function edit($id)
     {
         $model = new SatuanOrganisasiModel();
-        $data['satuan']  = $model->find($id);
+        $data['satuan'] = $model->find($id);
         $data['jurusan'] = (new JurusanModel())->findAll();
-        $data['tipe']    = (new TipeOrganisasiModel())->findAll();
+        $data['tipe'] = (new TipeOrganisasiModel())->findAll();
         return view('adminpage/organisasi/satuanorganisasi/edit', $data);
     }
 
     public function update($id)
     {
         (new SatuanOrganisasiModel())->update($id, $this->request->getPost());
-        return redirect()->to('/satuanorganisasi')->with('success', 'Data diubah.');
+        return redirect()->to('/satuanorganisasi')->with('success', 'Data berhasil diubah.');
     }
 
     public function delete($id)
     {
         (new SatuanOrganisasiModel())->delete($id);
-        return redirect()->to('/satuanorganisasi')->with('success', 'Data dihapus.');
+        return redirect()->to('/satuanorganisasi')->with('success', 'Data berhasil dihapus.');
+    }
+
+    // AJAX get Prodi by Jurusan
+    public function getProdi($id_jurusan)
+    {
+        $prodiModel = new Prodi();
+        $prodi = $prodiModel->where('id_jurusan', $id_jurusan)->findAll();
+        return $this->response->setJSON($prodi);
     }
 }
