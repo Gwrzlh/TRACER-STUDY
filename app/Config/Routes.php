@@ -16,7 +16,7 @@ $routes->get('/login', 'Auth::login');
 $routes->post('/do-login', 'Auth::doLogin');
 $routes->get('/logout', 'Auth::logout');
 // ini ga kepake
-// $routes->get('/dashboard', 'Auth::dashboard', ['filter' => 'auth']);
+ $routes->get('/dashboard', 'Auth::dashboard', );
 // $routes->get('/admin', 'adminController::index');
 // $routes->get('/admin', 'adminController::index', ['filter' => 'auth']);
 //route admin
@@ -228,13 +228,27 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
 });
 
 
-// Route Alumni
-$routes->get('alumni/login', 'AlumniController::login');
-$routes->post('alumni/login', 'AlumniController::doLogin');
-$routes->get('alumni/dashboard', 'AlumniController::dashboard');
-$routes->get('alumni/logout', 'AlumniController::logout');
-$routes->get('alumni', 'AlumniController::index');
-$routes->get('alumnisurveyor', 'AlumniController::surveyor');
+// ROUTES ALUMNI
+$routes->group('alumni', static function ($routes) {
+    // Login & Logout
+    $routes->get('login', 'AlumniController::login');        // /alumni/login
+    $routes->post('login', 'AlumniController::doLogin');     // /alumni/login (POST)
+    $routes->get('logout', 'AlumniController::logout');      // /alumni/logout
+
+    // Dashboard & Halaman Utama
+    $routes->get('/', 'AlumniController::dashboard');        // /alumni
+    $routes->get('dashboard', 'AlumniController::dashboard');// /alumni/dashboard
+
+    // Menu tambahan
+    $routes->get('isi', 'AlumniController::isi');            // /alumni/isi
+    $routes->get('teman', 'AlumniController::teman');        // /alumni/teman
+
+    // Form isi data alumni
+    $routes->get('form/(:segment)', 'AlumniController::form/$1'); // /alumni/form/{nim}
+    $routes->post('saveForm', 'AlumniController::saveForm');      // /alumni/saveForm
+});
+
+
 
 
 
