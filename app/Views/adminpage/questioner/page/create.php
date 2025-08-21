@@ -1,6 +1,6 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
-
+ <link rel="stylesheet" href="<?= base_url('css/questioner/page/tambah.css') ?>">
 <div class="container mt-4">
     <h2>Tambah Halaman Kuesioner</h2>
 

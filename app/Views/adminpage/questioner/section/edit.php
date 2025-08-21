@@ -1,6 +1,6 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
-
+<link rel="stylesheet" href="/css/questioner/section/edit.css">
 <div class="container mt-4">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
@@ -161,27 +161,6 @@
     </div>
 </div>
 
-<style>
-.card-header.bg-warning {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%) !important;
-}
-
-.btn-success {
-    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-    border: none;
-}
-
-.btn-success:hover {
-    background: linear-gradient(135deg, #7ce8a0 0%, #85c9f2 100%);
-    transform: translateY(-1px);
-    transition: all 0.2s ease;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: #ffc107;
-    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
-}
-</style>
 
 <script>
 function deleteSection() {
