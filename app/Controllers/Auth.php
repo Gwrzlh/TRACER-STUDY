@@ -44,10 +44,34 @@ class Auth extends Controller
                     'username'  => $user['username'],
                     'email'     => $user['email'],
                     'role_id'   => $user['id_role'],
+                    'id_surveyor' => $user['id_surveyor'],
                     'logged_in' => true
                 ]);
 
+                $response->setCookie([
+                    'name'     => 'remember_token',
+                    'value'    => base64_encode($user['id_role'] . '|' . $user['username']),
+                    'expire'   => 60 * 60 * 24 * 7, // 7 hari
+                    'path'     => '/',
+                    'httponly' => true,
+                    'secure'   => false, // true jika pakai HTTPS
+                    'samesite' => 'Lax'
+                ]);
+            } else {
+                // Session hanya berlaku selama browser terbuka
+                $session->setTempdata([
+                    'id'        => $user['id'],
+                    'username'  => $user['username'],
+                    'email'     => $user['email'],
+                    'role_id'   => $user['id_role'],
+                    'id_surveyor' => $user['id_surveyor'],
+                    'logged_in' => true
+                ], null); // null = sampai browser ditutup
+                $response->deleteCookie('remember_token', '/');
+
+
                 return redirect()->to('/dashboard');
+
             }
         }
 
@@ -100,6 +124,9 @@ class Auth extends Controller
         return redirect()->to('alumni/dashboard'); // arahkan ke halaman alumni
     }
 
+
+        return redirect()->back()->with('error', 'Username atau password salah atau akun tidak aktif.');
+
     // Cari user dari database
     $user = $model->getByUsernameOrEmail($usernameOrEmail);
 
@@ -136,6 +163,7 @@ class Auth extends Controller
         }
 
         return $this->redirectByRole($user['id_role']);
+
     }
 
     return redirect()->back()->with('error', 'Username atau password salah atau akun tidak aktif.');
@@ -162,7 +190,7 @@ class Auth extends Controller
             $counts[$role['id']] = $accountModel->where('id_role', $role['id'])->countAllResults();
             $accountModel->builder()->resetQuery(); // Reset query untuk count berikutnya
         }
-        
+
         // Total semua akun
         $counts['all'] = $accountModel->countAllResults();
 
@@ -184,7 +212,7 @@ class Auth extends Controller
         // Mapping role ID ke nama untuk chart
         $roleMapping = [
             1 => 'Alumni',
-            2 => 'Admin', 
+            2 => 'Admin',
             6 => 'Kaprodi',
             7 => 'Perusahaan',
             8 => 'Atasan',
@@ -219,14 +247,14 @@ class Auth extends Controller
                 'color' => '#10b981'
             ],
             [
-                'icon' => 'S', 
+                'icon' => 'S',
                 'title' => 'Survei Diselesaikan',
                 'description' => $totalSurvei . ' survei telah diselesaikan',
                 'color' => '#3b82f6'
             ],
             [
                 'icon' => 'P',
-                'title' => 'Perusahaan Bergabung', 
+                'title' => 'Perusahaan Bergabung',
                 'description' => ($counts[7] ?? 0) . ' perusahaan terdaftar',
                 'color' => '#f59e0b'
             ],
@@ -271,7 +299,6 @@ class Auth extends Controller
         ];
 
         return view('adminpage/dashboard', $data);
-
     }
 
     public function logout()
@@ -283,24 +310,30 @@ class Auth extends Controller
     }
     
 
-private function redirectByRole($roleId)
-{
-    switch ($roleId) {
-        case 1: // Alumni
-            return redirect()->to('alumni/dashboard');
-        case 2: // Admin
-            return redirect()->to('admin/dashboard');
-        case 6: // Kaprodi
-            return redirect()->to('kaprodi/dashboard');
-        case 7: // Perusahaan
-            return redirect()->to('perusahaan/dashboard');
-        case 8: // Atasan
-            return redirect()->to('atasan/dashboard');
-        case 9: // Jabatan lainnya
-            return redirect()->to('jabatan/dashboard');
-        default:
-            return redirect()->to('/login');
-    }
+
+    private function redirectByRole($roleId)
+    {
+        switch ($roleId) {
+            case 1: // Alumni
+                return redirect()->to('alumni/dashboard');
+            case 2: // Admin
+                return redirect()->to('admin/dashboard');
+            case 6: // Kaprodi
+                // cek apakah kaprodi punya hak supervisi
+                if (session('id_surveyor') == 1) {
+                    return redirect()->to('kaprodi/supervisi');
+                } else {
+                    return redirect()->to('kaprodi/dashboard');
+                }
+            case 7: // Perusahaan
+                return redirect()->to('perusahaan/dashboard');
+            case 8: // Atasan
+                return redirect()->to('atasan/dashboard');
+            case 9: // Jabatan lainnya
+                return redirect()->to('jabatan/dashboard');
+            default:
+                return redirect()->to('/login');
+        }
 }
     
 }
