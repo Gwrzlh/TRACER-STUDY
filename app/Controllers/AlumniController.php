@@ -9,6 +9,12 @@ class AlumniController extends BaseController
         return view('alumni/dashboard');
     }
 
+    public function supervisi()
+    {
+
+        return view('alumni/supervisi');
+    }
+
     public function isi()
     {
         // Dummy data, nanti diganti dari DB
@@ -48,7 +54,4 @@ class AlumniController extends BaseController
 
         return view('alumni/form', $data);
     }
-
-
-    
 }
