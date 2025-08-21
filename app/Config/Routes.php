@@ -16,7 +16,11 @@ $routes->get('/login', 'Auth::login');
 $routes->post('/do-login', 'Auth::doLogin');
 $routes->get('/logout', 'Auth::logout');
 // ini ga kepake
+
+
+
 $routes->get('/dashboard', 'Auth::dashboard',);
+
 // $routes->get('/admin', 'adminController::index');
 // $routes->get('/admin', 'adminController::index', ['filter' => 'auth']);
 //route admin

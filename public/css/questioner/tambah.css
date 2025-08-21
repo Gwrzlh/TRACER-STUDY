@@ -1,0 +1,151 @@
+/* ===== STYLE MODERN FORM BUAT KUESIONER ===== */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f6f8fa;
+    color: #2c3e50;
+    padding: 20px;
+}
+
+/* Judul */
+h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: #34495e;
+}
+
+/* Form container */
+form {
+    background: #fff;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    max-width: 850px;
+}
+
+/* Input group */
+form div {
+    margin-bottom: 18px;
+}
+
+label {
+    font-weight: 500;
+    margin-bottom: 6px;
+    display: inline-block;
+    color: #2c3e50;
+}
+
+/* Input & textarea */
+input[type="text"],
+textarea,
+select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dcdfe3;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 6px rgba(52,152,219,0.3);
+}
+
+/* Textarea */
+textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Conditional Logic */
+#conditional_logic {
+    margin-left: 8px;
+    transform: scale(1.2);
+}
+
+/* Container conditional */
+#conditional-container {
+    background: #f9fbfd;
+    border: 1px dashed #3498db;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+/* Kondisi row */
+.condition-row {
+    background: #fff;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Input di kondisi */
+.condition-row select,
+.condition-row input[type="text"] {
+    flex: 1;
+}
+
+/* Tombol hapus kondisi */
+.remove-condition-btn {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.remove-condition-btn:hover {
+    background: #c0392b;
+    transform: scale(1.05);
+}
+
+/* Tombol tambah kondisi */
+#add-condition-btn {
+    margin-top: 12px;
+    background: #2ecc71;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+#add-condition-btn:hover {
+    background: #27ae60;
+    transform: translateY(-2px);
+}
+
+/* Tombol Simpan */
+button[type="submit"] {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background: linear-gradient(135deg, #2980b9, #1f5e85);
+    transform: translateY(-2px);
+}
