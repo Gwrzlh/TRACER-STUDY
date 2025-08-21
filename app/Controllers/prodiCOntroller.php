@@ -27,14 +27,14 @@ class ProdiController extends Controller
 
         // Ambil data Prodi + Join ke Jurusan
         $builder = $prodiModel->select('prodi.id, prodi.nama_prodi, jurusan.nama_jurusan')
-                              ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left');
+            ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left');
 
         // Filter jika ada keyword (pencarian nama_prodi atau nama_jurusan)
         if (!empty($keyword)) {
             $builder->groupStart()
-                    ->like('prodi.nama_prodi', $keyword)
-                    ->orLike('jurusan.nama_jurusan', $keyword)
-                    ->groupEnd();
+                ->like('prodi.nama_prodi', $keyword)
+                ->orLike('jurusan.nama_jurusan', $keyword)
+                ->groupEnd();
         }
 
         $data['prodi']   = $builder->findAll();
@@ -89,5 +89,12 @@ class ProdiController extends Controller
         $model = new Prodi();
         $model->delete($id);
         return redirect()->to('/satuanorganisasi/prodi')->with('success', 'Data prodi berhasil dihapus.');
+    }
+    public function getProdi($id_jurusan)
+    {
+        $prodiModel = new Prodi();
+        $prodi = $prodiModel->where('id_jurusan', $id_jurusan)->findAll();
+
+        return $this->response->setJSON($prodi);
     }
 }
