@@ -80,6 +80,7 @@ class Auth extends Controller
                     'username'  => $user['username'],
                     'email'     => $user['email'],
                     'role_id'   => $user['id_role'],
+                    'id_surveyor' => $user['id_surveyor'],
                     'logged_in' => true
                 ]);
                 $response->setCookie([
@@ -98,6 +99,7 @@ class Auth extends Controller
                     'username'  => $user['username'],
                     'email'     => $user['email'],
                     'role_id'   => $user['id_role'],
+                    'id_surveyor' => $user['id_surveyor'],
                     'logged_in' => true
                 ], null); // null = sampai browser ditutup
                 $response->deleteCookie('remember_token', '/');
@@ -107,7 +109,6 @@ class Auth extends Controller
         }
 
         return redirect()->back()->with('error', 'Username atau password salah atau akun tidak aktif.');
-
     }
 
     public function dashboard()
@@ -131,7 +132,7 @@ class Auth extends Controller
             $counts[$role['id']] = $accountModel->where('id_role', $role['id'])->countAllResults();
             $accountModel->builder()->resetQuery(); // Reset query untuk count berikutnya
         }
-        
+
         // Total semua akun
         $counts['all'] = $accountModel->countAllResults();
 
@@ -153,7 +154,7 @@ class Auth extends Controller
         // Mapping role ID ke nama untuk chart
         $roleMapping = [
             1 => 'Alumni',
-            2 => 'Admin', 
+            2 => 'Admin',
             6 => 'Kaprodi',
             7 => 'Perusahaan',
             8 => 'Atasan',
@@ -188,14 +189,14 @@ class Auth extends Controller
                 'color' => '#10b981'
             ],
             [
-                'icon' => 'S', 
+                'icon' => 'S',
                 'title' => 'Survei Diselesaikan',
                 'description' => $totalSurvei . ' survei telah diselesaikan',
                 'color' => '#3b82f6'
             ],
             [
                 'icon' => 'P',
-                'title' => 'Perusahaan Bergabung', 
+                'title' => 'Perusahaan Bergabung',
                 'description' => ($counts[7] ?? 0) . ' perusahaan terdaftar',
                 'color' => '#f59e0b'
             ],
@@ -240,7 +241,6 @@ class Auth extends Controller
         ];
 
         return view('adminpage/dashboard', $data);
-
     }
 
     public function logout()
@@ -259,7 +259,12 @@ class Auth extends Controller
             case 2: // Admin
                 return redirect()->to('admin/dashboard');
             case 6: // Kaprodi
-                return redirect()->to('kaprodi/dashboard');
+                // cek apakah kaprodi punya hak supervisi
+                if (session('id_surveyor') == 1) {
+                    return redirect()->to('kaprodi/supervisi');
+                } else {
+                    return redirect()->to('kaprodi/dashboard');
+                }
             case 7: // Perusahaan
                 return redirect()->to('perusahaan/dashboard');
             case 8: // Atasan
