@@ -17,7 +17,7 @@ class Kontak extends Controller
     }
 
     // ==============================
-    // INDEX
+    // INDEX (Admin Page)
     // ==============================
     public function index()
     {
@@ -39,54 +39,70 @@ class Kontak extends Controller
         $result = [];
 
         if ($kategori == 'Surveyor') {
-            // cari by NIM
             $builder = $this->db->table('detailaccount_alumni da')
-                ->select('da.nama_lengkap, da.nim, da.notlp, a.email, p.nama_prodi, j.nama_jurusan, da.tahun_kelulusan, a.id as id_account')
+                ->select('da.nama_lengkap, da.nim, da.notlp, da.tahun_kelulusan, a.email, p.nama_prodi, j.nama_jurusan, a.id as id_account')
                 ->join('account a', 'a.id = da.id_account', 'left')
                 ->join('prodi p', 'p.id = da.id_prodi', 'left')
                 ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
-                ->where('da.nim', $keyword);
+                ->groupStart()
+                ->where('da.nim', $keyword)
+                ->orLike('da.nama_lengkap', $keyword)
+                ->groupEnd();
 
-            $result = $builder->get()->getRowArray();
+            $result = $builder->get()->getResultArray(); // ✅ semua hasil
         } elseif ($kategori == 'Tim Tracer') {
-            // cari by nama
             $builder = $this->db->table('detailaccount_admin da')
                 ->select('da.nama_lengkap, a.email, a.id as id_account')
                 ->join('account a', 'a.id = da.id_account', 'left')
                 ->like('da.nama_lengkap', $keyword);
 
-            $result = $builder->get()->getRowArray();
+            $result = $builder->get()->getResultArray();
         } elseif ($kategori == 'Wakil Direktur') {
-            // cari by nama
             $builder = $this->db->table('detailaccount_atasan da')
                 ->select('da.nama_lengkap, da.notlp, a.email, a.id as id_account')
                 ->join('account a', 'a.id = da.id_account', 'left')
                 ->like('da.nama_lengkap', $keyword);
 
-            $result = $builder->get()->getRowArray();
+            $result = $builder->get()->getResultArray();
         }
 
         return $this->response->setJSON($result ?: []);
     }
 
     // ==============================
-    // Tambah kontak
+    // Tambah kontak (multiple dari checkbox)
     // ==============================
-    public function store()
+    public function storeMultiple()
     {
         $kategori   = $this->request->getPost('kategori');
-        $id_account = $this->request->getPost('id_account');
+        $idAccounts = $this->request->getPost('id_account'); // array dari checkbox
 
-        if (!$kategori || !$id_account) {
-            return redirect()->back()->with('error', 'Kategori dan data harus dipilih');
+        if (!$kategori || empty($idAccounts)) {
+            return redirect()->back()->with('error', 'Pilih kategori dan minimal satu data!');
         }
 
-        $this->kontakModel->insert([
-            'kategori'   => $kategori,
-            'id_account' => $id_account
-        ]);
+        foreach ($idAccounts as $id_account) {
+            $this->kontakModel->insert([
+                'kategori'   => $kategori,
+                'id_account' => $id_account
+            ]);
+        }
 
         return redirect()->to('/admin/kontak')->with('success', 'Kontak berhasil ditambahkan');
+    }
+
+    // ==============================
+    // Hapus kontak
+    // ==============================
+    public function delete($id = null)
+    {
+        if (!$id) {
+            return redirect()->back()->with('error', 'ID kontak tidak valid');
+        }
+
+        $this->kontakModel->delete($id);
+
+        return redirect()->to('/admin/kontak')->with('success', 'Kontak berhasil dihapus');
     }
 
     // ==============================
@@ -98,7 +114,7 @@ class Kontak extends Controller
             ->join('account a', 'a.id = k.id_account', 'left');
 
         if ($kategori == 'Surveyor') {
-            $builder->select('k.id as kontak_id, da.nama_lengkap, da.nim, da.notlp, a.email, p.nama_prodi, j.nama_jurusan, da.tahun_kelulusan')
+            $builder->select('k.id as kontak_id, da.nama_lengkap, da.nim, da.notlp, da.tahun_kelulusan, a.email, p.nama_prodi, j.nama_jurusan')
                 ->join('detailaccount_alumni da', 'da.id_account = a.id', 'left')
                 ->join('prodi p', 'p.id = da.id_prodi', 'left')
                 ->join('jurusan j', 'j.id = da.id_jurusan', 'left');
@@ -114,16 +130,10 @@ class Kontak extends Controller
             ->orderBy('k.id', 'DESC')
             ->get()->getResultArray();
     }
-    public function delete($id = null)
-    {
-        if (!$id) {
-            return redirect()->back()->with('error', 'ID kontak tidak valid');
-        }
 
-        $this->kontakModel->delete($id);
-
-        return redirect()->to('/admin/kontak')->with('success', 'Kontak berhasil dihapus');
-    }
+    // ==============================
+    // Landing Page (untuk publik)
+    // ==============================
     public function landing()
     {
         return view('landingpage/kontak', [

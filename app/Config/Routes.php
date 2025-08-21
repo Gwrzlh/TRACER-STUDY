@@ -16,7 +16,7 @@ $routes->get('/login', 'Auth::login');
 $routes->post('/do-login', 'Auth::doLogin');
 $routes->get('/logout', 'Auth::logout');
 // ini ga kepake
- $routes->get('/dashboard', 'Auth::dashboard', );
+$routes->get('/dashboard', 'Auth::dashboard',);
 // $routes->get('/admin', 'adminController::index');
 // $routes->get('/admin', 'adminController::index', ['filter' => 'auth']);
 //route admin
@@ -28,6 +28,13 @@ $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store'
 
 $routes->get('admin/dashboard', 'AdminController::dashboard', ['filter' => 'auth']);
 
+
+//route ROLE
+$routes->get('/kaprodi/dashboard', 'KaprodiController::dashboard');
+$routes->get('/perusahaan/dashboard', 'PerusahaanController::dashboard');
+$routes->get('/atasan/dashboard', 'AtasanController::dashboard');
+$routes->get('/jabatan/dashboard', 'JabatanController::dashboard');
+$routes->get('/kaprodi/supervisi', 'KaprodiController::supervisi');
 //route ajax 
 //route organisasi
 $routes->get('/admin/tipeorganisasi', 'TipeOrganisasiController::index');
@@ -67,6 +74,7 @@ $routes->get('admin/kontak', 'Kontak::index');           // Halaman index kontak
 $routes->get('admin/kontak/search', 'Kontak::search');   // AJAX Search
 $routes->post('admin/kontak/store', 'Kontak::store');    // Tambah kontak
 $routes->post('admin/kontak/delete/(:num)', 'Kontak::delete/$1'); // Hapus kontak
+$routes->post('admin/kontak/store-multiple', 'Kontak::storeMultiple'); // Tambah kontak multiple
 
 // Opsional (Landing Page publik, jika dibutuhkan)
 // $routes->get('kontak', 'Kontak::landing');
@@ -124,6 +132,7 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
     $routes->get('edit/(:num)', 'SatuanOrganisasi::edit/$1');
     $routes->post('update/(:num)', 'SatuanOrganisasi::update/$1');
     $routes->post('delete/(:num)', 'SatuanOrganisasi::delete/$1');
+    $routes->get('getProdi/(:num)', 'ProdiController::getProdi/$1');
 
     // Jurusan - Nested
     $routes->group('jurusan', function ($routes) {
@@ -236,11 +245,17 @@ $routes->group('alumni', static function ($routes) {
     $routes->get('logout', 'AlumniController::logout');
 
     // Dashboard & Halaman Utama
+
     $routes->get('/', 'AlumniController::dashboard');
     $routes->get('dashboard', 'AlumniController::dashboard');
 
     /// Halaman Questioner
     $routes->get('questioner', 'AlumniController::questioner');
+
+  
+    // Supervisi
+    $routes->get('supervisi', 'AlumniController::supervisi'); // /
+
 });
 
 

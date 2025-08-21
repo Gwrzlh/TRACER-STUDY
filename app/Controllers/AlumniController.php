@@ -8,10 +8,18 @@ class AlumniController extends BaseController
     {
         return view('alumni/dashboard');
     }
-
+  
     public function questioner()
-    {
+   {
         // arahkan ke folder alumni/questioner/index.php
         return view('alumni/questioner/index');
     }
+
+    public function supervisi()
+    {
+
+        return view('alumni/supervisi');
+    }
+
+   
 }
