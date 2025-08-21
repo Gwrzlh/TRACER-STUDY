@@ -1,72 +1,37 @@
 <?= $this->extend('layout/sidebar_alumni') ?>
+
 <?= $this->section('content') ?>
+<div class="bg-white p-6 rounded-2xl shadow-md">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Selamat Datang di Dasboard</h1>
+    <p class="text-gray-600">Dashboard, <span class="font-semibold"><?= session()->get('username') ?></span>!</p>
 
-<h2 class="mb-4">Selamat Datang, <?= session('username') ?> 🎓</h2>
-
-<div class="alert alert-success">
-    Anda login sebagai <b>Alumni dengan Hak Supervisi</b>.
-    Anda memiliki akses tambahan dibanding alumni biasa.
-</div>
-
-<!-- Statistik singkat -->
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-body text-center">
-                <h5 class="card-title">Jumlah Kuesioner</h5>
-                <p class="display-6">12</p>
-            </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <!-- Card Profil -->
+        <div class="p-4 bg-blue-100 rounded-xl shadow-sm">
+            <h2 class="text-lg font-semibold text-blue-700">Profil</h2>
+            <p class="text-sm text-gray-600">Lihat dan perbarui data pribadi Anda.</p>
+            <a href="<?= base_url('alumni/profil') ?>" class="inline-block mt-3 text-blue-700 font-medium hover:underline">
+                Lihat Profil →
+            </a>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-body text-center">
-                <h5 class="card-title">Supervisi Aktif</h5>
-                <p class="display-6">4</p>
-            </div>
+
+        <!-- Card Kuesioner -->
+        <div class="p-4 bg-green-100 rounded-xl shadow-sm">
+            <h2 class="text-lg font-semibold text-green-700">Kuesioner</h2>
+            <p class="text-sm text-gray-600">Isi kuesioner tracer study untuk mendukung pengembangan alumni.</p>
+            <a href="<?= base_url('alumni/questioner') ?>" class="inline-block mt-3 text-green-700 font-medium hover:underline">
+                Isi Kuesioner →
+            </a>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-body text-center">
-                <h5 class="card-title">Alumni Dibimbing</h5>
-                <p class="display-6">27</p>
-            </div>
+        <div class="p-4 bg-green-100 rounded-xl shadow-sm">
+            <h2 class="text-lg font-semibold text-green-700">Lihat Teman</h2>
+            <p class="text-sm text-gray-600">Anda bisa melihat teman anda</p>
+            <a href="<?= base_url('alumni/lihat_teman') ?>"
+                class="inline-block mt-3 text-green-700 font-medium hover:underline">
+                Lihat Teman
+            </a>
+
         </div>
     </div>
 </div>
-
-<!-- Daftar supervisi -->
-<div class="card shadow-sm border-0">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Daftar Alumni dalam Supervisi</h5>
-    </div>
-    <div class="card-body p-0">
-        <table class="table table-striped mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>No</th>
-                    <th>Nama Alumni</th>
-                    <th>Angkatan</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Budi</td>
-                    <td>2021</td>
-                    <td><span class="badge bg-success">Aktif</span></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Siti</td>
-                    <td>2021</td>
-                    <td><span class="badge bg-warning">Pending</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
 <?= $this->endSection() ?>
