@@ -256,11 +256,11 @@ $routes->group('alumni', static function ($routes) {
     /// Halaman Questioner
     $routes->get('questioner', 'AlumniController::questioner');
 
-  
+
     // Supervisi
     $routes->get('supervisi', 'AlumniController::supervisi'); // /
 
-    $routes->get('lihat-teman', 'AlumniController::lihatTeman'); // /alumni/lihat-teman
+    $routes->get('lihat_teman', 'AlumniController::lihatTeman'); // /alumni/lihat-teman
 
 
 
