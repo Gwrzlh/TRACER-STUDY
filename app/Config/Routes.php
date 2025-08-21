@@ -258,6 +258,7 @@ $routes->group('alumni', static function ($routes) {
 
     // Supervisi
     $routes->get('supervisi', 'AlumniController::supervisi'); // /
+    $routes->get('lihat-teman', 'AlumniController::lihatTeman'); // /alumni/lihat-teman
 });
 
 
