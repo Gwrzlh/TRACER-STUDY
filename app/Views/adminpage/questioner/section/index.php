@@ -1,6 +1,6 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
-
+<link rel="stylesheet" href="/css/questioner/section/index.css">
 <div class="container mt-4">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
@@ -159,26 +159,6 @@
 </div>
 
 <style>
-.section-description {
-    max-width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.card-header.bg-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, #5a67d8 0%, #6c5ce7 100%);
-    transform: translateY(-1px);
-    transition: all 0.2s ease;
 }
 </style>
 

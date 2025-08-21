@@ -1,0 +1,135 @@
+/* ===== STYLE HALAMAN KUESIONER ===== */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f6f8fa;
+    color: #2c3e50;
+}
+
+/* Container */
+.container {
+    background: #fff;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    max-width: 1000px;
+}
+
+/* Judul */
+.container h2 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 10px;
+}
+
+.container p.text-muted {
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #7f8c8d;
+}
+
+/* Button Tambah Halaman */
+.btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9, #1f5e85);
+    transform: translateY(-2px);
+}
+
+/* Alert box */
+.alert {
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+}
+.alert-success {
+    background: #eafaf1;
+    border-left: 5px solid #2ecc71;
+    color: #27ae60;
+}
+.alert-warning {
+    background: #fff8e6;
+    border-left: 5px solid #f39c12;
+    color: #d35400;
+}
+
+/* Tabel */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 14px;
+}
+
+.table thead {
+    background: #3498db;
+    color: #fff;
+}
+.table thead th {
+    padding: 12px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.table tbody tr {
+    background: #fff;
+    border-bottom: 1px solid #ecf0f1;
+    transition: background 0.2s ease;
+}
+.table tbody tr:hover {
+    background: #f4faff;
+}
+.table tbody td {
+    padding: 10px 12px;
+    vertical-align: middle;
+}
+
+/* Tombol Aksi */
+.btn-sm {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-right: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Info (Atur Pertanyaan) */
+.btn-info {
+    background: #1abc9c;
+    border: none;
+    color: #fff;
+}
+.btn-info:hover {
+    background: #16a085;
+}
+
+/* Edit */
+.btn-warning {
+    background: #f39c12;
+    border: none;
+    color: #fff;
+}
+.btn-warning:hover {
+    background: #d35400;
+}
+
+/* Delete */
+.btn-danger {
+    background: #e74c3c;
+    border: none;
+    color: #fff;
+}
+.btn-danger:hover {
+    background: #c0392b;
+}

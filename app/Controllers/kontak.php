@@ -21,10 +21,12 @@ class Kontak extends Controller
     // ==============================
     public function index()
     {
+         $tahun = $this->request->getGet('tahun'); // ambil filter tahun dari URL
         return view('adminpage/kontak/index', [
             'wakilDirektur' => $this->getKontakByKategori('Wakil Direktur'),
             'teamTracer'    => $this->getKontakByKategori('Tim Tracer'),
-            'surveyors'     => $this->getKontakByKategori('Surveyor')
+            'surveyors'     => $this->getKontakByKategori('Surveyor'),
+              'tahun'         => $tahun
         ]);
     }
 
@@ -108,38 +110,46 @@ class Kontak extends Controller
     // ==============================
     // Helper ambil kontak per kategori
     // ==============================
-    private function getKontakByKategori($kategori)
-    {
-        $builder = $this->db->table('kontak k')
-            ->join('account a', 'a.id = k.id_account', 'left');
+    private function getKontakByKategori($kategori, $tahun = null)
+{
+    $builder = $this->db->table('kontak k')
+        ->join('account a', 'a.id = k.id_account', 'left');
 
-        if ($kategori == 'Surveyor') {
-            $builder->select('k.id as kontak_id, da.nama_lengkap, da.nim, da.notlp, da.tahun_kelulusan, a.email, p.nama_prodi, j.nama_jurusan')
-                ->join('detailaccount_alumni da', 'da.id_account = a.id', 'left')
-                ->join('prodi p', 'p.id = da.id_prodi', 'left')
-                ->join('jurusan j', 'j.id = da.id_jurusan', 'left');
-        } elseif ($kategori == 'Tim Tracer') {
-            $builder->select('k.id as kontak_id, da.nama_lengkap, a.email')
-                ->join('detailaccount_admin da', 'da.id_account = a.id', 'left');
-        } elseif ($kategori == 'Wakil Direktur') {
-            $builder->select('k.id as kontak_id, da.nama_lengkap, da.notlp, a.email')
-                ->join('detailaccount_atasan da', 'da.id_account = a.id', 'left');
+    if ($kategori == 'Surveyor') {
+        $builder->select('k.id as kontak_id, da.nama_lengkap, da.nim, da.notlp, a.email, p.nama_prodi, j.nama_jurusan, da.tahun_kelulusan')
+            ->join('detailaccount_alumni da', 'da.id_account = a.id', 'left')
+            ->join('prodi p', 'p.id = da.id_prodi', 'left')
+            ->join('jurusan j', 'j.id = da.id_jurusan', 'left');
+
+        // kalau ada filter tahun
+        if ($tahun) {
+            $builder->where('da.tahun_kelulusan', $tahun);
         }
-
-        return $builder->where('k.kategori', $kategori)
-            ->orderBy('k.id', 'DESC')
-            ->get()->getResultArray();
+    } elseif ($kategori == 'Tim Tracer') {
+        $builder->select('k.id as kontak_id, da.nama_lengkap, a.email')
+            ->join('detailaccount_admin da', 'da.id_account = a.id', 'left');
+    } elseif ($kategori == 'Wakil Direktur') {
+        $builder->select('k.id as kontak_id, da.nama_lengkap, da.notlp, a.email')
+            ->join('detailaccount_atasan da', 'da.id_account = a.id', 'left');
     }
 
+    return $builder->where('k.kategori', $kategori)
+        ->orderBy('k.id', 'DESC')
+        ->get()->getResultArray();
+}
     // ==============================
     // Landing Page (untuk publik)
     // ==============================
     public function landing()
     {
-        return view('landingpage/kontak', [
-            'wakilDirektur' => $this->getKontakByKategori('Wakil Direktur'),
-            'teamTracer'    => $this->getKontakByKategori('Tim Tracer'),
-            'surveyors'     => $this->getKontakByKategori('Surveyor')
-        ]);
+           $tahun = $this->request->getGet('tahun');
+
+    return view('landingpage/kontak', [
+        'wakilDirektur' => $this->getKontakByKategori('Wakil Direktur'),
+        'teamTracer'    => $this->getKontakByKategori('Tim Tracer'),
+        'surveyors'     => $this->getKontakByKategori('Surveyor', $tahun),
+        'tahun'         => $tahun
+    ]);
+
     }
 }

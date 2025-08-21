@@ -1,6 +1,6 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
-
+<link rel="stylesheet" href="<?= base_url('css/questioner/index.css') ?>">
 <h2>Daftar Kuesioner</h2>
 <a href="<?= base_url('admin/questionnaire/create') ?>">+ Buat Kuesioner Baru</a>
 <table border="1" cellpadding="5">

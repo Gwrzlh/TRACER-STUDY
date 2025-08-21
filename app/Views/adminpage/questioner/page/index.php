@@ -1,6 +1,6 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
-
+ <link rel="stylesheet" href="<?= base_url('css/questioner/page/index.css') ?>">
 <div class="container mt-4">
     <h2>Halaman Kuesioner: <?= esc($questionnaire['title']) ?></h2>
     <p class="text-muted"><?= esc($questionnaire['deskripsi']) ?></p>

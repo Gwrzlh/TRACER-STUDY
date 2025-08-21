@@ -1,6 +1,6 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
-
+<link rel="stylesheet" href="/css/questioner/section/index.css">
 <div class="container mt-4">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
@@ -46,7 +46,7 @@
                         <!-- Section Title -->
                         <div class="mb-3">
                             <label for="section_title" class="form-label">
-                                <i class="fas fa-heading me-2"></i>Judul Section
+                                <i class="fas fa-heading me-2"></i><h3>Judul Section</h3>
                                 <span class="text-danger">*</span>
                             </label>
                             <input type="text" 
