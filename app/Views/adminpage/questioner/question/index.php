@@ -1,14 +1,15 @@
+<link rel="stylesheet" href="/css/questioner/question/index.css">
 <div class="container-fluid mt-4">
     <div class="row">
         <!-- Main Content -->
         <div class="col-lg-8">
-            <h4>Kelola Pertanyaan - <?= esc($section['section_title']) ?></h4>
+            <h2>Kelola Pertanyaan - <?= esc($section['section_title']) ?></h2>
             <p class="text-muted"><?= esc($section['section_description'] ?? '') ?></p>
 
             <!-- Form Tambah Pertanyaan -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <span>Tambah Pertanyaan Baru</span>
+                  <h3>Tambah Pertanyaan Baru</h3>
                     <button type="button" class="btn btn-sm btn-outline-light" id="toggleForm">
                         <i class="fas fa-plus"></i> Tambah
                     </button>
@@ -195,7 +196,7 @@
             <!-- Questions List -->
             <div class="card">
                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                    <span>Questions List (<?= count($questions) ?>)</span>
+                    <span><h3>Questions List (<?= count($questions) ?>)</h3></span>
                     <div class="btn-group btn-group-sm">
                         <button type="button" class="btn btn-outline-light" id="expandAll">
                             <i class="fas fa-expand-alt"></i> Expand All
@@ -294,7 +295,7 @@
         <div class="col-lg-4">
             <div class="card sticky-top" style="top: 20px;">
                 <div class="card-header bg-info text-white">
-                    <h6 class="mb-0"><i class="fas fa-question-circle me-2"></i>Question Types</h6>
+                    <h3 class="mb-0"><i class="fas fa-question-circle me-2"></i>Question Types</h3>
                 </div>
                 <div class="card-body p-0">
                     <div class="question-types-grid">

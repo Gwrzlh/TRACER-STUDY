@@ -1,0 +1,217 @@
+/* ======================
+   Styling Halaman Pages
+   ====================== */
+
+/* Card Container */
+.container {
+    max-width: 1400px;
+    margin: auto;
+}
+
+.container h2 {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.container p.text-muted {
+    margin-bottom: 20px;
+    color: #666 !important;
+}
+
+/* Card putih dengan shadow */
+.container > div {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Tombol Tambah Halaman */
+.btn-primary {
+    background: #3498db;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+/* Tabel */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table thead {
+    background: #3498db;
+    color: #fff;
+}
+
+.table thead th {
+    border: none;
+    padding: 12px;
+    font-weight: 600;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    padding: 12px;
+}
+
+/* Tombol Aksi */
+.btn-info {
+    background: #1abc9c;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.btn-warning {
+    background: #f39c12;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+    color: #fff;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+/* Hover efek tombol */
+.btn-info:hover {
+    background: #16a085;
+}
+
+.btn-warning:hover {
+    background: #d68910;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+/* Supaya tombol aksi di tabel sejajar ke samping */
+.table td .btn-group {
+    display: flex;
+    flex-wrap: wrap; /* kalau layar kecil tombol bisa turun */
+    gap: 6px;        /* jarak antar tombol */
+}
+
+.table td .btn-group .btn {
+    flex: 0 0 auto; /* biar tombol tidak melar */
+}
+.table {
+    width: 100%;
+}
+/* Kolom aksi biar sejajar */
+.table td:last-child {
+    text-align: center; /* isi kolom rata tengah */
+    vertical-align: middle; /* sejajar di tengah baris */
+}
+
+/* Supaya grup tombol tetap center */
+.table td .btn-group {
+    justify-content: center;
+}
+
+/* Breadcrumb container */
+.breadcrumb {
+    background: #f8f9fa;        /* abu muda */
+    padding: 10px 15px;
+    border-radius: 8px;         /* sudut melengkung */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* bayangan halus */
+    margin-bottom: 20px;
+}
+
+/* Item breadcrumb */
+.breadcrumb-item a {
+    color: #0d6efd;             /* biru bootstrap */
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: #0a58ca;             /* biru lebih gelap saat hover */
+    text-decoration: underline;
+}
+
+/* Item aktif (halaman sekarang) */
+.breadcrumb-item.active {
+    color: #6c757d;             /* abu-abu */
+    font-weight: 600;
+}
+
+.section-description {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-header.bg-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0d6efd 100%) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0d6efd 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0d6efd 0%, #0d6efd 100%);
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+
+}
+
+
+    .breadcrumb {
+        display: flex;
+        flex-wrap: nowrap; /* biar tidak turun ke bawah */
+        list-style: none;
+        padding: 8px 12px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+
+    .breadcrumb-item {
+        display: inline-flex;
+        align-items: center;
+        font-size: 14px;
+        color: #007bff;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›"; /* tanda pemisah bisa diganti "/" atau ">" */
+        padding: 0 8px;
+        color: #6c757d;
+    }
+
+    .breadcrumb-item a {
+        text-decoration: none;
+        color: #007bff;
+    }
+
+    .breadcrumb-item a:hover {
+        text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+        color: #6c757d;
+        font-weight: 500;
+    }
