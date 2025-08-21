@@ -13,7 +13,7 @@
                         <th>No</th>
                         <th>Nama</th>
                         <th>NIM</th>
-                        <th>Status</th>
+                        <th>Status Kuesioner</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -26,14 +26,17 @@
                                 <td><?= esc($t['nama_lengkap']) ?></td>
                                 <td><?= esc($t['nim']) ?></td>
                                 <td>
-                                    <?php if ($t['status'] === 'Aktif'): ?>
-                                        <span class="badge bg-success">Aktif</span>
+                                    <?php if ($t['status'] === 'Finish'): ?>
+                                        <span class="badge bg-success">Finish</span>
+                                    <?php elseif ($t['status'] === 'Ongoing'): ?>
+                                        <span class="badge bg-warning text-dark">Ongoing</span>
                                     <?php else: ?>
-                                        <span class="badge bg-danger"><?= esc($t['status']) ?></span>
+                                        <span class="badge bg-secondary">Belum Mengisi</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="<?= base_url('alumni/pesan/' . $t['id_account']) ?>" class="btn btn-sm btn-primary">
+                                    <a href="<?= base_url('alumni/pesan/' . $t['id_account']) ?>"
+                                        class="btn btn-sm btn-primary">
                                         Kirim Pesan
                                     </a>
                                 </td>
@@ -41,7 +44,9 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="5" class="text-center">Belum ada teman dengan jurusan & prodi sama.</td>
+                            <td colspan="5" class="text-center">
+                                Belum ada teman dengan jurusan & prodi sama.
+                            </td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

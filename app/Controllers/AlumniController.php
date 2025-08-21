@@ -11,9 +11,9 @@ class AlumniController extends BaseController
     {
         return view('alumni/dashboard');
     }
-  
+
     public function questioner()
-   {
+    {
         // arahkan ke folder alumni/questioner/index.php
         return view('alumni/questioner/index');
     }
@@ -26,7 +26,9 @@ class AlumniController extends BaseController
 
     public function lihatTeman()
     {
-        $alumniModel = new DetailaccountAlumni();
+        $alumniModel  = new \App\Models\DetailaccountAlumni();
+        $jurusanModel = new \App\Models\JurusanModel();
+        $prodiModel   = new \App\Models\Prodi();
 
         // Ambil data alumni yang sedang login
         $currentAlumni = $alumniModel
@@ -37,26 +39,30 @@ class AlumniController extends BaseController
             return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
         }
 
-        // Ambil alumni lain dengan jurusan & prodi sama + join status dari account
+        // Ambil nama jurusan & prodi
+        $jurusanNama = $jurusanModel->find($currentAlumni['id_jurusan'])['nama_jurusan'] ?? '-';
+        $prodiNama   = $prodiModel->find($currentAlumni['id_prodi'])['nama_prodi'] ?? '-';
+
+        // Cari alumni lain dengan jurusan & prodi sama
         $teman = $alumniModel
-            ->select('detailaccount_alumni.*, account.status')
-            ->join('account', 'account.id = detailaccount_alumni.id_account')
             ->where('id_jurusan', $currentAlumni['id_jurusan'])
             ->where('id_prodi', $currentAlumni['id_prodi'])
-            ->where('detailaccount_alumni.id_account !=', session('id'))
+            ->where('id_account !=', session('id'))
             ->findAll();
+
+        // Tambahkan field status dummy (sementara)
+        foreach ($teman as &$t) {
+            $statuses = ['Finish', 'Ongoing', 'Belum Mengisi'];
+            $t['status'] = $statuses[array_rand($statuses)];
+        }
+        unset($t);
 
         $data = [
             'teman'   => $teman,
-            'jurusan' => $currentAlumni['id_jurusan'],
-            'prodi'   => $currentAlumni['id_prodi'],
+            'jurusan' => $jurusanNama,
+            'prodi'   => $prodiNama,
         ];
 
         return view('alumni/lihat_teman', $data);
     }
-
-
-
-
-   
 }
