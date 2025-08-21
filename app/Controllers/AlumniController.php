@@ -2,46 +2,52 @@
 
 namespace App\Controllers;
 
-use App\Models\AlumniModel;
-use CodeIgniter\Controller;
-
-class AlumniController extends Controller
+class AlumniController extends BaseController
 {
-    protected $alumniModel;
-
-    public function __construct()
+    public function dashboard()
     {
-        $this->alumniModel = new AlumniModel();
+        return view('alumni/dashboard');
     }
 
-    // Untuk alumni biasa
-    public function index()
+    public function isi()
     {
+        // Dummy data, nanti diganti dari DB
         $data['alumni'] = [
-            ['nama' => 'Budi', 'prodi' => 'Teknik Informatika', 'tahun_lulus' => 2020, 'status_pekerjaan' => 'Bekerja'],
-            ['nama' => 'Siti', 'prodi' => 'Teknik Mesin', 'tahun_lulus' => 2019, 'status_pekerjaan' => 'Wirausaha'],
+            ['no' => 1, 'nim' => '2021001', 'nama' => 'Budi', 'status' => 'Finish'],
+            ['no' => 2, 'nim' => '2021002', 'nama' => 'Siti', 'status' => 'Belum Mengisi'],
+            ['no' => 3, 'nim' => '2021003', 'nama' => 'Andi', 'status' => 'Ongoing'],
         ];
 
-        return view('alumni/index', $data);
+        return view('alumni/isi', $data);
     }
 
+    public function teman()
+    {
+        // Dummy teman alumni
+        $data['teman'] = [
+            ['nim' => '2021004', 'nama' => 'Rina', 'prodi' => 'Teknik Industri'],
+            ['nim' => '2021005', 'nama' => 'Agus', 'prodi' => 'Teknik Mesin'],
+        ];
 
-    // Untuk surveyor
-  public function surveyor()
-{
-    $data['alumni_surveyor'] = [
-        ['id' => 1, 'nama' => 'Andi', 'prodi' => 'Teknik Elektro', 'tahun_lulus' => 2018, 'status_pekerjaan' => 'Peneliti'],
-        ['id' => 2, 'nama' => 'Rina', 'prodi' => 'Teknik Sipil', 'tahun_lulus' => 2017, 'status_pekerjaan' => 'Dosen'],
-    ];
+        return view('alumni/teman', $data);
+    }
 
-    return view('alumni/indexsurveyor', $data);
-}
+    public function form($nim)
+    {
+        // Untuk contoh, kita cari data berdasarkan NIM dari dummy array
+        $alumni = [
+            '2021001' => ['nama' => 'Budi'],
+            '2021002' => ['nama' => 'Siti'],
+            '2021003' => ['nama' => 'Andi'],
+        ];
 
+        $data = [
+            'nim' => $nim,
+            'nama' => $alumni[$nim]['nama'] ?? 'Tidak Diketahui'
+        ];
 
-     public function dashboard()
-{
-    return view('alumni/dashboard');
-}
+        return view('alumni/form', $data);
+    }
 
 
     
