@@ -16,7 +16,11 @@ $routes->get('/login', 'Auth::login');
 $routes->post('/do-login', 'Auth::doLogin');
 $routes->get('/logout', 'Auth::logout');
 // ini ga kepake
-$routes->get('/dashboard', 'Auth::dashboard');
+
+
+
+$routes->get('/dashboard', 'Auth::dashboard',);
+
 // $routes->get('/admin', 'adminController::index');
 // $routes->get('/admin', 'adminController::index', ['filter' => 'auth']);
 //route admin
@@ -28,6 +32,13 @@ $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store'
 
 $routes->get('admin/dashboard', 'AdminController::dashboard', ['filter' => 'auth']);
 
+
+//route ROLE
+$routes->get('/kaprodi/dashboard', 'KaprodiController::dashboard');
+$routes->get('/perusahaan/dashboard', 'PerusahaanController::dashboard');
+$routes->get('/atasan/dashboard', 'AtasanController::dashboard');
+$routes->get('/jabatan/dashboard', 'JabatanController::dashboard');
+$routes->get('/kaprodi/supervisi', 'KaprodiController::supervisi');
 //route ajax 
 //route organisasi
 $routes->get('/admin/tipeorganisasi', 'TipeOrganisasiController::index');
@@ -230,13 +241,34 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
 });
 
 
-// Route Alumni
-$routes->get('alumni/login', 'AlumniController::login');
-$routes->post('alumni/login', 'AlumniController::doLogin');
-$routes->get('alumni/dashboard', 'AlumniController::dashboard');
-$routes->get('alumni/logout', 'AlumniController::logout');
-$routes->get('alumni', 'AlumniController::index');
-$routes->get('alumnisurveyor', 'AlumniController::surveyor');
+// ROUTES ALUMNI
+$routes->group('alumni', static function ($routes) {
+    // Login & Logout
+    $routes->get('login', 'AlumniController::login');
+    $routes->post('login', 'AlumniController::doLogin');
+    $routes->get('logout', 'AlumniController::logout');
+
+    // Dashboard & Halaman Utama
+
+    $routes->get('/', 'AlumniController::dashboard');
+    $routes->get('dashboard', 'AlumniController::dashboard');
+
+    /// Halaman Questioner
+    $routes->get('questioner', 'AlumniController::questioner');
+
+  
+    // Supervisi
+    $routes->get('supervisi', 'AlumniController::supervisi'); // /
+
+    $routes->get('lihat-teman', 'AlumniController::lihatTeman'); // /alumni/lihat-teman
+
+
+
+});
+
+
+
+
 
 
 
