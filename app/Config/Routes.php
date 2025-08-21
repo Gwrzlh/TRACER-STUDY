@@ -28,6 +28,13 @@ $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store'
 
 $routes->get('admin/dashboard', 'AdminController::dashboard', ['filter' => 'auth']);
 
+
+//route ROLE
+$routes->get('/kaprodi/dashboard', 'KaprodiController::dashboard');
+$routes->get('/perusahaan/dashboard', 'PerusahaanController::dashboard');
+$routes->get('/atasan/dashboard', 'AtasanController::dashboard');
+$routes->get('/jabatan/dashboard', 'JabatanController::dashboard');
+$routes->get('/kaprodi/supervisi', 'KaprodiController::supervisi');
 //route ajax 
 //route organisasi
 $routes->get('/admin/tipeorganisasi', 'TipeOrganisasiController::index');
