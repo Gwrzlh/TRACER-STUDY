@@ -26,7 +26,7 @@ $currentRoute = service('request')->uri->getPath();
         <nav class="mt-4 space-y-2">
 
           <!-- Dashboard (opsional) -->
-          <a href="<?= base_url('alumni/dashboard') ?>" 
+          <a href="<?= base_url('alumni/dashboard') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'alumni/dashboard') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -36,7 +36,7 @@ $currentRoute = service('request')->uri->getPath();
           </a>
 
           <!-- Profil -->
-          <a href="<?= base_url('alumni/profil') ?>" 
+          <a href="<?= base_url('alumni/profil') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'alumni/profil') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A9.969 9.969 0 0112 15c2.21 0 4.247.716 5.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -45,12 +45,20 @@ $currentRoute = service('request')->uri->getPath();
           </a>
 
           <!-- Kuesioner -->
-          <a href="<?= base_url('alumni/questioner') ?>" 
+          <a href="<?= base_url('alumni/questioner') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'alumni/questioner') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M9 8h6"></path>
             </svg>
             <span>Kuesioner</span>
+          </a>
+          <!-- lihat teman -->
+          <a href="<?= base_url('alumni/lihat_teman') ?>"
+            class="sidebar-link <?= str_contains($currentRoute, 'alumni/questioner') ? 'active' : '' ?>">
+            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M9 8h6"></path>
+            </svg>
+            <span>Lihat teman</span>
           </a>
         </nav>
       </div>
@@ -82,4 +90,5 @@ $currentRoute = service('request')->uri->getPath();
     </main>
   </div>
 </body>
+
 </html>
