@@ -25,7 +25,7 @@ $currentRoute = service('request')->uri->getPath();
         <!-- Menu -->
         <nav class="mt-4 space-y-2">
 
-          <!-- Dashboard (opsional) -->
+          <!-- Dashboard -->
           <a href="<?= base_url('alumni/dashboard') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'alumni/dashboard') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -39,7 +39,8 @@ $currentRoute = service('request')->uri->getPath();
           <a href="<?= base_url('alumni/profil') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'alumni/profil') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A9.969 9.969 0 0112 15c2.21 0 4.247.716 5.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M5.121 17.804A9.969 9.969 0 0112 15c2.21 0 4.247.716 5.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
             <span>Profil</span>
           </a>
@@ -53,7 +54,20 @@ $currentRoute = service('request')->uri->getPath();
             <span>Kuesioner</span>
           </a>
 
-
+          <!-- 🔔 Notifikasi -->
+          <a href="<?= base_url('alumni/notifikasi') ?>"
+            class="sidebar-link <?= str_contains($currentRoute, 'alumni/notifikasi') ? 'active' : '' ?> relative">
+            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15 17h5l-1.405-1.405C18.21 14.79 18 13.918 18 13V9c0-3.314-2.686-6-6-6S6 5.686 6 9v4c0 .918-.21 1.79-.595 2.595L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <span>Notifikasi</span>
+            <!-- Badge jumlah notif -->
+            <span id="notifCount"
+              class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5 hidden">
+              0
+            </span>
+          </a>
 
           <!-- Profile + Logout -->
           <div class="mt-6 px-4 space-y-2">
@@ -81,6 +95,23 @@ $currentRoute = service('request')->uri->getPath();
       <?= $this->renderSection('content') ?>
     </main>
   </div>
+
+  <!-- Script AJAX Notif -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    function loadNotifCount() {
+      $.get("<?= base_url('alumni/notifikasi/count') ?>", function(data) {
+        if (data.jumlah > 0) {
+          $("#notifCount").text(data.jumlah).removeClass("hidden");
+        } else {
+          $("#notifCount").addClass("hidden");
+        }
+      }, "json");
+    }
+    // cek setiap 5 detik
+    setInterval(loadNotifCount, 5000);
+    loadNotifCount();
+  </script>
 </body>
 
 </html>
