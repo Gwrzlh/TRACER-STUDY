@@ -13,12 +13,13 @@ class Auth extends Controller
         $request  = service('request');
         $response = service('response');
 
-        // Jika sudah login, langsung ke dashboard sesuai role
-        if ($session->get('logged_in')) {
+        // Jika login via session biasa (tanpa cookie)
+        if ($session->get('logged_in') && $session->get('via_cookie') !== true) {
+            // Cek JS sessionStorage akan logout jika tab baru
             return $this->redirectByRole($session->get('role_id'));
         }
 
-        // Cek cookie remember_token
+        // Auto-login via cookie
         $rememberToken = $request->getCookie('remember_token');
         if ($rememberToken) {
             $decoded   = explode('|', base64_decode($rememberToken));
@@ -28,23 +29,29 @@ class Auth extends Controller
                 $model = new AccountModel();
                 $user  = $model->getByUsernameOrEmail($username);
 
-                if ($user) {
+                if ($user && $user['status'] === 'Aktif') {
                     $session->set([
                         'id'          => $user['id'],
                         'username'    => $user['username'],
                         'email'       => $user['email'],
                         'role_id'     => $user['id_role'],
                         'id_surveyor' => $user['id_surveyor'],
-                        'logged_in'   => true
+                        'logged_in'   => true,
+                        'via_cookie'  => true
                     ]);
-
                     return $this->redirectByRole($user['id_role']);
+                } else {
+                    $response->deleteCookie('remember_token', '/');
                 }
             }
         }
 
-        return view('login'); // tampilkan form login
+        return view('login', [
+            'server_logged_in' => $session->get('logged_in') ? true : false,
+            'via_cookie'       => $session->get('via_cookie') ? true : false
+        ]);
     }
+
 
     public function doLogin()
     {
@@ -57,23 +64,20 @@ class Auth extends Controller
         $password        = $request->getPost('password');
         $remember        = $request->getPost('remember') == '1';
 
-        // Cari user di DB
         $user = $model->getByUsernameOrEmail($usernameOrEmail);
 
         if ($user && password_verify($password, $user['password']) && $user['status'] === 'Aktif') {
-
-            // simpan session
-            $session->set([
+            $sessionData = [
                 'id'          => $user['id'],
                 'username'    => $user['username'],
                 'email'       => $user['email'],
                 'role_id'     => $user['id_role'],
-                'id_surveyor' => $user['id_surveyor'], // ✅ penting untuk alumni supervisi
+                'id_surveyor' => $user['id_surveyor'],
                 'logged_in'   => true
-            ]);
+            ];
 
-            // simpan cookie jika remember me
             if ($remember) {
+                $sessionData['via_cookie'] = true;
                 $response->setCookie([
                     'name'     => 'remember_token',
                     'value'    => base64_encode($user['id_role'] . '|' . $user['username']),
@@ -84,8 +88,11 @@ class Auth extends Controller
                     'samesite' => 'Lax'
                 ]);
             } else {
+                $sessionData['via_cookie'] = false;
                 $response->deleteCookie('remember_token', '/');
             }
+
+            $session->set($sessionData);
 
             return $this->redirectByRole($user['id_role']);
         }
@@ -101,36 +108,25 @@ class Auth extends Controller
         return redirect()->to(site_url('login'));
     }
 
-    /**
-     * Redirect berdasarkan role user
-     */
     private function redirectByRole($roleId)
     {
         switch ($roleId) {
-            case 1: // Alumni
-                if (session('id_surveyor') == 1) {
-                    return redirect()->to('alumni/supervisi'); // Alumni dengan hak supervisi
-                }
-                return redirect()->to('alumni/dashboard');
-
-            case 2: // Admin
+            case 1:
+                return session('id_surveyor') == 1
+                    ? redirect()->to('alumni/supervisi')
+                    : redirect()->to('alumni/dashboard');
+            case 2:
                 return redirect()->to('admin/dashboard');
-
-            case 6: // Kaprodi
-                if (session('id_surveyor') == 1) {
-                    return redirect()->to('kaprodi/supervisi');
-                }
-                return redirect()->to('kaprodi/dashboard');
-
-            case 7: // Perusahaan
+            case 6:
+                return session('id_surveyor') == 1
+                    ? redirect()->to('kaprodi/supervisi')
+                    : redirect()->to('kaprodi/dashboard');
+            case 7:
                 return redirect()->to('perusahaan/dashboard');
-
-            case 8: // Atasan
+            case 8:
                 return redirect()->to('atasan/dashboard');
-
-            case 9: // Jabatan lainnya
+            case 9:
                 return redirect()->to('jabatan/dashboard');
-
             default:
                 return redirect()->to('/login');
         }

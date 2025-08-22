@@ -11,41 +11,48 @@ class AuthFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        helper('cookie'); // ✅ Load helper agar bisa pakai get_cookie()
-
         $session = session();
 
-        // Jika sudah login, lanjutkan
-        if ($session->get('logged_in')) {
+        // Jika login via session biasa (tanpa cookie)
+        if ($session->get('logged_in') && $session->get('via_cookie') !== true) {
+            // Cek tab baru pakai sessionStorage via JS
+            // Kita akan tetap izinkan filter; logout paksa di controller login atau via JS
             return;
         }
 
-        // Ambil cookie "remember_token"
-        $cookie = get_cookie('remember_token'); // ✅ Sekarang aman digunakan
+        helper('cookie');
+        $cookie = get_cookie('remember_token');
 
         if ($cookie) {
-            $username = base64_decode($cookie);
-            $model = new AccountModel();
-            $user = $model->getByUsernameOrEmail($username);
+            $decoded = explode('|', base64_decode($cookie));
+            $username = $decoded[1] ?? null;
 
-            if ($user) {
-                $session->set([
-                    'id'        => $user['id'],
-                    'username'  => $user['username'],
-                    'email'     => $user['email'],
-                    'role_id'   => $user['id_role'],
-                    'logged_in' => true
-                ]);
-                return; // izinkan lanjut ke halaman
+            if ($username) {
+                $model = new AccountModel();
+                $user = $model->getByUsernameOrEmail($username);
+
+                if ($user && $user['status'] === 'Aktif') {
+                    $session->set([
+                        'id'          => $user['id'],
+                        'username'    => $user['username'],
+                        'email'       => $user['email'],
+                        'role_id'     => $user['id_role'],
+                        'id_surveyor' => $user['id_surveyor'] ?? null,
+                        'logged_in'   => true,
+                        'via_cookie'  => true
+                    ]);
+                    return;
+                } else {
+                    service('response')->deleteCookie('remember_token', '/');
+                }
             }
         }
 
-        // Jika tidak login & tidak ada cookie, redirect ke login
         return redirect()->to('/login');
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
-        // Tidak diperlukan
+        // kosong
     }
 }
