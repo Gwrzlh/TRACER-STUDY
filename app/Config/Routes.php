@@ -256,6 +256,10 @@ $routes->group('alumni', static function ($routes) {
     /// Halaman Questioner
     $routes->get('questioner', 'AlumniController::questioner');
 
+    // Halaman Profil
+    $routes->get('profil', 'AlumniController::profil');          // tampil data profil (edit.php)
+    $routes->get('profil/edit', 'AlumniController::editProfil'); // tampil form edit (index.php)
+    $routes->post('profil/update', 'AlumniController::updateProfil'); // simpan hasil edit
 
     // Supervisi
     $routes->get('supervisi', 'AlumniController::supervisi'); // /
