@@ -16,7 +16,7 @@ $routes->get('/login', 'Auth::login');
 $routes->post('/do-login', 'Auth::doLogin');
 $routes->get('/logout', 'Auth::logout');
 // ini ga kepake
-// $routes->get('/dashboard', 'Auth::dashboard', ['filter' => 'auth']);
+$routes->get('/dashboard', 'Auth::dashboard');
 // $routes->get('/admin', 'adminController::index');
 // $routes->get('/admin', 'adminController::index', ['filter' => 'auth']);
 //route admin
@@ -261,3 +261,26 @@ $routes->get('admin/questionnaire/pages/get-question-options', 'QuestionnairePag
 // Di Routes.php tambahkan:
 $routes->get('admin/questionnaire/(:num)/questions/(:num)/options', 'QuestionController::getQuestionOptions/$1/$2');
 $routes->get('admin/questionnaire/(:num)/pages/(:num)/sections/(:num)/questions-with-options', 'QuestionController::getQuestionsWithOptions/$1/$2/$3');
+
+// ===============================
+// Admin - Laporan
+// ===============================
+$routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('laporan', 'AdminLaporan::index');                     // list laporan (max 7)
+    $routes->get('laporan/create', 'AdminLaporan::create');             // form tambah laporan
+    $routes->post('laporan/save', 'AdminLaporan::save');                // simpan banyak laporan
+    $routes->get('laporan/edit/(:num)', 'AdminLaporan::edit/$1');       // form edit laporan
+    $routes->post('laporan/update/(:num)', 'AdminLaporan::update/$1');  // update laporan
+});
+
+// ===============================
+// Landing Page (Public)
+// ===============================
+$routes->get('laporan', 'AdminLaporan::showAll');              // default → tahun terbaru (2024)
+$routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan per tahun
+
+
+
+
+  
+
