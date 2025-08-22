@@ -12,18 +12,16 @@ $currentRoute = service('request')->uri->getPath();
 </head>
 
 <body class="bg-[#cfd8dc] font-sans">
-  <div class="flex">
-    <!-- Sidebar -->
-    <aside class="sidebar-container">
+  <!-- Sidebar (fixed, tidak ikut scroll) -->
+  <aside class="sidebar-container fixed top-0 left-0 h-screen w-64 flex flex-col justify-between">
+    <!-- Bagian Atas -->
+    <div>
       <!-- Logo -->
-      <div>
-        <div class="sidebar-logo">
-          <img src="/images/logo.png" alt="Logo POLBAN" class="logo-img" />
-          Tracer Study
-        </div>
+      <div class="sidebar-logo">
+        <img src="/images/logo.png" alt="Logo POLBAN" class="logo-img" />
+        Tracer Study
+      </div>
 
-        <!-- Menu -->
-        <nav class="mt-4 space-y-2">
 
           <!-- Dashboard -->
           <a href="<?= base_url('alumni/dashboard') ?>"
@@ -36,14 +34,14 @@ $currentRoute = service('request')->uri->getPath();
           </a>
 
           <!-- Profil -->
-          <a href="<?= base_url('alumni/profil') ?>"
-            class="sidebar-link <?= str_contains($currentRoute, 'alumni/profil') ? 'active' : '' ?>">
-            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M5.121 17.804A9.969 9.969 0 0112 15c2.21 0 4.247.716 5.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            </svg>
-            <span>Profil</span>
-          </a>
+         <a href="<?= base_url('alumni/profil') ?>"
+          class="sidebar-link <?= str_contains($currentRoute, 'alumni/profil') ? 'active' : '' ?>">
+          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M5.121 17.804A9.969 9.969 0 0112 15c2.21 0 4.247.716 5.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span>Profil</span>
+        </a>
 
           <!-- Kuesioner -->
           <a href="<?= base_url('alumni/questioner') ?>"
@@ -70,25 +68,25 @@ $currentRoute = service('request')->uri->getPath();
           </a>
 
           <!-- Profile + Logout -->
-          <div class="mt-6 px-4 space-y-2">
-            <div class="flex items-center gap-4">
-              <div class="relative">
-                <img src="/img/idk.jpeg" class="profile-img">
-                <span class="status-indicator"></span>
-              </div>
-              <div>
-                <p class="font-semibold text-gray-800 text-sm"><?= session()->get('username') ?></p>
-                <p class="text-gray-500 text-xs"><?= session()->get('email') ?></p>
-              </div>
-            </div>
+         <div class="px-4 space-y-2 mb-6">
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <img src="/img/idk.jpeg" class="profile-img">
+          <span class="status-indicator"></span>
+        </div>
+        <div>
+          <p class="font-semibold text-gray-800 text-sm"><?= session()->get('username') ?></p>
+          <p class="text-gray-500 text-xs"><?= session()->get('email') ?></p>
+        </div>
+      </div>
 
-            <form action="/logout" method="get">
-              <button type="submit" class="logout-btn">
-                Logout
-              </button>
-            </form>
-          </div>
-    </aside>
+      <form action="/logout" method="get">
+        <button type="submit" class="logout-btn w-full">
+          Logout
+        </button>
+      </form>
+    </div>
+  </aside>
 
     <!-- Main Content -->
     <main class="flex-1 p-8 overflow-auto">
@@ -114,4 +112,3 @@ $currentRoute = service('request')->uri->getPath();
   </script>
 </body>
 
-</html>
