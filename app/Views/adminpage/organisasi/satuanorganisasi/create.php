@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Satuan Organisasi</title>
     <style>
+        /* CSS tetap, tidak diubah */
         * {
             margin: 0;
             padding: 0;
@@ -178,7 +179,6 @@
             font-size: 0.9rem;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -227,7 +227,6 @@
             }
         }
 
-        /* Form validation styles */
         .form-control.is-invalid {
             border-color: #dc3545;
         }
@@ -247,126 +246,87 @@
 
         <div class="form-body">
             <form action="/satuanorganisasi/store" method="post">
+                <?= csrf_field() ?>
+
                 <div class="form-group">
-                    <label for="nama_satuan" class="form-label required">Nama Satuan</label>
-                    <select name="nama_satuan" id="nama_satuan" class="form-control form-select" required>
-                        <option value="" disabled selected>-- Pilih Nama Satuan --</option>
-                        <option value="Fakultas Teknik">Fakultas Teknik</option>
-                        <option value="Fakultas Ekonomi">Fakultas Ekonomi</option>
-                        <option value="Fakultas MIPA">Fakultas MIPA</option>
-                        <option value="Fakultas Sosial">Fakultas Sosial</option>
+                    <label for="id_jurusan" class="form-label required">Jurusan</label>
+                    <select name="id_jurusan" id="id_jurusan" class="form-control form-select" required>
+                        <option value="">-- Pilih Jurusan --</option>
+                        <?php foreach ($jurusan as $j): ?>
+                            <option value="<?= esc($j['id']) ?>"><?= esc($j['nama_jurusan']) ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 
                 <div class="form-group">
+                    <label for="id_prodi" class="form-label required">Prodi</label>
+                    <select name="id_prodi" id="id_prodi" class="form-control form-select" required>
+                        <option value="">-- Pilih Prodi --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="nama_satuan" class="form-label required">Nama Satuan</label>
+                    <input type="text" name="nama_satuan" id="nama_satuan" class="form-control" required>
+                </div>
+
+                <div class="form-group">
                     <label for="nama_singkatan" class="form-label required">Singkatan</label>
-                    <input type="text" name="nama_singkatan" id="nama_singkatan" class="form-control"
-                        placeholder="Masukkan singkatan" required>
+                    <input type="text" name="nama_singkatan" id="nama_singkatan" class="form-control" required>
                 </div>
 
                 <div class="form-group">
                     <label for="nama_slug" class="form-label required">Slug</label>
-                    <input type="text" name="nama_slug" id="nama_slug" class="form-control"
-                        placeholder="Masukkan slug" required>
-                    <div class="form-help">Slug digunakan untuk URL (contoh: fakultas-teknik)</div>
+                    <input type="text" name="nama_slug" id="nama_slug" class="form-control" required>
                 </div>
 
                 <div class="form-group">
                     <label for="deskripsi" class="form-label">Deskripsi</label>
-                    <textarea name="deskripsi" id="deskripsi" class="form-control form-textarea" rows="3"
-                        placeholder="Masukkan deskripsi satuan organisasi"></textarea>
+                    <textarea name="deskripsi" id="deskripsi" class="form-control form-textarea"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="id_tipe" class="form-label required">Tipe Organisasi</label>
                     <select name="id_tipe" id="id_tipe" class="form-control form-select" required>
-                        <option value="" disabled selected>-- Pilih Tipe Organisasi --</option>
+                        <option value="">-- Pilih Tipe Organisasi --</option>
                         <?php foreach ($tipe as $t): ?>
-                            <option value="<?= esc($t['id']) ?>">
-                                <?= esc($t['nama_tipe']) ?>
-                            </option>
+                            <option value="<?= esc($t['id']) ?>"><?= esc($t['nama_tipe']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="urutan" class="form-label">Urutan</label>
-                        <input type="number" name="urutan" id="urutan" class="form-control"
-                            placeholder="Nomor urutan" min="1">
-                        <div class="form-help">Urutan tampilan pada sistem</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="satuan_induk" class="form-label">NIK</label>
-                        <input type="text" name="satuan_induk" id="satuan_induk" class="form-control"
-                            placeholder="Masukkan NIK">
-                    </div>
-                </div>
-
-                <hr class="form-divider">
-
                 <div class="form-actions">
-                    <button type="submit" class="btn" style="background-color: #001BB7; border-color: #001BB7; color: white;">Simpan</button>
-                    <a href="/satuanorganisasi" class="btn" style="background-color: orange; border-color: orange; color: white;">Batal</a>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <a href="/satuanorganisasi" class="btn btn-warning">Batal</a>
                 </div>
             </form>
-        </div>
-    </div>
 
-    <script>
-        // Auto generate slug from nama satuan
-        document.getElementById('nama_satuan').addEventListener('change', function() {
-            const namaSatuan = this.value;
-            const slug = namaSatuan.toLowerCase()
-                .replace(/\s+/g, '-')
-                .replace(/[^a-z0-9\-]/g, '');
-            document.getElementById('nama_slug').value = slug;
-        });
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+                $('#nama_satuan').on('input', function() {
+                    const nama = $(this).val();
+                    const slug = nama.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+                    $('#nama_slug').val(slug);
+                    let singkatan = '';
+                    nama.split(' ').forEach(w => {
+                        if (w.length > 0) singkatan += w[0].toUpperCase();
+                    });
+                    $('#nama_singkatan').val(singkatan);
+                });
 
-        // Auto generate singkatan
-        document.getElementById('nama_satuan').addEventListener('change', function() {
-            const namaSatuan = this.value;
-            const words = namaSatuan.split(' ');
-            let singkatan = '';
-            words.forEach(word => {
-                if (word.length > 0) {
-                    singkatan += word.charAt(0).toUpperCase();
-                }
-            });
-            document.getElementById('nama_singkatan').value = singkatan;
-        });
+                $('#id_jurusan').change(function() {
+                    const jurusanId = $(this).val();
+                    $('#id_prodi').empty().append('<option value="">-- Pilih Prodi --</option>');
+                    if (jurusanId) {
+                        $.getJSON("<?= base_url('satuanorganisasi/getProdi') ?>/" + jurusanId, function(data) {
+                            $.each(data, function(k, v) {
+                                $('#id_prodi').append('<option value="' + v.id + '">' + v.nama_prodi + '</option>');
+                            });
+                        });
+                    }
+                });
+            </script>
 
-        // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const requiredFields = this.querySelectorAll('[required]');
-            let isValid = true;
-
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    isValid = false;
-                    field.classList.add('is-invalid');
-                    field.classList.remove('is-valid');
-                } else {
-                    field.classList.remove('is-invalid');
-                    field.classList.add('is-valid');
-                }
-            });
-
-            if (!isValid) {
-                e.preventDefault();
-                alert('Mohon lengkapi semua field yang wajib diisi!');
-            }
-        });
-
-        // Clear validation on input
-        document.querySelectorAll('.form-control').forEach(field => {
-            field.addEventListener('input', function() {
-                this.classList.remove('is-invalid', 'is-valid');
-            });
-        });
-    </script>
 </body>
 
 </html>

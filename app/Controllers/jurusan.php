@@ -48,7 +48,7 @@ class Jurusan extends Controller
             'nama_jurusan' => $this->request->getPost('nama_jurusan')
         ]);
 
-        return redirect()->to('/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
+        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
     }
 
     public function edit($id)
@@ -65,7 +65,7 @@ class Jurusan extends Controller
             'nama_jurusan' => $this->request->getPost('nama_jurusan')
         ]);
 
-        return redirect()->to('/jurusan')->with('success', 'Data jurusan berhasil diperbarui.');
+        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
     }
 
     public function delete($id)
@@ -73,6 +73,6 @@ class Jurusan extends Controller
         $model = new JurusanModel();
         $model->delete($id);
 
-        return redirect()->to('/jurusan')->with('success', 'Data jurusan berhasil dihapus.');
+        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
     }
 }

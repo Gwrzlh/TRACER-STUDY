@@ -1,0 +1,97 @@
+/* ====== STYLE MODERN DAFTAR KUESIONER ====== */
+
+/* Heading */
+h2 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* Tombol Buat Baru */
+a[href*="questionnaire/create"] {
+    display: inline-block;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff !important;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 16px;
+}
+
+a[href*="questionnaire/create"]:hover {
+    background: linear-gradient(135deg, #2980b9, #1f5e85);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Table Wrapper */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-top: 16px;
+}
+
+/* Table Header */
+table th {
+    background: #3498db;
+    color: #fff;
+    padding: 14px;
+    text-align: left;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+}
+
+/* Table Rows */
+table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #ecf0f1;
+    font-size: 14px;
+    color: #34495e;
+}
+
+/* Hover Effect */
+table tr:hover td {
+    background: #f9fbfd;
+}
+
+/* Aksi Link */
+td a {
+    color: #2980b9;
+    text-decoration: none;
+    margin: 0 4px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+td a:hover {
+    color: #1f5e85;
+    text-decoration: underline;
+}
+
+/* Tombol Hapus */
+.delete-questionnaire {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delete-questionnaire i {
+    margin-right: 4px;
+}
+
+.delete-questionnaire:hover {
+    background: #c0392b;
+    transform: scale(1.05);
+}

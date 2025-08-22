@@ -26,7 +26,7 @@ $currentRoute = service('request')->uri->getPath();
         <nav class="mt-4 space-y-2">
 
           <!-- Dashboard -->
-          <a href="<?= base_url('dashboard') ?>" 
+          <a href="<?= base_url('admin/dashboard') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'dashboard') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -36,7 +36,7 @@ $currentRoute = service('request')->uri->getPath();
           </a>
 
           <!-- Pengguna -->
-          <a href="<?= base_url('admin/pengguna') ?>" 
+          <a href="<?= base_url('admin/pengguna') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'admin/pengguna') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
@@ -45,7 +45,7 @@ $currentRoute = service('request')->uri->getPath();
           </a>
 
           <!-- Kuesioner -->
-          <a href="<?= base_url('admin/questionnaire') ?>" 
+          <a href="<?= base_url('admin/questionnaire') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'admin/questionnaire') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M9 8h6"></path>
@@ -77,7 +77,7 @@ $currentRoute = service('request')->uri->getPath();
           </details>
 
           <!-- Welcome Page -->
-          <a href="<?= base_url('admin/welcome-page') ?>" 
+          <a href="<?= base_url('admin/welcome-page') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'admin/welcome-page') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6"></path>
@@ -86,7 +86,7 @@ $currentRoute = service('request')->uri->getPath();
           </a>
 
           <!-- Kontak -->
-          <a href="<?= base_url('admin/kontak') ?>" 
+          <a href="<?= base_url('admin/kontak') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'kontak') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
@@ -95,7 +95,7 @@ $currentRoute = service('request')->uri->getPath();
           </a>
 
           <!-- Tentang -->
-          <a href="<?= base_url('admin/tentang/edit') ?>" 
+          <a href="<?= base_url('admin/tentang/edit') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'admin/tentang') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
@@ -104,11 +104,11 @@ $currentRoute = service('request')->uri->getPath();
           </a>
 
           <!-- Pengaturan Situs -->
-          <a href="<?= base_url('pengaturan-situs') ?>" 
+          <a href="<?= base_url('pengaturan-situs') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'pengaturan-situs') ? 'active' : '' ?>">
             <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M12 6V4m0 16v-2m8-8h2M4 12H2m15.364 6.364l1.414 1.414M6.222 6.222L4.808 4.808m12.728 0l1.414 1.414M6.222 17.778l-1.414 1.414">
+                d="M12 6V4m0 16v-2m8-8h2M4 12H2m15.364 6.364l1.414 1.414M6.222 6.222L4.808 4.808m12.728 0l1.414 1.414M6.222 17.778l-1.414 1.414">
               </path>
             </svg>
             <span>Pengaturan Situs</span>
@@ -158,4 +158,5 @@ $currentRoute = service('request')->uri->getPath();
     </main>
   </div>
 </body>
+
 </html>
