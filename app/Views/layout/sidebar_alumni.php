@@ -52,36 +52,28 @@ $currentRoute = service('request')->uri->getPath();
             </svg>
             <span>Kuesioner</span>
           </a>
-          <!-- lihat teman -->
-          <a href="<?= base_url('alumni/lihat_teman') ?>"
-            class="sidebar-link <?= str_contains($currentRoute, 'alumni/questioner') ? 'active' : '' ?>">
-            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M9 8h6"></path>
-            </svg>
-            <span>Lihat teman</span>
-          </a>
-        </nav>
-      </div>
 
-      <!-- Profile + Logout -->
-      <div class="mt-6 px-4 space-y-2">
-        <div class="flex items-center gap-4">
-          <div class="relative">
-            <img src="/img/idk.jpeg" class="profile-img">
-            <span class="status-indicator"></span>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-800 text-sm"><?= session()->get('username') ?></p>
-            <p class="text-gray-500 text-xs"><?= session()->get('email') ?></p>
-          </div>
-        </div>
 
-        <form action="/logout" method="get">
-          <button type="submit" class="logout-btn">
-            Logout
-          </button>
-        </form>
-      </div>
+
+          <!-- Profile + Logout -->
+          <div class="mt-6 px-4 space-y-2">
+            <div class="flex items-center gap-4">
+              <div class="relative">
+                <img src="/img/idk.jpeg" class="profile-img">
+                <span class="status-indicator"></span>
+              </div>
+              <div>
+                <p class="font-semibold text-gray-800 text-sm"><?= session()->get('username') ?></p>
+                <p class="text-gray-500 text-xs"><?= session()->get('email') ?></p>
+              </div>
+            </div>
+
+            <form action="/logout" method="get">
+              <button type="submit" class="logout-btn">
+                Logout
+              </button>
+            </form>
+          </div>
     </aside>
 
     <!-- Main Content -->
