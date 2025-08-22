@@ -243,7 +243,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
 });
 
 
-// ROUTES ALUMNI
+/// ROUTES ALUMNI
 $routes->group('alumni', static function ($routes) {
     // Login & Logout
     $routes->get('login', 'AlumniController::login');
@@ -251,20 +251,28 @@ $routes->group('alumni', static function ($routes) {
     $routes->get('logout', 'AlumniController::logout');
 
     // Dashboard & Halaman Utama
-
     $routes->get('/', 'AlumniController::dashboard', ['filter' => 'auth']);
     $routes->get('dashboard', 'AlumniController::dashboard', ['filter' => 'auth']); // /alumni/dashboard
 
-    /// Halaman Questioner
-    $routes->get('questioner', 'AlumniController::questioner', ['filter' => 'auth']); // /alumni/questioner
+    // Halaman Questioner
+    $routes->get('questioner', 'AlumniController::questioner', ['filter' => 'auth']);
+    $routes->get('questionersurveyor', 'AlumniController::questionersurveyor', ['filter' => 'auth']);
 
+    // Supervisi & Lihat Teman
+    $routes->get('supervisi', 'AlumniController::supervisi', ['filter' => 'auth']);
+    $routes->get('lihat_teman', 'AlumniController::lihatTeman');
 
-    // Supervisi
-    $routes->get('supervisi', 'AlumniController::supervisi', ['filter' => 'auth']); // /
-    $routes->get('lihat_teman', 'AlumniController::lihatTeman'); // /alumni/lihat-teman
-    $routes->get('questionersurveyor', 'AlumniController::questionersurveyor', ['filter' => 'auth']); // /alumni/questionersurveyor
-
+    // ===============================
+    // ROUTE NOTIFIKASI PESAN
+    // ===============================
+    $routes->get('notifikasi', 'AlumniController::notifikasi', ['filter' => 'auth']);
+    $routes->get('notifikasi/tandai/(:num)', 'AlumniController::tandaiDibaca/$1', ['filter' => 'auth']);
+    $routes->get('notifikasi/hapus/(:num)', 'AlumniController::hapusNotifikasi/$1', ['filter' => 'auth']);
+    $routes->get('kirimpesan/(:num)', 'AlumniController::kirimPesan/$1', ['filter' => 'auth']);
+    $routes->get('notifikasi/count', 'AlumniController::getNotifCount', ['filter' => 'auth']);
+    $routes->get('pesan/(:num)', 'AlumniController::pesan/$1', ['filter' => 'auth']);
 });
+
 
 
 
