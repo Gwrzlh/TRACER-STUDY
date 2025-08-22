@@ -251,6 +251,10 @@ $routes->group('alumni', static function ($routes) {
     $routes->get('logout', 'AlumniController::logout');
 
     // Dashboard & Halaman Utama
+
+
+
+
     $routes->get('/', 'AlumniController::dashboard', ['filter' => 'auth']);
     $routes->get('dashboard', 'AlumniController::dashboard', ['filter' => 'auth']); // /alumni/dashboard
 
@@ -261,6 +265,10 @@ $routes->group('alumni', static function ($routes) {
     // Supervisi & Lihat Teman
     $routes->get('supervisi', 'AlumniController::supervisi', ['filter' => 'auth']);
     $routes->get('lihat_teman', 'AlumniController::lihatTeman');
+    // Halaman Profil
+    $routes->get('profil', 'AlumniController::profil');          // tampil data profil (edit.php)
+    $routes->get('profil/edit', 'AlumniController::editProfil'); // tampil form edit (index.php)
+    $routes->post('profil/update', 'AlumniController::updateProfil'); // simpan hasil edit
 
     // ===============================
     // ROUTE NOTIFIKASI PESAN
@@ -271,6 +279,7 @@ $routes->group('alumni', static function ($routes) {
     $routes->get('kirimpesan/(:num)', 'AlumniController::kirimPesan/$1', ['filter' => 'auth']);
     $routes->get('notifikasi/count', 'AlumniController::getNotifCount', ['filter' => 'auth']);
     $routes->get('pesan/(:num)', 'AlumniController::pesan/$1', ['filter' => 'auth']);
+
 });
 
 

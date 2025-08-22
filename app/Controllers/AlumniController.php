@@ -25,14 +25,34 @@ class AlumniController extends BaseController
         return view('alumni/questioner/index');
     }
 
+   
+
     public function questionersurveyor()
+
     {
         return view('alumni/alumnisurveyor/questioner/index');
     }
 
+     public function profil()
+    // tampil data profil
+     {
+    return view('alumni/profil/index');
+   
+    }
+
+
+    public function editProfil()
+   {
+    // tampil form edit profil
+    return view('alumni/profil/edit');
+    
+   }
+
+
     public function supervisi()
     {
         return view('alumni/alumnisurveyor/supervisi');
+
     }
 
     public function lihatTeman()
@@ -58,11 +78,14 @@ class AlumniController extends BaseController
             ->where('id_account !=', session('id'))
             ->findAll();
 
+
+
         foreach ($teman as &$t) {
             $statuses = ['Finish', 'Ongoing', 'Belum Mengisi'];
             $t['status'] = $statuses[array_rand($statuses)];
         }
         unset($t);
+
 
         $data = [
             'teman'   => $teman,
