@@ -34,7 +34,7 @@
           <a class="nav-link text-#000080" href="#">Respon TS</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-#000080" href="#">Laporan TS</a>
+          <a class="nav-link text-#000080" href="laporan">Laporan TS</a>
         </li>
       </ul>
     </div>
