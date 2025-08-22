@@ -1,6 +1,6 @@
 <?= $this->extend('layout/sidebar_alumni') ?>
 <?= $this->section('content') ?>
-
+<link rel="stylesheet" href="<?= base_url('css/alumni/lihatteman.css') ?>">
 <div class="container mt-4">
     <h3 class="mb-3">Teman Satu Jurusan & Prodi</h3>
     <p>Jurusan: <b><?= esc($jurusan) ?></b> | Prodi: <b><?= esc($prodi) ?></b></p>
