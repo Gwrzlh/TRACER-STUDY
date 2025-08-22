@@ -17,11 +17,16 @@ class AlumniController extends BaseController
         // arahkan ke folder alumni/questioner/index.php
         return view('alumni/questioner/index');
     }
+    public function questionersurveyor()
+    {
+        // arahkan ke folder alumni/questioner/surveyor.php
+        return view('alumni/alumnisurveyor/questioner/index');
+    }
 
     public function supervisi()
     {
 
-        return view('alumni/supervisi');
+        return view('alumni/alumnisurveyor/supervisi');
     }
 
     public function lihatTeman()
@@ -63,6 +68,6 @@ class AlumniController extends BaseController
             'prodi'   => $prodiNama,
         ];
 
-        return view('alumni/lihat_teman', $data);
+        return view('alumni/alumnisurveyor/lihat_teman', $data);
     }
 }
