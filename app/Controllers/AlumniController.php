@@ -14,13 +14,27 @@ class AlumniController extends BaseController
 
     public function questioner()
     {
-        // arahkan ke folder alumni/questioner/index.php
         return view('alumni/questioner/index');
     }
 
-    public function supervisi()
+    public function profil()
     {
 
+    // tampil data profil
+    return view('alumni/profil/index');
+   
+    }
+
+
+    public function editProfil()
+   {
+    // tampil form edit profil
+    return view('alumni/profil/edit');
+    
+   }
+
+    public function supervisi()
+    {
         return view('alumni/supervisi');
     }
 
@@ -49,13 +63,6 @@ class AlumniController extends BaseController
             ->where('id_prodi', $currentAlumni['id_prodi'])
             ->where('id_account !=', session('id'))
             ->findAll();
-
-        // Tambahkan field status dummy (sementara)
-        foreach ($teman as &$t) {
-            $statuses = ['Finish', 'Ongoing', 'Belum Mengisi'];
-            $t['status'] = $statuses[array_rand($statuses)];
-        }
-        unset($t);
 
         $data = [
             'teman'   => $teman,
