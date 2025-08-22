@@ -1,4 +1,4 @@
-<?= $this->extend('layout/sidebar_alumni') ?>
+<?= $this->extend('layout/sidebar_alumni2') ?>
 
 <?= $this->section('content') ?>
 <div class="bg-white p-6 rounded-2xl shadow-md">
