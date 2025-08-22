@@ -16,18 +16,35 @@ $routes->get('/login', 'Auth::login');
 $routes->post('/do-login', 'Auth::doLogin');
 $routes->get('/logout', 'Auth::logout');
 // ini ga kepake
+
+
+
+
+
+
 $routes->get('/dashboard', 'Auth::dashboard');
+
+
 // $routes->get('/admin', 'adminController::index');
 // $routes->get('/admin', 'adminController::index', ['filter' => 'auth']);
 //route admin
-$routes->get('/', 'Homepage::index');
+// $routes->get('/', 'Homepage::index');
 
 $routes->get('/admin/pengguna', 'penggunaController::index',);
 $routes->get('/admin/pengguna/tambahPengguna', 'penggunaController::create');
 $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store');
 
-$routes->get('admin/dashboard', 'AdminController::dashboard', ['filter' => 'auth']);
+$routes->get('/admin/dashboard', 'AdminController::dashboard', ['filter' => 'auth']);
 
+
+
+
+//route ROLE
+$routes->get('/kaprodi/dashboard', 'KaprodiController::dashboard', ['filter' => 'auth']);
+$routes->get('/perusahaan/dashboard', 'PerusahaanController::dashboard', ['filter' => 'auth']);
+$routes->get('/atasan/dashboard', 'AtasanController::dashboard', ['filter' => 'auth']);
+$routes->get('/jabatan/dashboard', 'JabatanController::dashboard', ['filter' => 'auth']);
+$routes->get('/kaprodi/supervisi', 'KaprodiController::supervisi');
 //route ajax 
 //route organisasi
 $routes->get('/admin/tipeorganisasi', 'TipeOrganisasiController::index');
@@ -67,6 +84,7 @@ $routes->get('admin/kontak', 'Kontak::index');           // Halaman index kontak
 $routes->get('admin/kontak/search', 'Kontak::search');   // AJAX Search
 $routes->post('admin/kontak/store', 'Kontak::store');    // Tambah kontak
 $routes->post('admin/kontak/delete/(:num)', 'Kontak::delete/$1'); // Hapus kontak
+$routes->post('admin/kontak/store-multiple', 'Kontak::storeMultiple'); // Tambah kontak multiple
 
 // Opsional (Landing Page publik, jika dibutuhkan)
 // $routes->get('kontak', 'Kontak::landing');
@@ -124,6 +142,7 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers'], function 
     $routes->get('edit/(:num)', 'SatuanOrganisasi::edit/$1');
     $routes->post('update/(:num)', 'SatuanOrganisasi::update/$1');
     $routes->post('delete/(:num)', 'SatuanOrganisasi::delete/$1');
+    $routes->get('getProdi/(:num)', 'ProdiController::getProdi/$1');
 
     // Jurusan - Nested
     $routes->group('jurusan', function ($routes) {
@@ -228,13 +247,49 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
 });
 
 
-// Route Alumni
-$routes->get('alumni/login', 'AlumniController::login');
-$routes->post('alumni/login', 'AlumniController::doLogin');
-$routes->get('alumni/dashboard', 'AlumniController::dashboard');
-$routes->get('alumni/logout', 'AlumniController::logout');
-$routes->get('alumni', 'AlumniController::index');
-$routes->get('alumnisurveyor', 'AlumniController::surveyor');
+/// ROUTES ALUMNI
+$routes->group('alumni', static function ($routes) {
+    // Login & Logout
+    $routes->get('login', 'AlumniController::login');
+    $routes->post('login', 'AlumniController::doLogin');
+    $routes->get('logout', 'AlumniController::logout');
+
+    // Dashboard & Halaman Utama
+
+
+
+
+    $routes->get('/', 'AlumniController::dashboard', ['filter' => 'auth']);
+    $routes->get('dashboard', 'AlumniController::dashboard', ['filter' => 'auth']); // /alumni/dashboard
+
+    // Halaman Questioner
+    $routes->get('questioner', 'AlumniController::questioner', ['filter' => 'auth']);
+    $routes->get('questionersurveyor', 'AlumniController::questionersurveyor', ['filter' => 'auth']);
+
+    // Supervisi & Lihat Teman
+    $routes->get('supervisi', 'AlumniController::supervisi', ['filter' => 'auth']);
+    $routes->get('lihat_teman', 'AlumniController::lihatTeman');
+    // Halaman Profil
+    $routes->get('profil', 'AlumniController::profil');          // tampil data profil (edit.php)
+    $routes->get('profil/edit', 'AlumniController::editProfil'); // tampil form edit (index.php)
+    $routes->post('profil/update', 'AlumniController::updateProfil'); // simpan hasil edit
+
+    // ===============================
+    // ROUTE NOTIFIKASI PESAN
+    // ===============================
+    $routes->get('notifikasi', 'AlumniController::notifikasi', ['filter' => 'auth']);
+    $routes->get('notifikasi/tandai/(:num)', 'AlumniController::tandaiDibaca/$1', ['filter' => 'auth']);
+    $routes->get('notifikasi/hapus/(:num)', 'AlumniController::hapusNotifikasi/$1', ['filter' => 'auth']);
+    $routes->get('kirimpesan/(:num)', 'AlumniController::kirimPesan/$1', ['filter' => 'auth']);
+    $routes->get('notifikasi/count', 'AlumniController::getNotifCount', ['filter' => 'auth']);
+    $routes->get('pesan/(:num)', 'AlumniController::pesan/$1', ['filter' => 'auth']);
+
+});
+
+
+
+
+
 
 
 
