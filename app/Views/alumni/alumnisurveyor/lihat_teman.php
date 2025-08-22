@@ -1,20 +1,33 @@
-<?= $this->extend('layout/sidebar_alumni') ?>
+<?= $this->extend('layout/sidebar_alumni2') ?>
 <?= $this->section('content') ?>
 
 <div class="container mt-4">
+    <!-- Flash Message -->
+    <?php if (session()->getFlashdata('success')): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?= session()->getFlashdata('success') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php elseif (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <?= session()->getFlashdata('error') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
     <h3 class="mb-3">Teman Satu Jurusan & Prodi</h3>
     <p>Jurusan: <b><?= esc($jurusan) ?></b> | Prodi: <b><?= esc($prodi) ?></b></p>
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <table class="table table-striped table-hover">
+            <table class="table table-striped table-hover align-middle">
                 <thead class="table-primary">
                     <tr>
-                        <th>No</th>
-                        <th>Nama</th>
-                        <th>NIM</th>
-                        <th>Status Kuesioner</th>
-                        <th>Aksi</th>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 25%;">Nama</th>
+                        <th style="width: 15%;">NIM</th>
+                        <th style="width: 20%;">Status Kuesioner</th>
+                        <th style="width: 20%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,16 +48,16 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="<?= base_url('alumni/pesan/' . $t['id_account']) ?>"
+                                    <a href="<?= base_url('alumni/kirimpesan/' . $t['id_account']) ?>"
                                         class="btn btn-sm btn-primary">
-                                        Kirim Pesan
+                                        <i class="bi bi-send"></i> Kirim Pesan
                                     </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="5" class="text-center">
+                            <td colspan="5" class="text-center text-muted">
                                 Belum ada teman dengan jurusan & prodi sama.
                             </td>
                         </tr>
