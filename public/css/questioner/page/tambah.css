@@ -1,0 +1,130 @@
+/* ==== STYLE FORM TAMBAH / EDIT HALAMAN KUESIONER ==== */
+
+body {
+    background: #f6f8fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2c3e50;
+}
+
+/* Container */
+.container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    max-width: 850px;
+}
+
+/* Judul */
+.container h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 20px;
+}
+
+/* Form Label */
+.form-label {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Input & Textarea */
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #dce4ec;
+    padding: 10px 12px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+.form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 6px rgba(52, 152, 219, 0.4);
+}
+
+/* Checkbox Conditional Logic */
+#conditional_logic {
+    margin-right: 6px;
+}
+label[for="conditional_logic"] {
+    font-weight: 600;
+    color: #34495e;
+    cursor: pointer;
+}
+
+/* Conditional Logic Box */
+#conditional-form {
+    background: #f9fbff;
+    border: 1px solid #d0e4f7;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+    animation: fadeIn 0.4s ease-in-out;
+}
+#conditional-form span {
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+/* Kondisi Row */
+.condition-row {
+    background: #fff;
+    border: 1px solid #ecf0f1;
+    border-radius: 8px;
+    padding: 8px;
+    transition: background 0.2s ease;
+}
+.condition-row:hover {
+    background: #f4faff;
+}
+
+/* Tombol Hapus Kondisi */
+.remove-condition-btn {
+    border-radius: 6px;
+    font-size: 12px;
+    padding: 6px 10px;
+}
+
+/* Tombol Tambah Kondisi */
+#add-condition-btn {
+    margin-top: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border: none;
+}
+#add-condition-btn:hover {
+    background: linear-gradient(135deg, #2980b9, #1f5e85);
+    transform: translateY(-2px);
+}
+
+/* Tombol Submit & Cancel */
+.btn-success {
+    background: #27ae60;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.btn-success:hover {
+    background: #219150;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #7f8c8d;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-left: 8px;
+}
+.btn-secondary:hover {
+    background: #636e72;
+}
+
+/* Animasi Fade In */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
