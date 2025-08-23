@@ -1,6 +1,7 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
+
 <div class="p-6">
     <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-semibold text-gray-800">Daftar Kuesioner</h2>
@@ -9,7 +10,6 @@
             + Buat Kuesioner Baru
         </a>
     </div>
-
     <div class="overflow-x-auto bg-white shadow rounded-2xl">
         <table class="w-full text-sm text-left text-gray-700">
             <thead class="bg-gray-100 text-gray-600 text-sm uppercase">
