@@ -8,6 +8,7 @@ use App\Models\SectionModel;
 use App\Models\QuestionnairePageModel;
 use App\Models\QuestionnairModel;   
 use App\Models\QuestionModel;
+use App\Models\QuestionOptionModel;
 
 class SectionController extends BaseController
 {
@@ -151,30 +152,24 @@ class SectionController extends BaseController
 
     public function delete($questionnaire_id, $page_id, $section_id)
     {
-        $db = \Config\Database::connect();
-        $db->transStart();
+        $pageModel = new QuestionnairePageModel();
+        $sectionModel = new SectionModel();
+        $questionModel = new QuestionModel();
+        $optionModel = new QuestionOptionModel();
 
-        try {
-            // Cek apakah ada pertanyaan di section ini
-            $questionModel = new QuestionModel();
-            $questionCount = $questionModel->where('section_id', $section_id)->countAllResults();
+       $questionOp = $questionModel->where('page_id', $section_id)->findAll();
 
-            if ($questionCount > 0) {
-                return redirect()->back()->with('error', 'Tidak dapat menghapus section yang masih memiliki pertanyaan.');
-            }
-
-            // Hapus section
-            $sectionModel = new SectionModel();
-            $sectionModel->delete($section_id);
-
-            $db->transComplete();
-
-            return redirect()->to("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections")
-                           ->with('success', 'Section berhasil dihapus.');
-
-        } catch (\Exception $e) {
-            $db->transRollback();
-            return redirect()->back()->with('error', 'Gagal menghapus section.');
+        foreach ($questionOp as $q) {
+            $optionModel->where('question_id', $q['id'])->delete();
         }
+
+        $questionModel->where('section_id', $section_id)->delete();
+
+        $sectionModel->where('id', $section_id)->delete();
+
+        return redirect()->to("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections")
+                        ->with('success', 'Section berhasil dihapus.');
+
+        
     }
 }
