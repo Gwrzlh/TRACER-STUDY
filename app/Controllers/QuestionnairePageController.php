@@ -7,7 +7,8 @@ use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\QuestionnairePageModel;
 use App\Models\QuestionnairModel;
 use App\Models\QuestionModel; // Tambahkan model pertanyaan
-use App\Models\QuestionOptionModel; // Tambahkan model opsi jawaban
+use App\Models\QuestionOptionModel; 
+use App\Models\SectionModel;
 
 class QuestionnairePageController extends BaseController
 {
@@ -99,7 +100,7 @@ class QuestionnairePageController extends BaseController
         $page = $pageModel->find($page_id);
 
         $questionModel = new QuestionModel();
-        $questions = $questionModel->where('questionnaire_id', $questionnaire_id)->findAll();
+        $questions = $questionModel->where('questionnaires_id', $questionnaire_id)->findAll();
 
         $operators = [
             'is' => 'Is',
@@ -165,7 +166,22 @@ class QuestionnairePageController extends BaseController
 
     public function delete($questionnaire_id, $page_id)
     {
+
+        // $questionnaireModel = new QuestionnairModel();
         $pageModel = new QuestionnairePageModel();
+        $sectionModel = new SectionModel();
+        $questionModel = new QuestionModel();
+        $optionModel = new QuestionOptionModel();
+
+       $questionOp = $questionModel->where('page_id', $page_id)->findAll();
+        foreach ($questionOp as $q) {
+            $optionModel->where('question_id', $q['id'])->delete();
+        }
+
+        $questionModel->where('page_id', $page_id)->delete();
+        
+        $sectionModel->where('page_id', $page_id)->delete();
+
         $pageModel->delete($page_id);
 
         return redirect()->to("/admin/questionnaire/{$questionnaire_id}/pages")
