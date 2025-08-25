@@ -1,6 +1,6 @@
 <?= $this->extend('layout/sidebar_alumni2') ?>
 <?= $this->section('content') ?>
-
+<link rel="stylesheet" href="<?= base_url('css/alumni/lihatteman.css') ?>">
 <div class="container mt-4">
     <!-- Flash Message -->
     <?php if (session()->getFlashdata('success')): ?>
