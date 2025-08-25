@@ -219,11 +219,13 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
         // Questions per section
 
         $routes->get('(:num)/questions', 'QuestionnairController::manageSectionQuestions/$1/$2/$3');
-        $routes->get('(:num)/questions/create', 'QuestionnairController::createSectionQuestion/$1/$2/$3');
-        $routes->post('(:num)/questions/store', 'QuestionnairController::storeInlineQuestion/$1/$2/$3');
-        $routes->get('(:num)/questions/(:num)/edit', 'QuestionnairController::editSectionQuestion/$1/$2/$3/$4');
-        $routes->post('(:num)/questions/(:num)/update', 'QuestionnairController::updateSectionQuestion/$1/$2/$3/$4');
-        $routes->post('(:num)/questions/(:num)/delete', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
+        $routes->get('(:num)/questions/get-options/(:num)', 'QuestionnairController::getQuestionOptions/$4');
+        $routes->get('(:num)/questions/get-conditions/(:num)', 'QuestionnairController::getOption/$4');
+        $routes->post('(:num)/questions/store', 'QuestionnairController::storeSectionQuestion/$1/$2/$3');
+        $routes->get('(:num)/questions/get/(:num)', 'QuestionnairController::getQuestion/$1/$2/$3/$4');
+        $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
+        $routes->post('(:num)/questions/(:num)/update', 'QuestionnairController::updateQuestion/$1/$2/$3/$4');
+        // $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
     });
 
     // === Option Management ===
