@@ -5,10 +5,9 @@
     <h2>Halaman Kuesioner: <?= esc($questionnaire['title']) ?></h2>
     <p class="text-muted"><?= esc($questionnaire['deskripsi']) ?></p>
     
-
     <a href="<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages/create") ?>" 
        class="btn btn-primary mb-3">
-        <i class="fas fa-plus"></i> Tambah Halaman
+        <i class="fa-solid fa-plus"></i> Tambah Halaman
     </a>
 
     <?php if (session()->getFlashdata('success')): ?>
@@ -18,39 +17,41 @@
     <?php if (empty($pages)): ?>
         <div class="alert alert-warning">Belum ada halaman kuesioner.</div>
     <?php else: ?>
-        <table class="table table-bordered table-striped">
-            <thead>
+        <table class="table table-hover align-middle shadow-sm rounded">
+            <thead class="table-light">
                 <tr>
-                    <th>Urutan</th>
+                    <th style="width: 80px;">Urutan</th>
                     <th>Judul Halaman</th>
                     <th>Deskripsi</th>
-                    <th>Aksi</th>
+                    <th style="width: 120px;" class="text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($pages as $page): ?>
                     <tr>
-                        <td><?= esc($page['order_no']) ?></td>
-                        <td><?= esc($page['page_title']) ?></td>
-                        <td><?= esc($page['page_description']) ?></td>
-                        <td>
+                        <td><span class="badge bg-secondary"><?= esc($page['order_no']) ?></span></td>
+                        <td class="fw-semibold"><?= esc($page['page_title']) ?></td>
+                        <td class="text-muted"><?= esc($page['page_description']) ?></td>
+                        <td class="text-center">
+                            <!-- Atur Pertanyaan -->
                             <a href="<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages/{$page['id']}/sections") ?>" 
-                            class="btn btn-sm btn-info">
-                                <i class="fas fa-eye"></i> Atur Pertanyaan
+                               class="text-info me-2" title="Atur Pertanyaan">
+                                <i class="fa-solid fa-eye"></i>
                             </a>
+                            
+                            <!-- Edit -->
                             <a href="<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages/{$page['id']}/edit") ?>" 
-                               class="btn btn-sm btn-warning">
-                                <i class="fas fa-edit"></i> Edit
+                               class="text-warning me-2" title="Edit">
+                                <i class="fa-solid fa-pen-to-square"></i>
                             </a>
 
-                            <form action="<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages/{$page['id']}/delete") ?>" 
-                                  method="post" style="display:inline-block;" 
-                                  onsubmit="return confirm('Yakin ingin menghapus halaman ini?');">
-                                <?= csrf_field() ?>
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    <i class="fas fa-trash"></i> Hapus
-                                </button>
-                            </form>
+                            <!-- Hapus -->
+                            <a href="javascript:void(0)" 
+                               class="text-danger delete-page" 
+                               data-id="<?= $page['id'] ?>" 
+                               title="Hapus">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -58,5 +59,31 @@
         </table>
     <?php endif; ?>
 </div>
+
+<!-- SweetAlert untuk konfirmasi hapus -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".delete-page").forEach(el => {
+        el.addEventListener("click", function() {
+            const pageId = this.dataset.id;
+            Swal.fire({
+                title: 'Yakin ingin menghapus?',
+                text: "Halaman beserta pertanyaan di dalamnya akan terhapus permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages") ?>/${pageId}/delete`;
+                }
+            });
+        });
+    });
+});
+</script>
 
 <?= $this->endSection() ?>
