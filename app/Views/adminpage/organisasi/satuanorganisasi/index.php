@@ -46,7 +46,6 @@
                     <th>Singkatan</th>
                     <th>Slug</th>
                     <th>Tipe Organisasi</th>
-                    <th>Jurusan</th>
                     <th>Prodi</th>
                     <th style="text-align:center;">Aksi</th>
                 </tr>
@@ -60,11 +59,6 @@
                             <td><?= esc($row['nama_slug']) ?></td>
                             <td>
                                 <span class="badge"><?= esc($row['nama_tipe'] ?? '-') ?></span>
-                            </td>
-                            <td>
-                                <span class="badge" style="background-color:#6f42c1; color:white; font-size:0.8rem; padding:2px 6px; border-radius:4px;">
-                                    <?= esc($row['nama_jurusan'] ?? '-') ?>
-                                </span>
                             </td>
                             <td>
                                 <span class="badge" style="background-color:#20c997; color:white; font-size:0.8rem; padding:2px 6px; border-radius:4px;">
