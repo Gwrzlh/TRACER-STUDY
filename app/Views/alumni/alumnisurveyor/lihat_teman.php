@@ -1,6 +1,7 @@
 <?= $this->extend('layout/sidebar_alumni2') ?>
 <?= $this->section('content') ?>
 <link rel="stylesheet" href="<?= base_url('css/alumni/lihatteman.css') ?>">
+
 <div class="container mt-4">
     <!-- Flash Message -->
     <?php if (session()->getFlashdata('success')): ?>
@@ -24,6 +25,7 @@
                 <thead class="table-primary">
                     <tr>
                         <th style="width: 5%;">No</th>
+                        <th style="width: 10%;">Foto</th>
                         <th style="width: 25%;">Nama</th>
                         <th style="width: 15%;">NIM</th>
                         <th style="width: 20%;">Status Kuesioner</th>
@@ -36,6 +38,19 @@
                         foreach ($teman as $t): ?>
                             <tr>
                                 <td><?= $no++ ?></td>
+                                <td>
+                                    <?php if (!empty($t['foto'])): ?>
+                                        <img src="<?= base_url('uploads/foto/' . $t['foto']) ?>"
+                                            alt="Foto <?= esc($t['nama_lengkap']) ?>"
+                                            class="rounded-circle border"
+                                            style="width:45px; height:45px; object-fit:cover;">
+                                    <?php else: ?>
+                                        <img src="<?= base_url('uploads/foto/default.png') ?>"
+                                            alt="Default Foto"
+                                            class="rounded-circle border"
+                                            style="width:45px; height:45px; object-fit:cover;">
+                                    <?php endif; ?>
+                                </td>
                                 <td><?= esc($t['nama_lengkap']) ?></td>
                                 <td><?= esc($t['nim']) ?></td>
                                 <td>
@@ -48,16 +63,21 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="<?= base_url('alumni/kirimpesan/' . $t['id_account']) ?>"
-                                        class="btn btn-sm btn-primary">
-                                        <i class="bi bi-send"></i> Kirim Pesan
-                                    </a>
+                                    <?php if ($t['id_account'] != session()->get('id_account')): ?>
+                                        <!-- ✅ FIX: Tambah "/" sebelum ID -->
+                                        <a href="<?= base_url('alumni/pesan/' . $t['id_account']) ?>"
+                                            class="btn btn-sm btn-primary">
+                                            <i class="bi bi-send"></i> Kirim Pesan
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="text-muted">Ini Anda</span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="5" class="text-center text-muted">
+                            <td colspan="6" class="text-center text-muted">
                                 Belum ada teman dengan jurusan & prodi sama.
                             </td>
                         </tr>

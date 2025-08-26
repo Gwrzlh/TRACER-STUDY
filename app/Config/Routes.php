@@ -37,6 +37,13 @@ $routes->post('/admin/pengguna/tambahPengguna/post', 'penggunaController::store'
 $routes->get('/admin/dashboard', 'AdminController::dashboard', ['filter' => 'auth']);
 
 
+//route email template
+$routes->get('/admin/emailtemplate', 'AdminEmailTemplateController::index');
+$routes->post('/admin/emailtemplate/update/(:num)', 'AdminEmailTemplateController::update/$1');
+
+
+
+
 
 
 //route ROLE
@@ -282,10 +289,13 @@ $routes->group('alumni', static function ($routes) {
     $routes->get('notifikasi', 'AlumniController::notifikasi', ['filter' => 'auth']);
     $routes->get('notifikasi/tandai/(:num)', 'AlumniController::tandaiDibaca/$1', ['filter' => 'auth']);
     $routes->get('notifikasi/hapus/(:num)', 'AlumniController::hapusNotifikasi/$1', ['filter' => 'auth']);
-    $routes->get('kirimpesan/(:num)', 'AlumniController::kirimPesan/$1', ['filter' => 'auth']);
     $routes->get('notifikasi/count', 'AlumniController::getNotifCount', ['filter' => 'auth']);
+    // 📩 form kirim pesan ke user tertentu
     $routes->get('pesan/(:num)', 'AlumniController::pesan/$1', ['filter' => 'auth']);
 
+    // 📤 aksi kirim pesan (submit form)
+    $routes->post('kirimPesanManual', 'AlumniController::kirimPesanManual', ['filter' => 'auth']);
+    $routes->get('viewpesan/(:num)', 'AlumniController::viewPesan/$1', ['filter' => 'auth']);
 });
 
 
@@ -301,10 +311,10 @@ $routes->group('alumni', static function ($routes) {
 
 $routes->get('/pengaturan-situs', 'PengaturanSitus::index'); // halaman pengaturan
 $routes->post('/pengaturan-situs/simpan', 'PengaturanSitus::simpan'); // proses simpan
-$routes->get('alumni/login', 'Alumni::login');
-$routes->post('alumni/login', 'Alumni::doLogin');
-$routes->get('alumni/dashboard', 'Alumni::dashboard');
-$routes->get('alumni/logout', 'Alumni::logout');
+// $routes->get('alumni/login', 'Alumni::login');
+// $routes->post('alumni/login', 'Alumni::doLogin');
+// $routes->get('alumni/dashboard', 'Alumni::dashboard');
+// $routes->get('alumni/logout', 'Alumni::logout');
 
 // Pengaturan Situs
 $routes->get('/pengaturan-situs', 'PengaturanSitus::index');
@@ -322,7 +332,7 @@ $routes->get('admin/questionnaire/(:num)/pages/(:num)/sections/(:num)/questions-
 // ===============================
 // Admin - Laporan
 // ===============================
-$routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
+$routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
     $routes->get('laporan', 'AdminLaporan::index');                     // list laporan (max 7)
     $routes->get('laporan/create', 'AdminLaporan::create');             // form tambah laporan
     $routes->post('laporan/save', 'AdminLaporan::save');                // simpan banyak laporan
@@ -335,9 +345,3 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
 // ===============================
 $routes->get('laporan', 'AdminLaporan::showAll');              // default → tahun terbaru (2024)
 $routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan per tahun
-
-
-
-
-  
-
