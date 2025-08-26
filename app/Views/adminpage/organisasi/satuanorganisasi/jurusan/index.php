@@ -1,7 +1,7 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
-<link rel="stylesheet" href="<?= base_url('css/jurusan.css') ?>">
+<link rel="stylesheet" href="<?= base_url('css/organisasi/jurusan.css') ?>">
 
 <div class="page-container">
 
