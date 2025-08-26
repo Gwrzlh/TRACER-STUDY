@@ -61,7 +61,7 @@ $routes->group('api', function ($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
 
-$routes->get('/tentang', 'Homepage::tentang');
+
 
 
 
@@ -107,9 +107,9 @@ $routes->group('admin/tipeorganisasi', function ($routes) {
 });
 
 // --- Tentang ---
-$routes->get('/tentang', 'Tentang::index');
-$routes->get('/admin/tentang/edit', 'Tentang::edit');
-$routes->post('/admin/tentang/update', 'Tentang::update');
+$routes->get('tentang', 'Tentang::index');
+$routes->get('admin/tentang/edit', 'Tentang::edit');
+$routes->post('admin/tentang/update', 'Tentang::update');
 
 // --- Welcome Page Admin ---
 $routes->get('/admin/welcome-page', 'AdminWelcomePage::index');
