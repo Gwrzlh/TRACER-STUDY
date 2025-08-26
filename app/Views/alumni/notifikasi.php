@@ -23,10 +23,10 @@
                 <div class="p-4 border rounded-lg flex justify-between items-center
           <?= $p['status'] === 'terkirim' ? 'bg-yellow-50' : 'bg-gray-50' ?>">
 
-                    <!-- Pesan -->
+                    <!-- Pesan ringkas -->
                     <div>
-                        <p class="text-gray-800 font-medium">
-                            <?= esc($p['pesan']) ?>
+                        <p class="text-gray-800 font-medium line-clamp-1">
+                            <?= esc($p['subject'] ?? 'Tanpa Subjek') ?> - <?= esc(substr($p['pesan'], 0, 50)) ?>...
                         </p>
                         <p class="text-sm text-gray-500">
                             Dari: Alumni Surveyor #<?= esc($p['id_pengirim']) ?> |
@@ -36,6 +36,12 @@
 
                     <!-- Tombol Aksi -->
                     <div class="flex space-x-2">
+                        <!-- Tombol View -->
+                        <a href="<?= base_url('alumni/viewpesan/' . $p['id_pesan']) ?>"
+                            class="px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700">
+                            Lihat Pesan
+                        </a>
+
                         <?php if ($p['status'] === 'terkirim'): ?>
                             <a href="<?= base_url('alumni/notifikasi/tandai/' . $p['id_pesan']) ?>"
                                 class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
