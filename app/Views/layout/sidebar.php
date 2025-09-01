@@ -112,6 +112,7 @@ $currentRoute = service('request')->uri->getPath();
 
           <!-- Laporan -->
           <a href="<?= base_url('admin/laporan') ?>"
+
             class="sidebar-link <?= str_contains($currentRoute, 'admin/laporan') ? 'active' : '' ?>">
             <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
               <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6.586a2 2 0 0 0 1.414-.586l6.414-6.414A2 2 0 0 0 21 13.586V4a2 2 0 0 0-2-2H6zM8 6h8v2H8V6zm0 4h5v2H8v-2zm0 4h3v2H8v-2z"/>
@@ -128,6 +129,33 @@ $currentRoute = service('request')->uri->getPath();
             </svg>
             <span>Respon</span>
           </a>
+
+            class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
+   hover:bg-gray-200 
+   <?= str_contains($currentRoute, 'admin/laporan') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
+
+            <svg class="w-5 h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6.586a2 2 0 0 0 1.414-.586l6.414-6.414A2 2 0 0 0 21 13.586V4a2 2 0 0 0-2-2H6zM8 6h8v2H8V6zm0 4h5v2H8v-2zm0 4h3v2H8v-2z" />
+              <path d="M18.414 12 13 17.414V20h2.586L21 14.586 18.414 12z" />
+            </svg>
+
+            <span class="font-medium">Laporan</span>
+          </a>
+          <!-- Email Template -->
+          <a href="<?= base_url('admin/emailtemplate') ?>"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
+   hover:bg-gray-200 
+   <?= str_contains($currentRoute, 'admin/emailtemplate') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
+
+            <svg class="w-5 h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2 4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4zm2 0v16h16V4H4zm2 2h12v2H6V6zm0 4h12v2H6v-2zm0 4h8v2H6v-2z" />
+            </svg>
+
+            <span class="font-medium">Email</span>
+          </a>
+
         </nav>
       </div>
 

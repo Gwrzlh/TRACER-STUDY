@@ -1,7 +1,7 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
-<link rel="stylesheet" href="<?= base_url('css/prodi.css') ?>">
+<link rel="stylesheet" href="<?= base_url('css/organisasi/prodi.css') ?>">
 
 <div class="page-container">
 
@@ -66,14 +66,11 @@
                                    class="btn-edit">
                                     Edit
                                 </a>
-                                <form action="<?= base_url('satuanorganisasi/prodi/delete/' . $row['id']) ?>" 
-                                      method="post" 
-                                      style="display:inline;" 
-                                      onsubmit="return confirm('Yakin hapus?')">
+                                 <form action="<?= base_url('satuanorganisasi/prodi/delete/' . $row['id']) ?>" 
+                                    method="post" 
+                                    class="d-inline delete-form">
                                     <?= csrf_field() ?>
-                                    <button type="submit" class="btn-delete">
-                                        Hapus
-                                    </button>
+                                    <button type="button" class="btn-delete" onclick="confirmDelete(this)">Hapus</button>
                                 </form>
                             </td>
                         </tr>
@@ -88,5 +85,46 @@
     </div>
 
 </div>
+<!-- Flashdata -->
+    <?php if(session()->getFlashdata('success')): ?>
+        <div class="alert alert-success mt-3">
+            <?= session()->getFlashdata('success') ?>
+        </div>
+    <?php endif; ?>
+
+</div>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+<?php if(session()->getFlashdata('success')): ?>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: '<?= session()->getFlashdata('success') ?>',
+    confirmButtonColor: '#198754'
+});
+<?php endif; ?>
+
+function confirmDelete(button) {
+    const form = button.closest("form");
+
+    Swal.fire({
+        title: 'Yakin hapus?',
+        text: "Data yang dihapus tidak bisa dikembalikan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    })
+}
+</script>
+
 
 <?= $this->endSection() ?>
