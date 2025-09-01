@@ -31,7 +31,7 @@
           <a class="nav-link text-#000080" href="/kontak">Kontak</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-#000080" href="#">Respon TS</a>
+         <a class="nav-link text-#000080" href="<?= base_url('respon') ?>">Respon TS</a>
         </li>
         <li class="nav-item">
           <a class="nav-link text-#000080" href="laporan">Laporan TS</a>

@@ -293,9 +293,20 @@ $routes->group('alumni', static function ($routes) {
     // 📩 form kirim pesan ke user tertentu
     $routes->get('pesan/(:num)', 'AlumniController::pesan/$1', ['filter' => 'auth']);
 
+
+    //ROUTE UBAH PROFILE
+    $routes->get('alumni/profil', 'AlumniController::profil');
+    $routes->get('alumni/profil/edit', 'AlumniController::edit');
+    $routes->post('alumni/profil/update', 'AlumniController::update');
+    $routes->post('alumni/profil/update', 'AlumniController::updateProfil');
+
+
+
+
     // 📤 aksi kirim pesan (submit form)
     $routes->post('kirimPesanManual', 'AlumniController::kirimPesanManual', ['filter' => 'auth']);
     $routes->get('viewpesan/(:num)', 'AlumniController::viewPesan/$1', ['filter' => 'auth']);
+
 });
 
 
@@ -345,3 +356,20 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
 // ===============================
 $routes->get('laporan', 'AdminLaporan::showAll');              // default → tahun terbaru (2024)
 $routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan per tahun
+
+
+// ===============================
+// Admin - Respon
+// ===============================
+$routes->group('admin/respon', static function ($routes) {
+    $routes->get('/', 'AdminRespon::index'); // Tampilkan daftar respon
+    });
+
+// Route untuk user/landing page
+$routes->get('respon', function () {
+    return view('LandingPage/respon');
+});
+
+
+  
+

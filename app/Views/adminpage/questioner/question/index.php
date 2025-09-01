@@ -227,9 +227,9 @@
                         </button>
                     </div>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body p-3">
                     <?php if (empty($questions)): ?>
-                        <div class="p-4 text-center text-muted">
+                        <div class="empty-state">
                             <i class="fas fa-question-circle fa-3x mb-3"></i>
                             <h5>No Questions Yet</h5>
                             <p>Start by adding your first question using the form above.</p>
@@ -237,45 +237,35 @@
                     <?php else: ?>
                         <div id="questionsList">
                             <?php foreach ($questions as $index => $q): ?>
-                                <div class="question-item border-bottom" data-question-id="<?= $q['id'] ?>">
-                                    <div class="question-header p-3 bg-light cursor-pointer" data-bs-toggle="collapse" data-bs-target="#question-<?= $q['id'] ?>">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="d-flex align-items-center">
-                                                <span class="badge bg-primary me-2"><?= $q['order_no'] ?></span>
-                                                <div>
-                                                    <h6 class="mb-1"><?= esc($q['question_title'] ?? $q['question_text']) ?></h6>
-                                                    <small class="text-muted">
-                                                        <span class="badge bg-info"><?= ucfirst($q['question_type']) ?></span>
-                                                        <?php if ($q['is_required']): ?>
-                                                            <span class="badge bg-warning">Required</span>
-                                                        <?php endif; ?>
-                                                        <?php if (!empty($q['condition_json'])): ?>
-                                                            <span class="badge bg-secondary">Conditional</span>
-                                                        <?php endif; ?>
-                                                    </small>
-                                                </div>
-                                            </div>
-                                            <div class="question-actions">
-                                                <button type="button" class="btn btn-sm btn-outline-primary edit-question" data-question-id="<?= $q['id'] ?>">
-                                                    <i class="fas fa-edit"></i> edit
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger delete-question" data-question-id="<?= $q['id'] ?>">
-                                                    <i class="fas fa-trash"></i> delete
-                                                </button>
+                                <div class="preview-card" data-question-id="<?= $q['id'] ?>">
+                                    <div class="preview-header">
+                                        <div class="preview-title-section">
+                                            <span class="badge bg-primary me-2"><?= $q['order_no'] ?></span>
+                                            <h4 class="preview-title"><?= esc($q['question_title'] ?? $q['question_text']) ?></h4>
+                                        </div>
+                                        <div class="preview-meta">
+                                            <div class="preview-badges">
+                                                <span class="badge bg-info"><?= ucfirst($q['question_type']) ?></span>
+                                                <?php if ($q['is_required']): ?>
+                                                    <span class="badge bg-warning">Required</span>
+                                                <?php endif; ?>
+                                                <?php if (!empty($q['condition_json'])): ?>
+                                                    <span class="badge bg-secondary">Conditional</span>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="collapse" id="question-<?= $q['id'] ?>">
-                                        <div class="question-details p-3">
-                                            <div class="row">
-                                                <div class="col-md-8">
-                                                    <h6>Question Text:</h6>
-                                                    <p class="text-muted"><?= esc($q['question_text']) ?></p>
+                                    <div class="preview-content">
+                                        <div class="row">
+                                            <div class="col-md-7">
+                                                <div class="question-info">
+                                                    <h6 class="section-title">Question Text:</h6>
+                                                    <p class="text-muted mb-3"><?= esc($q['question_text']) ?></p>
                                                     
                                                     <?php if (!empty($q['options'])): ?>
-                                                        <h6>Options:</h6>
-                                                        <ul class="list-unstyled">
+                                                        <h6 class="section-title">Options:</h6>
+                                                        <ul class="options-list">
                                                             <?php foreach ($q['options'] as $opt): ?>
                                                                 <li><i class="fas fa-circle fa-xs me-2"></i><?= esc($opt['option_text']) ?></li>
                                                             <?php endforeach; ?>
@@ -283,21 +273,32 @@
                                                     <?php endif; ?>
                                                     
                                                     <?php if (!empty($q['condition_json'])): ?>
-                                                        <h6>Conditional Logic:</h6>
-                                                        <p class="text-info">
+                                                        <h6 class="section-title">Conditional Logic:</h6>
+                                                        <p class="text-info condition-info">
                                                             <i class="fas fa-arrow-right me-1"></i>
                                                             Show when previous question matches the condition
                                                         </p>
                                                     <?php endif; ?>
                                                 </div>
-                                                <div class="col-md-4">
-                                                    <div class="question-preview border rounded p-2 bg-light">
-                                                        <small class="text-muted d-block mb-2">Preview:</small>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="question-preview">
+                                                    <small class="preview-label">Preview:</small>
+                                                    <div class="preview-demo">
                                                         <?= generateQuestionPreview($q) ?>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                    
+                                    <div class="preview-actions">
+                                        <button type="button" class="btn btn-sm btn-outline-primary edit-question" data-question-id="<?= $q['id'] ?>">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger delete-question" data-question-id="<?= $q['id'] ?>">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -377,6 +378,7 @@
             </div>
         </div>
     </div>
+    
     <!-- Modal Edit Question -->
     <div class="modal fade" id="editQuestionModal" tabindex="-1" aria-labelledby="editQuestionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -529,6 +531,7 @@
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -630,18 +633,18 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Expand/Collapse all questions
-    document.getElementById("expandAll")?.addEventListener("click", function() {
-        document.querySelectorAll(".question-item .collapse").forEach(collapse => {
-            new bootstrap.Collapse(collapse, { show: true });
-        });
-    });
+    // Expand/Collapse all questions - Removed since we're using preview cards now
+    // document.getElementById("expandAll")?.addEventListener("click", function() {
+    //     document.querySelectorAll(".question-item .collapse").forEach(collapse => {
+    //         new bootstrap.Collapse(collapse, { show: true });
+    //     });
+    // });
 
-    document.getElementById("collapseAll")?.addEventListener("click", function() {
-        document.querySelectorAll(".question-item .collapse.show").forEach(collapse => {
-            new bootstrap.Collapse(collapse, { hide: true });
-        });
-    });
+    // document.getElementById("collapseAll")?.addEventListener("click", function() {
+    //     document.querySelectorAll(".question-item .collapse.show").forEach(collapse => {
+    //         new bootstrap.Collapse(collapse, { hide: true });
+    //     });
+    // });
 
     // Question actions
     document.addEventListener("click", function(e) {
@@ -667,7 +670,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(data => {
                     console.log("Response data:", data); // Debug
                     if (data.status === 'success') {
-                        e.target.closest('.question-item').remove();
+                        e.target.closest('.preview-card').remove();
                         showNotification('Question deleted successfully', 'success');
                     } else {
                         showNotification(data.message || 'Failed to delete question', 'error');
@@ -1065,25 +1068,127 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <style>
 .cursor-pointer { cursor: pointer; }
-.question-item:hover .question-header { background-color: #f8f9fa !important; }
+.preview-card:hover { background-color: rgba(74, 144, 226, 0.02) !important; transform: translateY(-2px); }
 .question-types-grid .btn { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
 .sticky-top { z-index: 1020; }
-.question-actions .btn { margin-left: 2px; }
+.preview-actions .btn { margin-left: 2px; }
 
-/* Custom animations */
-.question-item {
+/* Preview Card Specific Styles */
+.preview-card {
     transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
 }
 
-.question-item:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Form styling */
-.card-body {
+.preview-title-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.preview-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a202c;
+    line-height: 1.4;
+}
+
+.preview-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+}
+
+.options-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 1rem;
+}
+
+.options-list li {
+    padding: 0.25rem 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.condition-info {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.preview-label {
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.preview-demo {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(14, 165, 233, 0.2);
+    min-height: 80px;
     position: relative;
 }
 
+.preview-demo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+    border-radius: 0 0 0 8px;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    margin-top: 1.5rem;
+}
+
+/* Question info styles */
+.question-info {
+    padding-right: 1rem;
+}
+
+.question-info h6 {
+    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.question-info h6:first-child {
+    margin-top: 0;
+}
+
+/* Enhanced form styling */
 .form-label.fw-bold {
     color: #495057;
     font-size: 0.9rem;
@@ -1094,10 +1199,44 @@ document.addEventListener("DOMContentLoaded", function() {
     font-size: 0.7rem;
 }
 
-/* Question preview styling */
-.question-preview {
-    background: #f8f9fa !important;
-    min-height: 100px;
+/* Empty state enhancement */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+}
+
+.empty-state i {
+    opacity: 0.6;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .preview-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .preview-badges {
+        justify-content: flex-start;
+        width: 100%;
+    }
+    
+    .preview-actions {
+        flex-direction: column;
+    }
+    
+    .preview-actions .btn {
+        width: 100%;
+        margin-left: 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .question-info {
+        padding-right: 0;
+        margin-bottom: 1.5rem;
+    }
 }
 </style>
 
@@ -1133,8 +1272,7 @@ function generateQuestionPreview($q) {
             $html .= "</tbody></table>";
             return $html;
         
-        // Case lain (scale, file, dll.) sesuai kebutuhan
-       case 'scale':
+        case 'scale':
             $min = $q['scale_min'] ?? 1;
             $max = $q['scale_max'] ?? 5;
             $step = $q['scale_step'] ?? 1;
@@ -1155,24 +1293,20 @@ function generateQuestionPreview($q) {
         
         case 'radio':
         case 'checkbox':
-            // Baris ini sudah benar, karena sudah diperbaiki di respons sebelumnya
             $options = $q['options'] ?? []; 
             $inputType = ($type === 'radio') ? 'radio' : 'checkbox';
             $html = "<div><label class='form-label small'>{$text}</label></div>";
             foreach (array_slice($options, 0, 2) as $i => $option) {
-                // Perhatikan: akses 'option_text' di sini
                 $html .= "<div class='form-check'><input class='form-check-input form-check-input-sm' type='{$inputType}' disabled><label class='form-check-label small'>" . esc($option['option_text']) . "</label></div>";
             }
             if (count($options) > 2) $html .= "<small class='text-muted'>... and " . (count($options) - 2) . " more</small>";
             return $html;
             
         case 'dropdown':
-            // Ganti baris ini dari json_decode
             $options = $q['options'] ?? [];
             $html = "<label class='form-label small'>{$text}</label><select class='form-select form-select-sm' disabled>";
             $html .= "<option>-- Select --</option>";
             foreach (array_slice($options, 0, 3) as $option) {
-                // Perhatikan: akses 'option_text' di sini
                 $html .= "<option>" . esc($option['option_text']) . "</option>";
             }
             $html .= "</select>";
