@@ -29,16 +29,15 @@
     }
 
     .content {
-    width: 100%;
-    max-width: 100%;
-    margin-left: 0;
-    margin-right: auto;
-    background-color: #ffffff;
-    padding: 50px 60px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-}
-
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: auto;
+        background-color: #ffffff;
+        padding: 50px 60px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
 
     h2 {
         font-weight: 700;
@@ -81,7 +80,7 @@
             font-size: 1rem;
         }
     }
-</style>
+    </style>
 
     <!-- Optional: Google Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -94,10 +93,9 @@
 <!-- Konten utama -->
 <main>
    <div class="content">
-    <h2><?= esc($tentang['judul']) ?></h2>
-    <?= $tentang['isi'] ?>
-</div>
-
+        <h2><?= esc($tentang['judul']) ?></h2>
+        <?= $tentang['isi'] ?>
+   </div>
 </main>
 
 <!-- Footer -->

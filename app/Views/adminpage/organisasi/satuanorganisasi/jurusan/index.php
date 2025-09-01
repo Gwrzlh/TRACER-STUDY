@@ -1,7 +1,7 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
-<link rel="stylesheet" href="<?= base_url('css/jurusan.css') ?>">
+<link rel="stylesheet" href="<?= base_url('css/organisasi/jurusan.css') ?>">
 
 <div class="page-container">
 
@@ -11,7 +11,7 @@
     <!-- Tombol Tambah -->
     <div class="btn-tambah-wrapper">
         <a href="<?= base_url('satuanorganisasi/jurusan/create') ?>" class="btn-tambah">
-            + Tambah
+            Tambah
         </a>
     </div>
 
@@ -66,12 +66,12 @@
                                    class="btn-edit">
                                     Edit
                                 </a>
-                                <form action="<?= base_url('satuanorganisasi/jurusan/delete/' . $row['id']) ?>" 
+                                <form id="deleteForm-<?= $row['id'] ?>" 
+                                      action="<?= base_url('satuanorganisasi/jurusan/delete/' . $row['id']) ?>" 
                                       method="post" 
-                                      style="display:inline;" 
-                                      onsubmit="return confirm('Yakin hapus?')">
+                                      style="display:inline;">
                                     <?= csrf_field() ?>
-                                    <button type="submit" class="btn-delete">
+                                    <button type="button" class="btn-delete" onclick="confirmDelete(<?= $row['id'] ?>)">
                                         Hapus
                                     </button>
                                 </form>
@@ -87,6 +87,43 @@
         </table>
     </div>
 
+    <!-- Flashdata -->
+    <?php if(session()->getFlashdata('success')): ?>
+        <div class="alert alert-success mt-3">
+            <?= session()->getFlashdata('success') ?>
+        </div>
+    <?php endif; ?>
+
 </div>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+<?php if(session()->getFlashdata('success')): ?>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: '<?= session()->getFlashdata('success') ?>',
+    confirmButtonColor: '#198754'
+});
+<?php endif; ?>
+
+function confirmDelete(id) {
+    Swal.fire({
+        title: 'Yakin hapus?',
+        text: "Data yang dihapus tidak bisa dikembalikan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('deleteForm-' + id).submit();
+        }
+    });
+}
+</script>
 
 <?= $this->endSection() ?>

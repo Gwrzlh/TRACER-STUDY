@@ -1,158 +1,6 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
-
-<style>
-.table-container {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    padding: 20px;
-}
-
-/* Header */
-.table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.table-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
-}
-
-.btn-add {
-    background: #2563eb;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.btn-add:hover {
-    background: #1d4ed8;
-}
-
-/* Per page dropdown */
-.table-controls {
-    margin-bottom: 15px;
-}
-
-.form-per-page label {
-    margin-right: 5px;
-    font-size: 14px;
-    color: #444;
-}
-
-.form-per-page select {
-    padding: 5px 8px;
-    font-size: 14px;
-}
-
-/* Table */
-.table-wrapper {
-    overflow-x: auto;
-}
-
-.custom-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-.custom-table thead {
-    background: #f8f9fc;
-}
-
-.custom-table th {
-    padding: 12px;
-    font-weight: 600;
-    color: #6c757d;
-    text-align: left;
-    font-size: 12px;
-    border-bottom: 2px solid #e9ecef;
-}
-
-.custom-table td {
-    padding: 12px;
-    border-bottom: 1px solid #f0f0f0;
-    vertical-align: middle;
-}
-
-.custom-table tbody tr:hover {
-    background-color: #f8f9fc;
-}
-
-.customer-name {
-    font-weight: 500;
-}
-
-.description-text {
-    color: #6c757d;
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.level-badge {
-    background: #e3f2fd;
-    color: #1976d2;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-}
-
-/* Buttons */
-.action-buttons {
-    display: flex;
-    gap: 6px;
-}
-
-.btn-edit {
-    background: #001BB7;
-    color: white;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    text-decoration: none;
-}
-
-.btn-edit:hover {
-    background: #000f75;
-}
-
-.btn-delete {
-    background: #dc3545;
-    color: white;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    border: none;
-}
-
-.btn-delete:hover {
-    background: #b02a37;
-}
-
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 40px;
-    color: #6c757d;
-}
-
-/* Pagination */
-.pagination-wrapper {
-    margin-top: 15px;
-}
-</style>
+<link rel="stylesheet" href="<?= base_url('css/organisasi/tipeorganisasi.css') ?>">
 
 <div class="table-container">
 
@@ -202,9 +50,11 @@
                         <td>
                             <div class="action-buttons">
                                 <a href="<?= base_url('/admin/tipeorganisasi/edit/' . $tipe['id']) ?>" class="btn-edit">Edit</a>
-                                <form action="<?= base_url('/admin/tipeorganisasi/delete/' . $tipe['id']) ?>" method="post" class="inline" onsubmit="return confirm('Yakin hapus data ini?')">
+                                <form action="<?= base_url('/admin/tipeorganisasi/delete/' . $tipe['id']) ?>" 
+                                      method="post" 
+                                      class="inline delete-form">
                                     <?= csrf_field() ?>
-                                    <button type="submit" class="btn-delete">Hapus</button>
+                                    <button type="button" class="btn-delete" onclick="confirmDelete(this)">Hapus</button>
                                 </form>
                             </div>
                         </td>
@@ -227,5 +77,43 @@
         <?= $pager->links('default', 'pagination2') ?>
     </div>
 </div>
+
+<!-- Flashdata -->
+<?php if(session()->getFlashdata('success')): ?>
+    <div class="alert alert-success mt-3">
+        <?= session()->getFlashdata('success') ?>
+    </div>
+<?php endif; ?>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+<?php if(session()->getFlashdata('success')): ?>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: '<?= session()->getFlashdata('success') ?>',
+    confirmButtonColor: '#198754'
+});
+<?php endif; ?>
+
+function confirmDelete(button) {
+    const form = button.closest("form");
+
+    Swal.fire({
+        title: 'Yakin hapus?',
+        text: "Data yang dihapus tidak bisa dikembalikan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    })
+}
+</script>
 
 <?= $this->endSection() ?>
