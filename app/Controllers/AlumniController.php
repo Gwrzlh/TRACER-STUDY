@@ -4,14 +4,10 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\DetailaccountAlumni;
-
-use App\Models\PesanModel; // <- tambahin model pesan
-use App\Models\AlumniModel;
-
 use App\Models\PesanModel;
+use App\Models\AlumniModel;
 use App\Models\JurusanModel;
 use App\Models\Prodi;
-
 
 class AlumniController extends BaseController
 {
@@ -42,7 +38,6 @@ class AlumniController extends BaseController
 
     public function profil()
     {
-
         $session = session();
         $alumniModel = new AlumniModel();
 
@@ -66,29 +61,16 @@ class AlumniController extends BaseController
         ]);
     }
 
-
-   public function editProfil()
-{
-    $id = session()->get('id_account');
-    $alumniModel = new AlumniModel();
-    $alumni = $alumniModel->where('id_account', $id)->first();
-
-    return view('alumni/profil/edit', [
-    'alumni' => (object) $alumni   // <-- ubah array jadi object
-]);
-
-}
-
-
-
-        return view('alumni/profil/index');
-    }
-
     public function editProfil()
     {
-        return view('alumni/profil/edit');
-    }
+        $id = session()->get('id_account');
+        $alumniModel = new AlumniModel();
+        $alumni = $alumniModel->where('id_account', $id)->first();
 
+        return view('alumni/profil/edit', [
+            'alumni' => (object) $alumni
+        ]);
+    }
 
     public function supervisi()
     {
@@ -151,7 +133,7 @@ class AlumniController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("User tidak ditemukan");
         }
 
-        return view('alumni/pesanform', [
+        return view('alumni/pesan_form', [
             'penerima' => $penerima
         ]);
     }
@@ -188,7 +170,7 @@ class AlumniController extends BaseController
         $templateModel  = new \App\Models\EmailTemplateModel();
 
         // Data penerima
-        $alumni = $alumniModel->where('id_account', $idPenerima)->first();
+        $alumni   = $alumniModel->where('id_account', $idPenerima)->first();
         $penerima = $db->table('account')->where('id', $idPenerima)->get()->getRowArray();
 
         if ($alumni && $penerima && !empty($penerima['email'])) {
@@ -227,9 +209,6 @@ class AlumniController extends BaseController
 
         return strtr($text, $placeholders);
     }
-
-
-
 
     // Halaman notifikasi
     public function notifikasi()
@@ -298,91 +277,73 @@ class AlumniController extends BaseController
         return redirect()->to('/alumni/notifikasi')->with('error', 'Pesan tidak ditemukan atau bukan milik Anda.');
     }
 
-    public function pesan($idPenerima)
+    // =============================
+    // ✏️ UPDATE PROFIL
+    // =============================
+    public function update()
     {
-        // ambil data penerima
-        $db = db_connect();
-        $penerima = $db->table('account')->where('id', $idPenerima)->get()->getRowArray();
+        $id_account = session()->get('id_account'); 
+        $alumniModel = new AlumniModel();
 
-        if (!$penerima) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("User tidak ditemukan");
+        $alumni = $alumniModel->where('id_account', $id_account)->first();
+        if (!$alumni) {
+            return redirect()->to(base_url('alumni/profil'))
+                ->with('error', 'Data alumni tidak ditemukan');
         }
 
-        return view('alumni/pesan_form', [
-            'penerima' => $penerima
-        ]);
+        $data = [
+            'nama_lengkap' => $this->request->getPost('nama_lengkap'),
+            'alamat'       => $this->request->getPost('alamat'),
+        ];
+
+        $foto = $this->request->getFile('foto');
+        if ($foto && $foto->isValid() && !$foto->hasMoved()) {
+            $newName = $foto->getRandomName();
+            $foto->move('uploads', $newName);
+            $data['foto'] = $newName;
+        }
+
+        $alumniModel->where('id_account', $id_account)->set($data)->update();
+
+        return redirect()->to(base_url('alumni/profil'))->with('success', 'Profil berhasil diupdate');
     }
 
-    public function update()
-{
-    $id_account = session()->get('id_account'); 
-    $alumniModel = new AlumniModel();
+    public function updateProfil()
+    {
+        $session = session();
+        $idAccount = $session->get('id_account');
 
-    $alumni = $alumniModel->where('id_account', $id_account)->first();
-    if (!$alumni) {
-        return redirect()->to(base_url('alumni/profil'))
-            ->with('error', 'Data alumni tidak ditemukan');
+        if (!$idAccount) {
+            return redirect()->to('/login')->with('error', 'Silakan login kembali.');
+        }
+
+        $alumniModel = new \App\Models\AlumniModel();
+
+        // Ambil data dari form
+        $data = [
+            'nama_lengkap' => $this->request->getPost('nama_lengkap'),
+            'alamat'       => $this->request->getPost('alamat'),
+        ];
+
+        // Upload foto jika ada
+        $foto = $this->request->getFile('foto');
+        if ($foto && $foto->isValid() && !$foto->hasMoved()) {
+            $newName = $foto->getRandomName();
+            $foto->move(FCPATH . 'uploads', $newName);
+            $data['foto'] = $newName;
+        }
+
+        // Update data alumni
+        $alumniModel->where('id_account', $idAccount)->set($data)->update();
+
+        // ✅ update session supaya sidebar ikut berubah langsung
+        if (isset($data['nama_lengkap']) && !empty($data['nama_lengkap'])) {
+            $session->set('nama_lengkap', $data['nama_lengkap']);
+        }
+        if (isset($data['foto'])) {
+            $session->set('foto', $data['foto']);
+        }
+
+        return redirect()->to(base_url('alumni/profil'))->with('success', 'Profil berhasil diperbarui.');
     }
-
-    $data = [
-        'nama_lengkap' => $this->request->getPost('nama_lengkap'),
-        'alamat'       => $this->request->getPost('alamat'),
-    ];
-
-    $foto = $this->request->getFile('foto');
-    if ($foto && $foto->isValid() && !$foto->hasMoved()) {
-        $newName = $foto->getRandomName();
-        $foto->move('uploads', $newName);
-        $data['foto'] = $newName;
-    }
-
-    $alumniModel->where('id_account', $id_account)->set($data)->update();
-
-    return redirect()->to(base_url('alumni/profil'))->with('success', 'Profil berhasil diupdate');
-}
-
-public function updateProfil()
-{
-    $session = session();
-    $idAccount = $session->get('id_account');
-
-    if (!$idAccount) {
-        return redirect()->to('/login')->with('error', 'Silakan login kembali.');
-    }
-
-    $alumniModel = new \App\Models\AlumniModel();
-
-    // Ambil data dari form
-    $data = [
-        'nama_lengkap' => $this->request->getPost('nama_lengkap'),
-        'alamat'       => $this->request->getPost('alamat'),
-    ];
-
-    // Upload foto jika ada
-    $foto = $this->request->getFile('foto');
-    if ($foto && $foto->isValid() && !$foto->hasMoved()) {
-        $newName = $foto->getRandomName();
-        $foto->move(FCPATH . 'uploads', $newName);
-        $data['foto'] = $newName;
-    }
-
-    // Update data alumni
-    $alumniModel->where('id_account', $idAccount)->set($data)->update();
-
-    // ✅ update session supaya sidebar ikut berubah langsung
-    if (isset($data['nama_lengkap']) && !empty($data['nama_lengkap'])) {
-        $session->set('nama_lengkap', $data['nama_lengkap']);
-    }
-    if (isset($data['foto'])) {
-        $session->set('foto', $data['foto']);
-    }
-
-    return redirect()->to(base_url('alumni/profil'))->with('success', 'Profil berhasil diperbarui.');
-}
-
-
-
-
-
-
 }
