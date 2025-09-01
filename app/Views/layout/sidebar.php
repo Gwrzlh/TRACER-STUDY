@@ -10,7 +10,6 @@ $currentRoute = service('request')->uri->getPath();
   <link rel="stylesheet" href="<?= base_url('css/sidebar.css') ?>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
 </head>
 
 <body class="bg-[#cfd8dc] font-sans">
@@ -26,7 +25,6 @@ $currentRoute = service('request')->uri->getPath();
 
         <!-- Menu -->
         <nav class="mt-4 space-y-2">
-
           <!-- Dashboard -->
           <a href="<?= base_url('admin/dashboard') ?>"
             class="sidebar-link <?= str_contains($currentRoute, 'dashboard') ? 'active' : '' ?>">
@@ -69,12 +67,8 @@ $currentRoute = service('request')->uri->getPath();
               </svg>
             </summary>
             <div class="ml-8 mt-1 space-y-1">
-              <a href="<?= base_url('satuanorganisasi') ?>" class="submenu <?= $currentRoute == 'organisasi/struktur' ? 'text-blue-600 font-semibold' : '' ?>">
-                Satuan Organisasi
-              </a>
-              <a href="<?= base_url('/admin/tipeorganisasi') ?>" class="submenu <?= $currentRoute == 'organisasi/prodi' ? 'text-blue-600 font-semibold' : '' ?>">
-                Tipe Organisasi
-              </a>
+              <a href="<?= base_url('satuanorganisasi') ?>" class="submenu">Satuan Organisasi</a>
+              <a href="<?= base_url('/admin/tipeorganisasi') ?>" class="submenu">Tipe Organisasi</a>
             </div>
           </details>
 
@@ -116,20 +110,24 @@ $currentRoute = service('request')->uri->getPath();
             <span>Pengaturan Situs</span>
           </a>
 
-       <!-- Laporan -->
-<a href="<?= base_url('admin/laporan') ?>"
-   class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
-   hover:bg-gray-200 
-   <?= str_contains($currentRoute, 'admin/laporan') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
-    
-    <svg class="w-5 h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" 
-         viewBox="0 0 24 24" fill="currentColor">
-        <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6.586a2 2 0 0 0 1.414-.586l6.414-6.414A2 2 0 0 0 21 13.586V4a2 2 0 0 0-2-2H6zM8 6h8v2H8V6zm0 4h5v2H8v-2zm0 4h3v2H8v-2z"/>
-        <path d="M18.414 12 13 17.414V20h2.586L21 14.586 18.414 12z"/>
-    </svg>
+          <!-- Laporan -->
+          <a href="<?= base_url('admin/laporan') ?>"
+            class="sidebar-link <?= str_contains($currentRoute, 'admin/laporan') ? 'active' : '' ?>">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6.586a2 2 0 0 0 1.414-.586l6.414-6.414A2 2 0 0 0 21 13.586V4a2 2 0 0 0-2-2H6zM8 6h8v2H8V6zm0 4h5v2H8v-2zm0 4h3v2H8v-2z"/>
+              <path d="M18.414 12 13 17.414V20h2.586L21 14.586 18.414 12z"/>
+            </svg>
+            <span>Laporan</span>
+          </a>
 
-    <span class="font-medium">Laporan</span>
-</a>
+          <!-- Respon -->
+          <a href="<?= base_url('admin/respon') ?>"
+            class="sidebar-link <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M4 4h16v2H4V4zm0 6h10v2H4v-2zm0 6h16v2H4v-2z"/>
+            </svg>
+            <span>Respon</span>
+          </a>
         </nav>
       </div>
 
@@ -160,5 +158,4 @@ $currentRoute = service('request')->uri->getPath();
     </main>
   </div>
 </body>
-
 </html>
