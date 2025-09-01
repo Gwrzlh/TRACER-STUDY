@@ -1,34 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Jurusan</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .logo {
-            height: 60px;
-        }
-        .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .alert {
-            margin-bottom: 20px;
-        }
-        .alert ul {
-            margin-bottom: 0;
-            padding-left: 20px;
-        }
-    </style>
-</head>
-<body>
+<?= $this->extend('layout/sidebar') ?>
+<?= $this->section('content') ?>
+
+<link rel="stylesheet" href="<?= base_url('css/organisasi/editprodi.css') ?>">
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card">
+            <div class="card shadow">
                 <div class="card-header">
-                    <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2">
+                    <img src="/images/logo.png" alt="Tracer Study" class="logo">
                     <h4 class="mb-0">Edit Jurusan</h4>
                 </div>
                 <div class="card-body">
@@ -53,14 +33,12 @@
                         <div class="mb-3">
                             <label for="nama_jurusan" class="form-label">Nama Jurusan:</label>
                             <input type="text" class="form-control" id="nama_jurusan" name="nama_jurusan"
-                                   value="<?= old('nama_jurusan', isset($jurusan['nama_jurusan']) ? $jurusan['nama_jurusan'] : '') ?>" required>
+                                   value="<?= old('nama_jurusan', $jurusan['nama_jurusan']) ?>" required>
                         </div>
 
                         <div class="mt-4">
-                            <button type="submit" class="btn" style="background-color: #001BB7; color: white;">Update</button>
-                            <a href="<?= base_url('satuanorganisasi/jurusan') ?>">
-                                <button type="button" class="btn" style="background-color: orange; color: white;">Batal</button>
-                            </a>
+                            <button type="submit" class="btn-primary-custom">Update</button>
+                            <a href="<?= base_url('satuanorganisasi/jurusan') ?>" class="btn-warning-custom">Batal</a>
                         </div>
                     </form>
                 </div>
@@ -69,6 +47,4 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?= $this->endSection() ?>
