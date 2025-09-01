@@ -53,52 +53,67 @@ class Auth extends Controller
     }
 
 
-    public function doLogin()
-    {
-        $request  = service('request');
-        $session  = session();
-        $response = service('response');
-        $model    = new AccountModel();
+  public function doLogin()
+{
+    $request  = service('request');
+    $session  = session();
+    $response = service('response');
+    $model    = new AccountModel();
 
-        $usernameOrEmail = $request->getPost('username');
-        $password        = $request->getPost('password');
-        $remember        = $request->getPost('remember') == '1';
+    $usernameOrEmail = $request->getPost('username');
+    $password        = $request->getPost('password');
+    $remember        = $request->getPost('remember') == '1';
 
-        $user = $model->getByUsernameOrEmail($usernameOrEmail);
+    $user = $model->getByUsernameOrEmail($usernameOrEmail);
 
-        if ($user && password_verify($password, $user['password']) && $user['status'] === 'Aktif') {
-            $sessionData = [
-                'id'          => $user['id'],
-                'username'    => $user['username'],
-                'email'       => $user['email'],
-                'role_id'     => $user['id_role'],
-                'id_surveyor' => $user['id_surveyor'],
-                'logged_in'   => true
-            ];
+    if ($user && password_verify($password, $user['password']) && $user['status'] === 'Aktif') {
+        // ✅ ambil data alumni berdasarkan id_account
+        $db = db_connect();
+        $detail = $db->table('detailaccount_alumni')
+                     ->where('id_account', $user['id'])
+                     ->get()
+                     ->getRowArray();
 
-            if ($remember) {
-                $sessionData['via_cookie'] = true;
-                $response->setCookie([
-                    'name'     => 'remember_token',
-                    'value'    => base64_encode($user['id_role'] . '|' . $user['username']),
-                    'expire'   => 60 * 60 * 24 * 7, // 7 hari
-                    'path'     => '/',
-                    'httponly' => true,
-                    'secure'   => false,
-                    'samesite' => 'Lax'
-                ]);
-            } else {
-                $sessionData['via_cookie'] = false;
-                $response->deleteCookie('remember_token', '/');
-            }
+        $sessionData = [
+            'id'          => $user['id'],          // id dari tabel account
+            'id_account'  => $user['id'],          // untuk relasi ke detailaccount_alumni
+            'username'    => $user['username'],
+            'email'       => $user['email'],
+            'role_id'     => $user['id_role'],
+            'id_surveyor' => $user['id_surveyor'],
+            'logged_in'   => true
+        ];
 
-            $session->set($sessionData);
-
-            return $this->redirectByRole($user['id_role']);
+        // ✅ jika ada detail alumni, simpan juga nama lengkap & foto
+        if ($detail) {
+            $sessionData['nama_lengkap'] = $detail['nama_lengkap'];
+            $sessionData['foto'] = $detail['foto'] ?? null; // tambahkan foto ke session
         }
 
-        return redirect()->back()->with('error', 'Username atau password salah atau akun tidak aktif.');
+        if ($remember) {
+            $sessionData['via_cookie'] = true;
+            $response->setCookie([
+                'name'     => 'remember_token',
+                'value'    => base64_encode($user['id_role'] . '|' . $user['username']),
+                'expire'   => 60 * 60 * 24 * 7, // 7 hari
+                'path'     => '/',
+                'httponly' => true,
+                'secure'   => false,
+                'samesite' => 'Lax'
+            ]);
+        } else {
+            $sessionData['via_cookie'] = false;
+            $response->deleteCookie('remember_token', '/');
+        }
+
+        $session->set($sessionData);
+
+        return $this->redirectByRole($user['id_role']);
     }
+
+    return redirect()->back()->with('error', 'Username atau password salah atau akun tidak aktif.');
+}
+
 
     public function logout()
     {

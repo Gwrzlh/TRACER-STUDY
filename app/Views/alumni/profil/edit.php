@@ -1,39 +1,41 @@
 <?= $this->extend('layout/sidebar_alumni') ?>
 <?= $this->section('content') ?>
 
-<!-- Profil Alumni -->
+<!-- Edit Profil Alumni -->
+<form action="<?= base_url('alumni/profil/update') ?>" method="post" enctype="multipart/form-data">
 <div class="bg-white rounded-xl shadow-md p-6 max-w-6xl mx-auto">
 
   <!-- Logo di kiri atas -->
   <div class="flex items-center mb-4">
     <img src="/images/logo.png" alt="Tracer Study" class="h-10 mr-3">
-    <h2 class="text-xl font-bold">Data Diri</h2>
+    <h2 class="text-xl font-bold">Edit Data Diri</h2>
   </div>
 
   <div class="grid grid-cols-2 gap-8">
     <!-- Kolom Kiri -->
     <div class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700">Nama</label>
-        <input type="text" value="Nama Alumni" class="w-full border rounded-lg px-3 py-2" readonly>
+        <label class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+        <input type="text" name="nama_lengkap" value="<?= $alumni->nama_lengkap ?>" 
+               class="w-full border rounded-lg px-3 py-2" required>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700">
           NIM <span class="text-xs text-gray-500">(tidak bisa diubah)</span>
         </label>
-        <input type="text" value="123456789" class="w-full border rounded-lg px-3 py-2 bg-gray-100" readonly>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">NIK</label>
-        <input type="text" value="-" class="w-full border rounded-lg px-3 py-2">
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">NPWP</label>
-        <input type="text" value="-" class="w-full border rounded-lg px-3 py-2">
+        <input type="text" name="nim" value="<?= $alumni->nim ?>" 
+               class="w-full border rounded-lg px-3 py-2 bg-gray-100" readonly>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700">Alamat</label>
-        <textarea class="w-full border rounded-lg px-3 py-2" rows="3">Alamat tinggal...</textarea>
+        <textarea name="alamat" class="w-full border rounded-lg px-3 py-2" rows="3"><?= $alumni->alamat ?></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Foto Profil</label>
+        <input type="file" name="foto" class="w-full">
+        <?php if ($alumni->foto): ?>
+          <img src="<?= base_url('uploads/' . $alumni->foto) ?>" alt="Foto Profil" class="mt-2 w-24 h-24 rounded-full">
+        <?php endif; ?>
       </div>
     </div>
 
@@ -41,11 +43,13 @@
     <div class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700">Jurusan</label>
-        <input type="text" value="Teknik" class="w-full border rounded-lg px-3 py-2" readonly>
+        <input type="text" value="<?= $alumni->nama_jurusan ?? 'Belum diisi' ?>" 
+               class="w-full border rounded-lg px-3 py-2" readonly>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700">Program Studi</label>
-        <input type="text" value="Teknik Informatika" class="w-full border rounded-lg px-3 py-2" readonly>
+        <input type="text" value="<?= $alumni->nama_prodi ?? 'Belum diisi' ?>" 
+               class="w-full border rounded-lg px-3 py-2" readonly>
       </div>
     </div>
   </div>
@@ -65,23 +69,23 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Contoh data -->
+        <!-- TODO: Looping data riwayat pekerjaan dari database -->
         <tr class="text-center">
           <td class="px-4 py-2 border">2020</td>
           <td class="px-4 py-2 border">2022</td>
-          <td class="px-4 py-2 border">PT Contoh Sejahtera</td>
+          <td class="px-4 py-2 border">PT Sejahtera</td>
           <td class="px-4 py-2 border">Jakarta</td>
           <td class="px-4 py-2 border">021-123456</td>
           <td class="px-4 py-2 border">Staff IT</td>
         </tr>
         <tr class="text-center">
-          <td class="px-4 py-2 border">2023</td>
-          <td class="px-4 py-2 border">Sekarang</td>
-          <td class="px-4 py-2 border">PT Teknologi Maju</td>
-          <td class="px-4 py-2 border">Bandung</td>
-          <td class="px-4 py-2 border">022-654321</td>
-          <td class="px-4 py-2 border">Programmer</td>
-        </tr>
+        <td class="px-4 py-2 border">2023</td>
+        <td class="px-4 py-2 border">Sekarang</td>
+        <td class="px-4 py-2 border">PT Teknologi Maju</td>
+        <td class="px-4 py-2 border">Bandung</td>
+        <td class="px-4 py-2 border">022-654321</td>
+        <td class="px-4 py-2 border">Programmer</td>
+      </tr>
       </tbody>
     </table>
   </div>
@@ -95,14 +99,16 @@
 
   <!-- Tombol Simpan / Batal -->
   <div class="mt-8 flex justify-end gap-4">
-    <a href="/alumni/profil" class="px-5 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+    <a href="<?= base_url('alumni/profil') ?>" 
+       class="px-5 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
       Batal
     </a>
     <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-      Simpan
+      Simpan Perubahan
     </button>
   </div>
 
 </div>
+</form>
 
 <?= $this->endSection() ?>
