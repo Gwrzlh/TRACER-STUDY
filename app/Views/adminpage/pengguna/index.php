@@ -138,8 +138,11 @@
                             <a href="<?= base_url('/admin/pengguna/editPengguna/'. $acc['id'] ) ?>" class="btn-edit">
                                 Edit
                             </a>
-                            <form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display:inline;" onsubmit="return confirm('Yakin hapus?')">
-                                <?= csrf_field() ?>
+                            <form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" 
+                                     method="post" 
+                                     style="display:inline;" 
+                                     class="form-delete">
+                                     <?= csrf_field() ?>
                                 <button type="submit" class="btn-delete">Delete</button>
                             </form>
                         </td>
@@ -163,12 +166,38 @@
         <?php else: ?>
             <p style="font-size:14px; color:#999;">Variable accounts tidak ditemukan.</p>
         <?php endif; ?>
+
     </div>
 <?php endif; ?>
+
+
 </div>
 
 <!-- Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+<script>
+document.querySelectorAll('.form-delete').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // stop submit dulu
+        Swal.fire({
+            title: 'Yakin hapus?',
+            text: "Data yang dihapus tidak bisa dikembalikan!",
+            icon: 'error', // merah
+            showCancelButton: true,
+            confirmButtonColor: '#d33', // merah untuk tombol hapus
+            cancelButtonColor: '#6c757d', // abu-abu untuk batal
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit(); // kalau yakin, submit form
+            }
+        })
+    });
+});
+</script>
 <?= $this->endSection(); ?>

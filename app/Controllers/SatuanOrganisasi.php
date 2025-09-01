@@ -84,26 +84,38 @@ class SatuanOrganisasi extends Controller
         return redirect()->to('/satuanorganisasi')->with('success', 'Data berhasil ditambahkan.');
     }
 
-    public function edit($id)
-    {
-        $model = new SatuanOrganisasiModel();
-        $data['satuan'] = $model->find($id);
-        $data['jurusan'] = (new JurusanModel())->findAll();
-        $data['tipe'] = (new TipeOrganisasiModel())->findAll();
-        return view('adminpage/organisasi/satuanorganisasi/edit', $data);
-    }
+   public function edit($id)
+{
+    $model = new SatuanOrganisasiModel();
+    $data['satuan'] = $model->find($id);
+    $data['jurusan'] = (new JurusanModel())->findAll();
+    $data['tipe'] = (new TipeOrganisasiModel())->findAll();
+    return view('adminpage/organisasi/satuanorganisasi/edit', $data);
+}
 
-    public function update($id)
-    {
-        (new SatuanOrganisasiModel())->update($id, $this->request->getPost());
-        return redirect()->to('/satuanorganisasi')->with('success', 'Data berhasil diubah.');
+public function update($id) 
+{
+    $model = new SatuanOrganisasiModel();
+    if ($model->update($id, $this->request->getPost())) {
+        return redirect()->to('/satuanorganisasi')
+                         ->with('success', 'Data berhasil diubah.');
+    } else {
+        return redirect()->to('/satuanorganisasi')
+                         ->with('error', 'Gagal mengubah data.');
     }
+}
 
-    public function delete($id)
-    {
-        (new SatuanOrganisasiModel())->delete($id);
-        return redirect()->to('/satuanorganisasi')->with('success', 'Data berhasil dihapus.');
+public function delete($id)
+{
+    $model = new SatuanOrganisasiModel();
+    if ($model->delete($id)) {
+        return redirect()->to('/satuanorganisasi')
+                         ->with('delete', 'Data berhasil dihapus.');
+    } else {
+        return redirect()->to('/satuanorganisasi')
+                         ->with('error', 'Gagal menghapus data.');
     }
+}
 
     // AJAX get Prodi by Jurusan
     public function getProdi($id_jurusan)

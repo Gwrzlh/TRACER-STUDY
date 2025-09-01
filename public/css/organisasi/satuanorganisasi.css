@@ -486,3 +486,17 @@ tbody tr:hover .btn-delete {
 .table-container::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
 }
+
+/* Supaya tombol Edit & Hapus sejajar */
+td[style*="text-align:center;"] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;   /* jarak antar tombol */
+}
+
+/* Pastikan form tidak bikin baris baru */
+td[style*="text-align:center;"] form {
+    display: inline-block;
+    margin: 0;
+}
