@@ -320,8 +320,8 @@ $routes->group('alumni', static function ($routes) {
 
 
 
-$routes->get('/pengaturan-situs', 'PengaturanSitus::index'); // halaman pengaturan
-$routes->post('/pengaturan-situs/simpan', 'PengaturanSitus::simpan'); // proses simpan
+$routes->get('pengaturan-situs', 'PengaturanSitus::index');
+$routes->post('pengaturan-situs/save', 'PengaturanSitus::save');
 // $routes->get('alumni/login', 'Alumni::login');
 // $routes->post('alumni/login', 'Alumni::doLogin');
 // $routes->get('alumni/dashboard', 'Alumni::dashboard');
