@@ -370,6 +370,20 @@ $routes->get('respon', function () {
     return view('LandingPage/respon');
 });
 
+// =======================
+// ROUTES KAPRODI
+// =======================
+$routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
+    $routes->get('dashboard', 'KaprodiController::dashboard');
+    $routes->get('supervisi', 'KaprodiController::supervisi');
+
+    // Menu baru
+    $routes->get('questioner', 'KaprodiController::questioner');
+    $routes->get('akreditasi', 'KaprodiController::akreditasi');
+    $routes->get('ami', 'KaprodiController::ami');
+    $routes->get('profil', 'KaprodiController::profil');
+});
+
 
   
 
