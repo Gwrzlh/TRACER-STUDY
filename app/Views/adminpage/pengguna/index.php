@@ -1,321 +1,168 @@
-<?= $this->extend('layout/sidebar') ?>
-<?= $this->section('content') ?>
+<?php $this->extend('layout/sidebar'); ?>
+<?php $this->section('content'); ?>
 
-<div style="padding: 20px; background-color: #f8f9fa;">
-    <h2 style="margin-bottom: 24px; font-weight: 600; font-size: 24px; color: #333;">Daftar Pengguna</h2>
-
-<!-- Tombol Tambah Pengguna -->
-<a href="<?= base_url('adminpage/pengguna/create') ?>" class="btn btn-primary">
-    <i class="fas fa-plus"></i> Tambah Pengguna
-</a>
-
-<!-- Tombol Import -->
-<button class="btn btn-success mb-2" data-bs-toggle="modal" data-bs-target="#importModal">
-    <i class="fas fa-file-import"></i> Import Akun
-</button>
-
-<!-- Modal Import -->
-<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="importModalLabel">Import Akun dari Excel</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="<?= base_url('admin/pengguna/import') ?>" method="post" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="file" class="form-label">Pilih File (xls, xlsx, csv)</label>
-                        <input type="file" name="file" id="file" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="id_role" class="form-label">Pilih Role</label>
-                        <select name="id_role" id="id_role" class="form-select" required>
-                            <option value="">-- Pilih Role --</option>
-                            <option value="1">Alumni</option>
-                            <option value="2">Admin</option>
-                            <option value="6">Kaprodi</option>
-                            <option value="7">Perusahaan</option>
-                            <option value="8">Atasan</option>
-                            <option value="9">Jabatan lainnya</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success">Import</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
-
-
-<!-- Alert Flashdata -->
-<?php if(session()->getFlashdata('success')): ?>
-    <div class="alert alert-success mt-3"><?= session()->getFlashdata('success') ?></div>
-<?php endif; ?>
-<?php if(session()->getFlashdata('error')): ?>
-    <div class="alert alert-danger mt-3"><?= session()->getFlashdata('error') ?></div>
-<?php endif; ?>
-
-<!-- Table Container -->
-<div class="table-container" style="background-color: white; 
-                                  border-radius: 12px; 
-                                  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                                  overflow: hidden;">
-    <div class="tab-content" id="userTabContent">
-        <!-- From search -->
-        <form method="get" action="<?= base_url('admin/pengguna') ?>" style="margin-bottom:15px;">
-            <?php if ($roleId): ?>
-                <input type="hidden" name="role" value="<?= esc($roleId) ?>">
-            <?php endif; ?>
-              <!-- from sreach -->
-        <form method="get" action="<?= base_url('admin/pengguna') ?>" style="margin-bottom:15px;">
-        <?php if ($roleId): ?>
-            <input type="hidden" name="role" value="<?= esc($roleId) ?>">
-        <?php endif; ?>
-        </form>
-    </div>
-</div>
-  
-    <div style="display:flex; gap:10px;">
-        <input type="text" 
-               name="keyword" 
-               value="<?= esc($keyword ?? '') ?>" 
-               placeholder="Cari nama..." 
-               class="search-input" 
-               style="padding:8px 12px; border:1px solid #ccc; border-radius:20px; transition: width 0.3s ease;">
-        
-        <button type="submit" style="padding:8px 16px; background: #001BB7; color:white; border:none; border-radius:20px; cursor:pointer;">
-            Search
-        </button>
-    </div>
-</form>
-
-<style>
-    .search-input {
-        width: 150px;
-    }
-    .search-input:focus {
-        width: 300px;
-        outline: none;
-    }
-</style>  
-
-<form method="get" action="<?= base_url('admin/pengguna') ?>" class="mb-3" style="padding: 0 20px;">
-    <?php if ($roleId): ?>
-        <input type="hidden" name="role" value="<?= esc($roleId) ?>">
-    <?php endif; ?>
-    <?php if ($keyword): ?>
-        <input type="hidden" name="keyword" value="<?= esc($keyword) ?>">
-    <?php endif; ?>
-    
-    <label for="perpage">Tampilkan per halaman:</label>
-    <input 
-        type="number" 
-        name="perpage" 
-        id="perpage" 
-        min="1" 
-        value="<?= esc($perPage) ?>" 
-        style="width: 80px;"
-        onchange="this.form.submit()"
-    >
-</form>
-
-
-
-<!-- Main Table Display -->
-<?php if (isset($accounts) && !empty($accounts)): ?>
-    <div style="overflow-x:auto;">
-        <table class="modern-table" style="width: 100%; border-collapse: collapse;">
-            <!-- Header -->
-            <thead>
-                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #e9ecef;">
-                    <th style="padding: 16px 20px; 
-                              font-weight: 600; 
-                              font-size: 13px; 
-                              color: #495057; 
-                              text-align: left;
-                              text-transform: uppercase;
-                              letter-spacing: 0.5px;">No</th>
-                    <th style="padding: 16px 20px; 
-                              font-weight: 600; 
-                              font-size: 13px; 
-                              color: #495057; 
-                              text-align: left;
-                              text-transform: uppercase;
-                              letter-spacing: 0.5px;">Nama Pengguna</th>
-                    <th style="padding: 16px 20px; 
-                              font-weight: 600; 
-                              font-size: 13px; 
-                              color: #495057; 
-                              text-align: left;
-                              text-transform: uppercase;
-                              letter-spacing: 0.5px;">Email</th>
-                    <th style="padding: 16px 20px; 
-                              font-weight: 600; 
-                              font-size: 13px; 
-                              color: #495057; 
-                              text-align: left;
-                              text-transform: uppercase;
-                              letter-spacing: 0.5px;">Status</th>
-                    <th style="padding: 16px 20px; 
-                              font-weight: 600; 
-                              font-size: 13px; 
-                              color: #495057; 
-                              text-align: left;
-                              text-transform: uppercase;
-                              letter-spacing: 0.5px;">Group</th>
-                    <th style="padding: 16px 20px; 
-                              font-weight: 600; 
-                              font-size: 13px; 
-                              color: #495057; 
-                              text-align: center;
-                              text-transform: uppercase;
-                              letter-spacing: 0.5px;">Aksi</th>
-                </tr>
-            </thead>
-            <!-- Body -->
-            <tbody>
-              <?php $no = 1 + ($perPage * ($currentPage - 1)); foreach ($accounts as $acc): ?>
-                    <tr style="border-bottom: 1px solid #e9ecef; transition: background-color 0.2s ease;"
-                        onmouseover="this.style.backgroundColor='#f8f9fa'" 
-                        onmouseout="this.style.backgroundColor='white'">
-                        <td style="padding: 16px 20px; font-size: 14px; color: #6c757d; font-weight: 500;"><?= $no++ ?></td>
-                        <td style="padding: 16px 20px; font-size: 14px; color: #333; font-weight: 500;"><?= esc($acc['username']) ?></td>
-                        <td style="padding: 16px 20px; font-size: 14px; color: #6c757d;"><?= esc($acc['email']) ?></td>
-                        <td style="padding: 16px 20px;">
-                            <?php 
-                            $isActive = (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1');
-                            ?>
-                            <span style="padding: 4px 12px;
-                                        border-radius: 20px;
-                                        font-size: 12px;
-                                        font-weight: 600;
-                                        text-transform: uppercase;
-                                        letter-spacing: 0.5px;
-                                        <?= $isActive ? 'background-color: #d4edda; color: #155724;' : 'background-color: #f8d7da; color: #721c24;' ?>">
-                                <?= $isActive ? 'AKTIF' : 'TIDAK AKTIF' ?>
-                            </span>
-                        </td>
-                        <td style="padding: 16px 20px;">
-                            <span style="padding: 4px 12px;
-                                        background-color: #e3f2fd;
-                                        color: #1565c0;
-                                        border-radius: 20px;
-                                        font-size: 12px;
-                                        font-weight: 500;">
-                                <?= esc($acc['nama_role'] ?? 'Tidak ada role') ?>
-                            </span>
-                        </td>
-                        <td style="padding: 16px 20px; text-align: center;">
-                            <a href="<?= base_url('/admin/pengguna/editPengguna/'. $acc['id'] ) ?>" 
-                               style="padding: 6px 12px;
-                                      background-color: #007bff;
-                                      color: white;
-                                      border: none;
-                                      border-radius: 4px;
-                                      font-size: 12px;
-                                      font-weight: 500;
-                                      cursor: pointer;
-                                      margin-right: 6px;
-                                      text-decoration: none;
-                                      display: inline-block;
-                                      transition: all 0.2s ease;">
-                                Edit
-                            </a>
-                            <form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display: inline;" onsubmit="return confirm('Yakin hapus?')">
-                                <?= csrf_field() ?>
-                                <button type="submit" 
-                                        style="padding: 6px 12px;
-                                               background-color: #dc3545;
-                                               color: white;
-                                               border: none;
-                                               border-radius: 4px;
-                                               font-size: 12px;
-                                               font-weight: 500;
-                                               cursor: pointer;
-                                               transition: all 0.2s ease;">
-                                    Delete
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        
-        <!-- Pagination -->
-        <div style="margin-top: 20px; padding: 20px;">
-            <?php if (isset($pager)): ?>
-                <?= $pager->links('accounts', 'paginations') ?>
-            <?php endif; ?>
-        </div>
-    </div>
-<?php else: ?>
-    <div style="padding: 40px; text-align: center; color: #6c757d;">
-        <p style="font-size: 16px; margin: 0;">Tidak ada data pengguna.</p>
-        <?php if (isset($accounts)): ?>
-            <p style="font-size: 14px; color: #999;">Variable accounts ditemukan tapi kosong.</p>
-        <?php else: ?>
-            <p style="font-size: 14px; color: #999;">Variable accounts tidak ditemukan.</p>
-        <?php endif; ?>
-    </div>
-<?php endif; ?>
-
-        </div>
-    </div>
-</div>
-
-<style>
-    .filter-btn:hover {
-        background-color: #001BB7 !important;
-        color: white !important;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0,27,183,0.2);
-    }
-    
-    .modern-table tbody tr:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .modern-table td a:hover {
-        background-color: #0056b3 !important;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0,123,255,0.3);
-    }
-    
-    .modern-table td button:hover {
-        background-color: #c82333 !important;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(220,53,69,0.3);
-    }
-    
-    @media (max-width: 768px) {
-        .table-container {
-            margin: 0 -10px;
-            border-radius: 8px !important;
-        }
-        
-        .modern-table th,
-        .modern-table td {
-            padding: 12px 16px !important;
-            font-size: 13px !important;
-        }
-        
-        .modern-table td button {
-            padding: 6px 12px !important;
-            font-size: 11px !important;
-        }
-    }
-</style>
-
-<!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- External CSS and JS -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="<?= base_url('css/pengguna.css') ?>" rel="stylesheet">
 
-<?= $this->endSection(); ?>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= base_url('js/pengguna.js') ?>"></script>
+
+<!-- Main Content -->
+<div class="pengguna-page">
+    <div class="page-wrapper">
+        <div class="page-container">
+            <h2 class="page-title">Daftar Pengguna</h2>
+
+            <!-- Button Container -->
+            <div class="button-container">
+                <a href="<?= base_url('admin/pengguna/tambahPengguna') ?>"
+                   style="background-color: <?= get_setting('pengguna_button_color', '#007bff') ?>;
+                          color: <?= get_setting('pengguna_button_text_color', '#ffffff') ?>;"
+                   onmouseover="this.style.backgroundColor='<?= get_setting('pengguna_button_hover_color', '#0056b3') ?>'"
+                   onmouseout="this.style.backgroundColor='<?= get_setting('pengguna_button_color', '#007bff') ?>'"
+                   class="px-4 py-2 rounded-md shadow-sm fw-bold">
+                     <?= get_setting('pengguna_button_text', 'Tambah Pengguna') ?>
+                </a>
+
+
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importModal">
+                    <i class="fas fa-file-import"></i> Import Akun
+                </button>
+            </div>
+
+            <!-- Import Modal -->
+            <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="importModalLabel">Import Akun dari Excel</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="<?= base_url('admin/pengguna/import') ?>" method="post" enctype="multipart/form-data">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">Pilih File (xls, xlsx, csv)</label>
+                                    <input type="file" name="file" id="file" class="form-control" accept=".xls,.xlsx,.csv" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="id_role" class="form-label">Pilih Role</label>
+                                    <select name="id_role" id="id_role" class="form-select" required>
+                                        <option value="">-- Pilih Role --</option>
+                                        <option value="1">Alumni</option>
+                                        <option value="2">Admin</option>
+                                        <option value="6">Kaprodi</option>
+                                        <option value="7" selected>Perusahaan</option>
+                                        <option value="8">Atasan</option>
+                                        <option value="9">Jabatan lainnya</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-success">Import</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            <?php if (session()->getFlashdata('success')): ?>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> <?= session()->getFlashdata('success') ?>
+                </div>
+            <?php endif; ?>
+            <?php if (session()->getFlashdata('error')): ?>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> <?= session()->getFlashdata('error') ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Search Form -->
+            <div class="controls-container">
+                <form method="get" action="<?= base_url('admin/pengguna') ?>">
+                    <?php if (isset($roleId) && $roleId): ?>
+                        <input type="hidden" name="role" value="<?= esc($roleId) ?>">
+                    <?php endif; ?>
+                    <div class="search-wrapper">
+                        <input type="text" name="keyword" value="<?= esc($keyword ?? '') ?>" 
+                               placeholder="Cari nama pengguna..." class="search-input">
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Main Table -->
+            <?php if (isset($accounts) && !empty($accounts)): ?>
+                <div class="table-container">
+                    <div style="overflow-x: auto;">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama Pengguna</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Group</th>
+                                    <th style="text-align: center;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                $no = 1 + (($perPage ?? 10) * (($currentPage ?? 1) - 1));
+                                foreach ($accounts as $acc): ?>
+                                    <tr>
+                                        <td data-label="No"><?= $no++ ?></td>
+                                        <td data-label="Nama Pengguna" title="<?= esc($acc['username']) ?>">
+                                            <?= esc($acc['username']) ?>
+                                        </td>
+                                        <td data-label="Email" title="<?= esc($acc['email']) ?>">
+                                            <?= esc($acc['email']) ?>
+                                        </td>
+                                        <td data-label="Status">
+                                            <span class="badge-status <?= (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1') ? 'badge-active' : 'badge-inactive' ?>">
+                                                <?= (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1') ? 'AKTIF' : 'TIDAK AKTIF' ?>
+                                            </span>
+                                        </td>
+                                        <td data-label="Group">
+                                            <span class="badge-role">
+                                                <?= esc($acc['nama_role'] ?? 'Tidak ada role') ?>
+                                            </span>
+                                        </td>
+                                        <td data-label="Aksi" style="text-align: center;">
+                                            <a href="<?= base_url('/admin/pengguna/editPengguna/' . $acc['id']) ?>" class="btn-edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')">
+                                                <?= csrf_field() ?>
+                                                <button type="submit" class="btn-delete">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                 
+                </div>
+            <?php else: ?>
+                <div class="empty-state">
+                    <i class="fas fa-users" style="font-size: 48px; color: #cbd5e1; margin-bottom: 20px;"></i>
+                    <p>Tidak ada data pengguna ditemukan.</p>
+                    <p class="debug-info">
+                        <?= isset($accounts) ? 'Variable accounts ditemukan tapi kosong.' : 'Variable accounts tidak ditemukan.' ?>
+                    </p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<?php $this->endSection(); ?>

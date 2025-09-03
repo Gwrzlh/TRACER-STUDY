@@ -1,0 +1,76 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    color: #000;
+    margin: 20px;
+}
+
+/* Judul utama */
+h2 {
+    font-weight: bold;
+    border-bottom: 3px solid #000;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+/* Subjudul (h5) */
+h5 {
+    margin-top: 25px;
+    font-weight: bold;
+    color: #000;
+    border-left: 4px solid #000;
+    padding-left: 10px;
+}
+
+/* Box nama orang */
+.nama-box {
+    display: inline-block;
+    background: #fff;
+    padding: 6px 12px;
+    margin: 5px 8px 5px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    font-size: 14px;
+    font-weight: normal; /* lebih simple */
+}
+
+/* Box alamat */
+.alamat-box {
+    border: 1px solid #000;
+    padding: 8px 12px;   /* lebih kecil, rapat ke teks */
+    margin-top: 10px;    /* biar tidak terlalu jauh dari judul */
+    background: #fff;
+    border-radius: 6px;  /* sedikit lebih kecil */
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+    display: inline-block; /* biar lebar box pas dengan teks */
+}
+
+
+/* Tabel surveyor */
+.table-custom {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.table-custom th,
+.table-custom td {
+    border: 1px solid #000;
+    padding: 10px;
+    text-align: left;
+    font-size: 14px;
+}
+
+.table-custom thead {
+    background: #000;
+    color: #fff;
+}
+
+.table-custom tr:nth-child(even) {
+    background: #f2f2f2;
+}
+
+

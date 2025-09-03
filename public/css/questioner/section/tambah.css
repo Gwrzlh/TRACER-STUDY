@@ -1,0 +1,78 @@
+/* ================================
+   Questionnaire Section Styles
+   ================================ */
+
+/* ---------- Card Header Utama ---------- */
+.card-header.bg-primary {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+/* ---------- Buttons ---------- */
+.btn-primary {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #3b8dff 0%, #00d4ff 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(79, 172, 254, 0.25);
+}
+
+.btn-secondary,
+.btn-outline-secondary {
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f1f3f5;
+}
+
+/* ---------- Form Controls ---------- */
+.form-control,
+.form-select {
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #4facfe;
+    box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25);
+}
+
+/* ---------- Info Card ---------- */
+.card.bg-info.bg-opacity-10 {
+    border-radius: 0.75rem;
+}
+
+/* ---------- Breadcrumb ---------- */
+.breadcrumb {
+    background: transparent;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #4facfe;
+    font-weight: 500;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Section Titles ---------- */
+.card h4,
+.card h6 {
+    font-weight: 600;
+}
