@@ -2,15 +2,133 @@
 <?= $this->section('content') ?>
 <link rel="stylesheet" href="/css/questioner/section/index.css">
 <div class="container mt-4">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>">Home</a></li>
-            <li class="breadcrumb-item"><a href="<?= base_url('admin/questionnaire') ?>">Daftar Kuesioner</a></li>
-            <li class="breadcrumb-item"><a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages") ?>"><?= esc($questionnaire['title']) ?></a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= esc($page['page_title']) ?></li>
-        </ol>
+  
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Detail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link ke CSS eksternal -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Custom navbar animations - sama dengan navbar sebelumnya */
+        .navbar-shadow {
+            box-shadow: 0 2px 20px rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-title {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+        
+        .nav-title::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-title:hover::after {
+            width: 100%;
+        }
+
+        /* Link navigasi dengan hover effect yang sama */
+        .nav-link {
+            background: linear-gradient(135deg, #374151 0%, #6b7280 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Subtle background pattern */
+        .nav-bg {
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
+        }
+
+        /* Separator untuk visual clarity */
+        .nav-separator {
+            width: 1px;
+            height: 24px;
+            background: linear-gradient(to bottom, transparent, rgba(156, 163, 175, 0.5), transparent);
+            margin: 0 8px;
+        }
+
+        /* Breadcrumb arrow styling */
+        .nav-arrow {
+            color: #9ca3af;
+            font-size: 14px;
+            margin: 0 8px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-white navbar-shadow nav-bg border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-6">
+                    <!-- Link ke daftar kuesioner -->
+                    <a href="<?= base_url('admin/questionnaire') ?>"
+                     class="nav-link font-semibold text-lg cursor-pointer">
+                        Daftar Kuesioner
+                    </a>
+                    
+                    <!-- Link ke daftar halaman (section) dalam kuesioner -->
+                    <a href="<?= base_url('admin/questionnaire/' . $questionnaire['id'] . '/pages') ?>" class="nav-link font-semibold text-lg cursor-pointer">
+                        <?= esc($questionnaire['title']) ?>
+                    </a>
+                    
+                    <!-- Nama halaman (teks biasa, bukan link) -->
+                    <span class="nav-title font-semibold text-xl cursor-pointer">
+                        Data Pribadi
+                    </span>
+                </div>
+                
+                <!-- Optional: Tambahan elemen kanan jika diperlukan -->
+                <div class="flex items-center gap-4">
+                    <!-- Indikator status atau menu lainnya bisa ditambah di sini -->
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+            </div>
+        </div>
     </nav>
+
 
     <!-- Header Card -->
 

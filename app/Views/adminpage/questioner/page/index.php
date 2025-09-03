@@ -1,6 +1,31 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
- <link rel="stylesheet" href="<?= base_url('css/questioner/page/index.css') ?>">
+<link rel="stylesheet" href="<?= base_url('css/questioner/page/index.css') ?>">
+<!-- Navbar -->
+<nav class="bg-gray-100 border-b border-gray-200 shadow-sm">
+    <div class="px-6 py-4">
+        <div class="flex justify-between items-center">
+            <!-- Nav link kiri -->
+            <div class="flex items-center gap-6">
+                <a href="<?= base_url('admin/questionnaire')?>"
+                   class="nav-link font-semibold text-lg text-gray-800 hover:text-blue-600 transition">
+                    Daftar Kuesioner
+                </a>
+
+                <!-- Judul kuesioner otomatis -->
+                <span class="nav-title font-semibold text-xl text-gray-700">
+                    <?= esc($questionnaire['title']) ?>
+                </span>
+            </div>             
+            <!-- Optional: Elemen kanan -->
+            <div class="flex items-center gap-4">
+                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
 <div class="container mt-4">
     <h2>Halaman Kuesioner: <?= esc($questionnaire['title']) ?></h2>
     <p class="text-muted"><?= esc($questionnaire['deskripsi']) ?></p>
