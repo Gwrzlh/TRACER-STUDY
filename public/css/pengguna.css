@@ -1,0 +1,543 @@
+/* Reset and Isolation */
+.pengguna-page {
+    position: static !important;
+    z-index: 1 !important;
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    box-sizing: border-box;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.pengguna-page * {
+    box-sizing: border-box;
+}
+
+/* Page Wrapper */
+.pengguna-page .page-wrapper {
+    padding: 30px;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: calc(100vh - 50px);
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    width: 100%;
+}
+
+/* Page Container */
+.pengguna-page .page-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Page Title */
+.pengguna-page .page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e40af;
+    margin-bottom: 30px;
+    text-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.pengguna-page .page-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    border-radius: 2px;
+}
+
+/* Button Container */
+.pengguna-page .button-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Button Styles */
+.pengguna-page .btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.pengguna-page .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.pengguna-page .btn:hover::before {
+    left: 100%;
+}
+
+.pengguna-page .btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    color: white;
+}
+
+.pengguna-page .btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    color: white;
+}
+
+.pengguna-page .btn-success {
+    background: linear-gradient(135deg, #10b981, #16a34a);
+    color: white;
+}
+
+.pengguna-page .btn-success:hover {
+    background: linear-gradient(135deg, #059669, #15803d);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    color: white;
+}
+
+/* Alert Styles */
+.pengguna-page .alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    animation: slideInDown 0.5s ease;
+}
+
+@keyframes slideInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pengguna-page .alert-success {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    color: #166534;
+    border-left: 4px solid #22c55e;
+}
+
+.pengguna-page .alert-danger {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+    border-left: 4px solid #ef4444;
+}
+
+/* Controls Container */
+.pengguna-page .controls-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.pengguna-page .controls-container:hover {
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.pengguna-page .search-wrapper {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.pengguna-page .search-input {
+    flex: 1;
+    min-width: 250px;
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #ffffff;
+}
+
+.pengguna-page .search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Table Styles */
+.pengguna-page .table-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.pengguna-page .table-container:hover {
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+.pengguna-page .modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: transparent;
+}
+
+.pengguna-page .modern-table thead {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+}
+
+.pengguna-page .modern-table thead th {
+    padding: 20px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.pengguna-page .modern-table tbody tr {
+    background: #ffffff;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.pengguna-page .modern-table tbody tr:hover {
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.pengguna-page .modern-table tbody td {
+    padding: 18px 16px;
+    color: #374151;
+    font-weight: 500;
+    vertical-align: middle;
+    border: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+/* Badge Styles */
+.pengguna-page .badge-status,
+.pengguna-page .badge-role {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.pengguna-page .badge-status:hover,
+.pengguna-page .badge-role:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pengguna-page .badge-active {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    color: #166534;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.pengguna-page .badge-inactive {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.pengguna-page .badge-role {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1e40af;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Action Buttons */
+.pengguna-page .btn-edit,
+.pengguna-page .btn-delete {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 3px;
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pengguna-page .btn-edit {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+}
+
+.pengguna-page .btn-edit:hover {
+    background: linear-gradient(135deg, #0891b2, #0e7490);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+}
+
+.pengguna-page .btn-delete {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.pengguna-page .btn-delete:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Modal Styles */
+.pengguna-page .modal-content {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.pengguna-page .modal-header {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    color: white;
+    padding: 20px 25px;
+    border: none;
+}
+
+.pengguna-page .modal-title {
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.pengguna-page .btn-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.pengguna-page .btn-close:hover {
+    opacity: 1;
+}
+
+.pengguna-page .modal-body {
+    padding: 25px;
+    background: #ffffff;
+}
+
+.pengguna-page .modal-footer {
+    background: #f8fafc;
+    padding: 20px 25px;
+    border: none;
+}
+
+.pengguna-page .form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.pengguna-page .form-control,
+.pengguna-page .form-select {
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    width: 100%;
+}
+
+.pengguna-page .form-control:focus,
+.pengguna-page .form-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Empty State */
+.pengguna-page .empty-state {
+    padding: 60px 40px;
+    text-align: center;
+    color: #64748b;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border-radius: 16px;
+    margin: 20px 0;
+}
+
+.pengguna-page .empty-state p {
+    font-size: 16px;
+    margin: 10px 0;
+    font-weight: 500;
+}
+
+.pengguna-page .empty-state .debug-info {
+    font-size: 14px;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Pagination */
+.pengguna-page .pagination-container {
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .pengguna-page .page-wrapper {
+        padding: 25px 20px;
+    }
+    .pengguna-page .search-wrapper {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .pengguna-page .search-input {
+        min-width: 100%;
+    }
+    .pengguna-page .modern-table thead th,
+    .pengguna-page .modern-table tbody td {
+        padding: 15px 12px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pengguna-page .page-wrapper {
+        padding: 20px 15px;
+    }
+    .pengguna-page .page-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    .pengguna-page .button-container {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .pengguna-page .btn {
+        justify-content: center;
+        width: 100%;
+    }
+    .pengguna-page .controls-container {
+        padding: 20px;
+    }
+    .pengguna-page .modern-table {
+        font-size: 12px;
+    }
+    .pengguna-page .modern-table thead th,
+    .pengguna-page .modern-table tbody td {
+        padding: 12px 8px;
+    }
+    .pengguna-page .badge-status,
+    .pengguna-page .badge-role {
+        font-size: 10px;
+        padding: 4px 10px;
+    }
+    .pengguna-page .btn-edit,
+    .pengguna-page .btn-delete {
+        font-size: 11px;
+        padding: 6px 12px;
+        margin: 2px;
+        display: block;
+        margin-bottom: 5px;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .pengguna-page .modern-table thead {
+        display: none;
+    }
+    .pengguna-page .modern-table tbody tr {
+        display: block;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .pengguna-page .modern-table tbody td {
+        display: block;
+        padding: 8px 0;
+        border: none;
+        position: relative;
+        padding-left: 40%;
+        white-space: normal;
+        max-width: none;
+        text-overflow: initial;
+        overflow: visible;
+    }
+    .pengguna-page .modern-table tbody td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 35%;
+        font-weight: 600;
+        color: #64748b;
+        font-size: 12px;
+        text-transform: uppercase;
+        line-height: 1.4;
+    }
+}
+
+/* Sidebar Logo Fix */
+.sidebar .logo,
+.sidebar .logo img,
+nav .logo,
+nav .logo img,
+.navbar-brand,
+.navbar-brand img {
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+    aspect-ratio: auto !important;
+}

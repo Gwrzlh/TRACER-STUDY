@@ -328,8 +328,8 @@ $routes->group('alumni', static function ($routes) {
 
 
 
-$routes->get('/pengaturan-situs', 'PengaturanSitus::index'); // halaman pengaturan
-$routes->post('/pengaturan-situs/simpan', 'PengaturanSitus::simpan'); // proses simpan
+$routes->get('pengaturan-situs', 'PengaturanSitus::index');
+$routes->post('pengaturan-situs/save', 'PengaturanSitus::save');
 // $routes->get('alumni/login', 'Alumni::login');
 // $routes->post('alumni/login', 'Alumni::doLogin');
 // $routes->get('alumni/dashboard', 'Alumni::dashboard');
@@ -377,3 +377,22 @@ $routes->group('admin/respon', static function ($routes) {
 $routes->get('respon', function () {
     return view('LandingPage/respon');
 });
+
+
+// =======================
+// ROUTES KAPRODI
+// =======================
+$routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
+    $routes->get('dashboard', 'KaprodiController::dashboard');
+    $routes->get('supervisi', 'KaprodiController::supervisi');
+
+    // Menu baru
+    $routes->get('questioner', 'KaprodiController::questioner');
+    $routes->get('akreditasi', 'KaprodiController::akreditasi');
+    $routes->get('ami', 'KaprodiController::ami');
+    $routes->get('profil', 'KaprodiController::profil');
+});
+
+
+  
+
