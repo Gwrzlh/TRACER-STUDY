@@ -2,16 +2,7 @@
 <?= $this->section('content') ?>
 <link rel="stylesheet" href="/css/questioner/section/edit.css">
 <div class="container mt-4">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>">Home</a></li>
-            <li class="breadcrumb-item"><a href="<?= base_url('admin/questionnaire') ?>">Daftar Kuesioner</a></li>
-            <li class="breadcrumb-item"><a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages") ?>"><?= esc($questionnaire['title']) ?></a></li>
-            <li class="breadcrumb-item"><a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections") ?>"><?= esc($page['page_title']) ?></a></li>
-            <li class="breadcrumb-item active" aria-current="page">Edit: <?= esc($section['section_title']) ?></li>
-        </ol>
-    </nav>
+  
 
     <!-- Header -->
     <div class="card mb-4">
