@@ -23,4 +23,26 @@ class KaprodiController extends Controller
 
         return view('kaprodi/supervisi'); // Kaprodi dengan hak supervisi
     }
+
+     // ========= MENU BARU =========
+    public function questioner()
+    {
+        return view('kaprodi/questioner/index');
+    }
+
+    public function akreditasi()
+    {
+        return view('kaprodi/akreditasi/index');
+    }
+
+    public function ami()
+    {
+        return view('kaprodi/ami/index');
+    }
+
+    public function profil()
+    {
+        return view('kaprodi/profil/index');
+    }
 }
+

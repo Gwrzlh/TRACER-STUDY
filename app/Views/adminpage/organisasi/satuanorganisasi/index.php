@@ -10,9 +10,15 @@
 
     <!-- Tombol Tambah -->
     <div class="btn-tambah-wrapper">
-        <a href="<?= base_url('satuanorganisasi/create') ?>" class="btn-tambah">
-            + Tambah
-        </a>
+       <a href="<?= base_url('satuanorganisasi/create') ?>" 
+   class="px-4 py-2 rounded-md"
+   style="background-color: <?= esc(get_setting('pengguna_button_color', '#0d6efd')) ?>;
+          color: <?= esc(get_setting('pengguna_button_text_color', '#ffffff')) ?>;"
+   onmouseover="this.style.backgroundColor='<?= esc(get_setting('pengguna_button_hover_color', '#0b5ed7')) ?>'"
+   onmouseout="this.style.backgroundColor='<?= esc(get_setting('pengguna_button_color', '#0d6efd')) ?>'">
+   <?= esc(get_setting('pengguna_button_text', '+ Tambah')) ?>
+</a>
+
     </div>
 
     <!-- Tabs -->
