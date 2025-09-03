@@ -26,17 +26,12 @@ class PenggunaController extends BaseController
 {
 public function index()
 {
-    // Ambil parameter filter dan pagination
+    // Ambil parameter filter
     $roleId  = $this->request->getGet('role');
     $keyword = $this->request->getGet('keyword');
 
-    // Ambil perPage dari GET, default 5
-    $perPage = $this->request->getGet('perpage');
-    if (!$perPage || !is_numeric($perPage) || $perPage < 1) {
-        $perPage = 5;
-    } else {
-        $perPage = (int) $perPage;
-    }
+    // 🔹 Ambil perPage dari Pengaturan Situs, default = 5
+    $perPage = get_setting('pengguna_perpage_default', 5);
 
     // Ambil semua role
     $rolesModel = new \App\Models\Roles();
@@ -68,10 +63,7 @@ public function index()
     // Urutkan terbaru
     $builder->orderBy('account.id', 'DESC');
 
-    // Debug: Cek query yang dihasilkan (hapus setelah debug)
-    // log_message('info', 'Query: ' . $builder->getCompiledSelect(false));
-
-    // Hitung total records untuk pagination
+    // Hitung total records
     $totalRecords = $builder->countAllResults(false);
     
     // Ambil data dengan limit dan offset
@@ -82,37 +74,20 @@ public function index()
 
     // Setup manual pagination
     $pager = \Config\Services::pager();
-    $pagerConfig = [
-        'baseURL' => current_url(),
-        'totalRows' => $totalRecords,
-        'perPage' => $perPage,
-        'segment' => 0, // Menggunakan query string
-        'pageQueryVar' => 'page_accounts'
-    ];
-    
-    // Generate pagination links dengan query parameters
-    $queryParams = $this->request->getGet();
-    if (isset($queryParams['page_accounts'])) {
-        unset($queryParams['page_accounts']);
-    }
-    $queryString = !empty($queryParams) ? '?' . http_build_query($queryParams) : '';
-    $pagerConfig['baseURL'] = current_url() . $queryString;
-
     $pager->makeLinks($currentPage, $perPage, $totalRecords, 'default_full', 0);
 
     // Hitung jumlah akun per role
     $counts = [];
     foreach ($roles as $r) {
         $counts[$r['id']] = $accountModel->where('id_role', $r['id'])->countAllResults();
-        $accountModel->builder()->resetQuery(); // Reset query untuk count berikutnya
+        $accountModel->builder()->resetQuery();
     }
     $counts['all'] = $accountModel->countAllResults();
 
-    // Ambil detail akun - pastikan method ini ada dan benar
+    // Ambil detail akun
     $detailaccountAdmin  = new \App\Models\DetailaccountAdmins();
     $detailaccountAlumni = new \App\Models\DetailaccountAlumni();
 
-    // Cek apakah method ada
     $adminDetails = method_exists($detailaccountAdmin, 'getaccountid') 
         ? $detailaccountAdmin->getaccountid() 
         : [];
@@ -121,11 +96,11 @@ public function index()
         ? $detailaccountAlumni->getDetailWithRelations() 
         : [];
 
-    // Siapkan data untuk view
+    // Data untuk view
     $data = [
         'roles'               => $roles,
         'counts'              => $counts,
-        'accounts'            => $accounts, // Ubah dari 'account' ke 'accounts' untuk konsistensi
+        'accounts'            => $accounts,
         'pager'               => $pager,
         'detailaccountAdmin'  => $adminDetails,
         'detailaccountAlumni' => $alumniDetails,
@@ -133,14 +108,12 @@ public function index()
         'keyword'             => $keyword,
         'perPage'             => $perPage,
         'currentPage'         => $currentPage,
-        'totalRecords'        => $totalRecords, // Tambahan informasi
+        'totalRecords'        => $totalRecords,
     ];
-
-    // Debug: Tampilkan data accounts (hapus setelah debug)
-    // log_message('info', 'Accounts data: ' . json_encode($accounts));
 
     return view('adminpage/pengguna/index', $data);
 }
+
 
 
 

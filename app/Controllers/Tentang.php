@@ -8,12 +8,12 @@ class Tentang extends BaseController
 {
     protected $tentangModel;
 
-     public function __construct()
+    public function __construct()
     {
         $this->tentangModel = new TentangModel();
     }
 
-    // Halaman publik
+    // Halaman publik (Landing Page)
     public function index()
     {
         $data['tentang'] = $this->tentangModel->first();
@@ -30,15 +30,15 @@ class Tentang extends BaseController
     // Admin: simpan perubahan
     public function update()
     {
-        $id  = $this->request->getPost('id');
+        $id    = $this->request->getPost('id');
         $judul = $this->request->getPost('judul');
-        $isi = $this->request->getPost('isi'); // TinyMCE kirim HTML, jangan strip_tags
+        $isi   = $this->request->getPost('isi');
 
         $this->tentangModel->update($id, [
             'judul' => $judul,
-            'isi'   => $isi, // Simpan HTML apa adanya
+            'isi'   => $isi,
         ]);
-    return redirect()->to('/admin/tentang/edit')->with('success', 'Data berhasil diupdate.');
-}
 
+        return redirect()->to('admin/tentang/edit')->with('success', 'Data berhasil diupdate.');
+    }
 }

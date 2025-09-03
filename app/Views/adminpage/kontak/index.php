@@ -1,107 +1,174 @@
-<div class="container mt-4">
-    <h2 class="mb-4">Daftar Kontak - Wakil Direktur & Tim Tracer</h2>
-    <a href="/admin/kontak/create" class="btn btn-primary mb-3">Tambah Kontak</a>
-    <a href="/admin/kontak/deleteKategori/Wakil%20Direktur" class="btn btn-danger mb-3" onclick="return confirm('Hapus semua Wakil Direktur?')">Hapus Semua Wakil Direktur</a>
-    <a href="/admin/kontak/deleteKategori/Tim%20Tracer" class="btn btn-danger mb-3" onclick="return confirm('Hapus semua Tim Tracer?')">Hapus Semua Tim Tracer</a>
+<?= $this->extend('layout/sidebar') ?>
+<?= $this->section('content') ?>
+<!DOCTYPE html>
+<html lang="id">
 
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>No</th>
-                <th>Kategori</th>
-                <th>Nama Lengkap</th>
-                <th>Email</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php $no = 1; ?>
-            <?php foreach (array_merge($wakilDirektur, $teamTracer) as $k): ?>
-                <tr>
-                    <td><?= $no++ ?></td>
-                    <td><?= esc($k['kategori']) ?></td>
-                    <td><?= esc($k['nama_lengkap']) ?></td>
-                    <td><?= esc($k['email']) ?></td>
-                    <td>
-                        <a href="/admin/kontak/edit/<?= $k['kontak_id'] ?>" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="/admin/kontak/delete/<?= $k['kontak_id'] ?>" onclick="return confirm('Hapus kontak ini?')" class="btn btn-sm btn-danger">Hapus</a>
-                        <button type="button" class="btn btn-sm btn-info" onclick='showPreview(<?= json_encode($k) ?>)'>Preview</button>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-            <?php if (empty($wakilDirektur) && empty($teamTracer)): ?>
-                <tr>
-                    <td colspan="6" class="text-center">Belum ada data Wakil Direktur atau Tim Tracer</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+<head>
+    <meta charset="UTF-8">
+    <title>Manajemen Kontak</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="<?= base_url('css/kontak.css') ?>">
+</head>
 
-    <h2 class="mt-5 mb-3">Daftar Kontak - Surveyor</h2>
-    <a href="/admin/kontak/deleteKategori/Surveyor" class="btn btn-danger mb-3" onclick="return confirm('Hapus semua Surveyor?')">Hapus Semua Surveyor</a>
+<body class="p-4">
 
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>No</th>
-                <th>Prodi</th>
-                <th>Nama Lengkap</th>
-                <th>NIM</th>
-                <th>Email</th>
-                <th>WA</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php $no = 1; ?>
-            <?php foreach ($surveyors as $s): ?>
-                <tr>
-                    <td><?= $no++ ?></td>
-                    <td><?= esc($s['nama_prodi'] ?? '-') ?></td>
-                    <td><?= esc($s['nama_lengkap'] ?? '-') ?></td>
-                    <td><?= esc($s['nim'] ?? '-') ?></td>
-                    <td><?= esc($s['email'] ?? '-') ?></td>
-                    <td><?= esc($s['notlp'] ?? '-') ?></td>
-                    <td>
-                        <a href="/admin/kontak/edit/<?= $s['kontak_id'] ?>" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="/admin/kontak/delete/<?= $s['kontak_id'] ?>" onclick="return confirm('Hapus kontak ini?')" class="btn btn-sm btn-danger">Hapus</a>
-                        <button type="button" class="btn btn-sm btn-info" onclick='showPreview(<?= json_encode($s) ?>)'>Preview</button>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-            <?php if (empty($surveyors)): ?>
-                <tr>
-                    <td colspan="7" class="text-center">Belum ada data Surveyor</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
-</div>
+    <div class="container">
+        <h2 class="mb-4">Manajemen Kontak</h2>
 
-<!-- Modal Preview -->
-<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Preview Detail Kontak</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="previewContent"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+        <!-- Pilih kategori & search -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="searchForm" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Pilih Kategori</label>
+                        <select name="kategori" id="kategori" class="form-select" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="Surveyor">Surveyor</option>
+                            <option value="Tim Tracer">Tim Tracer</option>
+                            <option value="Wakil Direktur">Wakil Direktur</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Cari</label>
+                        <input type="text" id="keyword" name="keyword" class="form-control" placeholder="Masukkan NIM / Nama" required>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Cari</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
-</div>
 
-<script>
-    function showPreview(data) {
-        let html = '<table class="table table-bordered">';
-        for (const key in data) {
-            html += `<tr><td><strong>${key}</strong></td><td>${data[key] ?? '-'}</td></tr>`;
-        }
-        html += '</table>';
-        document.getElementById('previewContent').innerHTML = html;
-        new bootstrap.Modal(document.getElementById('previewModal')).show();
-    }
-</script>
+        <!-- Hasil Pencarian -->
+        <div id="searchResult" class="mb-4" style="display:none;">
+            <div class="card">
+                <div class="card-header">Hasil Pencarian</div>
+                <div class="card-body">
+                    <form id="addForm" method="post" action="<?= site_url('admin/kontak/store-multiple') ?>">
+                        <input type="hidden" name="kategori" id="addKategori">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr id="searchCols">
+                                    <!-- Kolom akan diisi JS sesuai kategori -->
+                                </tr>
+                            </thead>
+                            <tbody id="resultBody"></tbody>
+                        </table>
+                        <button type="submit" class="btn btn-success">Tambah ke Kontak</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daftar Kontak per kategori -->
+        <div class="row">
+            <?php
+            $categories = [
+                'Surveyor' => ['data' => $surveyors, 'cols' => ['Nama', 'NIM', 'No.Telp', 'Email', 'Prodi', 'Jurusan', 'Tahun Lulus'], 'fields' => ['nama_lengkap', 'nim', 'notlp', 'email', 'nama_prodi', 'nama_jurusan', 'tahun_kelulusan'], 'class' => 'bg-info text-white'],
+                'Tim Tracer' => ['data' => $teamTracer, 'cols' => ['Nama', 'Email'], 'fields' => ['nama_lengkap', 'email'], 'class' => 'bg-warning'],
+                'Wakil Direktur' => ['data' => $wakilDirektur, 'cols' => ['Nama', 'Email'], 'fields' => ['nama_lengkap', 'email'], 'class' => 'bg-success text-white'],
+            ];
+
+            foreach ($categories as $title => $cat):
+            ?>
+                <div class="col-md-<?= ($title == 'Surveyor') ? '12' : '6' ?> mb-4">
+                    <div class="card">
+                        <div class="card-header <?= $cat['class'] ?>"><?= $title ?></div>
+                        <div class="card-body">
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <?php foreach ($cat['cols'] as $col): ?>
+                                            <th><?= $col ?></th>
+                                        <?php endforeach; ?>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($cat['data'] as $row): ?>
+                                        <tr>
+                                            <?php foreach ($cat['fields'] as $field): ?>
+                                                <td><?= $row[$field] ?? '-' ?></td>
+                                            <?php endforeach; ?>
+                                            <td>
+                                                <form method="post" action="<?= site_url('admin/kontak/delete/' . $row['kontak_id']) ?>">
+                                                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+    </div>
+
+    <!-- Script Ajax -->
+    <script>
+        $(function() {
+            const colMap = {
+                'Surveyor': ['Pilih', 'Nama', 'NIM', 'Email', 'No.Telp', 'Prodi', 'Jurusan', 'Tahun Lulus'],
+                'Tim Tracer': ['Pilih', 'Nama', 'Email'],
+                'Wakil Direktur': ['Pilih', 'Nama', 'Email', 'No.Telp']
+            };
+
+            $('#searchForm').on('submit', function(e) {
+                e.preventDefault();
+                let kategori = $('#kategori').val();
+                let keyword = $('#keyword').val();
+
+                $.get("<?= site_url('admin/kontak/search') ?>", {
+                    kategori,
+                    keyword
+                }, function(res) {
+                    if (!res || res.length === 0) {
+                        alert("Data tidak ditemukan!");
+                        $('#searchResult').hide();
+                        return;
+                    }
+
+                    // Set kolom tabel sesuai kategori
+                    let th = '';
+                    colMap[kategori].forEach(c => {
+                        th += `<th>${c}</th>`;
+                    });
+                    $('#searchCols').html(th);
+
+                    // Set isi tbody
+                    let html = '';
+                    res.forEach(r => {
+                        html += '<tr>';
+                        html += `<td><input type="checkbox" name="id_account[]" value="${r.id_account}"></td>`;
+                        html += `<td>${r.nama_lengkap ?? '-'}</td>`;
+                        if (kategori === 'Surveyor') {
+                            html += `<td>${r.nim ?? '-'}</td>`;
+                            html += `<td>${r.email ?? '-'}</td>`;
+                            html += `<td>${r.notlp ?? '-'}</td>`;
+                            html += `<td>${r.nama_prodi ?? '-'}</td>`;
+                            html += `<td>${r.nama_jurusan ?? '-'}</td>`;
+                            html += `<td>${r.tahun_kelulusan ?? '-'}</td>`;
+                        } else if (kategori === 'Tim Tracer') {
+                            html += `<td>${r.email ?? '-'}</td>`;
+                        } else if (kategori === 'Wakil Direktur') {
+                            html += `<td>${r.email ?? '-'}</td>`;
+                            html += `<td>${r.notlp ?? '-'}</td>`;
+                        }
+                        html += '</tr>';
+                    });
+                    $('#resultBody').html(html);
+                    $('#addKategori').val(kategori);
+                    $('#searchResult').show();
+                }, 'json');
+            });
+        });
+    </script>
+
+</body>
+
+</html>
+<?= $this->endSection() ?>
