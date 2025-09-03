@@ -252,9 +252,15 @@
                     <label>Password</label>
                 </div>
 
-                <div class="checkbox-group">
+                <!-- <div class="checkbox-group">
                     <input type="checkbox" id="remember" name="remember">
                     <label for="remember">Tetap login</label>
+                </div> -->
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <a href="<?= base_url('lupapassword') ?>" style="font-size: 14px; color: #3B82F6; text-decoration: none;">
+                        Lupa password?
+                    </a>
                 </div>
 
                 <button type="submit">Masuk</button>

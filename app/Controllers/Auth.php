@@ -4,125 +4,79 @@ namespace App\Controllers;
 
 use App\Models\AccountModel;
 use CodeIgniter\Controller;
+use App\Libraries\BrevoMailer;
 
 class Auth extends Controller
 {
+    protected $accountModel;
+
+    public function __construct()
+    {
+        $this->accountModel = new AccountModel();
+    }
     public function login()
     {
-        $session  = session();
-        $request  = service('request');
-        $response = service('response');
-
-        // Jika login via session biasa (tanpa cookie)
-        if ($session->get('logged_in') && $session->get('via_cookie') !== true) {
-            // Cek JS sessionStorage akan logout jika tab baru
-            return $this->redirectByRole($session->get('role_id'));
-        }
-
-        // Auto-login via cookie
-        $rememberToken = $request->getCookie('remember_token');
-        if ($rememberToken) {
-            $decoded   = explode('|', base64_decode($rememberToken));
-            $username  = $decoded[1] ?? null;
-
-            if ($username) {
-                $model = new AccountModel();
-                $user  = $model->getByUsernameOrEmail($username);
-
-                if ($user && $user['status'] === 'Aktif') {
-                    $session->set([
-                        'id'          => $user['id'],
-                        'username'    => $user['username'],
-                        'email'       => $user['email'],
-                        'role_id'     => $user['id_role'],
-                        'id_surveyor' => $user['id_surveyor'],
-                        'logged_in'   => true,
-                        'via_cookie'  => true
-                    ]);
-                    return $this->redirectByRole($user['id_role']);
-                } else {
-                    $response->deleteCookie('remember_token', '/');
-                }
-            }
-        }
-
+        // Kirim default value biar tidak error
         return view('login', [
-            'server_logged_in' => $session->get('logged_in') ? true : false,
-            'via_cookie'       => $session->get('via_cookie') ? true : false
+            'server_logged_in' => session()->get('isLoggedIn') ?? false,
+            'via_cookie'       => false, // kalau kamu tidak pakai "ingat saya"
         ]);
     }
 
 
-  public function doLogin()
-{
-    $request  = service('request');
-    $session  = session();
-    $response = service('response');
-    $model    = new AccountModel();
+    public function doLogin()
+    {
+        $request  = service('request');
+        $session  = session();
 
-    $usernameOrEmail = $request->getPost('username');
-    $password        = $request->getPost('password');
-    $remember        = $request->getPost('remember') == '1';
+        $usernameOrEmail = $request->getPost('username');
+        $password        = $request->getPost('password');
 
-    $user = $model->getByUsernameOrEmail($usernameOrEmail);
+        // Cari user berdasarkan username / email
+        $user = $this->accountModel
+            ->where('username', $usernameOrEmail)
+            ->orWhere('email', $usernameOrEmail)
+            ->first();
 
-    if ($user && password_verify($password, $user['password']) && $user['status'] === 'Aktif') {
-        // ✅ ambil data alumni berdasarkan id_account
-        $db = db_connect();
-        $detail = $db->table('detailaccount_alumni')
-                     ->where('id_account', $user['id'])
-                     ->get()
-                     ->getRowArray();
+        if ($user && password_verify($password, $user['password']) && $user['status'] === 'Aktif') {
+            $db = db_connect();
+            $detail = $db->table('detailaccount_alumni')
+                ->where('id_account', $user['id'])
+                ->get()
+                ->getRowArray();
 
-        $sessionData = [
-            'id'          => $user['id'],          // id dari tabel account
-            'id_account'  => $user['id'],          // untuk relasi ke detailaccount_alumni
-            'username'    => $user['username'],
-            'email'       => $user['email'],
-            'role_id'     => $user['id_role'],
-            'id_surveyor' => $user['id_surveyor'],
-            'logged_in'   => true
-        ];
+            // Data session
+            $sessionData = [
+                'id'          => $user['id'],
+                'id_account'  => $user['id'],
+                'username'    => $user['username'],
+                'email'       => $user['email'],
+                'role_id'     => $user['id_role'],
+                'id_surveyor' => $user['id_surveyor'],
+                'logged_in'   => true,
+            ];
 
-        // ✅ jika ada detail alumni, simpan juga nama lengkap & foto
-        if ($detail) {
-            $sessionData['nama_lengkap'] = $detail['nama_lengkap'];
-            $sessionData['foto'] = $detail['foto'] ?? null; // tambahkan foto ke session
+            if ($detail) {
+                $sessionData['nama_lengkap'] = $detail['nama_lengkap'];
+                $sessionData['foto']         = $detail['foto'] ?? null;
+            }
+
+            $session->set($sessionData);
+
+            return $this->redirectByRole($user['id_role']);
         }
 
-        if ($remember) {
-            $sessionData['via_cookie'] = true;
-            $response->setCookie([
-                'name'     => 'remember_token',
-                'value'    => base64_encode($user['id_role'] . '|' . $user['username']),
-                'expire'   => 60 * 60 * 24 * 7, // 7 hari
-                'path'     => '/',
-                'httponly' => true,
-                'secure'   => false,
-                'samesite' => 'Lax'
-            ]);
-        } else {
-            $sessionData['via_cookie'] = false;
-            $response->deleteCookie('remember_token', '/');
-        }
-
-        $session->set($sessionData);
-
-        return $this->redirectByRole($user['id_role']);
+        return redirect()->back()->with('error', 'Username atau password salah atau akun tidak aktif.');
     }
-
-    return redirect()->back()->with('error', 'Username atau password salah atau akun tidak aktif.');
-}
-
 
     public function logout()
     {
-        $response = service('response');
-        session()->destroy();
-        $response->deleteCookie('remember_token', '/');
-        return redirect()->to(site_url('login'));
+        $session = session();
+        $session->destroy();
+        return redirect()->to('/login')->with('success', 'Anda berhasil logout.');
     }
 
+    // Redirect sesuai role
     private function redirectByRole($roleId)
     {
         switch ($roleId) {
@@ -145,5 +99,80 @@ class Auth extends Controller
             default:
                 return redirect()->to('/login');
         }
+    }
+
+    // Form lupa password
+    public function forgotPassword()
+    {
+        return view('lupapassword');
+    }
+
+    // Kirim link reset password
+    public function sendResetLink()
+    {
+        $email   = $this->request->getPost('email');
+        $account = $this->accountModel->where('email', $email)->first();
+
+        if (!$account) {
+            return redirect()->back()->with('error', 'Email tidak ditemukan');
+        }
+
+        $token   = bin2hex(random_bytes(50));
+        $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+        $this->accountModel->setResetToken($account['id'], $token, $expires);
+
+        $resetLink = base_url("resetpassword/$token");
+
+        $mailer  = new BrevoMailer();
+        $subject = "Reset Password Tracer Study";
+        $htmlContent = "
+            <p>Halo, {$account['username']}!</p>
+            <p>Klik link berikut untuk reset password Anda:</p>
+            <a href='$resetLink'>$resetLink</a>
+            <p>Link berlaku 1 jam.</p>
+        ";
+
+        $sent = $mailer->sendEmail($account['email'], $account['username'], $subject, $htmlContent);
+
+        if ($sent) {
+            return redirect()->to('/login')->with('success', 'Link reset sudah dikirim ke email. Cek log untuk debug.');
+        } else {
+            return redirect()->back()->with('error', 'Gagal mengirim email. Cek log di writable/logs/');
+        }
+    }
+
+    // Form reset password
+    public function resetPassword($token)
+    {
+        $user = $this->accountModel->getUserByResetToken($token);
+
+        if (!$user) {
+            return redirect()->to('/login')->with('error', 'Token tidak valid atau sudah kadaluarsa.');
+        }
+
+        return view('resetpassword', ['token' => $token]);
+    }
+
+    // Simpan password baru
+    public function doResetPassword()
+    {
+        $token       = $this->request->getPost('token');
+        $newPassword = $this->request->getPost('password');
+        $confirm     = $this->request->getPost('confirm_password');
+
+        if ($newPassword !== $confirm) {
+            return redirect()->back()->with('error', 'Password dan konfirmasi tidak sama.');
+        }
+
+        $user = $this->accountModel->getUserByResetToken($token);
+
+        if (!$user) {
+            return redirect()->to('/login')->with('error', 'Token tidak valid atau sudah kadaluarsa.');
+        }
+
+        $this->accountModel->updatePasswordAndExpire($user['id'], $newPassword);
+
+        return redirect()->to('/login')->with('success', 'Password berhasil direset, silakan login.');
     }
 }

@@ -50,8 +50,8 @@ class AlumniController extends BaseController
         if (!$alumni) {
             $alumni = [
                 'nama_lengkap' => $session->get('nama_lengkap'),
-                'nim'          => '-', 
-                'nama_prodi'   => '-', 
+                'nim'          => '-',
+                'nama_prodi'   => '-',
                 'foto'         => null
             ];
         }
@@ -282,7 +282,7 @@ class AlumniController extends BaseController
     // =============================
     public function update()
     {
-        $id_account = session()->get('id_account'); 
+        $id_account = session()->get('id_account');
         $alumniModel = new AlumniModel();
 
         $alumni = $alumniModel->where('id_account', $id_account)->first();
@@ -345,5 +345,57 @@ class AlumniController extends BaseController
         }
 
         return redirect()->to(base_url('alumni/profil'))->with('success', 'Profil berhasil diperbarui.');
+    }
+    public function updateFoto($idAccount)
+    {
+        $alumniModel = new AlumniModel();
+        $uploadPath = FCPATH . 'uploads/foto_alumni/';
+
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        $alumni = $alumniModel->where('id_account', $idAccount)->first();
+        if (!$alumni) {
+            return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
+        }
+
+        $newName = null;
+
+        // Upload file dari komputer
+        $file = $this->request->getFile('foto');
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $newName = $file->getRandomName();
+            $file->move($uploadPath, $newName);
+        }
+        // Upload dari kamera
+        elseif ($this->request->getPost('foto_camera')) {
+            $dataUrl = $this->request->getPost('foto_camera');
+            $dataParts = explode(',', $dataUrl);
+            if (isset($dataParts[1])) {
+                $decoded = base64_decode($dataParts[1]);
+                $newName = uniqid('foto_') . '.png';
+                file_put_contents($uploadPath . $newName, $decoded);
+            } else {
+                return redirect()->back()->with('error', 'Format foto dari kamera salah');
+            }
+        } else {
+            return redirect()->back()->with('error', 'Tidak ada file untuk diupload');
+        }
+
+        // Update database
+        if ($newName && file_exists($uploadPath . $newName)) {
+            $alumniModel->where('id_account', $idAccount)
+                ->set(['foto' => $newName])
+                ->update();
+
+            // ✅ Update session supaya sidebar ikut berubah otomatis
+            $session = session();
+            $session->set('foto', $newName);
+
+            return redirect()->back()->with('success', 'Foto profil berhasil diubah');
+        }
+
+        return redirect()->back()->with('error', 'Gagal update database');
     }
 }
