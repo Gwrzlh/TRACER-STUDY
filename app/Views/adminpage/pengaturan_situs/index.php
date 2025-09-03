@@ -86,7 +86,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h5>Edit Pengguna</h5>
+            <h5>Edit Menu Pengguna </h5>
         </div>
         <div class="card-body p-4">
             <form action="<?= base_url('pengaturan-situs/save') ?>" method="post">
