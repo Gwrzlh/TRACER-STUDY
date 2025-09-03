@@ -55,7 +55,6 @@ $currentRoute = service('request')->uri->getPath();
             hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/notifikasi') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
             <i class="fa-solid fa-bell"></i>
             <span>Notifikasi</span>
-            <!-- Badge jumlah notif -->
             <span id="notifCount"
               class="absolute -top-1 left-40 bg-red-500 text-white text-xs rounded-full px-2 py-0.5 hidden">0</span>
           </a>
@@ -65,16 +64,24 @@ $currentRoute = service('request')->uri->getPath();
       <!-- Profile + Logout -->
       <div class="px-6 py-4 border-t">
         <div class="flex items-center gap-3 mb-3">
-          <?php 
-            $foto = session()->get('foto'); 
-            $fotoUrl = $foto ? base_url('uploads/' . $foto) : base_url('uploads/default.png');
+          <?php
+          $session = session();
+          $foto = $session->get('foto');
+
+          // Pastikan file benar-benar ada
+          $fotoPath = FCPATH . 'uploads/foto_alumni/' . ($foto ?? '');
+          if ($foto && file_exists($fotoPath)) {
+            $fotoUrl = base_url('uploads/foto_alumni/' . $foto);
+          } else {
+            $fotoUrl = base_url('uploads/default.png');
+          }
           ?>
           <img src="<?= $fotoUrl ?>" class="w-10 h-10 rounded-full border">
           <div>
             <p class="font-semibold text-gray-800 text-sm">
-              <?= session()->get('nama_lengkap') ?? session()->get('username') ?>
+              <?= $session->get('nama_lengkap') ?? $session->get('username') ?>
             </p>
-            <p class="text-gray-500 text-xs"><?= session()->get('email') ?></p>
+            <p class="text-gray-500 text-xs"><?= $session->get('email') ?></p>
           </div>
         </div>
 
@@ -97,7 +104,7 @@ $currentRoute = service('request')->uri->getPath();
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
     function loadNotifCount() {
-      $.get("<?= base_url('alumni/notifikasi/count') ?>", function (data) {
+      $.get("<?= base_url('alumni/notifikasi/count') ?>", function(data) {
         if (data.jumlah > 0) {
           $("#notifCount").text(data.jumlah).removeClass("hidden");
         } else {
@@ -109,4 +116,5 @@ $currentRoute = service('request')->uri->getPath();
     loadNotifCount();
   </script>
 </body>
+
 </html>
