@@ -492,7 +492,6 @@
         </div>
     </div>
 </div>
-<?= $this->endSection() ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -1237,5 +1236,4 @@ function generateQuestionPreview($q)
             return "<label class='form-label small'>{$text}</label><input type='text' class='form-control form-control-sm' disabled>";
     }
 }
-
 ?>
