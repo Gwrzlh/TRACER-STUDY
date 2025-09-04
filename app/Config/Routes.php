@@ -101,7 +101,80 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
         $routes->get('(:num)/delete', 'QuestionnairController::delete/$1');
         $routes->post('(:num)/toggle-status', 'QuestionnairController::toggleStatus/$1');
         $routes->get('(:num)/preview', 'QuestionnairController::preview/$1');
+        $routes->get('pages/getQuestionOptions', 'QuestionnairePageController::getQuestionOptions');
     });
+<<<<<<< HEAD
+=======
+
+    // === Page Management ===
+
+    $routes->group('questionnaire/(:num)/pages', function ($routes) {
+        $routes->get('/', 'QuestionnairePageController::index/$1');
+        $routes->get('create', 'QuestionnairePageController::create/$1');
+        $routes->post('store', 'QuestionnairePageController::store/$1');
+        $routes->get('(:num)/edit', 'QuestionnairePageController::edit/$1/$2');
+        $routes->post('(:num)/update', 'QuestionnairePageController::update/$1/$2');
+        // $routes->get('getQuestionOptions','QuestionnairePageController::getQuestionOptions');
+        $routes->post('(:num)/delete', 'QuestionnairePageController::delete/$1/$2');
+        // $routes->get('')
+    });
+
+    // === Question Management - FIX: Semua route harus explicit ===
+
+    // $routes->group('questionnaire/(:num)/pages/(:num)/questions', function($routes) {
+    //     $routes->get('/', 'QuestionnairController::manageQuestions/$1/$2');
+    //     $routes->get('create', 'QuestionnairController::createQuestion/$1/$2');
+    //     $routes->post('store', 'QuestionnairController::storeQuestion/$1/$2');
+    //     $routes->get('(:num)/edit', 'QuestionnairController::editQuestion/$1/$2/$3');
+    //     $routes->post('(:num)/update', 'QuestionnairController::updateQuestion/$1/$2/$3');
+    //     $routes->post('(:num)/delete', 'QuestionnairController::deleteQuestion/$1/$2/$3');
+    //     $routes->post('reorder', 'QuestionnairController::reorderQuestions/$1/$2');
+    // });
+
+    // FIX: Tambahan route untuk section (siap untuk future implementation)
+
+    $routes->group('questionnaire/(:num)/pages/(:num)/sections', function ($routes) {
+
+        $routes->get('/', 'SectionController::index/$1/$2');
+        $routes->get('create', 'SectionController::create/$1/$2');
+        $routes->post('store', 'SectionController::store/$1/$2');
+        $routes->get('(:num)/edit', 'SectionController::edit/$1/$2/$3');
+        $routes->post('(:num)/update', 'SectionController::update/$1/$2/$3');
+        $routes->post('(:num)/delete', 'SectionController::delete/$1/$2/$3');
+        $routes->post('(:num)/moveDown', 'SectionController::moveDown/$1/$2/$3');
+        $routes->post('(:num)/moveUp', 'SectionController::moveUp/$1/$2/$3');
+
+        // Questions per section
+
+        $routes->get('(:num)/questions', 'QuestionnairController::manageSectionQuestions/$1/$2/$3');
+        $routes->get('(:num)/questions/get-op/(:num)', 'QuestionnairController::getQuestionOptions/$1/$2/$3/$4');
+        $routes->get('(:num)/questions/get-conditions/(:num)', 'QuestionnairController::getOption/$4');
+        $routes->post('(:num)/questions/store', 'QuestionnairController::storeSectionQuestion/$1/$2/$3');
+        $routes->get('(:num)/questions/get/(:num)', 'QuestionnairController::getQuestion/$1/$2/$3/$4');
+        $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
+        $routes->post('(:num)/questions/(:num)/update', 'QuestionnairController::updateQuestion/$1/$2/$3/$4');
+        // $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
+    });
+
+    // === Option Management ===
+
+    $routes->group('questions/(:num)/options', function ($routes) {
+        $routes->get('/', 'QuestionnaireController::manageOptions/$1');
+        $routes->post('store', 'QuestionnaireController::storeOption/$1');
+        $routes->post('(:num)/update', 'QuestionnaireController::updateOption/$1');
+        $routes->post('(:num)/delete', 'QuestionnaireController::deleteOption/$1');
+    });
+
+    // === Condition Management ===
+    $routes->group('questions/(:num)/conditions', function ($routes) {
+        $routes->get('/', 'QuestionnaireConditionController::index/$1');
+        $routes->get('create', 'QuestionnaireConditionController::create/$1');
+        $routes->post('store', 'QuestionnaireConditionController::store/$1');
+        $routes->get('(:num)/edit', 'QuestionnaireConditionController::edit/$1/$2');
+        $routes->post('(:num)/update', 'QuestionnaireConditionController::update/$1/$2');
+        $routes->post('(:num)/delete', 'QuestionnaireConditionController::delete/$1/$2');
+    });
+>>>>>>> ab62962 (final commit for questionnaire admin)
 });
 
 // ===============================
@@ -116,10 +189,21 @@ $routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
     $routes->get('profil', 'KaprodiController::profil');
 });
 
+<<<<<<< HEAD
 /// ===============================
 // ALUMNI ROUTES
 // ===============================
 $routes->group('alumni', ['filter' => 'auth'], function ($routes) {
+=======
+
+
+/// ROUTES ALUMNI
+$routes->group('alumni', static function ($routes) {
+    // Login & Logout
+    $routes->get('login', 'AlumniController::login');
+    $routes->post('login', 'AlumniController::doLogin');
+    $routes->get('logout', 'AlumniController::logout');
+>>>>>>> ab62962 (final commit for questionnaire admin)
 
     // -------------------------------
     // Dashboard
@@ -159,9 +243,21 @@ $routes->group('alumni', ['filter' => 'auth'], function ($routes) {
     $routes->post('kirimPesanManual', 'AlumniController::kirimPesanManual');
     $routes->get('viewpesan/(:num)', 'AlumniController::viewPesan/$1');
 
+<<<<<<< HEAD
     // -------------------------------
     // Lihat teman
     // -------------------------------
+=======
+    $routes->get('/', 'AlumniController::dashboard', ['filter' => 'auth']);
+    $routes->get('dashboard', 'AlumniController::dashboard', ['filter' => 'auth']); // /alumni/dashboard
+
+    // Halaman Questioner
+    $routes->get('questioner', 'UserQuestionController::index', ['filter' => 'auth']);
+    $routes->get('questionersurveyor', 'AlumniController::questionersurveyor', ['filter' => 'auth']);
+
+    // Supervisi & Lihat Teman
+    $routes->get('supervisi', 'AlumniController::supervisi', ['filter' => 'auth']);
+>>>>>>> ab62962 (final commit for questionnaire admin)
     $routes->get('lihat_teman', 'AlumniController::lihatTeman');
     $routes->get('supervisi', 'AlumniController::supervisi');
 
@@ -172,3 +268,70 @@ $routes->group('alumni', ['filter' => 'auth'], function ($routes) {
     $routes->get('questionnaire/(:num)', 'AlumniController::fillQuestionnaire/$1');
     $routes->post('questionnaire/submit', 'AlumniController::submitAnswers');
 });
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+
+
+
+
+
+$routes->get('/pengaturan-situs', 'PengaturanSitus::index'); // halaman pengaturan
+$routes->post('/pengaturan-situs/simpan', 'PengaturanSitus::simpan'); // proses simpan
+// $routes->get('alumni/login', 'Alumni::login');
+// $routes->post('alumni/login', 'Alumni::doLogin');
+// $routes->get('alumni/dashboard', 'Alumni::dashboard');
+// $routes->get('alumni/logout', 'Alumni::logout');
+
+// Pengaturan Situs
+$routes->get('/pengaturan-situs', 'PengaturanSitus::index');
+
+// ajax conditional_logic 
+
+$routes->get('/admin/get-conditional-options', 'QuestionnairController::getConditionalOptions', ['as' => 'admin.questioner.getOptions']);
+// app/Config/Routes.php
+$routes->get('admin/questionnaire/pages/get-question-options', 'QuestionnairePageController::getQuestionOptions');
+
+// Di Routes.php tambahkan:
+$routes->get('admin/questionnaire/(:num)/questions/(:num)/options', 'QuestionController::getQuestionOptions/$1/$2');
+$routes->get('admin/questionnaire/(:num)/pages/(:num)/sections/(:num)/questions-with-options', 'QuestionController::getQuestionsWithOptions/$1/$2/$3');
+
+// ===============================
+// Admin - Laporan
+// ===============================
+$routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('laporan', 'AdminLaporan::index');                     // list laporan (max 7)
+    $routes->get('laporan/create', 'AdminLaporan::create');             // form tambah laporan
+    $routes->post('laporan/save', 'AdminLaporan::save');                // simpan banyak laporan
+    $routes->get('laporan/edit/(:num)', 'AdminLaporan::edit/$1');       // form edit laporan
+    $routes->post('laporan/update/(:num)', 'AdminLaporan::update/$1');  // update laporan
+});
+
+// ===============================
+// Landing Page (Public)
+// ===============================
+$routes->get('laporan', 'AdminLaporan::showAll');              // default → tahun terbaru (2024)
+$routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan per tahun
+
+
+// ===============================
+// Admin - Respon
+// ===============================
+$routes->group('admin/respon', static function ($routes) {
+    $routes->get('/', 'AdminRespon::index'); // Tampilkan daftar respon
+    });
+
+// Route untuk user/landing page
+$routes->get('respon', function () {
+    return view('LandingPage/respon');
+});
+
+
+  
+
+>>>>>>> ab62962 (final commit for questionnaire admin)
