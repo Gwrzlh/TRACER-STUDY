@@ -1,6 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<?= $this->extend('layout/sidebar') ?>
+<?= $this->section('content') ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Pengguna</title>
@@ -865,5 +864,4 @@ echo "</div>";
         });
     });
     </script>
-</body>
-</html>
+<?= $this->endSection() ?>

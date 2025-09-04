@@ -21,105 +21,103 @@
 /* Card putih dengan shadow */
 .container > div {
     background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-radius: 0; /* tegak lurus, konsisten dengan alumni */
+    padding: 32px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid #e5e7eb;
 }
 
 /* Tombol Tambah Halaman */
 .btn-primary {
-    background: #3498db;
+    background: #3b82f6;
     border: none;
-    border-radius: 8px;
-    padding: 8px 16px;
+    border-radius: 6px;
+    padding: 10px 16px;
     font-weight: 500;
-    transition: all 0.3s;
+    transition: all 0.2s;
+    color: #fff;
 }
 
 .btn-primary:hover {
-    background: #2980b9;
+    background: #2563eb;
     transform: translateY(-1px);
 }
 
-/* Tabel */
+/* ===== TABEL KUESIONER (ABU-ABU TIPIS) ===== */
 .table {
-    border-collapse: separate;
-    border-spacing: 0;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.table thead {
-    background: #3498db;
-    color: #fff;
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #f9fafb; /* abu abu tipis */
+    border: 1px solid #e5e7eb;
 }
 
 .table thead th {
-    border: none;
-    padding: 12px;
+    background-color: #f3f4f6; /* abu abu sedikit lebih gelap utk header */
+    padding: 14px 20px;
+    font-size: 13px;
     font-weight: 600;
+    color: #374151;
+    text-align: left;
+    text-transform: uppercase;
+    border-bottom: 1px solid #d1d5db;
 }
 
 .table tbody td {
-    vertical-align: middle;
-    padding: 12px;
+    background-color: #f9fafb; /* abu abu tipis utk isi */
+    padding: 14px 20px;
+    font-size: 14px;
+    color: #111827;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 /* Tombol Aksi */
+.table td .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+}
+
 .btn-info {
-    background: #1abc9c;
+    background: #10b981;
     border: none;
     border-radius: 6px;
     padding: 6px 12px;
-    font-size: 14px;
+    font-size: 13px;
+    color: #fff;
+}
+.btn-info:hover {
+    background: #059669;
 }
 
 .btn-warning {
-    background: #f39c12;
+    background: #f59e0b;
     border: none;
     border-radius: 6px;
     padding: 6px 12px;
-    font-size: 14px;
+    font-size: 13px;
     color: #fff;
+}
+.btn-warning:hover {
+    background: #d97706;
 }
 
 .btn-danger {
-    background: #e74c3c;
+    background: #ef4444;
     border: none;
     border-radius: 6px;
     padding: 6px 12px;
-    font-size: 14px;
+    font-size: 13px;
+    color: #fff;
 }
-
-/* Hover efek tombol */
-.btn-info:hover {
-    background: #16a085;
-}
-
-.btn-warning:hover {
-    background: #d68910;
-}
-
 .btn-danger:hover {
-    background: #c0392b;
-}
-/* Supaya tombol aksi di tabel sejajar ke samping */
-.table td .btn-group {
-    display: flex;
-    flex-wrap: wrap; /* kalau layar kecil tombol bisa turun */
-    gap: 6px;        /* jarak antar tombol */
+    background: #dc2626;
 }
 
-.table td .btn-group .btn {
-    flex: 0 0 auto; /* biar tombol tidak melar */
-}
-.table {
-    width: 100%;
-}
 /* Kolom aksi biar sejajar */
 .table td:last-child {
-    text-align: center; /* isi kolom rata tengah */
-    vertical-align: middle; /* sejajar di tengah baris */
+    text-align: center;
+    vertical-align: middle;
 }
 
 /* Supaya grup tombol tetap center */
@@ -179,39 +177,3 @@
 }
 
 
-    .breadcrumb {
-        display: flex;
-        flex-wrap: nowrap; /* biar tidak turun ke bawah */
-        list-style: none;
-        padding: 8px 12px;
-        background-color: #f8f9fa;
-        border-radius: 6px;
-        margin-bottom: 20px;
-    }
-
-    .breadcrumb-item {
-        display: inline-flex;
-        align-items: center;
-        font-size: 14px;
-        color: #007bff;
-    }
-
-    .breadcrumb-item + .breadcrumb-item::before {
-        content: "›"; /* tanda pemisah bisa diganti "/" atau ">" */
-        padding: 0 8px;
-        color: #6c757d;
-    }
-
-    .breadcrumb-item a {
-        text-decoration: none;
-        color: #007bff;
-    }
-
-    .breadcrumb-item a:hover {
-        text-decoration: underline;
-    }
-
-    .breadcrumb-item.active {
-        color: #6c757d;
-        font-weight: 500;
-    }

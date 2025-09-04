@@ -1,6 +1,7 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 <div class="container mt-4">
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>">Home</a></li>
@@ -10,7 +11,6 @@
             <li class="breadcrumb-item active" aria-current="page">Edit: <?= esc($section['section_title']) ?></li>
         </ol>
     </nav>
-
     <div class="card mb-4">
         <div class="card-header bg-warning text-dark">
             <h4 class="mb-0">
