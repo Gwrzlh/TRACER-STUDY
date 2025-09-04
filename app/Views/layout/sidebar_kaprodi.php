@@ -66,7 +66,11 @@ $currentRoute = service('request')->uri->getPath();
       <div class="mt-6 px-4 space-y-2">
         <div class="flex items-center gap-4">
           <div class="relative">
-            <img src="/img/idk.jpeg" class="profile-img">
+            <?php 
+            $foto = session()->get('foto') ?? 'default.png';
+            $fotoUrl = base_url('uploads/kaprodi/' . $foto);
+            ?>
+            <img src="<?= $fotoUrl ?>" class="profile-img object-cover rounded-full">
             <span class="status-indicator"></span>
           </div>
           <div>

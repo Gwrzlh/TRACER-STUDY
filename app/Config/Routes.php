@@ -391,7 +391,12 @@ $routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
     $routes->get('akreditasi', 'KaprodiController::akreditasi');
     $routes->get('ami', 'KaprodiController::ami');
     $routes->get('profil', 'KaprodiController::profil');
+
+    // Profil Kaprodi
+    $routes->get('profil/edit', 'KaprodiController::editProfil');
+    $routes->post('profil/update', 'KaprodiController::updateProfil');
 });
+
 
 
   
