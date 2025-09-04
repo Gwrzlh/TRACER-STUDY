@@ -34,8 +34,9 @@
                         <input type="text" id="keyword" name="keyword" class="form-control" placeholder="Masukkan NIM / Nama" required>
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">Cari</button>
+                        <button type="submit" class="btn btn-cari w-100">Cari</button>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -65,16 +66,16 @@
         <div class="row">
             <?php
             $categories = [
-                'Surveyor' => ['data' => $surveyors, 'cols' => ['Nama', 'NIM', 'No.Telp', 'Email', 'Prodi', 'Jurusan', 'Tahun Lulus'], 'fields' => ['nama_lengkap', 'nim', 'notlp', 'email', 'nama_prodi', 'nama_jurusan', 'tahun_kelulusan'], 'class' => 'bg-info text-white'],
-                'Tim Tracer' => ['data' => $teamTracer, 'cols' => ['Nama', 'Email'], 'fields' => ['nama_lengkap', 'email'], 'class' => 'bg-warning'],
-                'Wakil Direktur' => ['data' => $wakilDirektur, 'cols' => ['Nama', 'Email'], 'fields' => ['nama_lengkap', 'email'], 'class' => 'bg-success text-white'],
+                'Surveyor' => ['data' => $surveyors, 'cols' => ['Nama', 'NIM', 'No.Telp', 'Email', 'Prodi', 'Jurusan', 'Tahun Lulus'], 'fields' => ['nama_lengkap', 'nim', 'notlp', 'email', 'nama_prodi', 'nama_jurusan', 'tahun_kelulusan']],
+                'Tim Tracer' => ['data' => $teamTracer, 'cols' => ['Nama', 'Email'], 'fields' => ['nama_lengkap', 'email']],
+                'Wakil Direktur' => ['data' => $wakilDirektur, 'cols' => ['Nama', 'Email'], 'fields' => ['nama_lengkap', 'email']],
             ];
 
             foreach ($categories as $title => $cat):
             ?>
                 <div class="col-md-<?= ($title == 'Surveyor') ? '12' : '6' ?> mb-4">
                     <div class="card">
-                        <div class="card-header <?= $cat['class'] ?>"><?= $title ?></div>
+                        <div class="card-header"><?= $title ?></div>
                         <div class="card-body">
                             <table class="table table-striped table-bordered">
                                 <thead>
@@ -93,7 +94,7 @@
                                             <?php endforeach; ?>
                                             <td>
                                                 <form method="post" action="<?= site_url('admin/kontak/delete/' . $row['kontak_id']) ?>">
-                                                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                                    <button type="submit" class="btn btn-cari w-200">Hapus</button>
                                                 </form>
                                             </td>
                                         </tr>
