@@ -69,6 +69,7 @@ class Auth extends Controller
         return redirect()->back()->with('error', 'Username atau password salah atau akun tidak aktif.');
     }
 
+
     public function logout()
     {
         $session = session();
