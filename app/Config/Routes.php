@@ -187,6 +187,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
         $routes->get('(:num)/delete', 'QuestionnairController::delete/$1');
         $routes->post('(:num)/toggle-status', 'QuestionnairController::toggleStatus/$1');
         $routes->get('(:num)/preview', 'QuestionnairController::preview/$1');
+        $routes->get('pages/getQuestionOptions', 'QuestionnairePageController::getQuestionOptions');
     });
 
     // === Page Management ===
@@ -197,7 +198,9 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
         $routes->post('store', 'QuestionnairePageController::store/$1');
         $routes->get('(:num)/edit', 'QuestionnairePageController::edit/$1/$2');
         $routes->post('(:num)/update', 'QuestionnairePageController::update/$1/$2');
+        // $routes->get('getQuestionOptions','QuestionnairePageController::getQuestionOptions');
         $routes->post('(:num)/delete', 'QuestionnairePageController::delete/$1/$2');
+        // $routes->get('')
     });
 
     // === Question Management - FIX: Semua route harus explicit ===
@@ -222,11 +225,13 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
         $routes->get('(:num)/edit', 'SectionController::edit/$1/$2/$3');
         $routes->post('(:num)/update', 'SectionController::update/$1/$2/$3');
         $routes->post('(:num)/delete', 'SectionController::delete/$1/$2/$3');
+        $routes->post('(:num)/moveDown', 'SectionController::moveDown/$1/$2/$3');
+        $routes->post('(:num)/moveUp', 'SectionController::moveUp/$1/$2/$3');
 
         // Questions per section
 
         $routes->get('(:num)/questions', 'QuestionnairController::manageSectionQuestions/$1/$2/$3');
-        $routes->get('(:num)/questions/get-options/(:num)', 'QuestionnairController::getQuestionOptions/$4');
+        $routes->get('(:num)/questions/get-op/(:num)', 'QuestionnairController::getQuestionOptions/$1/$2/$3/$4');
         $routes->get('(:num)/questions/get-conditions/(:num)', 'QuestionnairController::getOption/$4');
         $routes->post('(:num)/questions/store', 'QuestionnairController::storeSectionQuestion/$1/$2/$3');
         $routes->get('(:num)/questions/get/(:num)', 'QuestionnairController::getQuestion/$1/$2/$3/$4');
@@ -256,6 +261,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
 });
 
 
+
+
 /// ROUTES ALUMNI
 $routes->group('alumni', static function ($routes) {
     // Login & Logout
@@ -272,7 +279,7 @@ $routes->group('alumni', static function ($routes) {
     $routes->get('dashboard', 'AlumniController::dashboard', ['filter' => 'auth']); // /alumni/dashboard
 
     // Halaman Questioner
-    $routes->get('questioner', 'AlumniController::questioner', ['filter' => 'auth']);
+    $routes->get('questioner', 'UserQuestionController::index', ['filter' => 'auth']);
     $routes->get('questionersurveyor', 'AlumniController::questionersurveyor', ['filter' => 'auth']);
 
     // Supervisi & Lihat Teman
@@ -308,7 +315,6 @@ $routes->group('alumni', static function ($routes) {
     $routes->get('viewpesan/(:num)', 'AlumniController::viewPesan/$1', ['filter' => 'auth']);
 
 });
-
 
 
 

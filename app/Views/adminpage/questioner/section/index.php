@@ -96,6 +96,7 @@
                                 <th>Description</th>
                                 <th width="120">Conditional Logic</th>
                                 <th width="120">Num of Question</th>
+                                <th width="120">Status</th>
                                 <th width="200">Action</th>
                             </tr>
                         </thead>
@@ -126,12 +127,15 @@
                                         <span class="badge bg-info fs-6"><?= $section['question_count'] ?? 0 ?></span>
                                     </td>
                                     <td>
+                                        <span class="badge bg-<?= $section['conditional_status'] == 'Active' ? 'success' : 'secondary' ?>"><?= $section['conditional_status'] ?></span>
+                                    </td>
+                                    <td>
                                         <div class="btn-group" role="group">
                                             <!-- Move Up/Down buttons -->
-                                            <button class="btn btn-sm btn-secondary" title="Move Up">
+                                           <button class="btn btn-sm btn-secondary move-up-btn" title="Move Up" data-section-id="<?= $section['id'] ?>">
                                                 <i class="fas fa-arrow-up"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-secondary" title="Move Down">
+                                            <button class="btn btn-sm btn-secondary move-down-btn" title="Move Down" data-section-id="<?= $section['id'] ?>">
                                                 <i class="fas fa-arrow-down"></i>
                                             </button>
                                             
@@ -158,6 +162,7 @@
                                             </form>
                                         </div>
                                     </td>
+                                    
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -167,9 +172,59 @@
         </div>
     <?php endif; ?>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$('.move-up-btn').on('click', function() {
+        const sectionId = $(this).data('section-id');
+        console.log('Move Up: section_id=' + sectionId); // Debug
+        $.ajax({
+            url: '<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections") ?>/' + sectionId + '/moveUp',
+            type: 'POST',
+            data: {
+                section_id: sectionId,
+                '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log('Move Up Response:', response);
+                if (response.success) {
+                    window.location.reload();
+                } else {
+                    alert('Gagal memindahkan section: ' + (response.message || 'Unknown error'));
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Move Up Error:', status, error, xhr.responseText);
+                alert('Terjadi kesalahan saat memindahkan section: ' + xhr.responseText);
+            }
+        });
+    });
 
-<style>
-}
-</style>
+    $('.move-down-btn').on('click', function() {
+        const sectionId = $(this).data('section-id');
+        console.log('Move Down: section_id=' + sectionId); // Debug
+        $.ajax({
+            url: '<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections") ?>/' + sectionId + '/moveDown',
+            type: 'POST',
+            data: {
+                section_id: sectionId,
+                '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log('Move Down Response:', response);
+                if (response.success) {
+                    window.location.reload();
+                } else {
+                    alert('Gagal memindahkan section: ' + (response.message || 'Unknown error'));
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Move Down Error:', status, error, xhr.responseText);
+                alert('Terjadi kesalahan saat memindahkan section: ' + xhr.responseText);
+            }
+        });
+    });
+</script>
 
 <?= $this->endSection() ?>

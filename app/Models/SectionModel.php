@@ -14,9 +14,11 @@ class SectionModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'questionnaire_id', 'page_id', 'section_title', 'section_description',
-        'show_section_title', 'show_section_description', 'order_no'
+        'show_section_title', 'show_section_description', 'order_no','conditional_logic'
     ];
+    
 
+    
     protected bool $allowEmptyInserts = false;
 
     // Dates
@@ -31,6 +33,12 @@ class SectionModel extends Model
         return $this->where('page_id', $page_id)
                    ->orderBy('order_no', 'ASC')
                    ->findAll();
+    }
+
+    public function getConditionalStatus($section_id)
+    {
+        $section = $this->find($section_id);
+        return $section['conditional_logic'] ? 'Active' : 'None';
     }
 
     // Get sections with question count
