@@ -103,8 +103,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
         $routes->get('(:num)/preview', 'QuestionnairController::preview/$1');
         $routes->get('pages/getQuestionOptions', 'QuestionnairePageController::getQuestionOptions');
     });
-<<<<<<< HEAD
-=======
+
+
 
     // === Page Management ===
 
@@ -174,7 +174,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
         $routes->post('(:num)/update', 'QuestionnaireConditionController::update/$1/$2');
         $routes->post('(:num)/delete', 'QuestionnaireConditionController::delete/$1/$2');
     });
->>>>>>> ab62962 (final commit for questionnaire admin)
+
 });
 
 // ===============================
@@ -189,12 +189,12 @@ $routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
     $routes->get('profil', 'KaprodiController::profil');
 });
 
-<<<<<<< HEAD
+
 /// ===============================
 // ALUMNI ROUTES
 // ===============================
-$routes->group('alumni', ['filter' => 'auth'], function ($routes) {
-=======
+$routes->group('alumni', ['filter' => 'auth'], function ($routes)) {
+
 
 
 /// ROUTES ALUMNI
@@ -203,7 +203,7 @@ $routes->group('alumni', static function ($routes) {
     $routes->get('login', 'AlumniController::login');
     $routes->post('login', 'AlumniController::doLogin');
     $routes->get('logout', 'AlumniController::logout');
->>>>>>> ab62962 (final commit for questionnaire admin)
+
 
     // -------------------------------
     // Dashboard
@@ -243,11 +243,11 @@ $routes->group('alumni', static function ($routes) {
     $routes->post('kirimPesanManual', 'AlumniController::kirimPesanManual');
     $routes->get('viewpesan/(:num)', 'AlumniController::viewPesan/$1');
 
-<<<<<<< HEAD
+
     // -------------------------------
     // Lihat teman
     // -------------------------------
-=======
+
     $routes->get('/', 'AlumniController::dashboard', ['filter' => 'auth']);
     $routes->get('dashboard', 'AlumniController::dashboard', ['filter' => 'auth']); // /alumni/dashboard
 
@@ -257,7 +257,7 @@ $routes->group('alumni', static function ($routes) {
 
     // Supervisi & Lihat Teman
     $routes->get('supervisi', 'AlumniController::supervisi', ['filter' => 'auth']);
->>>>>>> ab62962 (final commit for questionnaire admin)
+
     $routes->get('lihat_teman', 'AlumniController::lihatTeman');
     $routes->get('supervisi', 'AlumniController::supervisi');
 
@@ -268,8 +268,9 @@ $routes->group('alumni', static function ($routes) {
     $routes->get('questionnaire/(:num)', 'AlumniController::fillQuestionnaire/$1');
     $routes->post('questionnaire/submit', 'AlumniController::submitAnswers');
 });
-<<<<<<< HEAD
-=======
+}
+
+
 
 
 
@@ -332,6 +333,25 @@ $routes->get('respon', function () {
 });
 
 
+// =======================
+// ROUTES KAPRODI
+// =======================
+$routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
+    $routes->get('dashboard', 'KaprodiController::dashboard');
+    $routes->get('supervisi', 'KaprodiController::supervisi');
+
+    // Menu baru
+    $routes->get('questioner', 'KaprodiController::questioner');
+    $routes->get('akreditasi', 'KaprodiController::akreditasi');
+    $routes->get('ami', 'KaprodiController::ami');
+    $routes->get('profil', 'KaprodiController::profil');
+
+    // Profil Kaprodi
+    $routes->get('profil/edit', 'KaprodiController::editProfil');
+    $routes->post('profil/update', 'KaprodiController::updateProfil');
+});
+
+
+
   
 
->>>>>>> ab62962 (final commit for questionnaire admin)
