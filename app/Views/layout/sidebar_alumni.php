@@ -19,7 +19,7 @@ $currentRoute = service('request')->uri->getPath();
       <!-- Logo -->
       <div>
         <div class="sidebar-logo flex items-center gap-3 px-6 py-4 border-b">
-          <img src="/images/logo.png" alt="Logo POLBAN" class="w-10 h-10">
+          <img src="<?= base_url('images/logo.png') ?>" alt="Logo POLBAN" class="w-10 h-10">
           <span class="text-lg font-bold text-gray-700">Tracer Study</span>
         </div>
 
@@ -42,9 +42,9 @@ $currentRoute = service('request')->uri->getPath();
           </a>
 
           <!-- Kuesioner -->
-          <a href="<?= base_url('alumni/questioner') ?>"
+          <a href="<?= base_url('alumni/questionnaires') ?>"
             class="flex items-center gap-3 px-6 py-2 rounded-lg transition 
-            hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/questioner') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
+            hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/questionnaires') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
             <i class="fa-solid fa-list"></i>
             <span>Kuesioner</span>
           </a>
@@ -76,7 +76,8 @@ $currentRoute = service('request')->uri->getPath();
             $fotoUrl = base_url('uploads/default.png');
           }
           ?>
-          <img src="<?= $fotoUrl ?>" class="w-10 h-10 rounded-full border">
+          <img src="<?= $fotoUrl ?>"
+            class="w-12 h-12 rounded-full shadow-md border-2 border-white object-cover">
           <div>
             <p class="font-semibold text-gray-800 text-sm">
               <?= $session->get('nama_lengkap') ?? $session->get('username') ?>
