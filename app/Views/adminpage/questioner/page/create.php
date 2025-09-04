@@ -93,6 +93,7 @@ $(document).ready(function() {
             data: { question_id: questionId },
             dataType: 'json',
             success: function(response) {
+                console.log('AJAX SUCECSS LAAH', response);
                 if (response.type === 'select' && response.options.length > 0) {
                     let selectHtml = `<select name="condition_value[]" class="form-control" required>`;
                     response.options.forEach(function(option) {
@@ -106,9 +107,9 @@ $(document).ready(function() {
                     valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" required>`);
                 }
             },
-            error: function() {
-                // Jika terjadi error, kembalikan input teks default
-                valueContainer.html('<input type="text" name="condition_value[]" placeholder="Value" class="form-control" required>');
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', status, error, xhr.responseText); // Perbaiki debug
+                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="form-control" value="${initialValue || ''}" required>`);
             }
         });
     }

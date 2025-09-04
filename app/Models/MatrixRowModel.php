@@ -4,19 +4,19 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class MatrixRowModel extends Model
-{
-    protected $table            = 'matrix_rows';
-    protected $primaryKey       = 'id';
-    protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [
-        'question_id',
-        'row_text',
-        'order_no'
-    ];
+    class MatrixRowModel extends Model
+    {
+        protected $table            = 'matrix_rows';
+        protected $primaryKey       = 'id';
+        protected $useAutoIncrement = true;
+        protected $returnType       = 'array';
+        protected $useSoftDeletes   = false;
+        protected $protectFields    = true;
+        protected $allowedFields    = [
+            'question_id',
+            'row_text',
+            'order_no'
+        ];
 
     protected bool $allowEmptyInserts = false;
 
