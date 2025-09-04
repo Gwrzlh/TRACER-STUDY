@@ -27,46 +27,9 @@
                      <?= get_setting('pengguna_button_text', 'Tambah Pengguna') ?>
                 </a>
 
-
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importModal">
+                <a href="<?= base_url('admin/pengguna/import') ?>" class="btn btn-success">
                     <i class="fas fa-file-import"></i> Import Akun
-                </button>
-            </div>
-
-            <!-- Import Modal -->
-            <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="importModalLabel">Import Akun dari Excel</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form action="<?= base_url('admin/pengguna/import') ?>" method="post" enctype="multipart/form-data">
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                    <label for="file" class="form-label">Pilih File (xls, xlsx, csv)</label>
-                                    <input type="file" name="file" id="file" class="form-control" accept=".xls,.xlsx,.csv" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="id_role" class="form-label">Pilih Role</label>
-                                    <select name="id_role" id="id_role" class="form-select" required>
-                                        <option value="">-- Pilih Role --</option>
-                                        <option value="1">Alumni</option>
-                                        <option value="2">Admin</option>
-                                        <option value="6">Kaprodi</option>
-                                        <option value="7" selected>Perusahaan</option>
-                                        <option value="8">Atasan</option>
-                                        <option value="9">Jabatan lainnya</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                <button type="submit" class="btn btn-success">Import</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                </a>
             </div>
 
             <!-- Flash Messages -->
@@ -75,9 +38,21 @@
                     <i class="fas fa-check-circle"></i> <?= session()->getFlashdata('success') ?>
                 </div>
             <?php endif; ?>
+
             <?php if (session()->getFlashdata('error')): ?>
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-circle"></i> <?= session()->getFlashdata('error') ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (session()->getFlashdata('errorLogs')): ?>
+                <div class="alert alert-danger">
+                    <strong>Data Gagal Import:</strong>
+                    <ul>
+                        <?php foreach(session()->getFlashdata('errorLogs') as $log): ?>
+                            <li><i class="fas fa-times-circle text-danger"></i> <?= esc($log) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
                 </div>
             <?php endif; ?>
 
@@ -150,7 +125,6 @@
                             </tbody>
                         </table>
                     </div>
-                 
                 </div>
             <?php else: ?>
                 <div class="empty-state">
