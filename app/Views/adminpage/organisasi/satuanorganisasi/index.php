@@ -64,7 +64,8 @@
                             <td><?= esc($row['nama_singkatan']) ?></td>
                             <td><?= esc($row['nama_slug']) ?></td>
                             <td>
-                                <span class="badge"><?= esc($row['nama_tipe'] ?? '-') ?></span>
+                                  <span class="badge tipe-organisasi"><?= esc($row['nama_tipe'] ?? '-') ?></span>
+
                             </td>
                             <td>
                                 <span class="badge" style="background-color:#20c997; color:white; font-size:0.8rem; padding:2px 6px; border-radius:4px;">
