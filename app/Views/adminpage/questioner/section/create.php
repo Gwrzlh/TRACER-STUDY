@@ -86,7 +86,7 @@
                                         <?php endforeach; ?>
                                     </select>
                                     <span class="value-input-container w-100">
-                                        <input type="text" name="condition_value[]" placeholder="Value" class="form-control" required>
+                                        <input type="text" name="condition_value[]" placeholder="Value" class="form-control" >
                                     </span>
                                     <button type="button" class="remove-condition-btn btn btn-danger btn-sm" style="display:none;">Hapus</button>
                                 </div>
@@ -172,13 +172,13 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-    $(document).ready(function() {
+        $(document).ready(function() {
         function loadConditionalValueInput(questionSelector, initialValue = null) {
             const questionId = questionSelector.val();
             const valueContainer = questionSelector.closest('.condition-row').find('.value-input-container');
 
             if (!questionId) {
-                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="" required>`);
+                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
                 return;
             }
 
@@ -191,20 +191,20 @@
                     console.log('AJAX Success:', response);
                     let inputHtml = '';
                     if (response.type === 'select' && response.options && response.options.length > 0) {
-                        inputHtml = '<select name="condition_value[]" class="form-control" required>';
+                        inputHtml = `<select name="condition_value[]" class="form-control" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
                         response.options.forEach(function(option) {
                             const isSelected = initialValue !== null && String(initialValue) === String(option.id) ? 'selected' : '';
                             inputHtml += `<option value="${option.id}" ${isSelected}>${option.option_text}</option>`;
                         });
                         inputHtml += '</select>';
                     } else {
-                        inputHtml = `<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="" required>`;
+                        inputHtml = `<input type="text" name="condition_value[]" placeholder="Value" class="form-control" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
                     }
                     valueContainer.html(inputHtml);
                 },
                 error: function(xhr, status, error) {
                     console.error('AJAX Error:', status, error, xhr.responseText);
-                    valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="form-control" value="" required>`);
+                    valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="form-control" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
                 }
             });
         }
@@ -215,12 +215,20 @@
                     $('.condition-row').first().show();
                     $('#add-condition-btn').show();
                     $('.condition-row').first().find('.remove-condition-btn').hide();
+                    // Add required attribute to condition inputs
+                    $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', true);
+                    $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', true);
+                    $('.condition-row').find('select[name="operator[]"]').prop('required', true);
                 });
             } else {
                 $('#conditional-form').slideUp(300, function() {
                     $('.condition-row:not(:first)').remove();
                     $('.condition-row').first().hide();
                     $('#add-condition-btn').hide();
+                    // Remove required attribute from condition inputs
+                    $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', false);
+                    $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', false);
+                    $('.condition-row').find('select[name="operator[]"]').prop('required', false);
                 });
             }
         }).trigger('change');
@@ -228,13 +236,13 @@
         $('#add-condition-btn').on('click', function() {
             const templateRow = `
                 <div class="condition-row d-flex align-items-center gap-2 mb-2">
-                    <select name="condition_question_id[]" class="question-selector form-control">
+                    <select name="condition_question_id[]" class="question-selector form-control" required>
                         <option value="">Pilih Pertanyaan</option>
                         <?php foreach ($questions as $q): ?>
                             <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <select name="operator[]" class="form-control" style="width: auto;">
+                    <select name="operator[]" class="form-control" style="width: auto;" required>
                         <?php foreach ($operators as $key => $label): ?>
                             <option value="<?= $key ?>"><?= $label ?></option>
                         <?php endforeach; ?>
@@ -256,13 +264,22 @@
                 const row = $(this).closest('.condition-row');
                 row.find('.question-selector').val('');
                 row.find('select[name="operator[]"]').val('is');
-                row.find('.value-input-container').html('<input type="text" name="condition_value[]" placeholder="Value" class="form-control" required>');
+                row.find('.value-input-container').html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
                 row.find('.remove-condition-btn').hide();
             }
         });
 
         $(document).on('change', '.question-selector', function() {
             loadConditionalValueInput($(this), null);
+        });
+
+        // Prevent form submission if conditional logic is disabled
+        $('form').on('submit', function(e) {
+            if (!$('#conditional_logic').is(':checked')) {
+                $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', false);
+                $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', false);
+                $('.condition-row').find('select[name="operator[]"]').prop('required', false);
+            }
         });
     });
     </script>
