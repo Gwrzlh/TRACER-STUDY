@@ -106,7 +106,7 @@
                                             <?php endforeach; ?>
                                         </select>
                                         <span class="value-input-container w-100">
-                                            <input type="text" name="condition_value[]" placeholder="Value" class="form-control" required>
+                                            <input type="text" name="condition_value[]" placeholder="Value" class="form-control" >
                                         </span>
                                         <button type="button" class="remove-condition-btn btn btn-danger btn-sm" style="display:none;">Hapus</button>
                                     </div>
@@ -190,50 +190,14 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-    function deleteSection() {
-        if (confirm('Yakin ingin menghapus section ini? Semua pertanyaan di dalam section ini juga akan terhapus!')) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/delete") ?>';
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = '<?= csrf_token() ?>';
-            csrfInput.value = '<?= csrf_hash() ?>';
-            form.appendChild(csrfInput);
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
-
-    function duplicateSection() {
-        if (confirm('Duplikasi section ini? Section baru akan dibuat dengan nama "Copy of <?= esc($section['section_title']) ?>"')) {
-            $.ajax({
-                url: '<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/duplicate") ?>',
-                type: 'POST',
-                data: { '<?= csrf_token() ?>': '<?= csrf_hash() ?>' },
-                success: function(response) {
-                    if (response.success) {
-                        window.location.href = '<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections") ?>';
-                    } else {
-                        alert('Gagal menduplikasi section: ' + (response.message || 'Unknown error'));
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Duplicate Error:', status, error, xhr.responseText);
-                    alert('Terjadi kesalahan saat menduplikasi section.');
-                }
-            });
-        }
-    }
-
+<script>
     $(document).ready(function() {
         function loadConditionalValueInput(questionSelector, initialValue = null) {
             const questionId = questionSelector.val();
             const valueContainer = questionSelector.closest('.condition-row').find('.value-input-container');
 
             if (!questionId) {
-                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="" required>`);
+                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
                 return;
             }
 
@@ -246,20 +210,20 @@
                     console.log('AJAX Success:', response);
                     let inputHtml = '';
                     if (response.type === 'select' && response.options && response.options.length > 0) {
-                        inputHtml = '<select name="condition_value[]" class="form-control" required>';
+                        inputHtml = `<select name="condition_value[]" class="form-control" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
                         response.options.forEach(function(option) {
                             const isSelected = initialValue !== null && String(initialValue) === String(option.id) ? 'selected' : '';
                             inputHtml += `<option value="${option.id}" ${isSelected}>${option.option_text}</option>`;
                         });
                         inputHtml += '</select>';
                     } else {
-                        inputHtml = `<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" required>`;
+                        inputHtml = `<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
                     }
                     valueContainer.html(inputHtml);
                 },
                 error: function(xhr, status, error) {
                     console.error('AJAX Error:', status, error, xhr.responseText);
-                    valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="form-control" value="" required>`);
+                    valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="form-control" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
                 }
             });
         }
@@ -267,15 +231,25 @@
         $('#conditional_logic').on('change', function() {
             if (this.checked) {
                 $('#conditional-form').slideDown(300, function() {
-                    $('.condition-row').first().show();
+                    $('.condition-row').show();
                     $('#add-condition-btn').show();
-                    $('.condition-row').first().find('.remove-condition-btn').hide();
+                    $('.condition-row').each(function() {
+                        $(this).find('.remove-condition-btn').show();
+                    });
+                    // Add required attribute to condition inputs
+                    $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', true);
+                    $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', true);
+                    $('.condition-row').find('select[name="operator[]"]').prop('required', true);
                 });
             } else {
                 $('#conditional-form').slideUp(300, function() {
                     $('.condition-row:not(:first)').remove();
                     $('.condition-row').first().hide();
                     $('#add-condition-btn').hide();
+                    // Remove required attribute from condition inputs
+                    $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', false);
+                    $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', false);
+                    $('.condition-row').find('select[name="operator[]"]').prop('required', false);
                 });
             }
         }).trigger('change');
@@ -283,13 +257,13 @@
         $('#add-condition-btn').on('click', function() {
             const templateRow = `
                 <div class="condition-row d-flex align-items-center gap-2 mb-2">
-                    <select name="condition_question_id[]" class="question-selector form-control">
+                    <select name="condition_question_id[]" class="question-selector form-control" required>
                         <option value="">Pilih Pertanyaan</option>
                         <?php foreach ($questions as $q): ?>
                             <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <select name="operator[]" class="form-control" style="width: auto;">
+                    <select name="operator[]" class="form-control" style="width: auto;" required>
                         <?php foreach ($operators as $key => $label): ?>
                             <option value="<?= $key ?>"><?= $label ?></option>
                         <?php endforeach; ?>
@@ -311,15 +285,17 @@
                 const row = $(this).closest('.condition-row');
                 row.find('.question-selector').val('');
                 row.find('select[name="operator[]"]').val('is');
-                row.find('.value-input-container').html('<input type="text" name="condition_value[]" placeholder="Value" class="form-control" required>');
+                row.find('.value-input-container').html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
                 row.find('.remove-condition-btn').hide();
             }
         });
 
         $(document).on('change', '.question-selector', function() {
-            loadConditionalValueInput($(this), null);
+            const initialValue = $(this).closest('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').val();
+            loadConditionalValueInput($(this), initialValue);
         });
 
+        // Handle pre-populated conditions
         <?php if (!empty($conditionalLogic)): ?>
             $('.condition-row').each(function(index) {
                 const condition = <?= json_encode($conditionalLogic) ?>[index];
@@ -331,8 +307,53 @@
                 }
             });
         <?php endif; ?>
+
+        // Prevent form submission issues with hidden required fields
+        $('form').on('submit', function(e) {
+            if (!$('#conditional_logic').is(':checked')) {
+                $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', false);
+                $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', false);
+                $('.condition-row').find('select[name="operator[]"]').prop('required', false);
+            }
+        });
+
+        function deleteSection() {
+            if (confirm('Yakin ingin menghapus section ini? Semua pertanyaan di dalam section ini juga akan terhapus!')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/delete") ?>';
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '<?= csrf_token() ?>';
+                csrfInput.value = '<?= csrf_hash() ?>';
+                form.appendChild(csrfInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function duplicateSection() {
+            if (confirm('Duplikasi section ini? Section baru akan dibuat dengan nama "Copy of <?= esc($section['section_title']) ?>"')) {
+                $.ajax({
+                    url: '<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/duplicate") ?>',
+                    type: 'POST',
+                    data: { '<?= csrf_token() ?>': '<?= csrf_hash() ?>' },
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = '<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections") ?>';
+                        } else {
+                            alert('Gagal menduplikasi section: ' + (response.message || 'Unknown error'));
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Duplicate Error:', status, error, xhr.responseText);
+                        alert('Terjadi kesalahan saat menduplikasi section.');
+                    }
+                });
+            }
+        }
     });
-    </script>
+</script>
 </div>
 
 <style>
