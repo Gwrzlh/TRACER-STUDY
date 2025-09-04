@@ -53,4 +53,32 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const baseUrl = "<?= base_url('admin/questionnaire') ?>";
+
+    // SweetAlert hapus
+    document.querySelectorAll(".delete-questionnaire").forEach(button => {
+        button.addEventListener("click", function() {
+            const id = this.getAttribute("data-id");
+
+            Swal.fire({
+                title: 'Yakin ingin menghapus?',
+                text: "Data questionnaire beserta halaman & pertanyaan akan terhapus permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `${baseUrl}/${id}/delete`;
+                }
+            });
+        });
+    });
+});
+</script>
 <?= $this->endSection() ?>

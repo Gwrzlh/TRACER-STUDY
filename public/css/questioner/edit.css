@@ -1,4 +1,4 @@
-/* ===== STYLE MODERN FORM EDIT KUESIONER ===== */
+/* ===== STYLE MODERN FORM KUESIONER (TAMBAH & EDIT) ===== */
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -8,28 +8,30 @@ body {
 }
 
 /* Judul */
-h2 {
-    font-size: 28px;
+.form-kuesioner h2 {
+    font-size: 26px;
     font-weight: 600;
     margin-bottom: 25px;
+    text-align: center;
     color: #34495e;
 }
 
-/* Form container */
-form {
+/* Container form */
+.form-kuesioner {
     background: #fff;
     padding: 25px;
     border-radius: 14px;
     box-shadow: 0 6px 14px rgba(0,0,0,0.08);
     max-width: 850px;
+    margin: 20px auto;
 }
 
 /* Input group */
-form div {
+.form-kuesioner div {
     margin-bottom: 18px;
 }
 
-label {
+.form-kuesioner label {
     font-weight: 500;
     margin-bottom: 6px;
     display: inline-block;
@@ -37,9 +39,9 @@ label {
 }
 
 /* Input & textarea */
-input[type="text"],
-textarea,
-select {
+.form-kuesioner input[type="text"],
+.form-kuesioner textarea,
+.form-kuesioner select {
     width: 100%;
     padding: 10px 12px;
     border: 1px solid #dcdfe3;
@@ -49,28 +51,28 @@ select {
     background: #fff;
 }
 
-input[type="text"]:focus,
-textarea:focus,
-select:focus {
+.form-kuesioner input[type="text"]:focus,
+.form-kuesioner textarea:focus,
+.form-kuesioner select:focus {
     outline: none;
     border-color: #3498db;
     box-shadow: 0 0 6px rgba(52,152,219,0.3);
 }
 
 /* Textarea khusus */
-textarea {
+.form-kuesioner textarea {
     min-height: 80px;
     resize: vertical;
 }
 
 /* Conditional logic checkbox */
-#conditional_logic {
+.form-kuesioner #conditional_logic {
     margin-left: 8px;
     transform: scale(1.2);
 }
 
 /* Container conditions */
-#conditional-container {
+.form-kuesioner #conditional-container {
     background: #f9fbfd;
     border: 1px dashed #3498db;
     border-radius: 10px;
@@ -79,7 +81,7 @@ textarea {
 }
 
 /* Kondisi row */
-.condition-row {
+.form-kuesioner .condition-row {
     background: #fff;
     border: 1px solid #e1e4e8;
     border-radius: 8px;
@@ -89,16 +91,16 @@ textarea {
     align-items: center;
     gap: 12px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    flex-wrap: wrap;
 }
 
-/* Select dalam condition */
-.condition-row select,
-.condition-row input[type="text"] {
+.form-kuesioner .condition-row select,
+.form-kuesioner .condition-row input[type="text"] {
     flex: 1;
 }
 
-/* Tombol hapus */
-.remove-condition-btn {
+/* Tombol hapus kondisi */
+.form-kuesioner .remove-condition-btn {
     background: #e74c3c;
     color: #fff;
     border: none;
@@ -109,13 +111,13 @@ textarea {
     transition: all 0.2s ease;
 }
 
-.remove-condition-btn:hover {
+.form-kuesioner .remove-condition-btn:hover {
     background: #c0392b;
     transform: scale(1.05);
 }
 
 /* Tombol tambah kondisi */
-#add-condition-btn {
+.form-kuesioner #add-condition-btn {
     margin-top: 12px;
     background: #2ecc71;
     color: #fff;
@@ -127,13 +129,13 @@ textarea {
     transition: all 0.3s ease;
 }
 
-#add-condition-btn:hover {
+.form-kuesioner #add-condition-btn:hover {
     background: #27ae60;
     transform: translateY(-2px);
 }
 
 /* Tombol simpan */
-button[type="submit"] {
+.form-kuesioner button[type="submit"] {
     background: linear-gradient(135deg, #3498db, #2980b9);
     color: #fff;
     border: none;
@@ -145,7 +147,7 @@ button[type="submit"] {
     transition: all 0.3s ease;
 }
 
-button[type="submit"]:hover {
+.form-kuesioner button[type="submit"]:hover {
     background: linear-gradient(135deg, #2980b9, #1f5e85);
     transform: translateY(-2px);
 }

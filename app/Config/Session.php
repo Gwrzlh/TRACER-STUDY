@@ -43,7 +43,6 @@ class Session extends BaseConfig
     public int $expiration = 0; // 2 jam = 7200 detik
 
 
-
     /**
      * --------------------------------------------------------------------------
      * Session Save Path
