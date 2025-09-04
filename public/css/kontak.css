@@ -1,396 +1,167 @@
-/* Modern Contact Management Styles */
+    /* Table Styles - Clean Gray Bordered */
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+    }
 
-/* Reset dan Base Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fc;
-    color: #5a5c69;
-    line-height: 1.6;
-}
+    .table thead th {
+        background: #f9fafb;
+        color: #333;
+        padding: 1rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid #e0e0e0;
+        text-align: left;
+    }
 
-/* Container */
+    .table tbody td {
+        padding: 1rem;
+        color: #444;
+        border: 1px solid #e0e0e0;
+        vertical-align: middle;
+    }
+
+    /* Hover row */
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Button Styles in Table */
+    .table .btn {
+        display: inline-block;
+        padding: 0.4rem 0.9rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: 20px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    /* Status Buttons */
+    .btn-status-red {
+        background: #fde2e1;
+        color: #c0392b;
+        border: 1px solid #f5b7b1;
+    }
+
+    .btn-status-yellow {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+
+    .btn-status-blue {
+        background: #e3f2fd;
+        color: #1565c0;
+        border: 1px solid #90caf9;
+    }
+
+    .btn-status-green {
+        background: #e6f4ea;
+        color: #1b5e20;
+        border: 1px solid #a5d6a7;
+    }
+
+    /* Action Buttons */
+    .btn-action-blue {
+        background: #e3f2fd;
+        color: #1565c0;
+        border: 1px solid #90caf9;
+    }
+
+    .btn-action-green {
+        background: #e6f4ea;
+        color: #1b5e20;
+        border: 1px solid #a5d6a7;
+    }
+
+    .btn-action-orange {
+        background: #fff3cd;
+        color: #d35400;
+        border: 1px solid #ffeeba;
+    }
+
+    /* Hover effect */
+    .table .btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+/* Container utama agar lebih padat */
 .container {
-    max-width: 1400px;
+    max-width: 2000px;   /* Lebar container lebih besar */
     margin: 0 auto;
-    padding: 2rem;
 }
 
-/* Page Title */
-.container h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #3c68d4;
-    margin-bottom: 2rem;
-    position: relative;
-}
-
-.container h2::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 60px;
-    height: 4px;
-    background-color: #3c68d4;
-    border-radius: 2px;
-}
-
-/* Card Styles */
+/* Card agar lebih padet */
 .card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e3e6f0;
-    margin-bottom: 2rem;
-    animation: fadeIn 0.5s ease-out;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 18px; /* dikurangi biar tabel rapat */
 }
 
-.card-body {
-    padding: 2rem;
-}
-
-.card-header {
-    border: none;
-    border-radius: 12px 12px 0 0;
-    font-weight: 700;
-    font-size: 1rem;
-    padding: 1.2rem 2rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Card Header Colors - All Blue */
-.card-header.bg-info,
-.card-header.bg-warning,
-.card-header.bg-success,
-.card-header {
-    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%) !important;
-    color: white !important;
-}
-
-/* Form Styles */
-.form-label {
-    font-weight: 600;
-    color: #5a5c69;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-}
-
-.form-select, 
-.form-control {
-    padding: 0.875rem 1rem;
-    border: 2px solid #e3e6f0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-    background: #f8f9fc;
-}
-
-.form-select:focus, 
-.form-control:focus {
-    outline: none;
-    border-color: #4e73df;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
-}
-
-.form-control::placeholder {
-    color: #a0a3b8;
-}
-
-/* Button Styles */
-.btn-primary {
-    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-    border: 2px solid #4e73df;
-    color: white;
-    padding: 0.875rem 2rem;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(78, 115, 223, 0.3);
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(78, 115, 223, 0.4);
-    background: linear-gradient(135deg, #224abe 0%, #1e3a8a 100%);
-    border-color: #224abe;
-}
-
-.btn-success {
-    background: linear-gradient(135deg, #1cc88a 0%, #17a673 100%);
-    border: 2px solid #1cc88a;
-    color: white;
-    padding: 0.875rem 2rem;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(28, 200, 138, 0.3);
-}
-
-.btn-success:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(28, 200, 138, 0.4);
-    background: linear-gradient(135deg, #17a673 0%, #138c68 100%);
-    border-color: #17a673;
-}
-
-.btn-danger {
-    background: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%);
-    border: 2px solid #e74a3b;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 6px rgba(231, 74, 59, 0.3);
-}
-
-.btn-danger:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(231, 74, 59, 0.4);
-    background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
-    border-color: #c0392b;
-}
-
-.btn-sm {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.75rem;
-}
-
-/* Table Styles - Orange Theme */
+/* Table lebih padet */
 .table-container {
     background: white;
-    border-radius: 12px;
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e3e6f0;
+    border: 1px solid #e0e0e0;
+    width: 100%;
 }
 
 .table {
-    margin-bottom: 0;
+    width: 100%;
+    border-collapse: collapse;
     font-size: 0.9rem;
 }
 
+/* Header lebih rapet */
 .table thead th {
-    background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
-    color: white;
-    padding: 1.2rem 1rem;
-    font-weight: 700;
+    background:#dadada;
+    color: #333;
+    padding: 0.8rem; /* lebih kecil */
+    font-weight: 600;
     font-size: 0.85rem;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    border: none;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+}
+
+/* Isi tabel lebih rapet */
+.table tbody td {
+    padding: 0.8rem; /* lebih kecil */
+    color: #444;
+    border: 1px solid #e0e0e0;
     vertical-align: middle;
 }
 
-.table tbody tr {
-    border-bottom: 1px solid #fed7aa;
+/* Hover row */
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Button di tabel */
+.table .btn {
+    display: inline-block;
+    padding: 0.35rem 0.8rem; /* lebih kecil */
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-radius: 18px;
+    text-decoration: none;
     transition: all 0.2s ease;
 }
-
-.table tbody tr:hover {
-    background-color: #fff7ed;
-}
-
-.table tbody tr:last-child {
-    border-bottom: none;
-}
-
-.table tbody td {
-    padding: 1rem;
-    color: #5a5c69;
+.btn-cari {
+    background-color: #92abc5;   /* biru primary */
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
     font-weight: 500;
-    vertical-align: middle;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: #fef3e7;
-}
-
-.table-striped tbody tr:nth-of-type(odd):hover {
-    background-color: #fff7ed;
-}
-
-.table-bordered {
-    border: 1px solid #fed7aa;
-}
-
-.table-bordered th,
-.table-bordered td {
-    border: 1px solid #fed7aa;
-}
-
-/* Search Result Section */
-#searchResult {
-    animation: fadeIn 0.5s ease-out;
-}
-
-#searchResult .card-header {
-    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-    color: white;
-    font-weight: 700;
-    font-size: 1rem;
-    padding: 1.2rem 2rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Checkbox Styles */
-input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #4e73df;
-    cursor: pointer;
-}
-
-/* Row Layout */
-.row {
-    margin-left: -15px;
-    margin-right: -15px;
-}
-
-.col-md-3, .col-md-6, .col-md-12 {
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
-/* Form Row Spacing */
-.row.g-3 > * {
-    padding-right: 0.75rem;
-    padding-left: 0.75rem;
-    margin-top: 0.75rem;
-}
-
-.row.g-3 {
-    margin-right: -0.75rem;
-    margin-left: -0.75rem;
-    margin-top: -0.75rem;
-}
-
-/* Button Alignment */
-.d-flex.align-items-end .btn {
-    height: fit-content;
-}
-
-/* Animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Focus states untuk accessibility */
-.form-control:focus,
-.form-select:focus,
-.btn:focus {
-    outline: 2px solid #4e73df;
-    outline-offset: 2px;
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-    .container {
-        padding: 1rem;
-    }
-    
-    .table {
-        font-size: 0.8rem;
-    }
-    
-    .table thead th,
-    .table tbody td {
-        padding: 0.8rem 0.6rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .container h2 {
-        font-size: 1.5rem;
-        text-align: center;
-    }
-    
-    .card-body {
-        padding: 1rem;
-    }
-    
-    .row.g-3 > * {
-        margin-bottom: 1rem;
-    }
-    
-    .col-md-3,
-    .col-md-6 {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-    
-    .table-responsive {
-        overflow-x: auto;
-    }
-    
-    .table {
-        min-width: 800px;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 0.5rem;
-    }
-    
-    .card-body {
-        padding: 1rem;
-    }
-    
-    .table thead th,
-    .table tbody td {
-        padding: 0.6rem 0.4rem;
-        font-size: 0.75rem;
-    }
-    
-    .btn {
-        padding: 0.6rem 1rem;
-        font-size: 0.8rem;
-    }
-    
-    .btn-sm {
-        padding: 0.3rem 0.6rem;
-        font-size: 0.7rem;
-    }
-}
-
-/* Custom scrollbar untuk table container */
-.table-responsive::-webkit-scrollbar {
-    height: 8px;
-}
-
-.table-responsive::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.table-responsive::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-}
-
-.table-responsive::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-}
-
-/* Hover effects untuk buttons di table rows */
-.table tbody tr:hover .btn {
-    transform: translateY(-1px);
+    transition: background 0.3s ease, transform 0.2s ease;
 }
