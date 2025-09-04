@@ -2,39 +2,48 @@
 <?= $this->section('content') ?>
 
 <style>
-/* --- Import Akun Page --- */
+/* ===============================
+   Import Akun Page Styles
+================================ */
 .import-page {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+/* Heading */
 .import-page h2 {
     font-size: 28px;
     font-weight: 700;
     color: #1e40af;
     margin-bottom: 25px;
-    border-left: 5px solid #3b82f6;
     padding-left: 10px;
+    border-left: 5px solid #3b82f6;
 }
 
-/* Form Card */
+/* ===============================
+   Card
+================================ */
 .import-page .import-card {
     background: #ffffff;
+    border: 1px solid #e5e7eb;
     border-radius: 16px;
     padding: 30px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    border: 1px solid #e5e7eb;
     transition: all 0.3s ease;
 }
+
 .import-page .import-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(0,0,0,0.12);
 }
 
-/* File Input */
+/* ===============================
+   Form Input
+================================ */
 .import-page .form-label {
     font-weight: 600;
     color: #374151;
 }
+
 .import-page .form-control[type="file"] {
     border: 2px dashed #cbd5e1;
     border-radius: 12px;
@@ -42,26 +51,31 @@
     background: #f8fafc;
     transition: all 0.3s ease;
 }
+
 .import-page .form-control[type="file"]:hover {
     border-color: #3b82f6;
     background: #f1f5f9;
 }
+
 .import-page .form-control[type="file"]:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
 }
 
-/* Buttons */
+/* ===============================
+   Buttons
+================================ */
 .import-page .btn-success {
     background: linear-gradient(135deg, #16a34a, #15803d);
     border: none;
+    border-radius: 10px;
     padding: 12px 22px;
     font-weight: 600;
-    border-radius: 10px;
     transition: all 0.2s ease-in-out;
 }
+
 .import-page .btn-success:hover {
-    background: linear-gradient(135deg, #15803d, #166534);
+    background: linear-gradient(135deg, #3b82f6, #3b82f6);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(22,163,74,0.4);
 }
@@ -69,15 +83,19 @@
 .import-page .btn-secondary {
     background: #64748b;
     border: none;
+    border-radius: 10px;
     padding: 12px 22px;
     font-weight: 600;
-    border-radius: 10px;
+    transition: all 0.2s ease-in-out;
 }
+
 .import-page .btn-secondary:hover {
     background: #475569;
 }
 
-/* Alerts */
+/* ===============================
+   Alerts
+================================ */
 .import-page .alert {
     border-radius: 12px;
     padding: 15px 20px;
@@ -85,21 +103,49 @@
     margin-bottom: 20px;
     box-shadow: 0 3px 10px rgba(0,0,0,0.08);
 }
+
 .import-page .alert-success {
     background: #dcfce7;
     color: #166534;
     border-left: 5px solid #22c55e;
 }
+
 .import-page .alert-danger {
     background: #fee2e2;
     color: #991b1b;
     border-left: 5px solid #ef4444;
 }
+
 .import-page .alert-warning {
     background: #fef3c7;
     color: #92400e;
     border-left: 5px solid #f59e0b;
 }
+
+/* ===============================
+   Role Requirements Hint
+================================ */
+#import-page #role-requirements,
+.import-page #role-requirements {
+    display: block;
+    margin-top: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #000000ff;
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    border-radius: 8px;
+    line-height: 1.5;
+    transition: all 0.3s ease;
+}
+
+#import-page #role-requirements:empty,
+.import-page #role-requirements:empty {
+    display: none; /* Sembunyikan kalau kosong */
+}
+
+
 </style>
 
 <div class="container mt-4 import-page">
