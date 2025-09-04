@@ -2,62 +2,105 @@
 <?= $this->section('content') ?>
 
 <style>
-    .settings-container {
-        max-width: 800px;
-        margin: auto;
+    /* Container utama */
+    .settings-wrapper {
+        background: linear-gradient(to bottom right, #ebf4ff, #ffffff, #dbeafe);
+        min-height: 100vh;
+        padding: 40px 20px;
     }
+
     .settings-card {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-        padding: 30px;
-        border: 1px solid #e0e4e8;
+        max-width: 900px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        padding: 40px;
+        border: 1px solid #e5e7eb;
+        transition: transform 0.2s ease-in-out;
     }
+    .settings-card:hover {
+        transform: translateY(-3px);
+    }
+
     .section-title {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 20px;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e3a8a;
+        margin-bottom: 25px;
+        text-align: left;
+        border-left: 5px solid #2563eb;
+        padding-left: 12px;
+    }
+
+    .alert-success {
+        background: #ecfdf5;
+        border: 1px solid #10b981;
+        color: #065f46;
+        padding: 14px 18px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        font-size: 0.95rem;
         display: flex;
         align-items: center;
         gap: 8px;
     }
+
+    .form-group {
+        margin-bottom: 22px;
+    }
+
     .form-label {
         font-weight: 600;
-        color: #333;
+        color: #374151;
         margin-bottom: 8px;
         display: block;
-    }
-    .form-control {
-        width: 100%;
-        padding: 10px 14px;
-        border: 2px solid #e1e5e9;
-        border-radius: 8px;
         font-size: 0.95rem;
     }
+
+    .form-control {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #d1d5db;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.25s ease;
+        background: #f9fafb;
+    }
+    .form-control:focus {
+        border-color: #2563eb;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        outline: none;
+    }
+
     .btn-primary {
-        background-color: orange;
+        background: linear-gradient(to right, #2563eb, #1d4ed8);
         color: white;
-        padding: 10px 20px;
+        padding: 14px 36px;
         border: none;
-        border-radius: 8px;
+        border-radius: 12px;
         font-weight: 600;
+        font-size: 1rem;
         cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 15px rgba(37,99,235,0.25);
     }
     .btn-primary:hover {
-        background-color: #e6850e;
+        background: linear-gradient(to right, #1e40af, #1d4ed8);
+        transform: translateY(-2px);
     }
 </style>
 
-<div class="settings-container">
+<div class="settings-wrapper">
     <div class="settings-card">
         <h1 class="section-title">
-            <i class="fas fa-paint-brush"></i> Pengaturan Tampilan
+            <i class="fas fa-cog"></i> Pengaturan Situs
         </h1>
 
         <?php if(session()->getFlashdata('success')): ?>
-            <div style="background:#d4edda;padding:10px;border-radius:8px;margin-bottom:15px;">
-                <?= esc(session()->getFlashdata('success')) ?>
+            <div class="alert-success">
+                <i class="fas fa-check-circle"></i> <?= esc(session()->getFlashdata('success')) ?>
             </div>
         <?php endif; ?>
 
@@ -65,7 +108,7 @@
             <?= csrf_field() ?>
 
             <!-- Pilihan Warna Tema -->
-            <div class="form-group" style="margin-bottom:20px;">
+            <div class="form-group">
                 <label class="form-label" for="theme">Warna Tema</label>
                 <select name="theme" id="theme" class="form-control">
                     <option value="light" <?= ($theme == 'light') ? 'selected' : '' ?>>Terang</option>
@@ -77,7 +120,7 @@
             </div>
 
             <!-- Jumlah Data per Halaman -->
-            <div class="form-group" style="margin-bottom:20px;">
+            <div class="form-group">
                 <label class="form-label" for="per_page">Tampilan Data per Halaman</label>
                 <select name="per_page" id="per_page" class="form-control">
                     <option value="5" <?= ($per_page == 5) ? 'selected' : '' ?>>5</option>
@@ -89,8 +132,8 @@
             </div>
 
             <!-- Pilihan Tampilan Data -->
-            <div class="form-group" style="margin-bottom:20px;">
-                <label class="form-label" for="view_mode">Ramdan????</label>
+            <div class="form-group">
+                <label class="form-label" for="view_mode">Tampilan Data</label>
                 <select name="view_mode" id="view_mode" class="form-control">
                     <option value="table" <?= ($view_mode == 'table') ? 'selected' : '' ?>>Tabel</option>
                     <option value="grid" <?= ($view_mode == 'grid') ? 'selected' : '' ?>>Grid</option>
@@ -98,7 +141,7 @@
                 </select>
             </div>
 
-            <div style="text-align:center;">
+            <div style="text-align:center; margin-top:30px;">
                 <button type="submit" class="btn-primary">
                     <i class="fas fa-save"></i> Simpan Pengaturan
                 </button>

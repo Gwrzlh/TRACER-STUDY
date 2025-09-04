@@ -4,36 +4,51 @@
   <meta charset="UTF-8">
   <title>Laporan Tracer Study</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: Arial, sans-serif; }
-    h1 { text-align: center; margin-top: 20px; }
-    .laporan-item { margin-bottom: 60px; }
+    body { font-family: 'Inter', Arial, sans-serif; background: #f8fafc; color: #1e293b; }
+    h1 { text-align: center; margin-top: 20px; font-weight: 700; color: #0f172a; }
+    
+    .dropdown button { border-radius: 12px; padding: 10px 18px; font-weight: 600; }
+
+    .laporan-item {
+      background: #fff;
+      border-radius: 16px;
+      padding: 25px 30px;
+      margin-bottom: 40px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .laporan-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+    }
+
+    .laporan-item h2 {
+      font-weight: 700;
+      color: #1e40af;
+      font-size: 1.75rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .laporan-item img {
+      border-radius: 12px;
+      max-height: 400px;
+      object-fit: cover;
+    }
+
     .pdf-container {
-      width: 100%;
-      height: 600px;
-      margin: 20px 0;
-      border: 1px solid #ddd;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
     }
-    footer {
-      background-color: #a9a9a9ff; /* biru tua */
-      color: #fff;
-      text-align: center;
-      padding: 20px 10px;
-      margin-top: 50px;
-    }
-    footer .powered {
-      background-color: #8f8f8fff; /* biru muda */
-      padding: 8px;
-      font-size: 14px;
-    }
-    footer .license {
-      margin-top: 10px;
-      font-size: 14px;
-    }
-    footer img {
-      height: 40px;
-      margin: 10px 0;
-    }
+    
+    footer .license { margin-top: 12px; font-size: 14px; line-height: 1.6; }
+    footer img { height: 36px; margin: 10px 0; }
   </style>
 </head>
 <body>
@@ -41,44 +56,63 @@
   <!-- Include Navbar -->
   <?= $this->include('layout/navbar'); ?>
 
-  <div class="container mt-4">
-    <h1 class="mb-5">Laporan Tracer Study</h1>
+  <div class="container mt-4 mb-5">
+    <h1 class="mb-4">Laporan Tracer Study</h1>
 
-    <!-- Dropdown Tahun -->
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            Pilih Tahun
-        </button>
-        <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="<?= base_url('laporan/2024') ?>">2024</a></li>
-            <li><a class="dropdown-item" href="<?= base_url('laporan/2023') ?>">2023</a></li>
-            <li><a class="dropdown-item" href="<?= base_url('laporan/2022') ?>">2022</a></li>
-            <li><a class="dropdown-item" href="<?= base_url('laporan/2021') ?>">2021</a></li>
-            <li><a class="dropdown-item" href="<?= base_url('laporan/2020') ?>">2020</a></li>
-            <li><a class="dropdown-item" href="<?= base_url('laporan/2019') ?>">2019</a></li>
-            <li><a class="dropdown-item" href="<?= base_url('laporan/2018') ?>">2018</a></li>
-        </ul>
-    </div>
+  <!-- Dropdown Tahun -->
+<div class="d-flex justify-content-center mb-5">
+  <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown">
+          Pilih Tahun
+      </button>
+      <ul class="dropdown-menu">
+          <?php 
+            $currentYear = (int) $tahun;
+            $range = 5; // jumlah maksimal tahun ditampilkan
 
-    <div class="laporan-list mt-3">
+            // hitung batas atas & bawah
+            $half = floor($range / 2);
+            $startYear = max(2018, $currentYear - $half);
+            $endYear   = min($maxYear, $currentYear + $half);
+
+            // koreksi kalau jumlah tahun kurang dari $range
+            if (($endYear - $startYear + 1) < $range) {
+                if ($startYear == 2018) {
+                    $endYear = min($maxYear, $startYear + $range - 1);
+                } elseif ($endYear == $maxYear) {
+                    $startYear = max(2018, $endYear - $range + 1);
+                }
+            }
+
+            for ($y = $endYear; $y >= $startYear; $y--): ?>
+              <li><a class="dropdown-item <?= ($y == $tahun) ? 'active' : '' ?>" href="<?= base_url('laporan/'.$y) ?>"><?= $y ?></a></li>
+          <?php endfor; ?>
+      </ul>
+  </div>
+</div>
+
+
+
+
+    <!-- Daftar Laporan -->
+    <div class="laporan-list">
         <?php if (!empty($laporan)): ?>
             <?php foreach ($laporan as $lap): ?>
-                <div class="laporan-item mb-4">
+                <div class="laporan-item">
                     <!-- Judul -->
-                    <h2 class="mb-3"><?= esc($lap['judul']) ?></h2>
+                    <h2><?= esc($lap['judul']) ?></h2>
 
                     <!-- Isi -->
                     <div class="mb-3">
                         <?= $lap['isi'] ?>
-                        <?php // tidak pakai esc() supaya format HTML dari editor ikut tampil ?>
                     </div>
 
                     <!-- Gambar -->
                     <?php if (!empty($lap['file_gambar'])): ?>
-                        <div class="mb-3 text-center">
+                        <div class="mb-4 text-center">
                             <img src="<?= base_url('uploads/gambar/' . $lap['file_gambar']) ?>" 
                                  alt="Gambar Laporan" 
-                                 class="img-fluid rounded shadow">
+                                 class="img-fluid shadow-sm">
                         </div>
                     <?php endif; ?>
 
@@ -103,14 +137,8 @@
   </div>
 
   <!-- Footer -->
-  <footer>
-    <div class="powered">Powered by tracer.id</div>
-    <img src="https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png" alt="Creative Commons License">
-    <div class="license">
-      This work by ITB Career Center & Aosan Technology, Customized by Tracer Study POLBAN Team, 
-      is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
-    </div>
-  </footer>
+  <?= view('layout/footer') ?>
+
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

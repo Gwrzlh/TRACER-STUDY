@@ -328,14 +328,16 @@ $routes->group('admin', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->post('laporan/save', 'AdminLaporan::save');                // simpan banyak laporan
     $routes->get('laporan/edit/(:num)', 'AdminLaporan::edit/$1');       // form edit laporan
     $routes->post('laporan/update/(:num)', 'AdminLaporan::update/$1');  // update laporan
+    $routes->post('laporan/delete/(:num)', 'AdminLaporan::delete/$1');  // delete (via POST)
 });
+
+
 
 // ===============================
 // Landing Page (Public)
 // ===============================
 $routes->get('laporan', 'AdminLaporan::showAll');              // default → tahun terbaru (2024)
 $routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan per tahun
-
 
 
 
