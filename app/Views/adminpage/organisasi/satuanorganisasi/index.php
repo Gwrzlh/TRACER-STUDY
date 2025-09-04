@@ -1,3 +1,9 @@
+<?php
+$orgText = get_setting('org_button_text', 'Tambah Satuan Organisasi');
+$orgColor = get_setting('org_button_color', '#28a745');
+$orgTextColor = get_setting('org_button_text_color', '#ffffff');
+$orgHover = get_setting('org_button_hover_color', '#218838');
+?>
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
@@ -9,17 +15,20 @@
     <h2 class="page-title">Satuan Organisasi</h2>
 
     <!-- Tombol Tambah -->
-    <div class="btn-tambah-wrapper">
-       <a href="<?= base_url('satuanorganisasi/create') ?>" 
-   class="px-4 py-2 rounded-md"
-   style="background-color: <?= esc(get_setting('pengguna_button_color', '#0d6efd')) ?>;
-          color: <?= esc(get_setting('pengguna_button_text_color', '#ffffff')) ?>;"
-   onmouseover="this.style.backgroundColor='<?= esc(get_setting('pengguna_button_hover_color', '#0b5ed7')) ?>'"
-   onmouseout="this.style.backgroundColor='<?= esc(get_setting('pengguna_button_color', '#0d6efd')) ?>'">
-   <?= esc(get_setting('pengguna_button_text', '+ Tambah')) ?>
+<div class="btn-tambah-wrapper">
+ <a href="<?= base_url('satuan-organisasi/tambah') ?>"
+   class="btn"
+   style="background-color: <?= $orgColor ?>; 
+          color: <?= $orgTextColor ?>; 
+          padding:10px 20px; 
+          font-weight:600; 
+          border-radius: 8px;" 
+   onmouseover="this.style.backgroundColor='<?= $orgHover ?>';"
+   onmouseout="this.style.backgroundColor='<?= $orgColor ?>';">
+   <?= esc($orgText) ?>
 </a>
+</div>
 
-    </div>
 
     <!-- Tabs -->
     <div class="tab-container">

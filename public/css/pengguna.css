@@ -1,7 +1,6 @@
 /* Reset and Isolation */
 .pengguna-page {
     position: static !important;
-    z-index: 1 !important;
     width: 100% !important;
     height: auto !important;
     transform: none !important;
@@ -527,6 +526,14 @@
         text-transform: uppercase;
         line-height: 1.4;
     }
+}
+
+/* Modal Fix */
+.modal {
+    z-index: 2000 !important;
+}
+.modal-backdrop {
+    z-index: 1999 !important;
 }
 
 /* Sidebar Logo Fix */

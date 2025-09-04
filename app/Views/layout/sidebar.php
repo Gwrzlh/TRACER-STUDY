@@ -151,11 +151,20 @@ $currentRoute = service('request')->uri->getPath();
           </div>
         </div>
 
-        <form action="/logout" method="get">
-          <button type="submit" class="logout-btn">
-            Logout
-          </button>
-        </form>
+     <form action="/logout" method="get">
+  <button type="submit"
+    style="background-color: <?= get_setting('logout_button_color', '#dc3545') ?>;
+           color: <?= get_setting('logout_button_text_color', '#ffffff') ?>;
+           padding: 10px 20px;
+           font-weight: 600;
+           border-radius: 8px;
+           width: 100%; text-align:center;"
+    onmouseover="this.style.backgroundColor='<?= get_setting('logout_button_hover_color', '#a71d2a') ?>';"
+    onmouseout="this.style.backgroundColor='<?= get_setting('logout_button_color', '#dc3545') ?>';">
+    <?= esc(get_setting('logout_button_text', 'Logout')) ?>
+  </button>
+</form>
+
       </div>
     </aside>
 

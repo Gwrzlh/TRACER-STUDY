@@ -72,7 +72,6 @@ $routes->group('api', function ($routes) {
 
 
 
-// --- Import Akun ---
 $routes->group('admin/pengguna', function ($routes) {
     $routes->get('', 'PenggunaController::index');
     $routes->get('tambahPengguna', 'PenggunaController::create');
@@ -81,9 +80,11 @@ $routes->group('admin/pengguna', function ($routes) {
     $routes->post('update/(:num)', 'PenggunaController::update/$1');
     $routes->post('delete/(:num)', 'PenggunaController::delete/$1');
 
-    // Import akun
-    $routes->post('import', 'ImportAccount::upload');
+    // ✅ Import akun (cukup tulis 'import')
+    $routes->get('import', 'ImportAccount::form');
+    $routes->post('import', 'ImportAccount::process');
 });
+
 
 
 // ================== Kontak ==================
