@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class DetailaccountPerusahaan extends Model
 {
-    protected $table            = 'detailaccoount_perusahaan';
+    protected $table = 'detailaccount_perusahaan';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
