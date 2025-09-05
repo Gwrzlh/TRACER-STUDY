@@ -39,33 +39,47 @@ class Auth extends Controller
             ->first();
 
         if ($user && password_verify($password, $user['password']) && $user['status'] === 'Aktif') {
-            $db = db_connect();
-            $detail = $db->table('detailaccount_alumni')
-                ->where('id_account', $user['id'])
-                ->get()
-                ->getRowArray();
+    $db = db_connect();
 
-            // Data session
-            $sessionData = [
-                'id'          => $user['id'],
-                'id_account'  => $user['id'],
-                'username'    => $user['username'],
-                'email'       => $user['email'],
-                'role_id'     => $user['id_role'],
-                'id_surveyor' => $user['id_surveyor'],
-                'logged_in'   => true,
-            ];
+    // Ambil detail berdasarkan role
+    $detail = null;
+    if ($user['id_role'] == 1) { // Alumni
+        $detail = $db->table('detailaccount_alumni')
+            ->where('id_account', $user['id'])
+            ->get()
+            ->getRowArray();
+    } elseif ($user['id_role'] == 6) { // Kaprodi
+        $detail = $db->table('detailaccount_kaprodi')
+            ->where('id_account', $user['id'])
+            ->get()
+            ->getRowArray();
+    }
 
-            if ($detail) {
-                $sessionData['nama_lengkap'] = $detail['nama_lengkap'];
-                $sessionData['foto']         = $detail['foto'] ?? null;
-            }
+    // Data session dasar
+    $sessionData = [
+        'id'          => $user['id'],
+        'id_account'  => $user['id'],
+        'username'    => $user['username'],
+        'email'       => $user['email'],
+        'role_id'     => $user['id_role'],
+        'id_surveyor' => $user['id_surveyor'],
+        'logged_in'   => true,
+    ];
 
-            $session->set($sessionData);
+    // Tambah data detail (kalau ada)
+    if ($detail) {
+        $sessionData['nama_lengkap'] = $detail['nama_lengkap'];
+        $sessionData['foto']         = $detail['foto'] ?? 'default.png';
+    } else {
+        // fallback kalau tidak ada detail
+        $sessionData['nama_lengkap'] = $user['username'];
+        $sessionData['foto']         = 'default.png';
+    }
 
-            return $this->redirectByRole($user['id_role']);
-        }
+    session()->set($sessionData);
 
+    return $this->redirectByRole($user['id_role']);
+}
         return redirect()->back()->with('error', 'Username atau password salah atau akun tidak aktif.');
     }
 
