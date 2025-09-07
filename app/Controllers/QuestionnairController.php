@@ -41,11 +41,22 @@ class QuestionnairController extends BaseController
         ];
 
         $user_fields = [
-            'email', 'username', 'group_id', 'display_name',
-            'academic_nim', 'academic_faculty', 'academic_program',
-            'academic_year', 'academic_ipk', 'street_1', 'street_2',
-            'city', 'state_code',
-            'academic_graduate_year', 'jenis_kel', 'HP'
+            'email',
+            'username',
+            'group_id',
+            'display_name',
+            'academic_nim',
+            'jurusan',
+            'id_prodi',
+            'academic_year',
+            'academic_ipk',
+            'street_1',
+            'street_2',
+            'city',
+            'state_code',
+            'academic_graduate_year',
+            'jenis_kel',
+            'HP'
         ];
 
         return view('adminpage/questioner/tambah', [
@@ -62,34 +73,34 @@ class QuestionnairController extends BaseController
         $type = 'text';
 
         switch ($field) {
-            case 'academic_faculty':
+            case 'id_jurusan':
                 $facultyModel = new Jurusan();
                 $options = $facultyModel->select('id, nama_jurusan as name')->findAll();
                 $type = 'select';
                 break;
-            case 'academic_program':
+            case 'id_prodi':
                 $programModel = new Prodi();
                 $options = $programModel->select('id, nama_prodi as name')->findAll();
                 $type = 'select';
                 break;
-            case 'jenis_kel':
+            case 'jenisKelamin':
                 $options = [['id' => 'L', 'name' => 'Laki-laki'], ['id' => 'P', 'name' => 'Perempuan']];
                 $type = 'select';
                 break;
-            case 'academic_year':
-            case 'academic_graduate_year':
+            case 'tahun_kelulusan':
+            case 'tahun_kelulusan':
                 $options = [];
                 for ($i = date('Y'); $i >= 2000; $i--) {
                     $options[] = ['id' => (string)$i, 'name' => (string)$i];
                 }
                 $type = 'select';
                 break;
-            case 'city':
+            case 'id_cities':
                 $cityModel = new Provincies();
                 $options = $cityModel->select('id, name')->findAll();
                 $type = 'select';
                 break;
-            case 'group_id':
+            case 'role':
                 $groupModel = new Roles();
                 $options = $groupModel->select('id, nama as name')->findAll();
                 $type = 'select';
@@ -166,11 +177,22 @@ class QuestionnairController extends BaseController
         ];
 
         $user_fields = [
-            'email', 'username', 'group_id', 'display_name',
-            'academic_nim', 'academic_faculty', 'academic_program',
-            'academic_year', 'academic_ipk', 'street_1', 'street_2',
-            'city', 'state_code',
-            'academic_graduate_year', 'jenis_kel', 'HP'
+            'email',
+            'username',
+            'group_id',
+            'display_name',
+            'academic_nim',
+            'academic_faculty',
+            'academic_program',
+            'academic_year',
+            'academic_ipk',
+            'street_1',
+            'street_2',
+            'city',
+            'state_code',
+            'academic_graduate_year',
+            'jenis_kel',
+            'HP'
         ];
 
         $conditionalLogic = [];
@@ -274,7 +296,7 @@ class QuestionnairController extends BaseController
     }
 
 
-     // Preview questionnaire for testing
+    // Preview questionnaire for testing
 
     public function preview($questionnaire_id)
     {
@@ -284,12 +306,12 @@ class QuestionnairController extends BaseController
 
         $questionnaire = $questionnairModel->find($questionnaire_id);
         $questions = $questionModel->where('questionnaires_id', $questionnaire_id)
-                                  ->orderBy('order_no', 'ASC')
-                                  ->findAll();
+            ->orderBy('order_no', 'ASC')
+            ->findAll();
 
         // Get options for each question
         foreach ($questions as &$q) {
-            if (in_array($q['question_type'], ['radio','checkbox','dropdown'])) {
+            if (in_array($q['question_type'], ['radio', 'checkbox', 'dropdown'])) {
                 $q['options'] = $optionModel->where('question_id', $q['id'])->findAll();
             }
         }
@@ -316,7 +338,7 @@ class QuestionnairController extends BaseController
         $page = $pageModel->find($page_id);
         $section = $sectionModel->find($section_id);
 
-       
+
 
         if (!$questionnaire || !$page || !$section) {
             return redirect()->to('admin/questionnaire')
@@ -358,7 +380,7 @@ class QuestionnairController extends BaseController
         ];
 
 
-            foreach ($questions as $key => $q) {
+        foreach ($questions as $key => $q) {
             // Ambil opsi untuk radio, checkbox, dropdown
             if (in_array($q['question_type'], ['radio', 'checkbox', 'dropdown'])) {
                 $questions[$key]['options'] = $optionModel->where('question_id', $q['id'])->orderBy('order_number', 'ASC')->findAll();
@@ -404,14 +426,14 @@ class QuestionnairController extends BaseController
             'all_questions'    => $all_questions
         ]);
     }
-    
-   public function getQuestionOptions($question_id)
+
+    public function getQuestionOptions($question_id)
     {
         $optionModel = new QuestionOptionModel();
         $options = $optionModel->where('question_id', $question_id)
-                            ->orderBy('order_number', 'ASC')
-                            ->findAll();
-        
+            ->orderBy('order_number', 'ASC')
+            ->findAll();
+
         return $this->response->setJSON([
             'status' => 'success',
             'options' => $options
@@ -432,11 +454,11 @@ class QuestionnairController extends BaseController
         return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
     }
 
-  public function storeSectionQuestion($questionnaire_id, $page_id, $section_id)
+    public function storeSectionQuestion($questionnaire_id, $page_id, $section_id)
     {
         // ===== STEP 1: DEBUG POST DATA =====
         log_message('debug', 'POST Data: ' . print_r($this->request->getPost(), true));
-        
+
         $validation = \Config\Services::validation();
         $validation->setRules([
             'question_title' => 'required|max_length[255]',
@@ -462,7 +484,7 @@ class QuestionnairController extends BaseController
             'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
         ]);
 
-        
+
 
         if (!$validation->withRequest($this->request)->run()) {
             log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
@@ -531,25 +553,25 @@ class QuestionnairController extends BaseController
             // Handle options for selection types
             if (in_array($type, ['radio', 'checkbox', 'dropdown'])) {
                 log_message('debug', 'Processing options for question type: ' . $type);
-                
+
                 $options = $this->request->getPost('options');
                 $optionValues = $this->request->getPost('option_values');
                 $nextQuestionIds = $this->request->getPost('next_question_ids');
                 log_message('debug', 'Options from POST: ' . print_r($options, true));
-                
+
                 if (!empty($options)) {
                     $optionsToInsert = [];
                     $order = 1;
                     foreach ($options as $index => $opt) {
                         $optText = trim($opt);
                         log_message('debug', "Processing option: '{$optText}'");
-                        
+
                         if (!empty($optText)) {
-                            $optValue = isset($optionValues[$index]) && !empty(trim($optionValues[$index])) 
-                                ? trim($optionValues[$index]) 
+                            $optValue = isset($optionValues[$index]) && !empty(trim($optionValues[$index]))
+                                ? trim($optionValues[$index])
                                 : strtolower(str_replace(' ', '_', $optText));
-                            $nextQuestionId = isset($nextQuestionIds[$index]) && !empty($nextQuestionIds[$index]) 
-                                ? $nextQuestionIds[$index] 
+                            $nextQuestionId = isset($nextQuestionIds[$index]) && !empty($nextQuestionIds[$index])
+                                ? $nextQuestionIds[$index]
                                 : null;
                             $optionsToInsert[] = [
                                 'question_id' => $question_id,
@@ -560,9 +582,9 @@ class QuestionnairController extends BaseController
                             ];
                         }
                     }
-                    
+
                     log_message('debug', 'Total options to insert: ' . count($optionsToInsert));
-                    
+
                     if (!empty($optionsToInsert)) {
                         $result = $optionModel->insertBatch($optionsToInsert);
                         log_message('debug', 'Options insert result: ' . ($result ? 'SUCCESS' : 'FAILED'));
@@ -592,7 +614,7 @@ class QuestionnairController extends BaseController
         } catch (\Exception $e) {
             log_message('error', 'Exception in storeSectionQuestion: ' . $e->getMessage());
             log_message('error', 'Stack trace: ' . $e->getTraceAsString());
-            
+
             $db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal menambahkan pertanyaan: ' . $e->getMessage()]);
         }
@@ -619,13 +641,13 @@ class QuestionnairController extends BaseController
         return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
     }
 
-// edit method
+    // edit method
 
-   public function updateQuestion($questionnaire_id, $page_id, $section_id, $question_id)
+    public function updateQuestion($questionnaire_id, $page_id, $section_id, $question_id)
     {
 
         log_message('debug', 'Received POST data: ' . json_encode($this->request->getPost()));
-        
+
         $validation = \Config\Services::validation();
         $validation->setRules([
             'question_id' => 'required|integer',
@@ -724,39 +746,39 @@ class QuestionnairController extends BaseController
     {
         $questionModel = new QuestionModel();
         $optionModel = new QuestionOptionModel();
-        
+
         // Get all questions in this section that could be parent questions
         $questions = $questionModel
             ->where('questionnaires_id', $questionnaire_id)
-            ->where('page_id', $page_id) 
+            ->where('page_id', $page_id)
             ->where('section_id', $section_id)
             ->where('question_type IN', ['radio', 'checkbox', 'dropdown']) // Only questions with options
             ->orderBy('order_no', 'ASC')
             ->findAll();
-        
+
         $questionsWithOptions = [];
-        
+
         foreach ($questions as $question) {
             $options = $optionModel->where('question_id', $question['id'])
-                                ->orderBy('order_no', 'ASC') 
-                                ->findAll();
-            
+                ->orderBy('order_no', 'ASC')
+                ->findAll();
+
             $questionsWithOptions[] = [
                 'question' => $question,
                 'options' => $options
             ];
         }
-        
+
         if ($this->request->isAJAX()) {
             return $this->response->setJSON([
                 'status' => 'success',
                 'data' => $questionsWithOptions
             ]);
         }
-        
+
         return $questionsWithOptions;
     }
-   public function deleteSectionQuestion($questionnaire_id, $page_id, $section_id, $question_id)
+    public function deleteSectionQuestion($questionnaire_id, $page_id, $section_id, $question_id)
     {
         $questionModel = new QuestionModel();
         $optionModel = new QuestionOptionModel();

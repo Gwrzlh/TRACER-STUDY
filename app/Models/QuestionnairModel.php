@@ -12,7 +12,7 @@ class QuestionnairModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['title', 'deskripsi', 'is_active','conditional_logic', 'created_at','updated_at'];
+    protected $allowedFields    = ['title', 'deskripsi', 'is_active', 'conditional_logic', 'created_at', 'updated_at'];
 
     protected bool $allowEmptyInserts = false;
 
