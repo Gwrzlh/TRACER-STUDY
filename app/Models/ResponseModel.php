@@ -12,32 +12,34 @@ class ResponseModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['questionnaire_id',
+    protected $allowedFields    = [
+        'questionnaire_id',
         'account_id',
         'submitted_at',
         'status',
-        'ip_address'];
+        'ip_address'
+    ];
 
     protected bool $allowEmptyInserts = false;
 
     public function getResponseWithAnswers($responseId)
     {
         return $this->db->table('responses r')
-                       ->select('r.*, a.question_id, a.answer_text, a.answer_value, q.question_text')
-                       ->join('answers a', 'r.id = a.response_id')
-                       ->join('questions q', 'a.question_id = q.id')
-                       ->where('r.id', $responseId)
-                       ->get()
-                       ->getResultArray();
+            ->select('r.*, a.question_id, a.answer_text, a.answer_value, q.question_text')
+            ->join('answers a', 'r.id = a.response_id')
+            ->join('questions q', 'a.question_id = q.id')
+            ->where('r.id', $responseId)
+            ->get()
+            ->getResultArray();
     }
-    
+
     // Check if alumni already responded
     public function hasResponded($questionnaireId, $accountId)
     {
         return $this->where('questionnaire_id', $questionnaireId)
-                   ->where('account_id', $accountId)
-                   ->where('status', 'completed')
-                   ->countAllResults() > 0;
+            ->where('account_id', $accountId)
+            ->where('status', 'completed')
+            ->countAllResults() > 0;
     }
 
     // Dates

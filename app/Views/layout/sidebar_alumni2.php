@@ -1,94 +1,122 @@
 <?php
 $currentRoute = service('request')->uri->getPath();
+$session = session();
+$foto = $session->get('foto');
+
+// Pastikan file foto ada, jika tidak pakai default
+$fotoPath = FCPATH . 'uploads/foto_alumni/' . ($foto ?? '');
+if ($foto && file_exists($fotoPath)) {
+    $fotoUrl = base_url('uploads/foto_alumni/' . $foto);
+} else {
+    $fotoUrl = base_url('uploads/default.png');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title><?= $title ?? 'Dashboard Alumni' ?></title>
-    <link rel="stylesheet" href="<?= base_url('css/sidebar.css') ?>">
+    <title><?= $title ?? 'Dashboard Alumni Surveyor' ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body class="bg-[#cfd8dc] font-sans">
     <div class="flex">
         <!-- Sidebar -->
-        <aside class="sidebar-container">
-            <!-- Logo -->
+        <aside class="fixed top-0 left-0 h-screen w-64 bg-white shadow-md flex flex-col justify-between">
             <div>
-                <div class="sidebar-logo">
-                    <img src="/images/logo.png" alt="Logo POLBAN" class="logo-img" />
-                    Tracer Study
+                <!-- Logo -->
+                <div class="flex items-center gap-3 px-6 py-4 border-b">
+                    <img src="<?= base_url('images/logo.png') ?>" alt="Logo POLBAN" class="w-10 h-10">
+                    <span class="text-lg font-bold text-gray-700">Tracer Study</span>
                 </div>
 
                 <!-- Menu -->
-                <nav class="mt-4 space-y-2">
-
-                    <!-- Dashboard (opsional) -->
-                    <a href="<?= base_url('alumni/supervisi') ?>"
-                        class="sidebar-link <?= str_contains($currentRoute, 'alumni/dashboard') ? 'active' : '' ?>">
-                        <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z" />
-                        </svg>
-                        <span>Dashboard</span>
+                <nav class="mt-4 space-y-1">
+                    <a href="<?= base_url('alumni/dashboard') ?>"
+                        class="flex items-center gap-3 px-6 py-2 rounded-lg transition hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/dashboard') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
+                        <i class="fa-solid fa-house"></i><span>Dashboard</span>
                     </a>
 
-                    <!-- Profil -->
-                    <a href="<?= base_url('alumni/profil') ?>"
-                        class="sidebar-link <?= str_contains($currentRoute, 'alumni/profil') ? 'active' : '' ?>">
-                        <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A9.969 9.969 0 0112 15c2.21 0 4.247.716 5.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span>Profil</span>
+                    <a href="javascript:void(0)" id="profileSidebarBtn"
+                        class="flex items-center gap-3 px-6 py-2 rounded-lg transition hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/profil') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
+                        <i class="fa-solid fa-user"></i><span>Profil</span>
                     </a>
 
-                    <!-- Kuesioner -->
-                    <a href="<?= base_url('alumni/questionersurveyor') ?>"
-                        class="sidebar-link <?= str_contains($currentRoute, 'alumni/questionersurveyor') ? 'active' : '' ?>">
-                        <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M9 8h6"></path>
-                        </svg>
-                        <span>Kuesioner</span>
+                    <a href="<?= base_url('alumni/questionnaires') ?>"
+                        class="flex items-center gap-3 px-6 py-2 rounded-lg transition hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/questionnaires') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
+                        <i class="fa-solid fa-list"></i><span>Kuesioner</span>
                     </a>
-                    <!-- lihat teman -->
+
                     <a href="<?= base_url('alumni/lihat_teman') ?>"
-                        class="sidebar-link <?= str_contains($currentRoute, 'alumni/lihat_teman') ? 'active' : '' ?>">
-                        <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M9 8h6"></path>
-                        </svg>
-                        <span>Lihat teman</span>
+                        class="flex items-center gap-3 px-6 py-2 rounded-lg transition hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/lihat_teman') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
+                        <i class="fa-solid fa-users"></i><span>Lihat Teman</span>
                     </a>
                 </nav>
             </div>
 
-            <!-- Profile + Logout -->
-            <div class="mt-6 px-4 space-y-2">
-                <div class="flex items-center gap-4">
-                    <div class="relative">
-                        <img src="/img/idk.jpeg" class="profile-img">
-                        <span class="status-indicator"></span>
-                    </div>
+            <!-- Profil + Logout -->
+            <div class="px-6 py-4 border-t">
+                <div class="flex items-center gap-3 mb-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition" id="profileSidebarBtnBottom">
+                    <img id="sidebarFoto" src="<?= $fotoUrl ?>" class="w-12 h-12 rounded-full shadow-md border object-cover">
                     <div>
-                        <p class="font-semibold text-gray-800 text-sm"><?= session()->get('username') ?></p>
-                        <p class="text-gray-500 text-xs"><?= session()->get('email') ?></p>
+                        <p class="font-semibold text-gray-800 text-sm"><?= $session->get('nama_lengkap') ?? $session->get('username') ?></p>
+                        <p class="text-gray-500 text-xs"><?= $session->get('email') ?></p>
                     </div>
                 </div>
 
                 <form action="/logout" method="get">
-                    <button type="submit" class="logout-btn">
-                        Logout
-                    </button>
+                    <button type="submit" class="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition">Logout</button>
                 </form>
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="flex-1 p-8 overflow-auto">
+        <!-- Konten Utama -->
+        <main class="flex-1 ml-64 p-8 overflow-auto">
             <?= $this->renderSection('content') ?>
         </main>
     </div>
+
+    <!-- Modal Foto -->
+    <div id="sidebarProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+        <div class="relative">
+            <img id="sidebarModalFoto" src="<?= $fotoUrl ?>" class="w-80 h-80 object-cover rounded-xl shadow-xl">
+            <span id="closeSidebarModal" class="absolute top-2 right-3 text-white text-2xl cursor-pointer">&times;</span>
+        </div>
+    </div>
+
+    <script>
+        const profileBtns = [
+            document.getElementById('profileSidebarBtn'),
+            document.getElementById('profileSidebarBtnBottom')
+        ];
+        const sidebarModal = document.getElementById('sidebarProfileModal');
+        const sidebarModalFoto = document.getElementById('sidebarModalFoto');
+        const closeSidebarModal = document.getElementById('closeSidebarModal');
+
+        profileBtns.forEach(btn => {
+            if (btn) btn.addEventListener('click', () => {
+                sidebarModal.classList.remove('hidden');
+            });
+        });
+
+        closeSidebarModal.addEventListener('click', () => {
+            sidebarModal.classList.add('hidden');
+        });
+
+        sidebarModal.addEventListener('click', (e) => {
+            if (e.target === sidebarModal) {
+                sidebarModal.classList.add('hidden');
+            }
+        });
+
+        // Update foto
+        function updateSidebarFoto(newSrc) {
+            document.getElementById('sidebarFoto').src = newSrc;
+            sidebarModalFoto.src = newSrc;
+        }
+    </script>
 </body>
 
 </html>
