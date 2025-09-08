@@ -64,12 +64,15 @@
                             <?php endif; ?>
                         </td>
                         <td class="px-6 py-4">
-                            <?php if ($q['is_active']): ?>
-                                <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Aktif</span>
-                            <?php else: ?>
-                                <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Nonaktif</span>
-                            <?php endif; ?>
-                        </td>
+    <?php if ($q['is_active'] === 'active'): ?>
+        <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Aktif</span>
+    <?php elseif ($q['is_active'] === 'draft'): ?>
+        <span class="px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">Draft</span>
+    <?php else: ?>
+        <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Nonaktif</span>
+    <?php endif; ?>
+</td>
+
                         <td class="px-6 py-4 text-center">
                             <div class="flex justify-center gap-4">
                                 <!-- Kelola Halaman -->

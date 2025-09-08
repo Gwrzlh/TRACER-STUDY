@@ -16,6 +16,32 @@
         <div class="page-container">
             <h2 class="page-title">Daftar Pengguna</h2>
 
+            <!-- Alert pesan sukses atau error -->
+            <?php if(session()->getFlashdata('success')): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> <?= session()->getFlashdata('success') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
+            <?php if(session()->getFlashdata('error')): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle"></i> <?= session()->getFlashdata('error') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
+            <?php if (session()->getFlashdata('errorLogs')): ?>
+                <div class="alert alert-danger">
+                    <strong>Data Gagal Import:</strong>
+                    <ul>
+                        <?php foreach(session()->getFlashdata('errorLogs') as $log): ?>
+                            <li><i class="fas fa-times-circle text-danger"></i> <?= esc($log) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
             <!-- Button Container -->
             <div class="button-container">
                 <a href="<?= base_url('admin/pengguna/tambahPengguna') ?>"
@@ -31,30 +57,6 @@
                     <i class="fas fa-file-import"></i> Import Akun
                 </a>
             </div>
-
-            <!-- Flash Messages -->
-            <?php if (session()->getFlashdata('success')): ?>
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i> <?= session()->getFlashdata('success') ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (session()->getFlashdata('error')): ?>
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle"></i> <?= session()->getFlashdata('error') ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (session()->getFlashdata('errorLogs')): ?>
-                <div class="alert alert-danger">
-                    <strong>Data Gagal Import:</strong>
-                    <ul>
-                        <?php foreach(session()->getFlashdata('errorLogs') as $log): ?>
-                            <li><i class="fas fa-times-circle text-danger"></i> <?= esc($log) ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
 
             <!-- Search Form -->
             <div class="controls-container">
@@ -115,6 +117,7 @@
                                             </a>
                                             <form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')">
                                                 <?= csrf_field() ?>
+                                                <input type="hidden" name="_method" value="DELETE">
                                                 <button type="submit" class="btn-delete">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </button>
@@ -129,10 +132,7 @@
             <?php else: ?>
                 <div class="empty-state">
                     <i class="fas fa-users" style="font-size: 48px; color: #cbd5e1; margin-bottom: 20px;"></i>
-                    <p>Tidak ada data pengguna ditemukan.</p>
-                    <p class="debug-info">
-                        <?= isset($accounts) ? 'Variable accounts ditemukan tapi kosong.' : 'Variable accounts tidak ditemukan.' ?>
-                    </p>
+                    <p>Belum ada data pengguna, silakan tambah pengguna baru.</p>
                 </div>
             <?php endif; ?>
         </div>

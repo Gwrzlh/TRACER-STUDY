@@ -123,6 +123,7 @@ $routes->group('admin/tipeorganisasi', function ($routes) {
 });
 
 // --- Tentang ---
+$routes->get('tentang', 'Tentang::index');
 $routes->get('tentang', 'Tentang::index', ['filter' => 'auth']);
 $routes->get('admin/tentang/edit', 'Tentang::edit');
 $routes->post('admin/tentang/update', 'Tentang::update');
