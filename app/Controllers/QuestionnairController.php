@@ -234,13 +234,14 @@ class QuestionnairController extends BaseController
             }
         }
 
-        $model->update($questionnaire_id, [
-            'title' => $this->request->getPost('title'),
-            'deskripsi' => $this->request->getPost('deskripsi'),
-            'status' => $this->request->getPost('status'),
-            'conditional_logic' => $conditionalLogic,
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+       $model->update($questionnaire_id, [
+    'title' => $this->request->getPost('title'),
+    'deskripsi' => $this->request->getPost('deskripsi'),
+    'is_active' => $this->request->getPost('is_active'),
+    'conditional_logic' => $conditionalLogic,
+    'updated_at' => date('Y-m-d H:i:s')
+]);
+
 
         return redirect()->to('admin/questionnaire')->with('success', 'Kuesioner berhasil diperbarui!');
     }
