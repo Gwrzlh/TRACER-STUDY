@@ -60,11 +60,11 @@ class AlumniController extends BaseController
         ]);
     }
 
-    public function questioner()
-    {
-        // langsung pakai method baru
-        return $this->questionnairesForAlumni();
-    }
+    // public function questioner()
+    // {
+    // langsung pakai method baru
+    //     return $this->questionnairesForAlumni();
+    // }
 
 
     public function questionersurveyor()
