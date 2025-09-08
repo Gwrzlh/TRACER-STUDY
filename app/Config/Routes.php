@@ -66,6 +66,31 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
         $routes->post('edit/update/(:num)', 'TipeOrganisasiController::update/$1');
         $routes->post('delete/(:num)', 'TipeOrganisasiController::delete/$1');
     });
+    $routes->group('admin/kontak', function ($routes) {
+        $routes->get('', 'Kontak::index');
+        $routes->get('create', 'Kontak::create');
+        $routes->post('store', 'Kontak::store');
+        $routes->get('edit/(:num)', 'Kontak::edit/$1');
+        $routes->post('update/(:num)', 'Kontak::update/$1');
+        $routes->get('delete/(:num)', 'Kontak::delete/$1');
+        $routes->get('deleteKategori/(:segment)', 'Kontak::deletebyKategori/$1');
+        $routes->get('getByKategori/(:any)', 'Kontak::getByKategori/$1');
+    });
+
+
+
+
+
+
+    // --- Tipe Organisasi ---
+    $routes->group('admin/tipeorganisasi', function ($routes) {
+        $routes->get('', 'TipeOrganisasiController::index');
+        $routes->get('form', 'TipeOrganisasiController::create');
+        $routes->post('insert', 'TipeOrganisasiController::store');
+        $routes->get('edit/(:num)', 'TipeOrganisasiController::edit/$1');
+        $routes->post('edit/update/(:num)', 'TipeOrganisasiController::update/$1');
+        $routes->post('delete/(:num)', 'TipeOrganisasiController::delete/$1');
+    });
 
     // Tentang
     $routes->get('tentang', 'Tentang::index');
@@ -174,7 +199,6 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
         $routes->post('(:num)/update', 'QuestionnaireConditionController::update/$1/$2');
         $routes->post('(:num)/delete', 'QuestionnaireConditionController::delete/$1/$2');
     });
-
 });
 
 // ===============================
@@ -193,7 +217,7 @@ $routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
 /// ===============================
 // ALUMNI ROUTES
 // ===============================
-$routes->group('alumni', ['filter' => 'auth'], function ($routes)) {
+
 
 
 
@@ -268,7 +292,7 @@ $routes->group('alumni', static function ($routes) {
     $routes->get('questionnaire/(:num)', 'AlumniController::fillQuestionnaire/$1');
     $routes->post('questionnaire/submit', 'AlumniController::submitAnswers');
 });
-}
+
 
 
 
@@ -325,7 +349,7 @@ $routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan
 // ===============================
 $routes->group('admin/respon', static function ($routes) {
     $routes->get('/', 'AdminRespon::index'); // Tampilkan daftar respon
-    });
+});
 
 // Route untuk user/landing page
 $routes->get('respon', function () {
@@ -350,8 +374,3 @@ $routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
     $routes->get('profil/edit', 'KaprodiController::editProfil');
     $routes->post('profil/update', 'KaprodiController::updateProfil');
 });
-
-
-
-  
-
