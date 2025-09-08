@@ -115,49 +115,51 @@ class QuestionnairController extends BaseController
         ]);
     }
 
-    // Menyimpan Kuesioner Baru
+    // Simpan kuesioner baru
     public function store()
     {
         $questionnaireModel = new QuestionnairModel();
 
-        $title = $this->request->getPost('title');
+        $title       = $this->request->getPost('title');
         $description = $this->request->getPost('deskripsi');
-        $status = $this->request->getPost('status');
-        $conditionalLogicEnabled = $this->request->getPost('conditional_logic');
-
+        $is_active   = $this->request->getPost('is_active'); // langsung enum string
         $conditionalLogic = null;
-        if ($conditionalLogicEnabled) {
-            $fields = $this->request->getPost('field_name');
+
+        // Handle conditional logic
+        if ($this->request->getPost('conditional_logic')) {
+            $fields    = $this->request->getPost('field_name');
             $operators = $this->request->getPost('operator');
-            $values = $this->request->getPost('value');
+            $values    = $this->request->getPost('value');
 
             $conditions = [];
             for ($i = 0; $i < count($fields); $i++) {
                 if (!empty($fields[$i]) && !empty($operators[$i]) && !empty($values[$i])) {
                     $conditions[] = [
-                        'field' => $fields[$i],
+                        'field'    => $fields[$i],
                         'operator' => $operators[$i],
-                        'value' => $values[$i]
+                        'value'    => $values[$i]
                     ];
                 }
             }
-
             if (!empty($conditions)) {
                 $conditionalLogic = json_encode($conditions);
             }
         }
 
         $questionnaireModel->insert([
-            'title' => $title,
-            'deskripsi' => $description,
-            'status' => $status,
+            'title'             => $title,
+            'deskripsi'         => $description,
+            'is_active'         => $is_active, // enum langsung
             'conditional_logic' => $conditionalLogic,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'created_at'        => date('Y-m-d H:i:s'),
+            'updated_at'        => date('Y-m-d H:i:s')
         ]);
 
         return redirect()->to(base_url('/admin/questionnaire'))->with('success', 'Kuesioner berhasil dibuat!');
     }
+
+
+
 
     // Halaman Edit Kuesioner
     public function edit($questionnaire_id)
@@ -210,7 +212,7 @@ class QuestionnairController extends BaseController
         ]);
     }
 
-    // Memperbarui Kuesioner
+
     public function update($questionnaire_id)
     {
         $model = new QuestionnairModel();
@@ -222,50 +224,52 @@ class QuestionnairController extends BaseController
 
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'title' => 'required|min_length[3]|max_length[255]',
-            'deskripsi' => 'permit_empty|max_length[1000]',
-            'status' => 'permit_empty|in_list[active,draft,inactive]',
-            'conditional_logic' => 'permit_empty'
+            'title'      => 'required|min_length[3]|max_length[255]',
+            'deskripsi'  => 'permit_empty|max_length[1000]',
+            'is_active'  => 'required|in_list[active,draft,inactive]', // langsung enum
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
-        $conditionalLogicEnabled = $this->request->getPost('conditional_logic');
+        $is_active = $this->request->getPost('is_active');
         $conditionalLogic = null;
 
-        if ($conditionalLogicEnabled) {
-            $fields = $this->request->getPost('field_name');
+        if ($this->request->getPost('conditional_logic')) {
+            $fields    = $this->request->getPost('field_name');
             $operators = $this->request->getPost('operator');
-            $values = $this->request->getPost('value');
+            $values    = $this->request->getPost('value');
 
             $conditions = [];
             for ($i = 0; $i < count($fields); $i++) {
                 if (!empty($fields[$i]) && !empty($operators[$i]) && !empty($values[$i])) {
                     $conditions[] = [
-                        'field' => $fields[$i],
+                        'field'    => $fields[$i],
                         'operator' => $operators[$i],
-                        'value' => $values[$i]
+                        'value'    => $values[$i]
                     ];
                 }
             }
-
             if (!empty($conditions)) {
                 $conditionalLogic = json_encode($conditions);
             }
         }
 
         $model->update($questionnaire_id, [
-            'title' => $this->request->getPost('title'),
-            'deskripsi' => $this->request->getPost('deskripsi'),
-            'status' => $this->request->getPost('status'),
+            'title'             => $this->request->getPost('title'),
+            'deskripsi'         => $this->request->getPost('deskripsi'),
+            'is_active'         => $is_active, // enum langsung
             'conditional_logic' => $conditionalLogic,
-            'updated_at' => date('Y-m-d H:i:s')
+            'updated_at'        => date('Y-m-d H:i:s')
         ]);
 
         return redirect()->to('admin/questionnaire')->with('success', 'Kuesioner berhasil diperbarui!');
     }
+
+
+
+
     public function delete($id)
     {
         $questionnaireModel = new QuestionnairModel();

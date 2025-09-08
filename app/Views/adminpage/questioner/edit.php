@@ -1,7 +1,6 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
-
 <h2>Edit Kuesioner</h2>
 
 <form action="<?= base_url('/admin/questionnaire/update/' . $questionnaire['id']) ?>" method="post" class="form-kuesioner">
@@ -18,7 +17,7 @@
         </div>
         <div>
             <label for="status">Status :</label>
-            <select name="status" id="status">
+            <select name="is_active" id="status">
                 <option value="active" <?= $questionnaire['is_active'] == 'active' ? 'selected' : '' ?>>Aktif</option>
                 <option value="draft" <?= $questionnaire['is_active'] == 'draft' ? 'selected' : '' ?>>Draft</option>
                 <option value="inactive" <?= $questionnaire['is_active'] == 'inactive' ? 'selected' : '' ?>>Tidak Aktif</option>

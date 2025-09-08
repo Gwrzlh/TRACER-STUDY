@@ -57,11 +57,17 @@ if ($foto && file_exists($fotoPath)) {
             <i class="fa-solid fa-user"></i><span>Profil</span>
           </a>
 
-          <a href="<?= base_url('alumni/questionnaires') ?>"
-            class="flex items-center gap-3 px-6 py-2 rounded-lg transition hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/questionnaires') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
-            <i class="fa-solid fa-list"></i><span>Kuesioner</span>
+          <!-- Kuesioner -->
+          <a href="<?= base_url('alumni/questioner') ?>"
+            class="flex items-center gap-3 px-6 py-2 rounded-lg transition 
+            hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/questioner') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
+            <i class="fa-solid fa-list"></i>
+            <span>Kuesioner</span>
           </a>
 
+
+
+          <!-- Notifikasi -->
           <a href="<?= base_url('alumni/notifikasi') ?>"
             class="flex items-center gap-3 px-6 py-2 rounded-lg transition relative hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/notifikasi') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
             <i class="fa-solid fa-bell"></i><span>Notifikasi</span>
