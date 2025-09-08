@@ -11,7 +11,7 @@
             <!-- Nav link kiri -->
             <div class="flex items-center gap-6">
                 <span class="nav-title font-semibold text-xl cursor-pointer">
-                    Daftar Kuesioner
+                    Daftar Kuesionerr
                 </span>
             </div>
             
