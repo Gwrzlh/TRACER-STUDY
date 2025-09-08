@@ -16,7 +16,7 @@ $orgHover = get_setting('org_button_hover_color', '#218838');
 
     <!-- Tombol Tambah -->
 <div class="btn-tambah-wrapper">
- <a href="<?= base_url('satuan-organisasi/tambah') ?>"
+ <a href="<?= base_url('satuanorganisasi/create') ?>"
    class="btn"
    style="background-color: <?= $orgColor ?>; 
           color: <?= $orgTextColor ?>; 

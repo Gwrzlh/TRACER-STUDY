@@ -34,7 +34,7 @@
 <body>
     <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-17">
                 <div class="card">
                     <div class="card-header">
                         <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2" style="height: 60px;">
