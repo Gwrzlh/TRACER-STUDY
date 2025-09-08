@@ -12,28 +12,16 @@ class AnswerModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['response_id',
-        'question_id',
-        'answer_text',
-        'answer_value',
-        'answered_at'];
+    protected $allowedFields    = ['questionnaire_id', 'user_id', 'question_id', 'answer_text', 'created_at'];
 
     protected bool $allowEmptyInserts = false;
 
-    public function saveAnswers($responseId, $answers)
+    public function getStatus($questionnaire_id, $user_id)
     {
-        $data = [];
-        foreach ($answers as $questionId => $answer) {
-            $data[] = [
-                'response_id' => $responseId,
-                'question_id' => $questionId,
-                'answer_text' => is_array($answer) ? implode(', ', $answer) : $answer,
-                'answer_value' => is_array($answer) ? implode(',', $answer) : $answer,
-                'answered_at' => date('Y-m-d H:i:s')
-            ];
-        }
-        
-        return $this->insertBatch($data);
+        $answers = $this->where(['questionnaire_id' => $questionnaire_id, 'user_id' => $user_id])->findAll();
+        if (empty($answers)) return 'Belum Mengisi';
+        $totalQuestions = (new \App\Models\QuestionModel())->where('questionnaires_id', $questionnaire_id)->countAllResults();
+        return count($answers) < $totalQuestions ? 'On Going' : 'Finish';
     }
 
     // Dates

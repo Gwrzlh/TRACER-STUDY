@@ -1,15 +1,14 @@
-<link rel="stylesheet" href="/css/questioner/question/index.css">
 <div class="container-fluid mt-4">
     <div class="row">
         <!-- Main Content -->
         <div class="col-lg-8">
-            <h2>Kelola Pertanyaan - <?= esc($section['section_title']) ?></h2>
+            <h4>Kelola Pertanyaan - <?= esc($section['section_title']) ?></h4>
             <p class="text-muted"><?= esc($section['section_description'] ?? '') ?></p>
 
             <!-- Form Tambah Pertanyaan -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                  <h3>Tambah Pertanyaan Baru</h3>
+                    <span>Tambah Pertanyaan Baru</span>
                     <button type="button" class="btn btn-sm btn-outline-light" id="toggleForm">
                         <i class="fas fa-plus"></i> Tambah
                     </button>
@@ -18,12 +17,7 @@
                     <form id="questionForm" action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/store") ?>" method="post">
                         <?= csrf_field() ?>
 
-                        <!-- Question Title -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Question Title <span class="text-danger">*</span></label>
-                            <input type="text" name="question_title" class="form-control" placeholder="Masukkan judul pertanyaan..." required value="<?= old('question_title') ?>">
-                            <div class="form-text">Judul singkat untuk pertanyaan ini</div>
-                        </div>
+                     
 
                         <!-- Question Text -->
                         <div class="mb-3">
@@ -73,7 +67,7 @@
                                     <select name="next_question_ids[]" class="form-control">
                                         <option value="">-- Pilih Pertanyaan Berikutnya --</option>
                                         <?php foreach ($all_questions as $q): ?>
-                                            <option value="<?= $q['id'] ?>"><?= esc($q['question_title'] ?? $q['question_text']) ?></option>
+                                            <option value="<?= $q['id'] ?>"><?= esc( $q['question_text']) ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                     <button type="button" class="btn btn-outline-danger remove-option">&times;</button>
@@ -164,43 +158,22 @@
                         </div>
 
                         <!-- Conditional Logic -->
-                        <div class="mb-3" id="conditional_wrapper" style="display: none;">
-                            <label class="form-label fw-bold">Conditional Logic</label>
-                            <div class="card border-info">
-                                <div class="card-body">
-                                    <div class="row mb-2">
-                                        <div class="col-md-4">
-                                            <label class="form-label">Show this question if:</label>
-                                            <select name="parent_question_id" id="parent_question_id" class="form-select" onchange="loadConditionOptions()">
-                                                <option value="">-- Select Question --</option>
-                                                <?php foreach ($all_questions as $parent): ?>
-                                                    <option value="<?= $parent['id'] ?>" <?= old('parent_question_id') == $parent['id'] ? 'selected' : '' ?>>
-                                                        <?= esc($parent['question_title'] ?? $parent['question_text']) ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Condition:</label>
-                                            <select name="condition_operator" id="condition_operator" class="form-select">
-                                                <option value="is">Is</option>
-                                                <option value="is not">Is Not</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Value:</label>
-                                            <select name="condition_value" id="condition_value" class="form-select" disabled>
-                                                <option value="">-- Pilih Nilai --</option>
-                                            </select>
-                                            <div class="form-text" id="condition_value_note" style="display: none;">Pilih nilai dari opsi pertanyaan parent.</div>
-                                        </div>
-                                    </div>
-                                    <div class="form-text">
-                                        <i class="fas fa-info-circle"></i> 
-                                        This question will only appear when the selected question meets the specified condition
-                                    </div>
-                                </div>
-                            </div>
+                        <div id="conditional_wrapper" style="display: none;">
+                            <label>Parent Question</label>
+                            <select id="parent_question_id" name="parent_question_id" class="form-control">
+                                <option value="">-- Pilih Pertanyaan Induk --</option>
+                                <?php foreach ($all_questions as $q): ?>
+                                    <option value="<?= $q['id'] ?>"><?= $q['question_text'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <label>Operator</label>
+                            <select id="condition_operator" name="condition_operator" class="form-control">
+                                <option value="is">Is</option>
+                                <option value="is not">Is Not</option>
+                            </select>
+                            <label>Value</label>
+                            <select id="condition_value_select" name="condition_value" class="form-control" style="display: none;"></select>
+                            <input id="condition_value_text" name="condition_value" class="form-control" style="display: none;">
                         </div>
 
                         <!-- Form Actions -->
@@ -217,7 +190,7 @@
             <!-- Questions List -->
             <div class="card">
                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                    <span><h3>Questions List (<?= count($questions) ?>)</h3></span>
+                    <span>Questions List (<?= count($questions) ?>)</span>
                     <div class="btn-group btn-group-sm">
                         <button type="button" class="btn btn-outline-light" id="expandAll">
                             <i class="fas fa-expand-alt"></i> Expand All
@@ -227,9 +200,9 @@
                         </button>
                     </div>
                 </div>
-                <div class="card-body p-3">
+                <div class="card-body p-0">
                     <?php if (empty($questions)): ?>
-                        <div class="empty-state">
+                        <div class="p-4 text-center text-muted">
                             <i class="fas fa-question-circle fa-3x mb-3"></i>
                             <h5>No Questions Yet</h5>
                             <p>Start by adding your first question using the form above.</p>
@@ -237,35 +210,45 @@
                     <?php else: ?>
                         <div id="questionsList">
                             <?php foreach ($questions as $index => $q): ?>
-                                <div class="preview-card" data-question-id="<?= $q['id'] ?>">
-                                    <div class="preview-header">
-                                        <div class="preview-title-section">
-                                            <span class="badge bg-primary me-2"><?= $q['order_no'] ?></span>
-                                            <h4 class="preview-title"><?= esc($q['question_title'] ?? $q['question_text']) ?></h4>
-                                        </div>
-                                        <div class="preview-meta">
-                                            <div class="preview-badges">
-                                                <span class="badge bg-info"><?= ucfirst($q['question_type']) ?></span>
-                                                <?php if ($q['is_required']): ?>
-                                                    <span class="badge bg-warning">Required</span>
-                                                <?php endif; ?>
-                                                <?php if (!empty($q['condition_json'])): ?>
-                                                    <span class="badge bg-secondary">Conditional</span>
-                                                <?php endif; ?>
+                                <div class="question-item border-bottom" data-question-id="<?= $q['id'] ?>">
+                                    <div class="question-header p-3 bg-light cursor-pointer" data-bs-toggle="collapse" data-bs-target="#question-<?= $q['id'] ?>">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-primary me-2"><?= $q['order_no'] ?></span>
+                                                <div>
+                                                    <h6 class="mb-1"><?= esc($q['question_text']) ?></h6>
+                                                    <small class="text-muted">
+                                                        <span class="badge bg-info"><?= ucfirst($q['question_type']) ?></span>
+                                                        <?php if ($q['is_required']): ?>
+                                                            <span class="badge bg-warning">Required</span>
+                                                        <?php endif; ?>
+                                                        <?php if (!empty($q['condition_json'])): ?>
+                                                            <span class="badge bg-secondary">Conditional</span>
+                                                        <?php endif; ?>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="question-actions">
+                                                <button type="button" class="btn btn-sm btn-outline-primary edit-question" data-question-id="<?= $q['id'] ?>">
+                                                    <i class="fas fa-edit"></i> edit
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger delete-question" data-question-id="<?= $q['id'] ?>">
+                                                    <i class="fas fa-trash"></i> delete
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="preview-content">
-                                        <div class="row">
-                                            <div class="col-md-7">
-                                                <div class="question-info">
-                                                    <h6 class="section-title">Question Text:</h6>
-                                                    <p class="text-muted mb-3"><?= esc($q['question_text']) ?></p>
+                                    <div class="collapse" id="question-<?= $q['id'] ?>">
+                                        <div class="question-details p-3">
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <h6>Question Text:</h6>
+                                                    <p class="text-muted"><?= esc($q['question_text']) ?></p>
                                                     
                                                     <?php if (!empty($q['options'])): ?>
-                                                        <h6 class="section-title">Options:</h6>
-                                                        <ul class="options-list">
+                                                        <h6>Options:</h6>
+                                                        <ul class="list-unstyled">
                                                             <?php foreach ($q['options'] as $opt): ?>
                                                                 <li><i class="fas fa-circle fa-xs me-2"></i><?= esc($opt['option_text']) ?></li>
                                                             <?php endforeach; ?>
@@ -273,32 +256,21 @@
                                                     <?php endif; ?>
                                                     
                                                     <?php if (!empty($q['condition_json'])): ?>
-                                                        <h6 class="section-title">Conditional Logic:</h6>
-                                                        <p class="text-info condition-info">
+                                                        <h6>Conditional Logic:</h6>
+                                                        <p class="text-info">
                                                             <i class="fas fa-arrow-right me-1"></i>
                                                             Show when previous question matches the condition
                                                         </p>
                                                     <?php endif; ?>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-5">
-                                                <div class="question-preview">
-                                                    <small class="preview-label">Preview:</small>
-                                                    <div class="preview-demo">
+                                                <div class="col-md-4">
+                                                    <div class="question-preview border rounded p-2 bg-light">
+                                                        <small class="text-muted d-block mb-2">Preview:</small>
                                                         <?= generateQuestionPreview($q) ?>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="preview-actions">
-                                        <button type="button" class="btn btn-sm btn-outline-primary edit-question" data-question-id="<?= $q['id'] ?>">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger delete-question" data-question-id="<?= $q['id'] ?>">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -312,7 +284,7 @@
         <div class="col-lg-4">
             <div class="card sticky-top" style="top: 20px;">
                 <div class="card-header bg-info text-white">
-                    <h3 class="mb-0"><i class="fas fa-question-circle me-2"></i>Question Types</h3>
+                    <h6 class="mb-0"><i class="fas fa-question-circle me-2"></i>Question Types</h6>
                 </div>
                 <div class="card-body p-0">
                     <div class="question-types-grid">
@@ -378,7 +350,7 @@
             </div>
         </div>
     </div>
-    
+    <!-- Modal Edit Question -->
     <!-- Modal Edit Question -->
     <div class="modal fade" id="editQuestionModal" tabindex="-1" aria-labelledby="editQuestionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -391,12 +363,6 @@
                     <form id="editQuestionForm" method="post">
                         <?= csrf_field() ?>
                         <input type="hidden" name="question_id" id="edit_question_id">
-                        
-                        <!-- Question Title -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Question Title <span class="text-danger">*</span></label>
-                            <input type="text" name="question_title" id="edit_question_title" class="form-control" required>
-                        </div>
 
                         <!-- Question Text -->
                         <div class="mb-3">
@@ -485,41 +451,34 @@
                                     <input type="checkbox" name="is_required" id="edit_is_required" class="form-check-input">
                                     <label class="form-check-label" for="edit_is_required">Required</label>
                                 </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="enable_conditional" value="1" id="edit_enable_conditional" class="form-check-input">
+                                    <label class="form-check-label" for="edit_enable_conditional">Enable Conditional Logic</label>
+                                </div>
                             </div>
-                            <div class="col-md-6">
+                            <!-- <div class="col-md-6">
                                 <label class="form-label fw-bold">Order</label>
                                 <input type="number" name="order_no" id="edit_order_no" class="form-control" min="1" required>
-                            </div>
+                            </div> -->
                         </div>
 
                         <!-- Conditional Logic -->
-                        <div class="mb-3" id="edit_conditional_wrapper" style="display: none;">
-                            <label class="form-label fw-bold">Conditional Logic</label>
-                            <div class="row mb-2">
-                                <div class="col-md-4">
-                                    <label class="form-label">Show if:</label>
-                                    <select name="parent_question_id" id="edit_parent_question_id" class="form-select" onchange="loadEditConditionOptions()">
-                                        <option value="">-- Select Question --</option>
-                                        <?php foreach ($all_questions as $parent): ?>
-                                            <option value="<?= $parent['id'] ?>"><?= esc($parent['question_title'] ?? $parent['question_text']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Condition:</label>
-                                    <select name="condition_operator" id="edit_condition_operator" class="form-select">
-                                        <option value="is">Is</option>
-                                        <option value="is not">Is Not</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Value:</label>
-                                    <select name="condition_value" id="edit_condition_value_select" class="form-select" disabled>
-                                        <option value="">-- Pilih Nilai --</option>
-                                    </select>
-                                    <input type="text" name="condition_value" id="edit_condition_value_text" class="form-control" style="display:none;" disabled>
-                                </div>
-                            </div>
+                        <div id="edit_conditional_wrapper" style="display: none;">
+                            <label>Parent Question</label>
+                            <select id="edit_parent_question_id" name="parent_question_id" class="form-control">
+                                <option value="">-- Pilih Pertanyaan Induk --</option>
+                                <?php foreach ($all_questions as $q): ?>
+                                    <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <label>Operator</label>
+                            <select id="edit_condition_operator" name="condition_operator" class="form-control">
+                                <option value="is">Is</option>
+                                <option value="is not">Is Not</option>
+                            </select>
+                            <label>Value</label>
+                            <select id="edit_condition_value_select" name="condition_value" class="form-control" style="display: none;"></select>
+                            <input id="edit_condition_value_text" name="condition_value" class="form-control" style="display: none;">
                         </div>
                     </form>
                 </div>
@@ -531,11 +490,10 @@
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Form elements
+    // Form elements (add form)
     const toggleFormBtn = document.getElementById("toggleForm");
     const formContainer = document.getElementById("formContainer");
     const cancelFormBtn = document.getElementById("cancelForm");
@@ -548,7 +506,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const conditionalWrapper = document.getElementById("conditional_wrapper");
     const enableConditionalCheck = document.getElementById("enable_conditional");
 
-    // Toggle form visibility
+    // Toggle form visibility (add form)
     toggleFormBtn.addEventListener("click", function() {
         const isVisible = formContainer.style.display !== "none";
         formContainer.style.display = isVisible ? "none" : "block";
@@ -563,7 +521,7 @@ document.addEventListener("DOMContentLoaded", function() {
         questionForm.reset();
     });
 
-    // Question type change handler
+    // Question type change handler (add form)
     questionTypeSelect.addEventListener("change", function() {
         const type = this.value;
         
@@ -585,12 +543,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Conditional logic toggle
+    // Conditional logic toggle (add form)
     enableConditionalCheck.addEventListener("change", function() {
         conditionalWrapper.style.display = this.checked ? "block" : "none";
     });
 
-    // Add option functionality
+    // Add option functionality (add form)
     document.getElementById("add_option").addEventListener("click", function() {
         const optionList = document.getElementById("option_list");
         const optionHtml = `
@@ -600,7 +558,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 <select name="next_question_ids[]" class="form-control">
                     <option value="">-- Pilih Pertanyaan Berikutnya --</option>
                     <?php foreach ($all_questions as $q): ?>
-                        <option value="<?= $q['id'] ?>"><?= esc($q['question_title'] ?? $q['question_text']) ?></option>
+                        <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
                     <?php endforeach; ?>
                 </select>
                 <button type="button" class="btn btn-outline-danger remove-option">&times;</button>
@@ -609,7 +567,7 @@ document.addEventListener("DOMContentLoaded", function() {
         optionList.insertAdjacentHTML("beforeend", optionHtml);
     });
 
-    // Remove option functionality
+    // Remove option functionality (global)
     document.addEventListener("click", function(e) {
         if (e.target.classList.contains("remove-option")) {
             e.target.closest(".input-group").remove();
@@ -633,18 +591,18 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Expand/Collapse all questions - Removed since we're using preview cards now
-    // document.getElementById("expandAll")?.addEventListener("click", function() {
-    //     document.querySelectorAll(".question-item .collapse").forEach(collapse => {
-    //         new bootstrap.Collapse(collapse, { show: true });
-    //     });
-    // });
+    // Expand/Collapse all questions
+    document.getElementById("expandAll")?.addEventListener("click", function() {
+        document.querySelectorAll(".question-item .collapse").forEach(collapse => {
+            new bootstrap.Collapse(collapse, { show: true });
+        });
+    });
 
-    // document.getElementById("collapseAll")?.addEventListener("click", function() {
-    //     document.querySelectorAll(".question-item .collapse.show").forEach(collapse => {
-    //         new bootstrap.Collapse(collapse, { hide: true });
-    //     });
-    // });
+    document.getElementById("collapseAll")?.addEventListener("click", function() {
+        document.querySelectorAll(".question-item .collapse.show").forEach(collapse => {
+            new bootstrap.Collapse(collapse, { hide: true });
+        });
+    });
 
     // Question actions
     document.addEventListener("click", function(e) {
@@ -659,7 +617,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': csrfToken || '',
-                        'Content-Type': 'application/json' // Tambahkan ini
+                        'Content-Type' : 'application/json' // Tambahkan ini
                     },
                     body: JSON.stringify({ question_id: questionId })
                 })
@@ -670,7 +628,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(data => {
                     console.log("Response data:", data); // Debug
                     if (data.status === 'success') {
-                        e.target.closest('.preview-card').remove();
+                        e.target.closest('.question-item').remove();
                         showNotification('Question deleted successfully', 'success');
                     } else {
                         showNotification(data.message || 'Failed to delete question', 'error');
@@ -710,28 +668,26 @@ document.addEventListener("DOMContentLoaded", function() {
         alert(message);
     }
 
-    // Form submission with Ajax
+    // Form submission with Ajax (add form)
     questionForm.addEventListener("submit", function(e) {
         e.preventDefault();
-        
         const formData = new FormData(this);
-
-        for (let [name, value] of formData.entries()) {
-        console.log(name, value);
-        }
+        console.log("Submitting form data:", Object.fromEntries(formData));
 
         fetch(this.action, {
             method: 'POST',
             body: formData,
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]').value
             }
         })
         .then(response => response.json())
         .then(data => {
+            console.log("Response data:", data);
             if (data.status === 'success') {
                 showNotification('Question added successfully', 'success');
-                location.reload(); // Reload to show new question
+                location.reload();
             } else {
                 showNotification(data.message || 'Failed to add question', 'error');
             }
@@ -741,71 +697,18 @@ document.addEventListener("DOMContentLoaded", function() {
             showNotification('An error occurred', 'error');
         });
     });
-    // Handler untuk memuat opsi kondisional saat parent question berubah
-    // Handler untuk memuat opsi kondisional saat parent question berubah
-document.getElementById('parent_question_id').addEventListener('change', function() {
-    const parentId = this.value;
-    const selectElement = document.getElementById('condition_value_select');
-    const textElement = document.getElementById('condition_value_text');
-    const conditionOperator = document.getElementById('condition_operator');
 
-    // Reset fields and disable by default
-    selectElement.innerHTML = '<option value="">-- Select Value --</option>';
-    selectElement.disabled = true;
-    textElement.disabled = true;
+    // Handler untuk memuat opsi kondisional saat parent question berubah (add form)
+    document.getElementById('parent_question_id').addEventListener('change', function() {
+        loadConditionOptions();
+    });
 
-    if (parentId) {
-        fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/get-options/") ?>${parentId}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success' && data.options && data.options.length > 0) {
-                // Show select input and hide text input
-                selectElement.style.display = 'block';
-                textElement.style.display = 'none';
-
-                data.options.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt.option_value;
-                    option.textContent = opt.option_text;
-                    selectElement.appendChild(option);
-                });
-                selectElement.disabled = false;
-                
-            } else {
-                // Show text input and hide select input
-                selectElement.style.display = 'none';
-                textElement.style.display = 'block';
-                textElement.disabled = false;
-
-                // Set value from server if any
-                if (data.question && data.question.condition_value) {
-                    textElement.value = data.question.condition_value;
-                }
-            }
-            // Reset operator options
-            conditionOperator.querySelectorAll('option').forEach(opt => opt.disabled = false);
-        })
-        .catch(error => {
-            console.error('Error loading options:', error);
-            selectElement.disabled = true;
-            textElement.disabled = true;
-        });
+    // Trigger load jika ada nilai awal (add form)
+    if (document.getElementById('parent_question_id').value) {
+        loadConditionOptions();
     }
-});
 
-// Jika old value ada, trigger load saat halaman dimuat
-if (document.getElementById('parent_question_id').value) {
-    document.getElementById('parent_question_id').dispatchEvent(new Event('change'));
-}
-});
-
-// Edit question functionality
-document.addEventListener("DOMContentLoaded", function() {
+    // Edit question functionality
     // Edit Question Handler
     document.addEventListener("click", function(e) {
         if (e.target.closest(".edit-question")) {
@@ -827,15 +730,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (data.status === 'success') {
                     const q = data.question;
                     document.getElementById('edit_question_id').value = q.id;
-                    document.getElementById('edit_question_title').value = q.question_title || '';
                     document.getElementById('edit_question_text').value = q.question_text || '';
                     document.getElementById('edit_question_type').value = q.question_type || '';
                     document.getElementById('edit_is_required').checked = q.is_required === 1;
-                    document.getElementById('edit_order_no').value = q.order_no || 1;
+                    document.getElementById('edit_enable_conditional').checked = !!q.condition_json;
 
                     // Hide all special wrappers
                     const wrappers = ['edit_options_wrapper', 'edit_scale_wrapper', 'edit_file_wrapper', 'edit_matrix_wrapper', 'edit_conditional_wrapper'];
                     wrappers.forEach(w => document.getElementById(w).style.display = 'none');
+
+                    // Show conditional wrapper if enabled
+                    document.getElementById('edit_conditional_wrapper').style.display = q.condition_json ? 'block' : 'none';
 
                     // Show relevant wrapper based on type
                     if (['radio', 'checkbox', 'dropdown'].includes(q.question_type)) {
@@ -850,7 +755,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                         <option value="">-- Pilih Pertanyaan Berikutnya --</option>
                                         <?php foreach ($all_questions as $q): ?>
                                             <option value="<?= $q['id'] ?>" ${opt.next_question_id == <?= $q['id'] ?> ? 'selected' : ''}>
-                                                <?= esc($q['question_title'] ?? $q['question_text']) ?>
+                                                <?= esc($q['question_text']) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -926,43 +831,29 @@ document.addEventListener("DOMContentLoaded", function() {
         for (let wrapper in wrappers) {
             document.getElementById(wrapper).style.display = wrappers[wrapper].includes(type) ? 'block' : 'none';
         }
-        document.getElementById('edit_conditional_wrapper').style.display = 'none'; // Hide unless set manually
+    });
+
+    // Conditional logic toggle for edit form
+    document.getElementById('edit_enable_conditional').addEventListener("change", function() {
+        document.getElementById('edit_conditional_wrapper').style.display = this.checked ? 'block' : 'none';
     });
 
     // Submit edit form
-   // Submit edit form
-           // Submit edit form
-   // Submit edit form
     document.getElementById('editQuestionForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const form = document.getElementById('editQuestionForm');
-        const questionIdElement = document.getElementById('edit_question_id');
-        const isRequiredElement = document.getElementById('edit_is_required');
-        const csrfTokenElement = document.querySelector('[name="csrf_test_name"]');
-
-        if (!form || !questionIdElement || !isRequiredElement || !csrfTokenElement) {
-            console.error("Missing elements:", {
-                form: !!form,
-                questionId: !!questionIdElement,
-                isRequired: !!isRequiredElement,
-                csrfToken: !!csrfTokenElement
-            });
-            showNotification('One or more required elements are missing', 'error');
-            return;
-        }
-
-        const formData = new FormData(form);
-        const questionId = questionIdElement.value;
+        const formData = new FormData(this);
+        const questionId = document.getElementById('edit_question_id').value;
         console.log("Submitting form data:", Object.fromEntries(formData));
 
-        formData.set('is_required', isRequiredElement.checked ? 1 : 0);
+        formData.set('is_required', document.getElementById('edit_is_required').checked ? 1 : 0);
+        formData.set('enable_conditional', document.getElementById('edit_enable_conditional').checked ? 1 : 0);
 
         fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/") ?>${questionId}/update`, {
             method: 'POST',
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': csrfTokenElement.value
+                'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]').value
             }
         })
         .then(response => {
@@ -996,7 +887,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 <select name="next_question_ids[]" class="form-control">
                     <option value="">-- Pilih Pertanyaan Berikutnya --</option>
                     <?php foreach ($all_questions as $q): ?>
-                        <option value="<?= $q['id'] ?>"><?= esc($q['question_title'] ?? $q['question_text']) ?></option>
+                        <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
                     <?php endforeach; ?>
                 </select>
                 <button type="button" class="btn btn-outline-danger remove-option">&times;</button>
@@ -1014,181 +905,192 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Load conditional options for edit
     window.loadEditConditionOptions = function() {
-        const parentId = document.getElementById('edit_parent_question_id').value;
+        const parentId = document.getElementById('edit_parent_question_id')?.value || '';
         const conditionValueSelect = document.getElementById('edit_condition_value_select');
         const conditionValueText = document.getElementById('edit_condition_value_text');
 
-        conditionValueSelect.innerHTML = '<option value="">-- Pilih Nilai --</option>';
+        if (!conditionValueSelect || !conditionValueText) {
+            console.error('Edit conditional elements missing:', {
+                conditionValueSelect: !!conditionValueSelect,
+                conditionValueText: !!conditionValueText
+            });
+            return;
+        }
+
+        conditionValueSelect.innerHTML = '<option value="">-- Select Value --</option>';
         conditionValueSelect.disabled = true;
         conditionValueText.disabled = true;
-        conditionValueSelect.style.display = 'block';
+        conditionValueSelect.style.display = 'none';
         conditionValueText.style.display = 'none';
 
         if (parentId) {
-            fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/get-options/") ?>${parentId}`, {
+            console.log('Fetching edit options for parentId:', parentId);
+            fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/get-op/") ?>${parentId}`, {
                 method: 'GET',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]')?.value || '<?= csrf_hash() ?>'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Fetch edit response status:', response.status);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
             .then(data => {
-                if (data.status === 'success' && data.options && data.options.length > 0) {
-                    data.options.forEach(opt => {
-                        const option = document.createElement('option');
-                        option.value = opt.option_value || opt.option_text;
-                        option.textContent = opt.option_text;
-                        conditionValueSelect.appendChild(option);
-                    });
-                    conditionValueSelect.disabled = false;
-                    const currentValue = document.getElementById('edit_condition_value_text').value;
-                    if (currentValue) conditionValueSelect.value = currentValue;
+                console.log('Fetch edit data:', data);
+                if (data.status === 'success') {
+                    const questionType = data.question_type;
+                    const options = data.options || [];
+
+                    if (['text', 'textarea', 'email', 'number', 'phone'].includes(questionType)) {
+                        conditionValueText.style.display = 'block';
+                        conditionValueText.disabled = false;
+                        conditionValueText.value = '';
+                    } else if (['radio', 'checkbox', 'dropdown'].includes(questionType) && options.length > 0) {
+                        conditionValueSelect.style.display = 'block';
+                        conditionValueSelect.innerHTML = '<option value="">-- Select Value --</option>';
+                        options.forEach(opt => {
+                            const option = document.createElement('option');
+                            option.value = opt.option_value || opt.option_text;
+                            option.textContent = opt.option_text;
+                            conditionValueSelect.appendChild(option);
+                        });
+                        conditionValueSelect.disabled = false;
+                        const currentValue = conditionValueText.value;
+                        if (currentValue) conditionValueSelect.value = currentValue;
+                    } else {
+                        conditionValueText.style.display = 'block';
+                        conditionValueText.disabled = false;
+                        conditionValueText.value = '';
+                    }
                 } else {
+                    console.error('Failed to load edit options:', data.message);
                     conditionValueText.style.display = 'block';
                     conditionValueText.disabled = false;
-                    conditionValueSelect.style.display = 'none';
-                    conditionValueText.value = document.getElementById('edit_condition_value_text').value || '';
                 }
             })
-            .catch(error => console.error('Error loading options:', error));
+            .catch(error => {
+                console.error('Error loading edit options:', error);
+                conditionValueText.style.display = 'block';
+                conditionValueText.disabled = false;
+            });
         }
     };
 
-    // Trigger load if parent is set
+    // Trigger saat parent berubah (edit form)
     document.getElementById('edit_parent_question_id').addEventListener('change', function() {
         loadEditConditionOptions();
     });
 
-    // Utility function for notifications
-    function showNotification(message, type) {
-        alert(message); // Replace with your notification system
+    // Trigger load jika ada nilai awal (edit form)
+    if (document.getElementById('edit_parent_question_id').value) {
+        loadEditConditionOptions();
     }
 });
+
+      //   loadcondition function
+
+        window.loadConditionOptions = function() {
+            const parentId = document.getElementById('parent_question_id')?.value || '';
+            const conditionValueSelect = document.getElementById('condition_value_select');
+            const conditionValueText = document.getElementById('condition_value_text');
+            const conditionOperator = document.getElementById('condition_operator');
+
+            if (!conditionValueSelect || !conditionValueText || !conditionOperator) {
+                console.error('Conditional elements missing:', {
+                    conditionValueSelect: !!conditionValueSelect,
+                    conditionValueText: !!conditionValueText,
+                    conditionOperator: !!conditionOperator
+                });
+                return;
+            }
+
+            conditionValueSelect.innerHTML = '<option value="">-- Select Value --</option>';
+            conditionValueSelect.disabled = true;
+            conditionValueText.disabled = true;
+            conditionValueSelect.style.display = 'none';
+            conditionValueText.style.display = 'none';
+            conditionOperator.disabled = !parentId;
+
+            if (parentId) {
+                console.log('Fetching options for parentId:', parentId);
+                fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/get-op/") ?>${parentId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]')?.value || '<?= csrf_hash() ?>'
+                    }
+                })
+                .then(response => {
+                    console.log('Fetch response status:', response.status);
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Fetch data:', data);
+                    if (data.status === 'success') {
+                        const questionType = data.question_type;
+                        const options = data.options || [];
+
+                        if (['text', 'textarea', 'email', 'number', 'phone'].includes(questionType)) {
+                            conditionValueText.style.display = 'block';
+                            conditionValueText.disabled = false;
+                            conditionValueText.value = '';
+                        } else if (['radio', 'checkbox', 'dropdown'].includes(questionType) && options.length > 0) {
+                            conditionValueSelect.style.display = 'block';
+                            conditionValueSelect.innerHTML = '<option value="">-- Select Value --</option>';
+                            options.forEach(opt => {
+                                const option = document.createElement('option');
+                                option.value = opt.option_value || opt.option_text;
+                                option.textContent = opt.option_text;
+                                conditionValueSelect.appendChild(option);
+                            });
+                            conditionValueSelect.disabled = false;
+                            const currentValue = conditionValueText.value;
+                            if (currentValue) conditionValueSelect.value = currentValue;
+                        } else {
+                            conditionValueText.style.display = 'block';
+                            conditionValueText.disabled = false;
+                            conditionValueText.value = '';
+                        }
+                    } else {
+                        console.error('Failed to load options:', data.message);
+                        conditionValueText.style.display = 'block';
+                        conditionValueText.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading options:', error);
+                    conditionValueText.style.display = 'block';
+                    conditionValueText.disabled = false;
+                });
+            }
+        };
+// });
 </script>
 
 <style>
 .cursor-pointer { cursor: pointer; }
-.preview-card:hover { background-color: rgba(74, 144, 226, 0.02) !important; transform: translateY(-2px); }
+.question-item:hover .question-header { background-color: #f8f9fa !important; }
 .question-types-grid .btn { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
 .sticky-top { z-index: 1020; }
-.preview-actions .btn { margin-left: 2px; }
+.question-actions .btn { margin-left: 2px; }
 
-/* Preview Card Specific Styles */
-.preview-card {
+/* Custom animations */
+.question-item {
     transition: all 0.3s ease;
-    margin-bottom: 1.5rem;
 }
 
-.preview-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+.question-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.preview-title-section {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    flex: 1;
-}
-
-.preview-title {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1a202c;
-    line-height: 1.4;
-}
-
-.preview-badges {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-}
-
-.section-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.5rem;
-    margin-top: 0;
-}
-
-.options-list {
-    list-style: none;
-    padding-left: 0;
-    margin-bottom: 1rem;
-}
-
-.options-list li {
-    padding: 0.25rem 0;
-    color: #6b7280;
-    font-size: 0.9rem;
-}
-
-.condition-info {
-    font-size: 0.9rem;
-    margin: 0;
-}
-
-.preview-label {
-    font-weight: 600;
-    color: #6b7280;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
-    display: block;
-}
-
-.preview-demo {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 1rem;
-    border-radius: 8px;
-    border: 1px solid rgba(14, 165, 233, 0.2);
-    min-height: 80px;
+/* Form styling */
+.card-body {
     position: relative;
 }
 
-.preview-demo::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(135deg, #0ea5e9, #3b82f6);
-    border-radius: 0 0 0 8px;
-}
-
-.preview-actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    margin-top: 1.5rem;
-}
-
-/* Question info styles */
-.question-info {
-    padding-right: 1rem;
-}
-
-.question-info h6 {
-    margin-bottom: 0.5rem;
-    margin-top: 1.5rem;
-}
-
-.question-info h6:first-child {
-    margin-top: 0;
-}
-
-/* Enhanced form styling */
 .form-label.fw-bold {
     color: #495057;
     font-size: 0.9rem;
@@ -1199,44 +1101,10 @@ document.addEventListener("DOMContentLoaded", function() {
     font-size: 0.7rem;
 }
 
-/* Empty state enhancement */
-.empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    color: #6b7280;
-}
-
-.empty-state i {
-    opacity: 0.6;
-}
-
-/* Responsive improvements */
-@media (max-width: 768px) {
-    .preview-header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-    
-    .preview-badges {
-        justify-content: flex-start;
-        width: 100%;
-    }
-    
-    .preview-actions {
-        flex-direction: column;
-    }
-    
-    .preview-actions .btn {
-        width: 100%;
-        margin-left: 0;
-        margin-bottom: 0.5rem;
-    }
-    
-    .question-info {
-        padding-right: 0;
-        margin-bottom: 1.5rem;
-    }
+/* Question preview styling */
+.question-preview {
+    background: #f8f9fa !important;
+    min-height: 100px;
 }
 </style>
 
@@ -1249,30 +1117,50 @@ function generateQuestionPreview($q) {
     switch ($type) {
         
         case 'matrix':
-            $rows = $q['matrix_rows'] ?? [];
-            $columns = $q['matrix_columns'] ?? [];
-            $options = $q['matrix_options'] ?? [];
-            $html = "<label class='form-label small'>{$text}</label><table class='table table-sm border'>";
-            $html .= "<thead><tr><th></th>";
-            foreach ($columns as $col) {
-                $html .= "<th>" . esc($col) . "</th>";
-            }
-            $html .= "</tr></thead><tbody>";
-            foreach ($rows as $row) {
-                $html .= "<tr><td>" . esc($row) . "</td>";
-                foreach ($columns as $col) {
-                    $html .= "<td>";
-                    foreach ($options as $index => $opt) {
-                        $html .= "<label><input type='radio' name='matrix_{$row}_{$col}' disabled> " . esc($opt) . "</label>";
-                    }
-                    $html .= "</td>";
+    $rows = $q['matrix_rows'] ?? [];
+    $columns = $q['matrix_columns'] ?? [];
+    $options = $q['matrix_options'] ?? [];
+
+    $html = "<label class='form-label small'>{$text}</label><table class='table table-sm border'>";
+    $html .= "<thead><tr><th></th>";
+
+    // tampilkan header kolom
+    foreach ($columns as $col) {
+        $colText = is_array($col) ? ($col['column_text'] ?? '') : $col;
+        $html .= "<th>" . esc($colText) . "</th>";
+    }
+    $html .= "</tr></thead><tbody>";
+
+    // tampilkan setiap row
+    foreach ($rows as $row) {
+        $rowText = is_array($row) ? ($row['row_text'] ?? '') : $row;
+        $html .= "<tr><td>" . esc($rowText) . "</td>";
+
+        foreach ($columns as $col) {
+            $colText = is_array($col) ? ($col['column_text'] ?? '') : $col;
+            $html .= "<td>";
+
+            // kalau ada opsi tambahan
+            if (!empty($options)) {
+                foreach ($options as $index => $opt) {
+                    $html .= "<label><input type='radio' name='matrix_{$rowText}_{$colText}' disabled> " . esc($opt) . "</label>";
                 }
-                $html .= "</tr>";
+            } else {
+                // default: hanya tampilkan radio tanpa label opsi
+                $html .= "<input type='radio' name='matrix_{$rowText}_{$colText}' disabled>";
             }
-            $html .= "</tbody></table>";
-            return $html;
+
+            $html .= "</td>";
+        }
+        $html .= "</tr>";
+    }
+
+    $html .= "</tbody></table>";
+    return $html;
+;
         
-        case 'scale':
+        // Case lain (scale, file, dll.) sesuai kebutuhan
+       case 'scale':
             $min = $q['scale_min'] ?? 1;
             $max = $q['scale_max'] ?? 5;
             $step = $q['scale_step'] ?? 1;
@@ -1293,20 +1181,24 @@ function generateQuestionPreview($q) {
         
         case 'radio':
         case 'checkbox':
+            // Baris ini sudah benar, karena sudah diperbaiki di respons sebelumnya
             $options = $q['options'] ?? []; 
             $inputType = ($type === 'radio') ? 'radio' : 'checkbox';
             $html = "<div><label class='form-label small'>{$text}</label></div>";
             foreach (array_slice($options, 0, 2) as $i => $option) {
+                // Perhatikan: akses 'option_text' di sini
                 $html .= "<div class='form-check'><input class='form-check-input form-check-input-sm' type='{$inputType}' disabled><label class='form-check-label small'>" . esc($option['option_text']) . "</label></div>";
             }
             if (count($options) > 2) $html .= "<small class='text-muted'>... and " . (count($options) - 2) . " more</small>";
             return $html;
             
         case 'dropdown':
+            // Ganti baris ini dari json_decode
             $options = $q['options'] ?? [];
             $html = "<label class='form-label small'>{$text}</label><select class='form-select form-select-sm' disabled>";
             $html .= "<option>-- Select --</option>";
             foreach (array_slice($options, 0, 3) as $option) {
+                // Perhatikan: akses 'option_text' di sini
                 $html .= "<option>" . esc($option['option_text']) . "</option>";
             }
             $html .= "</select>";

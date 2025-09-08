@@ -1,125 +1,99 @@
-/* ===== STYLE MODERN FORM KUESIONER (Seperti di Gambar) ===== */
+/* ================================
+   STYLE FORM KUESIONER
+   ================================ */
 
-body {
-    font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
-    background: #f9fafb;
-    color: #2d3748;
-    padding: 30px;
+/* Container form */
+.form-kuesioner {
+    background: #ffffff;
+    padding: 24px 28px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 750px;
+    margin: 25px auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Judul */
-h2 {
+.form-kuesioner h2 {
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 20px;
-    color: #1a202c;
+    text-align: center;
+    color: #2d3748;
 }
 
-/* Form Container */
-form {
-    background: #fff;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    max-width: 720px;
-    margin: 0 auto;
-}
-
-/* Group tiap input */
-.form-group {
-    margin-bottom: 18px;
-}
-
-label {
-    font-size: 14px;
+/* Label */
+.form-kuesioner label {
     font-weight: 500;
-    margin-bottom: 8px;
-    display: block;
     color: #4a5568;
+    margin-bottom: 6px;
+    display: inline-block;
+    font-size: 14px;
 }
 
-/* Input, select, textarea */
-input[type="text"],
-textarea,
-select {
+/* Input, Textarea, Select */
+.form-kuesioner input[type="text"],
+.form-kuesioner textarea,
+.form-kuesioner select {
     width: 100%;
-    padding: 12px 14px;
+    padding: 10px 12px;
+    margin-top: 4px;
+    margin-bottom: 15px;
     border: 1px solid #e2e8f0;
     border-radius: 10px;
     font-size: 14px;
-    background: #fff;
-    transition: border 0.2s ease, box-shadow 0.2s ease;
-}
-
-input[type="text"]:focus,
-textarea:focus,
-select:focus {
-    outline: none;
-    border-color: #3182ce;
-    box-shadow: 0 0 0 3px rgba(49,130,206,0.2);
-}
-
-/* Textarea */
-textarea {
-    min-height: 90px;
-    resize: vertical;
-}
-
-/* Option Row (seperti di gambar untuk pilihan poll) */
-.option-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
     background: #f9fafb;
-    border: 1px solid #edf2f7;
-    padding: 10px 14px;
-    border-radius: 10px;
-    margin-bottom: 10px;
+    transition: border 0.2s ease, background 0.2s ease;
 }
 
-.option-row input[type="text"] {
-    border: none;
-    background: transparent;
-    padding: 8px 0;
-    flex: 1;
-}
-
-.option-row input[type="text"]:focus {
+.form-kuesioner input[type="text"]:focus,
+.form-kuesioner textarea:focus,
+.form-kuesioner select:focus {
+    border-color: #3182ce;
+    background: #fff;
     outline: none;
-    box-shadow: none;
-    border: none;
 }
 
-/* Tombol Tambah Opsi */
-#add-option-btn {
-    background: #edf2f7;
-    color: #4a5568;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-#add-option-btn:hover {
-    background: #e2e8f0;
-}
-
-/* Tombol Submit */
-button[type="submit"] {
+/* Tombol submit hanya dalam form kuesioner */
+.form-kuesioner button[type="submit"] {
     background: #3182ce;
     color: #fff;
     border: none;
-    padding: 12px 20px;
-    border-radius: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
     font-size: 15px;
-    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    font-weight: 500;
+    transition: background 0.2s ease;
 }
 
-button[type="submit"]:hover {
+.form-kuesioner button[type="submit"]:hover {
     background: #2b6cb0;
 }
 
+/* Tombol tambahan (kondisi) hanya dalam form kuesioner */
+.form-kuesioner #add-condition-btn,
+.form-kuesioner .remove-condition-btn {
+    background: #edf2f7;
+    color: #2d3748;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.form-kuesioner #add-condition-btn:hover,
+.form-kuesioner .remove-condition-btn:hover {
+    background: #e2e8f0;
+}
+
+/* Kondisi row */
+.form-kuesioner .condition-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}

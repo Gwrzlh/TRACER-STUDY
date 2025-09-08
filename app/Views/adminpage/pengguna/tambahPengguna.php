@@ -1,6 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<?= $this->extend('layout/sidebar') ?>
+<?= $this->section('content') ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Pengguna</title>
@@ -751,5 +750,4 @@ $('#alumni_ipk').on('input', function() {         // ✅ UBAH: dari #ipk ke #alu
         });
     });
     </script>
-</body>
-</html>
+<?= $this->endSection() ?>

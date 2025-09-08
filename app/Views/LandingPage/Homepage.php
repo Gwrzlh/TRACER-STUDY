@@ -2,7 +2,12 @@
 use App\Models\WelcomePageModel;
 $model = new WelcomePageModel();
 $data = $model->first();
+$loginText = get_setting('login_button_text', 'Login');
+$loginColor = get_setting('login_button_color', '#007bff');
+$loginTextColor = get_setting('login_button_text_color', '#ffffff');
+$loginHover = get_setting('login_button_hover_color', '#0056b3');
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +20,9 @@ $data = $model->first();
 
 
 </head>
+
 <body>
+    
 
 <?= view('layout/navbar') ?>
 
@@ -41,7 +48,13 @@ $data = $model->first();
             <div class="col-md-6">
                 <h2><?= esc($data['title_2']) ?></h2>
                 <p><?= $data['desc_2'] ?></p>
-                <a href="<?= base_url('/login') ?>" class="btn btn-primary mt-3">Login</a>
+                <a href="<?= base_url('/login') ?>"
+   class="btn mt-3"
+   style="background-color: <?= $loginColor ?>; color: <?= $loginTextColor ?>;"
+   onmouseover="this.style.backgroundColor='<?= $loginHover ?>';"
+   onmouseout="this.style.backgroundColor='<?= $loginColor ?>';">
+   <?= esc($loginText) ?>
+</a>
             </div>
             <div class="col-md-6">
                 <div class="ratio ratio-16x9 video-custom">

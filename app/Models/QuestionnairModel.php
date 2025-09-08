@@ -16,6 +16,30 @@ class QuestionnairModel extends Model
 
     protected bool $allowEmptyInserts = false;
 
+    public function getAccessibleQuestionnaires($user_data)
+    {
+        $questionnaires = $this->findAll();
+        $accessible = [];
+        foreach ($questionnaires as $questionnaire) {
+            if ($this->checkConditions($questionnaire['conditional_logic'], $user_data)) {
+                $accessible[] = $questionnaire;
+            }
+        }
+        return $accessible;
+    }
+
+    private function checkConditions($conditions, $user_data)
+    {
+        if (empty($conditions)) return true;
+        $conditions = json_decode($conditions, true);
+        if (!$conditions) return true;
+        foreach ($conditions as $condition) {
+            if ($condition['operator'] === 'is' && $user_data[$condition['field']] == $condition['value']) return true;
+            if ($condition['operator'] === 'is_not' && $user_data[$condition['field']] != $condition['value']) return true;
+        }
+        return false;
+    }
+
     // Dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';
