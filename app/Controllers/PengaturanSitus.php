@@ -15,18 +15,36 @@ class PengaturanSitus extends BaseController
     }
 
     public function index()
-    {
-        $data['settings'] = [
-            'pengguna_button_text'        => get_setting('pengguna_button_text', 'Tambah Pengguna'),
-            'pengguna_button_color'       => get_setting('pengguna_button_color', 'bg-blue-600'),
-            'pengguna_button_text_color'  => get_setting('pengguna_button_text_color', 'text-white'),
-            'pengguna_button_hover_color' => get_setting('pengguna_button_hover_color', 'hover:bg-blue-700'),
-            'pengguna_perpage_default' => get_setting('pengguna_perpage_default', '10'),
+{
+    $data['settings'] = [
+        // Pengguna
+        'pengguna_button_text'        => get_setting('pengguna_button_text', 'Tambah Pengguna'),
+        'pengguna_button_color'       => get_setting('pengguna_button_color', '#007bff'),
+        'pengguna_button_text_color'  => get_setting('pengguna_button_text_color', '#ffffff'),
+        'pengguna_button_hover_color' => get_setting('pengguna_button_hover_color', '#0056b3'),
+        'pengguna_perpage_default'    => get_setting('pengguna_perpage_default', '10'),
 
-        ];
+        // Login Button
+        'login_button_text'           => get_setting('login_button_text', 'Login'),
+        'login_button_color'          => get_setting('login_button_color', '#007bff'),
+        'login_button_text_color'     => get_setting('login_button_text_color', '#ffffff'),
+        'login_button_hover_color'    => get_setting('login_button_hover_color', '#0056b3'),
+        
+     // Satuan Organisasi
+        'org_button_text'             => get_setting('org_button_text', 'Tambah Satuan Organisasi'),
+        'org_button_color'            => get_setting('org_button_color', '#28a745'),
+        'org_button_text_color'       => get_setting('org_button_text_color', '#ffffff'),
+        'org_button_hover_color'      => get_setting('org_button_hover_color', '#218838'),
+    // tombol logout 
+        'logout_button_text'        => get_setting('logout_button_text', 'Logout'),
+        'logout_button_color'       => get_setting('logout_button_color', '#dc3545'),
+        'logout_button_text_color'  => get_setting('logout_button_text_color', '#ffffff'),
+        'logout_button_hover_color' => get_setting('logout_button_hover_color', '#a71d2a'),
+    ];
 
-        return view('adminpage/pengaturan_situs/index', $data);
-    }
+    return view('adminpage/pengaturan_situs/index', $data);
+}   
+
 
     public function save()
     {
