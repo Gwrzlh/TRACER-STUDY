@@ -76,7 +76,7 @@
                             <?php endforeach; ?>
                         </select>
                         <span class="value-input-container w-100">
-                            <input type="text" name="condition_value[]" placeholder="Value" class="form-control" required>
+                            <input type="text" name="condition_value[]" placeholder="Value" class="form-control" >
                         </span>
                         <button type="button" class="remove-condition-btn btn btn-danger btn-sm" style="display:none;">Hapus</button>
                     </div>
