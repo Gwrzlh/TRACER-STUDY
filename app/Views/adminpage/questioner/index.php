@@ -28,7 +28,7 @@
     <div class="questionnaire-card">
         <div class="card-header flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <div class="card-header-icon">📋</div>
+                <div class="card-header-icon"></div>
                 <h3 class="card-title">Daftar Kuesioner </h3>
             </div>
             <a href="<?= base_url('admin/questionnaire/create') ?>"
