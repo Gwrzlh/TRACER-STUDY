@@ -21,7 +21,7 @@
                     <form id="questionForm" action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/store") ?>" method="post">
                         <?= csrf_field() ?>
 
-                     
+
 
                         <!-- Question Text -->
                         <div class="mb-3">
@@ -71,7 +71,7 @@
                                     <select name="next_question_ids[]" class="form-control">
                                         <option value="">-- Pilih Pertanyaan Berikutnya --</option>
                                         <?php foreach ($all_questions as $q): ?>
-                                            <option value="<?= $q['id'] ?>"><?= esc( $q['question_text']) ?></option>
+                                            <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                     <button type="button" class="btn btn-outline-danger remove-option">&times;</button>
@@ -242,14 +242,14 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="collapse" id="question-<?= $q['id'] ?>">
                                         <div class="question-details p-3">
                                             <div class="row">
                                                 <div class="col-md-8">
                                                     <h6>Question Text:</h6>
                                                     <p class="text-muted"><?= esc($q['question_text']) ?></p>
-                                                    
+
                                                     <?php if (!empty($q['options'])): ?>
                                                         <h6>Options:</h6>
                                                         <ul class="list-unstyled">
@@ -258,7 +258,7 @@
                                                             <?php endforeach; ?>
                                                         </ul>
                                                     <?php endif; ?>
-                                                    
+
                                                     <?php if (!empty($q['condition_json'])): ?>
                                                         <h6>Conditional Logic:</h6>
                                                         <p class="text-info">
@@ -496,66 +496,66 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Form elements (add form)
-    const toggleFormBtn = document.getElementById("toggleForm");
-    const formContainer = document.getElementById("formContainer");
-    const cancelFormBtn = document.getElementById("cancelForm");
-    const questionForm = document.getElementById("questionForm");
-    const questionTypeSelect = document.getElementById("question_type");
-    const optionsWrapper = document.getElementById("options_wrapper");
-    const scaleWrapper = document.getElementById("scale_wrapper");
-    const fileWrapper = document.getElementById("file_wrapper");
-    const matrixWrapper = document.getElementById("matrix_wrapper");
-    const conditionalWrapper = document.getElementById("conditional_wrapper");
-    const enableConditionalCheck = document.getElementById("enable_conditional");
+    document.addEventListener("DOMContentLoaded", function() {
+        // Form elements (add form)
+        const toggleFormBtn = document.getElementById("toggleForm");
+        const formContainer = document.getElementById("formContainer");
+        const cancelFormBtn = document.getElementById("cancelForm");
+        const questionForm = document.getElementById("questionForm");
+        const questionTypeSelect = document.getElementById("question_type");
+        const optionsWrapper = document.getElementById("options_wrapper");
+        const scaleWrapper = document.getElementById("scale_wrapper");
+        const fileWrapper = document.getElementById("file_wrapper");
+        const matrixWrapper = document.getElementById("matrix_wrapper");
+        const conditionalWrapper = document.getElementById("conditional_wrapper");
+        const enableConditionalCheck = document.getElementById("enable_conditional");
 
-    // Toggle form visibility (add form)
-    toggleFormBtn.addEventListener("click", function() {
-        const isVisible = formContainer.style.display !== "none";
-        formContainer.style.display = isVisible ? "none" : "block";
-        toggleFormBtn.innerHTML = isVisible 
-            ? '<i class="fas fa-plus"></i> Add' 
-            : '<i class="fas fa-minus"></i> Hide';
-    });
+        // Toggle form visibility (add form)
+        toggleFormBtn.addEventListener("click", function() {
+            const isVisible = formContainer.style.display !== "none";
+            formContainer.style.display = isVisible ? "none" : "block";
+            toggleFormBtn.innerHTML = isVisible ?
+                '<i class="fas fa-plus"></i> Add' :
+                '<i class="fas fa-minus"></i> Hide';
+        });
 
-    cancelFormBtn.addEventListener("click", function() {
-        formContainer.style.display = "none";
-        toggleFormBtn.innerHTML = '<i class="fas fa-plus"></i> Add';
-        questionForm.reset();
-    });
+        cancelFormBtn.addEventListener("click", function() {
+            formContainer.style.display = "none";
+            toggleFormBtn.innerHTML = '<i class="fas fa-plus"></i> Add';
+            questionForm.reset();
+        });
 
-    // Question type change handler (add form)
-    questionTypeSelect.addEventListener("change", function() {
-        const type = this.value;
-        
-        // Hide all specific wrappers
-        optionsWrapper.style.display = "none";
-        scaleWrapper.style.display = "none";
-        fileWrapper.style.display = "none";
-        matrixWrapper.style.display = "none";
-        
-        // Show relevant wrapper based on type
-        if (["radio", "checkbox", "dropdown"].includes(type)) {
-            optionsWrapper.style.display = "block";
-        } else if (type === "scale") {
-            scaleWrapper.style.display = "block";
-        } else if (type === "file") {
-            fileWrapper.style.display = "block";
-        } else if (type === "matrix") {
-            matrixWrapper.style.display = "block";
-        }
-    });
+        // Question type change handler (add form)
+        questionTypeSelect.addEventListener("change", function() {
+            const type = this.value;
 
-    // Conditional logic toggle (add form)
-    enableConditionalCheck.addEventListener("change", function() {
-        conditionalWrapper.style.display = this.checked ? "block" : "none";
-    });
+            // Hide all specific wrappers
+            optionsWrapper.style.display = "none";
+            scaleWrapper.style.display = "none";
+            fileWrapper.style.display = "none";
+            matrixWrapper.style.display = "none";
 
-    // Add option functionality (add form)
-    document.getElementById("add_option").addEventListener("click", function() {
-        const optionList = document.getElementById("option_list");
-        const optionHtml = `
+            // Show relevant wrapper based on type
+            if (["radio", "checkbox", "dropdown"].includes(type)) {
+                optionsWrapper.style.display = "block";
+            } else if (type === "scale") {
+                scaleWrapper.style.display = "block";
+            } else if (type === "file") {
+                fileWrapper.style.display = "block";
+            } else if (type === "matrix") {
+                matrixWrapper.style.display = "block";
+            }
+        });
+
+        // Conditional logic toggle (add form)
+        enableConditionalCheck.addEventListener("change", function() {
+            conditionalWrapper.style.display = this.checked ? "block" : "none";
+        });
+
+        // Add option functionality (add form)
+        document.getElementById("add_option").addEventListener("click", function() {
+            const optionList = document.getElementById("option_list");
+            const optionHtml = `
             <div class="input-group mb-2">
                 <input type="text" name="options[]" class="form-control" placeholder="Option text...">
                 <input type="text" name="option_values[]" class="form-control" placeholder="Value (optional)">
@@ -568,190 +568,198 @@ document.addEventListener("DOMContentLoaded", function() {
                 <button type="button" class="btn btn-outline-danger remove-option">&times;</button>
             </div>
         `;
-        optionList.insertAdjacentHTML("beforeend", optionHtml);
-    });
+            optionList.insertAdjacentHTML("beforeend", optionHtml);
+        });
 
-    // Remove option functionality (global)
-    document.addEventListener("click", function(e) {
-        if (e.target.classList.contains("remove-option")) {
-            e.target.closest(".input-group").remove();
-        }
-    });
-
-    // Question type quick selection
-    document.querySelectorAll(".question-type-btn").forEach(btn => {
-        btn.addEventListener("click", function() {
-            const type = this.dataset.type;
-            questionTypeSelect.value = type;
-            questionTypeSelect.dispatchEvent(new Event('change'));
-            
-            // Show form if hidden
-            if (formContainer.style.display === "none") {
-                toggleFormBtn.click();
+        // Remove option functionality (global)
+        document.addEventListener("click", function(e) {
+            if (e.target.classList.contains("remove-option")) {
+                e.target.closest(".input-group").remove();
             }
-            
-            // Scroll to form
-            formContainer.scrollIntoView({ behavior: 'smooth' });
         });
-    });
 
-    // Expand/Collapse all questions
-    document.getElementById("expandAll")?.addEventListener("click", function() {
-        document.querySelectorAll(".question-item .collapse").forEach(collapse => {
-            new bootstrap.Collapse(collapse, { show: true });
+        // Question type quick selection
+        document.querySelectorAll(".question-type-btn").forEach(btn => {
+            btn.addEventListener("click", function() {
+                const type = this.dataset.type;
+                questionTypeSelect.value = type;
+                questionTypeSelect.dispatchEvent(new Event('change'));
+
+                // Show form if hidden
+                if (formContainer.style.display === "none") {
+                    toggleFormBtn.click();
+                }
+
+                // Scroll to form
+                formContainer.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
         });
-    });
 
-    document.getElementById("collapseAll")?.addEventListener("click", function() {
-        document.querySelectorAll(".question-item .collapse.show").forEach(collapse => {
-            new bootstrap.Collapse(collapse, { hide: true });
+        // Expand/Collapse all questions
+        document.getElementById("expandAll")?.addEventListener("click", function() {
+            document.querySelectorAll(".question-item .collapse").forEach(collapse => {
+                new bootstrap.Collapse(collapse, {
+                    show: true
+                });
+            });
         });
-    });
 
-    // Question actions
-    document.addEventListener("click", function(e) {
-       if (e.target.closest(".delete-question")) {
-            const questionId = e.target.closest(".delete-question").dataset.questionId;
-            if (confirm("Are you sure you want to delete this question?")) {
-                console.log("Deleting question ID:", questionId); // Debug
-                const csrfToken = document.querySelector('[name="csrf_token"]')?.value;
-                if (!csrfToken) console.warn("CSRF token not found!");
-                fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/delete/") ?>${questionId}`, {
+        document.getElementById("collapseAll")?.addEventListener("click", function() {
+            document.querySelectorAll(".question-item .collapse.show").forEach(collapse => {
+                new bootstrap.Collapse(collapse, {
+                    hide: true
+                });
+            });
+        });
+
+        // Question actions
+        document.addEventListener("click", function(e) {
+            if (e.target.closest(".delete-question")) {
+                const questionId = e.target.closest(".delete-question").dataset.questionId;
+                if (confirm("Are you sure you want to delete this question?")) {
+                    console.log("Deleting question ID:", questionId); // Debug
+                    const csrfToken = document.querySelector('[name="csrf_token"]')?.value;
+                    if (!csrfToken) console.warn("CSRF token not found!");
+                    fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/delete/") ?>${questionId}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': csrfToken || '',
+                                'Content-Type': 'application/json' // Tambahkan ini
+                            },
+                            body: JSON.stringify({
+                                question_id: questionId
+                            })
+                        })
+                        .then(response => {
+                            console.log("Response status:", response.status); // Debug
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("Response data:", data); // Debug
+                            if (data.status === 'success') {
+                                e.target.closest('.question-item').remove();
+                                showNotification('Question deleted successfully', 'success');
+                            } else {
+                                showNotification(data.message || 'Failed to delete question', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showNotification('An error occurred. Check console for details.', 'error');
+                        });
+                }
+            }
+
+            if (e.target.closest(".duplicate-question")) {
+                const questionId = e.target.closest(".duplicate-question").dataset.questionId;
+                // Ajax duplicate request
+                fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/duplicate/") ?>${questionId}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('[name="csrf_token"]').value
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            location.reload(); // Simple reload for now
+                        } else {
+                            showNotification('Failed to duplicate question', 'error');
+                        }
+                    });
+            }
+        });
+
+        // Utility function for notifications
+        function showNotification(message, type) {
+            // You can implement your preferred notification system here
+            alert(message);
+        }
+
+        // Form submission with Ajax (add form)
+        questionForm.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            console.log("Submitting form data:", Object.fromEntries(formData));
+
+            fetch(this.action, {
                     method: 'POST',
+                    body: formData,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': csrfToken || '',
-                        'Content-Type' : 'application/json' // Tambahkan ini
-                    },
-                    body: JSON.stringify({ question_id: questionId })
+                        'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]').value
+                    }
                 })
-                .then(response => {
-                    console.log("Response status:", response.status); // Debug
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log("Response data:", data); // Debug
+                    console.log("Response data:", data);
                     if (data.status === 'success') {
-                        e.target.closest('.question-item').remove();
-                        showNotification('Question deleted successfully', 'success');
+                        showNotification('Question added successfully', 'success');
+                        location.reload();
                     } else {
-                        showNotification(data.message || 'Failed to delete question', 'error');
+                        showNotification(data.message || 'Failed to add question', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showNotification('An error occurred. Check console for details.', 'error');
+                    showNotification('An error occurred', 'error');
                 });
-            }
-        }
-        
-        if (e.target.closest(".duplicate-question")) {
-            const questionId = e.target.closest(".duplicate-question").dataset.questionId;
-            // Ajax duplicate request
-            fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/duplicate/") ?>${questionId}`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('[name="csrf_token"]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    location.reload(); // Simple reload for now
-                } else {
-                    showNotification('Failed to duplicate question', 'error');
-                }
-            });
-        }
-    });
-
-    // Utility function for notifications
-    function showNotification(message, type) {
-        // You can implement your preferred notification system here
-        alert(message);
-    }
-
-    // Form submission with Ajax (add form)
-    questionForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        console.log("Submitting form data:", Object.fromEntries(formData));
-
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]').value
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("Response data:", data);
-            if (data.status === 'success') {
-                showNotification('Question added successfully', 'success');
-                location.reload();
-            } else {
-                showNotification(data.message || 'Failed to add question', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('An error occurred', 'error');
         });
-    });
 
-    // Handler untuk memuat opsi kondisional saat parent question berubah (add form)
-    document.getElementById('parent_question_id').addEventListener('change', function() {
-        loadConditionOptions();
-    });
+        // Handler untuk memuat opsi kondisional saat parent question berubah (add form)
+        document.getElementById('parent_question_id').addEventListener('change', function() {
+            loadConditionOptions();
+        });
 
-    // Trigger load jika ada nilai awal (add form)
-    if (document.getElementById('parent_question_id').value) {
-        loadConditionOptions();
-    }
+        // Trigger load jika ada nilai awal (add form)
+        if (document.getElementById('parent_question_id').value) {
+            loadConditionOptions();
+        }
 
-    // Edit question functionality
-    // Edit Question Handler
-    document.addEventListener("click", function(e) {
-        if (e.target.closest(".edit-question")) {
-            const questionId = e.target.closest(".edit-question").dataset.questionId;
-            console.log("Edit clicked:", questionId);
-            fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/get/") ?>${questionId}`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': '<?= csrf_hash() ?>'
-                }
-            })
-            .then(response => {
-                console.log("Fetch response status:", response.status);
-                return response.json();
-            })
-            .then(data => {
-                console.log("Fetch data:", data);
-                if (data.status === 'success') {
-                    const q = data.question;
-                    document.getElementById('edit_question_id').value = q.id;
-                    document.getElementById('edit_question_text').value = q.question_text || '';
-                    document.getElementById('edit_question_type').value = q.question_type || '';
-                    document.getElementById('edit_is_required').checked = q.is_required === 1;
-                    document.getElementById('edit_enable_conditional').checked = !!q.condition_json;
+        // Edit question functionality
+        // Edit Question Handler
+        document.addEventListener("click", function(e) {
+            if (e.target.closest(".edit-question")) {
+                const questionId = e.target.closest(".edit-question").dataset.questionId;
+                console.log("Edit clicked:", questionId);
+                fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/get/") ?>${questionId}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': '<?= csrf_hash() ?>'
+                        }
+                    })
+                    .then(response => {
+                        console.log("Fetch response status:", response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("Fetch data:", data);
+                        if (data.status === 'success') {
+                            const q = data.question;
+                            document.getElementById('edit_question_id').value = q.id;
+                            document.getElementById('edit_question_text').value = q.question_text || '';
+                            document.getElementById('edit_question_type').value = q.question_type || '';
+                            document.getElementById('edit_is_required').checked = q.is_required == 1 || q.is_required === true || q.is_required === '1';
+                            document.getElementById('edit_enable_conditional').checked = !!q.condition_json;
 
-                    // Hide all special wrappers
-                    const wrappers = ['edit_options_wrapper', 'edit_scale_wrapper', 'edit_file_wrapper', 'edit_matrix_wrapper', 'edit_conditional_wrapper'];
-                    wrappers.forEach(w => document.getElementById(w).style.display = 'none');
+                            // Hide all special wrappers
+                            const wrappers = ['edit_options_wrapper', 'edit_scale_wrapper', 'edit_file_wrapper', 'edit_matrix_wrapper', 'edit_conditional_wrapper'];
+                            wrappers.forEach(w => document.getElementById(w).style.display = 'none');
 
-                    // Show conditional wrapper if enabled
-                    document.getElementById('edit_conditional_wrapper').style.display = q.condition_json ? 'block' : 'none';
+                            // Show conditional wrapper if enabled
+                            document.getElementById('edit_conditional_wrapper').style.display = q.condition_json ? 'block' : 'none';
 
-                    // Show relevant wrapper based on type
-                    if (['radio', 'checkbox', 'dropdown'].includes(q.question_type)) {
-                        const editOptionList = document.getElementById('edit_option_list');
-                        editOptionList.innerHTML = '';
-                        (q.options || []).forEach(opt => {
-                            const optionHtml = `
+                            // Show relevant wrapper based on type
+                            if (['radio', 'checkbox', 'dropdown'].includes(q.question_type)) {
+                                const editOptionList = document.getElementById('edit_option_list');
+                                editOptionList.innerHTML = '';
+                                (q.options || []).forEach(opt => {
+                                    const optionHtml = `
                                 <div class="input-group mb-2">
                                     <input type="text" name="options[]" value="${opt.option_text || ''}" class="form-control">
                                     <input type="text" name="option_values[]" value="${opt.option_value || ''}" class="form-control">
@@ -766,125 +774,128 @@ document.addEventListener("DOMContentLoaded", function() {
                                     <button type="button" class="btn btn-outline-danger remove-option">&times;</button>
                                 </div>
                             `;
-                            editOptionList.insertAdjacentHTML('beforeend', optionHtml);
-                        });
-                        document.getElementById('edit_options_wrapper').style.display = 'block';
-                    } else if (q.question_type === 'scale') {
-                        document.getElementById('edit_scale_wrapper').style.display = 'block';
-                        document.getElementById('edit_scale_min').value = q.scale_min || 1;
-                        document.getElementById('edit_scale_max').value = q.scale_max || 5;
-                        document.getElementById('edit_scale_step').value = q.scale_step || 1;
-                        document.getElementById('edit_scale_min_label').value = q.scale_min_label || '';
-                        document.getElementById('edit_scale_max_label').value = q.scale_max_label || '';
-                    } else if (q.question_type === 'file') {
-                        document.getElementById('edit_file_wrapper').style.display = 'block';
-                        document.getElementById('edit_allowed_types').value = q.allowed_types || 'pdf,doc,docx';
-                        document.getElementById('edit_max_file_size').value = q.max_file_size || 5;
-                    } else if (q.question_type === 'matrix') {
-                        document.getElementById('edit_matrix_wrapper').style.display = 'block';
-                        document.getElementById('edit_matrix_rows').value = (q.matrix_rows ? q.matrix_rows.join(', ') : '');
-                        document.getElementById('edit_matrix_columns').value = (q.matrix_columns ? q.matrix_columns.join(', ') : '');
-                        document.getElementById('edit_matrix_options').value = (q.matrix_options ? q.matrix_options.join(', ') : '');
-                    }
+                                    editOptionList.insertAdjacentHTML('beforeend', optionHtml);
+                                });
+                                document.getElementById('edit_options_wrapper').style.display = 'block';
+                            } else if (q.question_type === 'scale') {
+                                document.getElementById('edit_scale_wrapper').style.display = 'block';
+                                document.getElementById('edit_scale_min').value = q.scale_min || 1;
+                                document.getElementById('edit_scale_max').value = q.scale_max || 5;
+                                document.getElementById('edit_scale_step').value = q.scale_step || 1;
+                                document.getElementById('edit_scale_min_label').value = q.scale_min_label || '';
+                                document.getElementById('edit_scale_max_label').value = q.scale_max_label || '';
+                            } else if (q.question_type === 'file') {
+                                document.getElementById('edit_file_wrapper').style.display = 'block';
+                                document.getElementById('edit_allowed_types').value = q.allowed_types || 'pdf,doc,docx';
+                                document.getElementById('edit_max_file_size').value = q.max_file_size || 5;
+                            } else if (q.question_type === 'matrix') {
+                                document.getElementById('edit_matrix_wrapper').style.display = 'block';
+                                document.getElementById('edit_matrix_rows').value = (q.matrix_rows ? q.matrix_rows.join(', ') : '');
+                                document.getElementById('edit_matrix_columns').value = (q.matrix_columns ? q.matrix_columns.join(', ') : '');
+                                document.getElementById('edit_matrix_options').value = (q.matrix_options ? q.matrix_options.join(', ') : '');
+                            }
 
-                    // Handle conditional logic
-                    const conditionalWrapper = document.getElementById('edit_conditional_wrapper');
-                    const conditionValueSelect = document.getElementById('edit_condition_value_select');
-                    const conditionValueText = document.getElementById('edit_condition_value_text');
-                    if (q.condition_json) {
-                        const condition = JSON.parse(q.condition_json)[0] || {};
-                        conditionalWrapper.style.display = 'block';
-                        document.getElementById('edit_parent_question_id').value = condition.field ? condition.field.replace('question_', '') : '';
-                        document.getElementById('edit_condition_operator').value = condition.operator || 'is';
-                        conditionValueText.value = condition.value || '';
-                        loadEditConditionOptions(); // Load options and sync
-                    } else {
-                        conditionalWrapper.style.display = 'none';
-                        conditionValueSelect.disabled = true;
-                        conditionValueText.disabled = true;
-                    }
+                            // Handle conditional logic
+                            const conditionalWrapper = document.getElementById('edit_conditional_wrapper');
+                            const conditionValueSelect = document.getElementById('edit_condition_value_select');
+                            const conditionValueText = document.getElementById('edit_condition_value_text');
+                            if (q.condition_json) {
+                                const condition = JSON.parse(q.condition_json)[0] || {};
+                                conditionalWrapper.style.display = 'block';
+                                document.getElementById('edit_parent_question_id').value = condition.field ? condition.field.replace('question_', '') : '';
+                                document.getElementById('edit_condition_operator').value = condition.operator || 'is';
+                                conditionValueText.value = condition.value || '';
+                                loadEditConditionOptions(); // Load options and sync
+                            } else {
+                                conditionalWrapper.style.display = 'none';
+                                conditionValueSelect.disabled = true;
+                                conditionValueText.disabled = true;
+                            }
 
-                    // Trigger type change to show wrappers
-                    const typeSelect = document.getElementById('edit_question_type');
-                    typeSelect.dispatchEvent(new Event('change'));
+                            // Trigger type change to show wrappers
+                            const typeSelect = document.getElementById('edit_question_type');
+                            typeSelect.dispatchEvent(new Event('change'));
 
-                    // Show modal
-                    const modal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
-                    modal.show();
-                    document.getElementById('editQuestionModal').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
-                    showNotification('Failed to load question', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('An error occurred', 'error');
-            });
-        }
-    });
-
-    // Type change handler for edit form
-    document.getElementById('edit_question_type').addEventListener("change", function() {
-        const type = this.value;
-        const wrappers = {
-            'edit_options_wrapper': ['radio', 'checkbox', 'dropdown'],
-            'edit_scale_wrapper': ['scale'],
-            'edit_file_wrapper': ['file'],
-            'edit_matrix_wrapper': ['matrix']
-        };
-        for (let wrapper in wrappers) {
-            document.getElementById(wrapper).style.display = wrappers[wrapper].includes(type) ? 'block' : 'none';
-        }
-    });
-
-    // Conditional logic toggle for edit form
-    document.getElementById('edit_enable_conditional').addEventListener("change", function() {
-        document.getElementById('edit_conditional_wrapper').style.display = this.checked ? 'block' : 'none';
-    });
-
-    // Submit edit form
-    document.getElementById('editQuestionForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const questionId = document.getElementById('edit_question_id').value;
-        console.log("Submitting form data:", Object.fromEntries(formData));
-
-        formData.set('is_required', document.getElementById('edit_is_required').checked ? 1 : 0);
-        formData.set('enable_conditional', document.getElementById('edit_enable_conditional').checked ? 1 : 0);
-
-        fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/") ?>${questionId}/update`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]').value
+                            // Show modal
+                            const modal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
+                            modal.show();
+                            document.getElementById('editQuestionModal').scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
+                        } else {
+                            showNotification('Failed to load question', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('An error occurred', 'error');
+                    });
             }
-        })
-        .then(response => {
-            console.log("Response status:", response.status);
-            return response.json();
-        })
-        .then(data => {
-            console.log("Response data:", data);
-            if (data.status === 'success') {
-                showNotification('Question updated successfully', 'success');
-                const modal = bootstrap.Modal.getInstance(document.getElementById('editQuestionModal'));
-                modal.hide();
-                location.reload();
-            } else {
-                showNotification(data.message || 'Failed to update question', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Fetch error:', error);
-            showNotification('An error occurred during fetch', 'error');
         });
-    });
 
-    // Add option in edit modal
-    document.getElementById('add_edit_option').addEventListener('click', function() {
-        const editOptionList = document.getElementById('edit_option_list');
-        const optionHtml = `
+        // Type change handler for edit form
+        document.getElementById('edit_question_type').addEventListener("change", function() {
+            const type = this.value;
+            const wrappers = {
+                'edit_options_wrapper': ['radio', 'checkbox', 'dropdown'],
+                'edit_scale_wrapper': ['scale'],
+                'edit_file_wrapper': ['file'],
+                'edit_matrix_wrapper': ['matrix']
+            };
+            for (let wrapper in wrappers) {
+                document.getElementById(wrapper).style.display = wrappers[wrapper].includes(type) ? 'block' : 'none';
+            }
+        });
+
+        // Conditional logic toggle for edit form
+        document.getElementById('edit_enable_conditional').addEventListener("change", function() {
+            document.getElementById('edit_conditional_wrapper').style.display = this.checked ? 'block' : 'none';
+        });
+
+        // Submit edit form
+        document.getElementById('editQuestionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const questionId = document.getElementById('edit_question_id').value;
+            console.log("Submitting form data:", Object.fromEntries(formData));
+
+            formData.set('is_required', document.getElementById('edit_is_required').checked ? 1 : 0);
+            formData.set('enable_conditional', document.getElementById('edit_enable_conditional').checked ? 1 : 0);
+
+            fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/") ?>${questionId}/update`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]').value
+                    }
+                })
+                .then(response => {
+                    console.log("Response status:", response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Response data:", data);
+                    if (data.status === 'success') {
+                        showNotification('Question updated successfully', 'success');
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editQuestionModal'));
+                        modal.hide();
+                        location.reload();
+                    } else {
+                        showNotification(data.message || 'Failed to update question', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    showNotification('An error occurred during fetch', 'error');
+                });
+        });
+
+        // Add option in edit modal
+        document.getElementById('add_edit_option').addEventListener('click', function() {
+            const editOptionList = document.getElementById('edit_option_list');
+            const optionHtml = `
             <div class="input-group mb-2">
                 <input type="text" name="options[]" class="form-control" placeholder="Option text...">
                 <input type="text" name="option_values[]" class="form-control" placeholder="Value (optional)">
@@ -897,115 +908,26 @@ document.addEventListener("DOMContentLoaded", function() {
                 <button type="button" class="btn btn-outline-danger remove-option">&times;</button>
             </div>
         `;
-        editOptionList.insertAdjacentHTML('beforeend', optionHtml);
-    });
+            editOptionList.insertAdjacentHTML('beforeend', optionHtml);
+        });
 
-    // Remove option in edit modal
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-option')) {
-            e.target.closest('.input-group').remove();
-        }
-    });
+        // Remove option in edit modal
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-option')) {
+                e.target.closest('.input-group').remove();
+            }
+        });
 
-    // Load conditional options for edit
-    window.loadEditConditionOptions = function() {
-        const parentId = document.getElementById('edit_parent_question_id')?.value || '';
-        const conditionValueSelect = document.getElementById('edit_condition_value_select');
-        const conditionValueText = document.getElementById('edit_condition_value_text');
+        // Load conditional options for edit
+        window.loadEditConditionOptions = function() {
+            const parentId = document.getElementById('edit_parent_question_id')?.value || '';
+            const conditionValueSelect = document.getElementById('edit_condition_value_select');
+            const conditionValueText = document.getElementById('edit_condition_value_text');
 
-        if (!conditionValueSelect || !conditionValueText) {
-            console.error('Edit conditional elements missing:', {
-                conditionValueSelect: !!conditionValueSelect,
-                conditionValueText: !!conditionValueText
-            });
-            return;
-        }
-
-        conditionValueSelect.innerHTML = '<option value="">-- Select Value --</option>';
-        conditionValueSelect.disabled = true;
-        conditionValueText.disabled = true;
-        conditionValueSelect.style.display = 'none';
-        conditionValueText.style.display = 'none';
-
-        if (parentId) {
-            console.log('Fetching edit options for parentId:', parentId);
-            fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/get-op/") ?>${parentId}`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]')?.value || '<?= csrf_hash() ?>'
-                }
-            })
-            .then(response => {
-                console.log('Fetch edit response status:', response.status);
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                console.log('Fetch edit data:', data);
-                if (data.status === 'success') {
-                    const questionType = data.question_type;
-                    const options = data.options || [];
-
-                    if (['text', 'textarea', 'email', 'number', 'phone'].includes(questionType)) {
-                        conditionValueText.style.display = 'block';
-                        conditionValueText.disabled = false;
-                        conditionValueText.value = '';
-                    } else if (['radio', 'checkbox', 'dropdown'].includes(questionType) && options.length > 0) {
-                        conditionValueSelect.style.display = 'block';
-                        conditionValueSelect.innerHTML = '<option value="">-- Select Value --</option>';
-                        options.forEach(opt => {
-                            const option = document.createElement('option');
-                            option.value = opt.option_value || opt.option_text;
-                            option.textContent = opt.option_text;
-                            conditionValueSelect.appendChild(option);
-                        });
-                        conditionValueSelect.disabled = false;
-                        const currentValue = conditionValueText.value;
-                        if (currentValue) conditionValueSelect.value = currentValue;
-                    } else {
-                        conditionValueText.style.display = 'block';
-                        conditionValueText.disabled = false;
-                        conditionValueText.value = '';
-                    }
-                } else {
-                    console.error('Failed to load edit options:', data.message);
-                    conditionValueText.style.display = 'block';
-                    conditionValueText.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error loading edit options:', error);
-                conditionValueText.style.display = 'block';
-                conditionValueText.disabled = false;
-            });
-        }
-    };
-
-    // Trigger saat parent berubah (edit form)
-    document.getElementById('edit_parent_question_id').addEventListener('change', function() {
-        loadEditConditionOptions();
-    });
-
-    // Trigger load jika ada nilai awal (edit form)
-    if (document.getElementById('edit_parent_question_id').value) {
-        loadEditConditionOptions();
-    }
-});
-
-      //   loadcondition function
-
-        window.loadConditionOptions = function() {
-            const parentId = document.getElementById('parent_question_id')?.value || '';
-            const conditionValueSelect = document.getElementById('condition_value_select');
-            const conditionValueText = document.getElementById('condition_value_text');
-            const conditionOperator = document.getElementById('condition_operator');
-
-            if (!conditionValueSelect || !conditionValueText || !conditionOperator) {
-                console.error('Conditional elements missing:', {
+            if (!conditionValueSelect || !conditionValueText) {
+                console.error('Edit conditional elements missing:', {
                     conditionValueSelect: !!conditionValueSelect,
-                    conditionValueText: !!conditionValueText,
-                    conditionOperator: !!conditionOperator
+                    conditionValueText: !!conditionValueText
                 });
                 return;
             }
@@ -1015,11 +937,100 @@ document.addEventListener("DOMContentLoaded", function() {
             conditionValueText.disabled = true;
             conditionValueSelect.style.display = 'none';
             conditionValueText.style.display = 'none';
-            conditionOperator.disabled = !parentId;
 
             if (parentId) {
-                console.log('Fetching options for parentId:', parentId);
+                console.log('Fetching edit options for parentId:', parentId);
                 fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/get-op/") ?>${parentId}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]')?.value || '<?= csrf_hash() ?>'
+                        }
+                    })
+                    .then(response => {
+                        console.log('Fetch edit response status:', response.status);
+                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Fetch edit data:', data);
+                        if (data.status === 'success') {
+                            const questionType = data.question_type;
+                            const options = data.options || [];
+
+                            if (['text', 'textarea', 'email', 'number', 'phone'].includes(questionType)) {
+                                conditionValueText.style.display = 'block';
+                                conditionValueText.disabled = false;
+                                conditionValueText.value = '';
+                            } else if (['radio', 'checkbox', 'dropdown'].includes(questionType) && options.length > 0) {
+                                conditionValueSelect.style.display = 'block';
+                                conditionValueSelect.innerHTML = '<option value="">-- Select Value --</option>';
+                                options.forEach(opt => {
+                                    const option = document.createElement('option');
+                                    option.value = opt.option_value || opt.option_text;
+                                    option.textContent = opt.option_text;
+                                    conditionValueSelect.appendChild(option);
+                                });
+                                conditionValueSelect.disabled = false;
+                                const currentValue = conditionValueText.value;
+                                if (currentValue) conditionValueSelect.value = currentValue;
+                            } else {
+                                conditionValueText.style.display = 'block';
+                                conditionValueText.disabled = false;
+                                conditionValueText.value = '';
+                            }
+                        } else {
+                            console.error('Failed to load edit options:', data.message);
+                            conditionValueText.style.display = 'block';
+                            conditionValueText.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading edit options:', error);
+                        conditionValueText.style.display = 'block';
+                        conditionValueText.disabled = false;
+                    });
+            }
+        };
+
+        // Trigger saat parent berubah (edit form)
+        document.getElementById('edit_parent_question_id').addEventListener('change', function() {
+            loadEditConditionOptions();
+        });
+
+        // Trigger load jika ada nilai awal (edit form)
+        if (document.getElementById('edit_parent_question_id').value) {
+            loadEditConditionOptions();
+        }
+    });
+
+    //   loadcondition function
+
+    window.loadConditionOptions = function() {
+        const parentId = document.getElementById('parent_question_id')?.value || '';
+        const conditionValueSelect = document.getElementById('condition_value_select');
+        const conditionValueText = document.getElementById('condition_value_text');
+        const conditionOperator = document.getElementById('condition_operator');
+
+        if (!conditionValueSelect || !conditionValueText || !conditionOperator) {
+            console.error('Conditional elements missing:', {
+                conditionValueSelect: !!conditionValueSelect,
+                conditionValueText: !!conditionValueText,
+                conditionOperator: !!conditionOperator
+            });
+            return;
+        }
+
+        conditionValueSelect.innerHTML = '<option value="">-- Select Value --</option>';
+        conditionValueSelect.disabled = true;
+        conditionValueText.disabled = true;
+        conditionValueSelect.style.display = 'none';
+        conditionValueText.style.display = 'none';
+        conditionOperator.disabled = !parentId;
+
+        if (parentId) {
+            console.log('Fetching options for parentId:', parentId);
+            fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/get-op/") ?>${parentId}`, {
                     method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
@@ -1069,102 +1080,117 @@ document.addEventListener("DOMContentLoaded", function() {
                     conditionValueText.style.display = 'block';
                     conditionValueText.disabled = false;
                 });
-            }
-        };
-// });
+        }
+    };
+    // });
 </script>
 
 <style>
-.cursor-pointer { cursor: pointer; }
-.question-item:hover .question-header { background-color: #f8f9fa !important; }
-.question-types-grid .btn { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
-.sticky-top { z-index: 1020; }
-.question-actions .btn { margin-left: 2px; }
+    .cursor-pointer {
+        cursor: pointer;
+    }
 
-/* Custom animations */
-.question-item {
-    transition: all 0.3s ease;
-}
+    .question-item:hover .question-header {
+        background-color: #f8f9fa !important;
+    }
 
-.question-item:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
+    .question-types-grid .btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
 
-/* Form styling */
-.card-body {
-    position: relative;
-}
+    .sticky-top {
+        z-index: 1020;
+    }
 
-.form-label.fw-bold {
-    color: #495057;
-    font-size: 0.9rem;
-}
+    .question-actions .btn {
+        margin-left: 2px;
+    }
 
-/* Badge styling */
-.badge {
-    font-size: 0.7rem;
-}
+    /* Custom animations */
+    .question-item {
+        transition: all 0.3s ease;
+    }
 
-/* Question preview styling */
-.question-preview {
-    background: #f8f9fa !important;
-    min-height: 100px;
-}
+    .question-item:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Form styling */
+    .card-body {
+        position: relative;
+    }
+
+    .form-label.fw-bold {
+        color: #495057;
+        font-size: 0.9rem;
+    }
+
+    /* Badge styling */
+    .badge {
+        font-size: 0.7rem;
+    }
+
+    /* Question preview styling */
+    .question-preview {
+        background: #f8f9fa !important;
+        min-height: 100px;
+    }
 </style>
 
 <?php
 // Helper function for question preview
-function generateQuestionPreview($q) {
+function generateQuestionPreview($q)
+{
     $type = $q['question_type'];
     $text = esc($q['question_text']);
-    
+
     switch ($type) {
-        
+
         case 'matrix':
-    $rows = $q['matrix_rows'] ?? [];
-    $columns = $q['matrix_columns'] ?? [];
-    $options = $q['matrix_options'] ?? [];
+            $rows = $q['matrix_rows'] ?? [];
+            $columns = $q['matrix_columns'] ?? [];
+            $options = $q['matrix_options'] ?? [];
 
-    $html = "<label class='form-label small'>{$text}</label><table class='table table-sm border'>";
-    $html .= "<thead><tr><th></th>";
+            $html = "<label class='form-label small'>{$text}</label><table class='table table-sm border'>";
+            $html .= "<thead><tr><th></th>";
 
-    // tampilkan header kolom
-    foreach ($columns as $col) {
-        $colText = is_array($col) ? ($col['column_text'] ?? '') : $col;
-        $html .= "<th>" . esc($colText) . "</th>";
-    }
-    $html .= "</tr></thead><tbody>";
+            // tampilkan header kolom
+            foreach ($columns as $col) {
+                $colText = is_array($col) ? ($col['column_text'] ?? '') : $col;
+                $html .= "<th>" . esc($colText) . "</th>";
+            }
+            $html .= "</tr></thead><tbody>";
 
-    // tampilkan setiap row
-    foreach ($rows as $row) {
-        $rowText = is_array($row) ? ($row['row_text'] ?? '') : $row;
-        $html .= "<tr><td>" . esc($rowText) . "</td>";
+            // tampilkan setiap row
+            foreach ($rows as $row) {
+                $rowText = is_array($row) ? ($row['row_text'] ?? '') : $row;
+                $html .= "<tr><td>" . esc($rowText) . "</td>";
 
-        foreach ($columns as $col) {
-            $colText = is_array($col) ? ($col['column_text'] ?? '') : $col;
-            $html .= "<td>";
+                foreach ($columns as $col) {
+                    $colText = is_array($col) ? ($col['column_text'] ?? '') : $col;
+                    $html .= "<td>";
 
-            // kalau ada opsi tambahan
-            if (!empty($options)) {
-                foreach ($options as $index => $opt) {
-                    $html .= "<label><input type='radio' name='matrix_{$rowText}_{$colText}' disabled> " . esc($opt) . "</label>";
+                    // kalau ada opsi tambahan
+                    if (!empty($options)) {
+                        foreach ($options as $index => $opt) {
+                            $html .= "<label><input type='radio' name='matrix_{$rowText}_{$colText}' disabled> " . esc($opt) . "</label>";
+                        }
+                    } else {
+                        // default: hanya tampilkan radio tanpa label opsi
+                        $html .= "<input type='radio' name='matrix_{$rowText}_{$colText}' disabled>";
+                    }
+
+                    $html .= "</td>";
                 }
-            } else {
-                // default: hanya tampilkan radio tanpa label opsi
-                $html .= "<input type='radio' name='matrix_{$rowText}_{$colText}' disabled>";
+                $html .= "</tr>";
             }
 
-            $html .= "</td>";
-        }
-        $html .= "</tr>";
-    }
+            $html .= "</tbody></table>";
+            return $html;;
 
-    $html .= "</tbody></table>";
-    return $html;
-;
-        
-        // Case lain (scale, file, dll.) sesuai kebutuhan
-       case 'scale':
+            // Case lain (scale, file, dll.) sesuai kebutuhan
+        case 'scale':
             $min = $q['scale_min'] ?? 1;
             $max = $q['scale_max'] ?? 5;
             $step = $q['scale_step'] ?? 1;
@@ -1179,14 +1205,14 @@ function generateQuestionPreview($q) {
             $html .= "</div>";
             $html .= "<small>" . esc($q['scale_min_label'] ?? 'Min') . " to " . esc($q['scale_max_label'] ?? 'Max') . "</small>";
             return $html;
-        
+
         case 'file':
             return "<label class='form-label small'>{$text}</label><input type='file' class='form-control form-control-sm' disabled><small>Allowed: " . esc($q['allowed_types'] ?? 'pdf,doc') . ", Max: " . ($q['max_file_size'] ?? 5) . "MB</small>";
-        
+
         case 'radio':
         case 'checkbox':
             // Baris ini sudah benar, karena sudah diperbaiki di respons sebelumnya
-            $options = $q['options'] ?? []; 
+            $options = $q['options'] ?? [];
             $inputType = ($type === 'radio') ? 'radio' : 'checkbox';
             $html = "<div><label class='form-label small'>{$text}</label></div>";
             foreach (array_slice($options, 0, 2) as $i => $option) {
@@ -1195,7 +1221,7 @@ function generateQuestionPreview($q) {
             }
             if (count($options) > 2) $html .= "<small class='text-muted'>... and " . (count($options) - 2) . " more</small>";
             return $html;
-            
+
         case 'dropdown':
             // Ganti baris ini dari json_decode
             $options = $q['options'] ?? [];
@@ -1207,10 +1233,14 @@ function generateQuestionPreview($q) {
             }
             $html .= "</select>";
             return $html;
-            
+
         default:
             return "<label class='form-label small'>{$text}</label><input type='text' class='form-control form-control-sm' disabled>";
     }
 }
 
+
 ?>
+
+
+

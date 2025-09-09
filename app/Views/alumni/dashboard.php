@@ -61,12 +61,13 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-gray-800">5</p>
+                    <p class="text-2xl font-bold text-gray-800"><?= $totalKuesioner ?></p>
                     <p class="text-sm text-gray-600">Total Kuesioner</p>
+
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-gray-50 p-4 rounded-lg border">
             <div class="flex items-center">
                 <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
@@ -75,12 +76,13 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-gray-800">2</p>
+                    <p class="text-2xl font-bold text-gray-800"><?= $selesai ?></p>
                     <p class="text-sm text-gray-600">Selesai</p>
+
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-gray-50 p-4 rounded-lg border">
             <div class="flex items-center">
                 <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
@@ -89,8 +91,9 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-gray-800">1</p>
+                    <p class="text-2xl font-bold text-gray-800"><?= $sedangBerjalan ?></p>
                     <p class="text-sm text-gray-600">Sedang Berjalan</p>
+
                 </div>
             </div>
         </div>

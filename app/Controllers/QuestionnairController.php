@@ -43,11 +43,22 @@ class QuestionnairController extends BaseController
         ];
 
         $user_fields = [
-            'email', 'username', 'group_id', 'display_name',
-            'academic_nim', 'academic_faculty', 'academic_program',
-            'academic_year', 'academic_ipk', 'street_1', 'street_2',
-            'city', 'state_code',
-            'academic_graduate_year', 'jenis_kel', 'HP'
+            'email',
+            'username',
+            'id_role',
+            'nama_lengkap',
+            'nim',
+            'id_jurusan',
+            'id_prodi',
+            'angkatan',
+            'ipk',
+            'alamat',
+            'alamat2',
+            'id_cities',
+            'kodepos',
+            'tahun_kelulusan',
+            'jenisKelamin',
+            'no_tlp'
         ];
 
         return view('adminpage/questioner/tambah', [
@@ -64,38 +75,45 @@ class QuestionnairController extends BaseController
         $type = 'text';
 
         switch ($field) {
-            case 'academic_faculty':
+            case 'id_jurusan':
                 $facultyModel = new Jurusan();
                 $options = $facultyModel->select('id, nama_jurusan as name')->findAll();
                 $type = 'select';
                 break;
-            case 'academic_program':
+            case 'id_prodi':
                 $programModel = new Prodi();
                 $options = $programModel->select('id, nama_prodi as name')->findAll();
                 $type = 'select';
                 break;
-            case 'jenis_kel':
+            case 'jenisKelamin':
                 $options = [['id' => 'L', 'name' => 'Laki-laki'], ['id' => 'P', 'name' => 'Perempuan']];
                 $type = 'select';
                 break;
-            case 'academic_year':
-            case 'academic_graduate_year':
+            case 'tahun_kelulusan':
                 $options = [];
                 for ($i = date('Y'); $i >= 2000; $i--) {
                     $options[] = ['id' => (string)$i, 'name' => (string)$i];
                 }
                 $type = 'select';
                 break;
-            case 'city':
+            case 'id_cities':
                 $cityModel = new Provincies();
                 $options = $cityModel->select('id, name')->findAll();
                 $type = 'select';
                 break;
-            case 'group_id':
+            case 'id_role':
                 $groupModel = new Roles();
                 $options = $groupModel->select('id, nama as name')->findAll();
                 $type = 'select';
                 break;
+            case 'angkatan':
+                $options = [];
+                for ($i = date('Y'); $i >= 2000; $i--) {
+                    $options[] = ['id' => (string)$i, 'name' => (string)$i];
+                }
+                $type = 'select';
+                break;
+
         }
 
         return $this->response->setJSON([
@@ -104,49 +122,51 @@ class QuestionnairController extends BaseController
         ]);
     }
 
-    // Menyimpan Kuesioner Baru
+    // Simpan kuesioner baru
     public function store()
     {
         $questionnaireModel = new QuestionnairModel();
 
-        $title = $this->request->getPost('title');
+        $title       = $this->request->getPost('title');
         $description = $this->request->getPost('deskripsi');
-        $status = $this->request->getPost('status');
-        $conditionalLogicEnabled = $this->request->getPost('conditional_logic');
-
+        $is_active   = $this->request->getPost('is_active'); // langsung enum string
         $conditionalLogic = null;
-        if ($conditionalLogicEnabled) {
-            $fields = $this->request->getPost('field_name');
+
+        // Handle conditional logic
+        if ($this->request->getPost('conditional_logic')) {
+            $fields    = $this->request->getPost('field_name');
             $operators = $this->request->getPost('operator');
-            $values = $this->request->getPost('value');
+            $values    = $this->request->getPost('value');
 
             $conditions = [];
             for ($i = 0; $i < count($fields); $i++) {
                 if (!empty($fields[$i]) && !empty($operators[$i]) && !empty($values[$i])) {
                     $conditions[] = [
-                        'field' => $fields[$i],
+                        'field'    => $fields[$i],
                         'operator' => $operators[$i],
-                        'value' => $values[$i]
+                        'value'    => $values[$i]
                     ];
                 }
             }
-
             if (!empty($conditions)) {
                 $conditionalLogic = json_encode($conditions);
             }
         }
 
         $questionnaireModel->insert([
-            'title' => $title,
-            'deskripsi' => $description,
-            'status' => $status,
+            'title'             => $title,
+            'deskripsi'         => $description,
+            'is_active'         => $is_active, // enum langsung
             'conditional_logic' => $conditionalLogic,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'created_at'        => date('Y-m-d H:i:s'),
+            'updated_at'        => date('Y-m-d H:i:s')
         ]);
 
         return redirect()->to(base_url('/admin/questionnaire'))->with('success', 'Kuesioner berhasil dibuat!');
     }
+
+
+
 
     // Halaman Edit Kuesioner
     public function edit($questionnaire_id)
@@ -168,11 +188,22 @@ class QuestionnairController extends BaseController
         ];
 
         $user_fields = [
-            'email', 'username', 'group_id', 'display_name',
-            'academic_nim', 'academic_faculty', 'academic_program',
-            'academic_year', 'academic_ipk', 'street_1', 'street_2',
-            'city', 'state_code',
-            'academic_graduate_year', 'jenis_kel', 'HP'
+            'email',
+            'username',
+            'id_role',
+            'nama_lengkap',
+            'nim',
+            'id_jurusan',
+            'id_prodi',
+            'angkatan',
+            'ipk',
+            'alamat',
+            'alamat2',
+            'id_cities',
+            'kodepos',
+            'tahun_kelulusan',
+            'jenisKelamin',
+            'no_tlp'
         ];
 
         $conditionalLogic = [];
@@ -188,7 +219,7 @@ class QuestionnairController extends BaseController
         ]);
     }
 
-    // Memperbarui Kuesioner
+
     public function update($questionnaire_id)
     {
         $model = new QuestionnairModel();
@@ -200,50 +231,52 @@ class QuestionnairController extends BaseController
 
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'title' => 'required|min_length[3]|max_length[255]',
-            'deskripsi' => 'permit_empty|max_length[1000]',
-            'status' => 'permit_empty|in_list[active,draft,inactive]',
-            'conditional_logic' => 'permit_empty'
+            'title'      => 'required|min_length[3]|max_length[255]',
+            'deskripsi'  => 'permit_empty|max_length[1000]',
+            'is_active'  => 'required|in_list[active,draft,inactive]', // langsung enum
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
-        $conditionalLogicEnabled = $this->request->getPost('conditional_logic');
+        $is_active = $this->request->getPost('is_active');
         $conditionalLogic = null;
 
-        if ($conditionalLogicEnabled) {
-            $fields = $this->request->getPost('field_name');
+        if ($this->request->getPost('conditional_logic')) {
+            $fields    = $this->request->getPost('field_name');
             $operators = $this->request->getPost('operator');
-            $values = $this->request->getPost('value');
+            $values    = $this->request->getPost('value');
 
             $conditions = [];
             for ($i = 0; $i < count($fields); $i++) {
                 if (!empty($fields[$i]) && !empty($operators[$i]) && !empty($values[$i])) {
                     $conditions[] = [
-                        'field' => $fields[$i],
+                        'field'    => $fields[$i],
                         'operator' => $operators[$i],
-                        'value' => $values[$i]
+                        'value'    => $values[$i]
                     ];
                 }
             }
-
             if (!empty($conditions)) {
                 $conditionalLogic = json_encode($conditions);
             }
         }
-
-        $model->update($questionnaire_id, [
-            'title' => $this->request->getPost('title'),
-            'deskripsi' => $this->request->getPost('deskripsi'),
-            'status' => $this->request->getPost('status'),
-            'conditional_logic' => $conditionalLogic,
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+      
+     $model->update($questionnaire_id, [
+    'title' => $this->request->getPost('title'),
+    'deskripsi' => $this->request->getPost('deskripsi'),
+    'is_active' => $this->request->getPost('is_active'),
+    'conditional_logic' => $conditionalLogic,
+    'updated_at' => date('Y-m-d H:i:s')
+]);
 
         return redirect()->to('admin/questionnaire')->with('success', 'Kuesioner berhasil diperbarui!');
     }
+
+
+
+
     public function delete($id)
     {
         $questionnaireModel = new QuestionnairModel();
@@ -276,7 +309,7 @@ class QuestionnairController extends BaseController
     }
 
 
-     // Preview questionnaire for testing
+    // Preview questionnaire for testing
 
     public function preview($questionnaire_id)
     {
@@ -286,12 +319,12 @@ class QuestionnairController extends BaseController
 
         $questionnaire = $questionnairModel->find($questionnaire_id);
         $questions = $questionModel->where('questionnaires_id', $questionnaire_id)
-                                  ->orderBy('order_no', 'ASC')
-                                  ->findAll();
+            ->orderBy('order_no', 'ASC')
+            ->findAll();
 
         // Get options for each question
         foreach ($questions as &$q) {
-            if (in_array($q['question_type'], ['radio','checkbox','dropdown'])) {
+            if (in_array($q['question_type'], ['radio', 'checkbox', 'dropdown'])) {
                 $q['options'] = $optionModel->where('question_id', $q['id'])->findAll();
             }
         }
@@ -318,7 +351,7 @@ class QuestionnairController extends BaseController
         $page = $pageModel->find($page_id);
         $section = $sectionModel->find($section_id);
 
-       
+
 
         if (!$questionnaire || !$page || !$section) {
             return redirect()->to('admin/questionnaire')
@@ -360,7 +393,7 @@ class QuestionnairController extends BaseController
         ];
 
 
-            foreach ($questions as $key => $q) {
+        foreach ($questions as $key => $q) {
             // Ambil opsi untuk radio, checkbox, dropdown
             if (in_array($q['question_type'], ['radio', 'checkbox', 'dropdown'])) {
                 $questions[$key]['options'] = $optionModel->where('question_id', $q['id'])->orderBy('order_number', 'ASC')->findAll();
@@ -409,7 +442,6 @@ class QuestionnairController extends BaseController
             'all_questions'    => $all_questions
         ]);
     }
-    
     public function getQuestionOptions($questionnaire_id, $page_id, $section_id, $questionId)
     {
         try {
@@ -441,7 +473,6 @@ class QuestionnairController extends BaseController
             } else {
                 log_message('debug', "Question type {$question['question_type']} does not support options");
             }
-
             return $this->response->setJSON([
                 'status' => 'success',
                 'question_type' => $question['question_type'],
@@ -455,8 +486,7 @@ class QuestionnairController extends BaseController
             ]);
         }
     }
-
-    public function getOptions($questionId)
+ public function getOptions($questionId)
 {
     $questionModel = new QuestionModel();
     $optionModel = new QuestionOptionModel();
@@ -475,7 +505,6 @@ class QuestionnairController extends BaseController
             'options' => $options
         ]);
     }
-
     return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
 }
 
@@ -516,7 +545,7 @@ class QuestionnairController extends BaseController
         'page_id' => $page_id,
         'section_id' => $section_id
     ])->selectMax('order_no')->first()['order_no'] ?? 0;
-
+    
     $db = \Config\Database::connect();
     $db->transStart();
 
@@ -552,7 +581,6 @@ class QuestionnairController extends BaseController
         } else {
             $data['condition_json'] = null;
         }
-
         // Special type handling
         $type = $data['question_type'];
         log_message('debug', 'Processing special type: ' . $type);
@@ -602,7 +630,6 @@ class QuestionnairController extends BaseController
                 ]);
             }
         }
-
         // Options (radio, checkbox, dropdown)
         if (in_array($type, ['radio', 'checkbox', 'dropdown'])) {
             $options = $this->request->getPost('options');
@@ -633,7 +660,6 @@ class QuestionnairController extends BaseController
                 }
             }
         }
-
         if ($db->transStatus() === false) {
             log_message('error', 'Transaction failed before completion');
             $db->transRollback();
@@ -770,7 +796,6 @@ public function updateQuestion($questionnaire_id, $page_id, $section_id, $questi
                 ]);
             }
         }
-
         // Options (radio, checkbox, dropdown)
         if (in_array($type, ['radio', 'checkbox', 'dropdown'])) {
             $optionModel->where('question_id', $question_id)->delete();
@@ -802,7 +827,6 @@ public function updateQuestion($questionnaire_id, $page_id, $section_id, $questi
                 }
             }
         }
-
         if ($db->transStatus() === false) {
             log_message('error', 'Transaction failed before completion');
             $db->transRollback();
@@ -821,44 +845,43 @@ public function updateQuestion($questionnaire_id, $page_id, $section_id, $questi
         return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal mengupdate pertanyaan: ' . $e->getMessage()]);
     }
 }
-
     public function getQuestionsWithOptions($questionnaire_id, $page_id, $section_id)
     {
         $questionModel = new QuestionModel();
         $optionModel = new QuestionOptionModel();
-        
+
         // Get all questions in this section that could be parent questions
         $questions = $questionModel
             ->where('questionnaires_id', $questionnaire_id)
-            ->where('page_id', $page_id) 
+            ->where('page_id', $page_id)
             ->where('section_id', $section_id)
             ->where('question_type IN', ['radio', 'checkbox', 'dropdown']) // Only questions with options
             ->orderBy('order_no', 'ASC')
             ->findAll();
-        
+
         $questionsWithOptions = [];
-        
+
         foreach ($questions as $question) {
             $options = $optionModel->where('question_id', $question['id'])
-                                ->orderBy('order_no', 'ASC') 
-                                ->findAll();
-            
+                ->orderBy('order_no', 'ASC')
+                ->findAll();
+
             $questionsWithOptions[] = [
                 'question' => $question,
                 'options' => $options
             ];
         }
-        
+
         if ($this->request->isAJAX()) {
             return $this->response->setJSON([
                 'status' => 'success',
                 'data' => $questionsWithOptions
             ]);
         }
-        
+
         return $questionsWithOptions;
     }
-   public function deleteSectionQuestion($questionnaire_id, $page_id, $section_id, $question_id)
+    public function deleteSectionQuestion($questionnaire_id, $page_id, $section_id, $question_id)
     {
         $questionModel = new QuestionModel();
         $optionModel = new QuestionOptionModel();
@@ -890,7 +913,14 @@ public function updateQuestion($questionnaire_id, $page_id, $section_id, $questi
             $db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
         }
+
+        log_message('debug', 'Question fetched: ' . json_encode($question));
+        return $this->response->setJSON([
+            'status' => 'success',
+            'question' => $question
+        ]);
     }
+  
     public function getQuestion($questionnaire_id, $page_id, $section_id, $question_id)
 {
     log_message('debug', "Fetching question: ID=$question_id, questionnaire=$questionnaire_id, page=$page_id, section=$section_id");
