@@ -1,3 +1,6 @@
+
+<?= $this->extend('layout/sidebar') ?>
+<?= $this->section('content') ?>
 <div class="container-fluid mt-4">
     <div class="row">
         <!-- Main Content -->
@@ -16,9 +19,6 @@
                 <div class="card-body" id="formContainer" style="display: none;">
                     <form id="questionForm" action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/store") ?>" method="post">
                         <?= csrf_field() ?>
-
-                     
-
                         <!-- Question Text -->
                         <div class="mb-3">
                             <label class="form-label fw-bold">Question Text <span class="text-danger">*</span></label>
@@ -238,14 +238,12 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
                                     <div class="collapse" id="question-<?= $q['id'] ?>">
                                         <div class="question-details p-3">
                                             <div class="row">
                                                 <div class="col-md-8">
                                                     <h6>Question Text:</h6>
                                                     <p class="text-muted"><?= esc($q['question_text']) ?></p>
-                                                    
                                                     <?php if (!empty($q['options'])): ?>
                                                         <h6>Options:</h6>
                                                         <ul class="list-unstyled">
@@ -254,7 +252,7 @@
                                                             <?php endforeach; ?>
                                                         </ul>
                                                     <?php endif; ?>
-                                                    
+
                                                     <?php if (!empty($q['condition_json'])): ?>
                                                         <h6>Conditional Logic:</h6>
                                                         <p class="text-info">
@@ -514,13 +512,11 @@ document.addEventListener("DOMContentLoaded", function() {
             ? '<i class="fas fa-plus"></i> Add' 
             : '<i class="fas fa-minus"></i> Hide';
     });
-
-    cancelFormBtn.addEventListener("click", function() {
-        formContainer.style.display = "none";
-        toggleFormBtn.innerHTML = '<i class="fas fa-plus"></i> Add';
-        questionForm.reset();
-    });
-
+        cancelFormBtn.addEventListener("click", function() {
+            formContainer.style.display = "none";
+            toggleFormBtn.innerHTML = '<i class="fas fa-plus"></i> Add';
+            questionForm.reset();
+        });
     // Question type change handler (add form)
     questionTypeSelect.addEventListener("change", function() {
         const type = this.value;
@@ -564,33 +560,90 @@ document.addEventListener("DOMContentLoaded", function() {
                 <button type="button" class="btn btn-outline-danger remove-option">&times;</button>
             </div>
         `;
-        optionList.insertAdjacentHTML("beforeend", optionHtml);
-    });
-
+            optionList.insertAdjacentHTML("beforeend", optionHtml);
+        });
     // Remove option functionality (global)
     document.addEventListener("click", function(e) {
         if (e.target.classList.contains("remove-option")) {
             e.target.closest(".input-group").remove();
         }
     });
-
-    // Question type quick selection
-    document.querySelectorAll(".question-type-btn").forEach(btn => {
-        btn.addEventListener("click", function() {
-            const type = this.dataset.type;
-            questionTypeSelect.value = type;
-            questionTypeSelect.dispatchEvent(new Event('change'));
-            
-            // Show form if hidden
-            if (formContainer.style.display === "none") {
-                toggleFormBtn.click();
-            }
-            
-            // Scroll to form
-            formContainer.scrollIntoView({ behavior: 'smooth' });
+        // Expand/Collapse all questions
+        document.getElementById("expandAll")?.addEventListener("click", function() {
+            document.querySelectorAll(".question-item .collapse").forEach(collapse => {
+                new bootstrap.Collapse(collapse, {
+                    show: true
+                });
+            });
         });
-    });
 
+        document.getElementById("collapseAll")?.addEventListener("click", function() {
+            document.querySelectorAll(".question-item .collapse.show").forEach(collapse => {
+                new bootstrap.Collapse(collapse, {
+                    hide: true
+                });
+            });
+        });
+
+        // Question actions
+        document.addEventListener("click", function(e) {
+            if (e.target.closest(".delete-question")) {
+                const questionId = e.target.closest(".delete-question").dataset.questionId;
+                if (confirm("Are you sure you want to delete this question?")) {
+                    console.log("Deleting question ID:", questionId); // Debug
+                    const csrfToken = document.querySelector('[name="csrf_token"]')?.value;
+                    if (!csrfToken) console.warn("CSRF token not found!");
+                    fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/delete/") ?>${questionId}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': csrfToken || '',
+                                'Content-Type': 'application/json' // Tambahkan ini
+                            },
+                            body: JSON.stringify({
+                                question_id: questionId
+                            })
+                        })
+                        .then(response => {
+                            console.log("Response status:", response.status); // Debug
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("Response data:", data); // Debug
+                            if (data.status === 'success') {
+                                e.target.closest('.question-item').remove();
+                                showNotification('Question deleted successfully', 'success');
+                            } else {
+                                showNotification(data.message || 'Failed to delete question', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showNotification('An error occurred. Check console for details.', 'error');
+                        });
+                }
+            }
+
+            if (e.target.closest(".duplicate-question")) {
+                const questionId = e.target.closest(".duplicate-question").dataset.questionId;
+                // Ajax duplicate request
+                fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/duplicate/") ?>${questionId}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('[name="csrf_token"]').value
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            location.reload(); // Simple reload for now
+                        } else {
+                            showNotification('Failed to duplicate question', 'error');
+                        }
+                    });
+            }
+        });
     // Expand/Collapse all questions
     document.getElementById("expandAll")?.addEventListener("click", function() {
         document.querySelectorAll(".question-item .collapse").forEach(collapse => {
@@ -603,17 +656,9 @@ document.addEventListener("DOMContentLoaded", function() {
             new bootstrap.Collapse(collapse, { hide: true });
         });
     });
-
-    // Question actions
-    document.addEventListener("click", function(e) {
-       if (e.target.closest(".delete-question")) {
-            const questionId = e.target.closest(".delete-question").dataset.questionId;
-            if (confirm("Are you sure you want to delete this question?")) {
-                console.log("Deleting question ID:", questionId); // Debug
-                const csrfToken = document.querySelector('[name="csrf_token"]')?.value;
-                if (!csrfToken) console.warn("CSRF token not found!");
-                fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/delete/") ?>${questionId}`, {
+            fetch(this.action, {
                     method: 'POST',
+                    body: formData,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': csrfToken || '',
@@ -625,49 +670,21 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.log("Response status:", response.status); // Debug
                     return response.json();
                 })
+                .then(response => response.json())
                 .then(data => {
-                    console.log("Response data:", data); // Debug
+                    console.log("Response data:", data);
                     if (data.status === 'success') {
                         e.target.closest('.question-item').remove();
                         showNotification('Question deleted successfully', 'success');
                     } else {
-                        showNotification(data.message || 'Failed to delete question', 'error');
+                        showNotification(data.message || 'Failed to add question', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showNotification('An error occurred. Check console for details.', 'error');
+                    showNotification('An error occurred', 'error');
                 });
-            }
-        }
-        
-        if (e.target.closest(".duplicate-question")) {
-            const questionId = e.target.closest(".duplicate-question").dataset.questionId;
-            // Ajax duplicate request
-            fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/duplicate/") ?>${questionId}`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('[name="csrf_token"]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    location.reload(); // Simple reload for now
-                } else {
-                    showNotification('Failed to duplicate question', 'error');
-                }
-            });
-        }
-    });
-
-    // Utility function for notifications
-    function showNotification(message, type) {
-        // You can implement your preferred notification system here
-        alert(message);
-    }
-
+        });
     // Form submission with Ajax (add form)
     questionForm.addEventListener("submit", function(e) {
         e.preventDefault();
@@ -762,63 +779,65 @@ document.addEventListener("DOMContentLoaded", function() {
                                     <button type="button" class="btn btn-outline-danger remove-option">&times;</button>
                                 </div>
                             `;
-                            editOptionList.insertAdjacentHTML('beforeend', optionHtml);
-                        });
-                        document.getElementById('edit_options_wrapper').style.display = 'block';
-                    } else if (q.question_type === 'scale') {
-                        document.getElementById('edit_scale_wrapper').style.display = 'block';
-                        document.getElementById('edit_scale_min').value = q.scale_min || 1;
-                        document.getElementById('edit_scale_max').value = q.scale_max || 5;
-                        document.getElementById('edit_scale_step').value = q.scale_step || 1;
-                        document.getElementById('edit_scale_min_label').value = q.scale_min_label || '';
-                        document.getElementById('edit_scale_max_label').value = q.scale_max_label || '';
-                    } else if (q.question_type === 'file') {
-                        document.getElementById('edit_file_wrapper').style.display = 'block';
-                        document.getElementById('edit_allowed_types').value = q.allowed_types || 'pdf,doc,docx';
-                        document.getElementById('edit_max_file_size').value = q.max_file_size || 5;
-                    } else if (q.question_type === 'matrix') {
-                        document.getElementById('edit_matrix_wrapper').style.display = 'block';
-                        document.getElementById('edit_matrix_rows').value = (q.matrix_rows ? q.matrix_rows.join(', ') : '');
-                        document.getElementById('edit_matrix_columns').value = (q.matrix_columns ? q.matrix_columns.join(', ') : '');
-                        document.getElementById('edit_matrix_options').value = (q.matrix_options ? q.matrix_options.join(', ') : '');
-                    }
+                                    editOptionList.insertAdjacentHTML('beforeend', optionHtml);
+                                });
+                                document.getElementById('edit_options_wrapper').style.display = 'block';
+                            } else if (q.question_type === 'scale') {
+                                document.getElementById('edit_scale_wrapper').style.display = 'block';
+                                document.getElementById('edit_scale_min').value = q.scale_min || 1;
+                                document.getElementById('edit_scale_max').value = q.scale_max || 5;
+                                document.getElementById('edit_scale_step').value = q.scale_step || 1;
+                                document.getElementById('edit_scale_min_label').value = q.scale_min_label || '';
+                                document.getElementById('edit_scale_max_label').value = q.scale_max_label || '';
+                            } else if (q.question_type === 'file') {
+                                document.getElementById('edit_file_wrapper').style.display = 'block';
+                                document.getElementById('edit_allowed_types').value = q.allowed_types || 'pdf,doc,docx';
+                                document.getElementById('edit_max_file_size').value = q.max_file_size || 5;
+                            } else if (q.question_type === 'matrix') {
+                                document.getElementById('edit_matrix_wrapper').style.display = 'block';
+                                document.getElementById('edit_matrix_rows').value = (q.matrix_rows ? q.matrix_rows.join(', ') : '');
+                                document.getElementById('edit_matrix_columns').value = (q.matrix_columns ? q.matrix_columns.join(', ') : '');
+                                document.getElementById('edit_matrix_options').value = (q.matrix_options ? q.matrix_options.join(', ') : '');
+                            }
 
-                    // Handle conditional logic
-                    const conditionalWrapper = document.getElementById('edit_conditional_wrapper');
-                    const conditionValueSelect = document.getElementById('edit_condition_value_select');
-                    const conditionValueText = document.getElementById('edit_condition_value_text');
-                    if (q.condition_json) {
-                        const condition = JSON.parse(q.condition_json)[0] || {};
-                        conditionalWrapper.style.display = 'block';
-                        document.getElementById('edit_parent_question_id').value = condition.field ? condition.field.replace('question_', '') : '';
-                        document.getElementById('edit_condition_operator').value = condition.operator || 'is';
-                        conditionValueText.value = condition.value || '';
-                        loadEditConditionOptions(); // Load options and sync
-                    } else {
-                        conditionalWrapper.style.display = 'none';
-                        conditionValueSelect.disabled = true;
-                        conditionValueText.disabled = true;
-                    }
+                            // Handle conditional logic
+                            const conditionalWrapper = document.getElementById('edit_conditional_wrapper');
+                            const conditionValueSelect = document.getElementById('edit_condition_value_select');
+                            const conditionValueText = document.getElementById('edit_condition_value_text');
+                            if (q.condition_json) {
+                                const condition = JSON.parse(q.condition_json)[0] || {};
+                                conditionalWrapper.style.display = 'block';
+                                document.getElementById('edit_parent_question_id').value = condition.field ? condition.field.replace('question_', '') : '';
+                                document.getElementById('edit_condition_operator').value = condition.operator || 'is';
+                                conditionValueText.value = condition.value || '';
+                                loadEditConditionOptions(); // Load options and sync
+                            } else {
+                                conditionalWrapper.style.display = 'none';
+                                conditionValueSelect.disabled = true;
+                                conditionValueText.disabled = true;
+                            }
 
-                    // Trigger type change to show wrappers
-                    const typeSelect = document.getElementById('edit_question_type');
-                    typeSelect.dispatchEvent(new Event('change'));
+                            // Trigger type change to show wrappers
+                            const typeSelect = document.getElementById('edit_question_type');
+                            typeSelect.dispatchEvent(new Event('change'));
 
-                    // Show modal
-                    const modal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
-                    modal.show();
-                    document.getElementById('editQuestionModal').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
-                    showNotification('Failed to load question', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('An error occurred', 'error');
-            });
-        }
-    });
-
+                            // Show modal
+                            const modal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
+                            modal.show();
+                            document.getElementById('editQuestionModal').scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
+                        } else {
+                            showNotification('Failed to load question', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('An error occurred', 'error');
+                    });
+            }
+        });
     // Type change handler for edit form
     document.getElementById('edit_question_type').addEventListener("change", function() {
         const type = this.value;
@@ -875,12 +894,11 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error('Fetch error:', error);
             showNotification('An error occurred during fetch', 'error');
         });
-    });
 
-    // Add option in edit modal
-    document.getElementById('add_edit_option').addEventListener('click', function() {
-        const editOptionList = document.getElementById('edit_option_list');
-        const optionHtml = `
+        // Add option in edit modal
+        document.getElementById('add_edit_option').addEventListener('click', function() {
+            const editOptionList = document.getElementById('edit_option_list');
+            const optionHtml = `
             <div class="input-group mb-2">
                 <input type="text" name="options[]" class="form-control" placeholder="Option text...">
                 <input type="text" name="option_values[]" class="form-control" placeholder="Value (optional)">
@@ -893,16 +911,101 @@ document.addEventListener("DOMContentLoaded", function() {
                 <button type="button" class="btn btn-outline-danger remove-option">&times;</button>
             </div>
         `;
-        editOptionList.insertAdjacentHTML('beforeend', optionHtml);
-    });
+            editOptionList.insertAdjacentHTML('beforeend', optionHtml);
+        });
 
-    // Remove option in edit modal
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-option')) {
-            e.target.closest('.input-group').remove();
+        // Remove option in edit modal
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-option')) {
+                e.target.closest('.input-group').remove();
+            }
+        });
+
+        // Load conditional options for edit
+        window.loadEditConditionOptions = function() {
+            const parentId = document.getElementById('edit_parent_question_id')?.value || '';
+            const conditionValueSelect = document.getElementById('edit_condition_value_select');
+            const conditionValueText = document.getElementById('edit_condition_value_text');
+
+            if (!conditionValueSelect || !conditionValueText) {
+                console.error('Edit conditional elements missing:', {
+                    conditionValueSelect: !!conditionValueSelect,
+                    conditionValueText: !!conditionValueText
+                });
+                return;
+            }
+
+            conditionValueSelect.innerHTML = '<option value="">-- Select Value --</option>';
+            conditionValueSelect.disabled = true;
+            conditionValueText.disabled = true;
+            conditionValueSelect.style.display = 'none';
+            conditionValueText.style.display = 'none';
+
+            if (parentId) {
+                console.log('Fetching edit options for parentId:', parentId);
+                fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/get-op/") ?>${parentId}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]')?.value || '<?= csrf_hash() ?>'
+                        }
+                    })
+                    .then(response => {
+                        console.log('Fetch edit response status:', response.status);
+                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Fetch edit data:', data);
+                        if (data.status === 'success') {
+                            const questionType = data.question_type;
+                            const options = data.options || [];
+
+                            if (['text', 'textarea', 'email', 'number', 'phone'].includes(questionType)) {
+                                conditionValueText.style.display = 'block';
+                                conditionValueText.disabled = false;
+                                conditionValueText.value = '';
+                            } else if (['radio', 'checkbox', 'dropdown'].includes(questionType) && options.length > 0) {
+                                conditionValueSelect.style.display = 'block';
+                                conditionValueSelect.innerHTML = '<option value="">-- Select Value --</option>';
+                                options.forEach(opt => {
+                                    const option = document.createElement('option');
+                                    option.value = opt.option_value || opt.option_text;
+                                    option.textContent = opt.option_text;
+                                    conditionValueSelect.appendChild(option);
+                                });
+                                conditionValueSelect.disabled = false;
+                                const currentValue = conditionValueText.value;
+                                if (currentValue) conditionValueSelect.value = currentValue;
+                            } else {
+                                conditionValueText.style.display = 'block';
+                                conditionValueText.disabled = false;
+                                conditionValueText.value = '';
+                            }
+                        } else {
+                            console.error('Failed to load edit options:', data.message);
+                            conditionValueText.style.display = 'block';
+                            conditionValueText.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading edit options:', error);
+                        conditionValueText.style.display = 'block';
+                        conditionValueText.disabled = false;
+                    });
+            }
+        };
+
+        // Trigger saat parent berubah (edit form)
+        document.getElementById('edit_parent_question_id').addEventListener('change', function() {
+            loadEditConditionOptions();
+        });
+
+        // Trigger load jika ada nilai awal (edit form)
+        if (document.getElementById('edit_parent_question_id').value) {
+            loadEditConditionOptions();
         }
     });
-
     // Load conditional options for edit
     window.loadEditConditionOptions = function() {
         const parentId = document.getElementById('edit_parent_question_id')?.value || '';
@@ -916,12 +1019,12 @@ document.addEventListener("DOMContentLoaded", function() {
             });
             return;
         }
-
         conditionValueSelect.innerHTML = '<option value="">-- Select Value --</option>';
         conditionValueSelect.disabled = true;
         conditionValueText.disabled = true;
         conditionValueSelect.style.display = 'none';
         conditionValueText.style.display = 'none';
+        conditionOperator.disabled = !parentId;
 
         if (parentId) {
             console.log('Fetching edit options for parentId:', parentId);
@@ -1095,12 +1198,9 @@ document.addEventListener("DOMContentLoaded", function() {
     color: #495057;
     font-size: 0.9rem;
 }
-
-/* Badge styling */
-.badge {
-    font-size: 0.7rem;
-}
-
+    .sticky-top {
+        z-index: 1020;
+    }
 /* Question preview styling */
 .question-preview {
     background: #f8f9fa !important;
@@ -1110,12 +1210,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <?php
 // Helper function for question preview
-function generateQuestionPreview($q) {
+function generateQuestionPreview($q)
+{
     $type = $q['question_type'];
     $text = esc($q['question_text']);
-    
+
     switch ($type) {
-        
+
         case 'matrix':
     $rows = $q['matrix_rows'] ?? [];
     $columns = $q['matrix_columns'] ?? [];
@@ -1149,7 +1250,6 @@ function generateQuestionPreview($q) {
                 // default: hanya tampilkan radio tanpa label opsi
                 $html .= "<input type='radio' name='matrix_{$rowText}_{$colText}' disabled>";
             }
-
             $html .= "</td>";
         }
         $html .= "</tr>";
@@ -1175,10 +1275,10 @@ function generateQuestionPreview($q) {
             $html .= "</div>";
             $html .= "<small>" . esc($q['scale_min_label'] ?? 'Min') . " to " . esc($q['scale_max_label'] ?? 'Max') . "</small>";
             return $html;
-        
+
         case 'file':
             return "<label class='form-label small'>{$text}</label><input type='file' class='form-control form-control-sm' disabled><small>Allowed: " . esc($q['allowed_types'] ?? 'pdf,doc') . ", Max: " . ($q['max_file_size'] ?? 5) . "MB</small>";
-        
+
         case 'radio':
         case 'checkbox':
             // Baris ini sudah benar, karena sudah diperbaiki di respons sebelumnya
@@ -1191,7 +1291,7 @@ function generateQuestionPreview($q) {
             }
             if (count($options) > 2) $html .= "<small class='text-muted'>... and " . (count($options) - 2) . " more</small>";
             return $html;
-            
+
         case 'dropdown':
             // Ganti baris ini dari json_decode
             $options = $q['options'] ?? [];
@@ -1203,7 +1303,7 @@ function generateQuestionPreview($q) {
             }
             $html .= "</select>";
             return $html;
-            
+
         default:
             return "<label class='form-label small'>{$text}</label><input type='text' class='form-control form-control-sm' disabled>";
     }

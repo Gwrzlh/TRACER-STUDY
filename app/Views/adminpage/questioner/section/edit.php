@@ -1,7 +1,6 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 <div class="container mt-4">
-
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>">Home</a></li>
@@ -34,7 +33,7 @@
         <div class="card-body">
             <form method="post" action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/update") ?>">
                 <?= csrf_field() ?>
-                
+
                 <div class="row">
                     <div class="col-md-8">
                         <div class="mb-3">
@@ -115,7 +114,7 @@
                             <button type="button" id="add-condition-btn" class="btn btn-primary btn-sm" style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>;">Tambah Kondisi</button>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-4">
                         <div class="card bg-light">
                             <div class="card-header">
@@ -158,8 +157,8 @@
                             </div>
                             <div class="card-body">
                                 <div class="d-grid gap-2">
-                                    <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions") ?>" 
-                                       class="btn btn-sm btn-info">
+                                    <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions") ?>"
+                                        class="btn btn-sm btn-info">
                                         <i class="fas fa-cogs me-2"></i>Kelola Pertanyaan
                                     </a>
                                     <button type="button" class="btn btn-sm btn-secondary" onclick="duplicateSection()">
@@ -172,8 +171,8 @@
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections") ?>" 
-                       class="btn btn-secondary">
+                    <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections") ?>"
+                        class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-2"></i>Kembali
                     </a>
                     <div>
@@ -188,7 +187,6 @@
             </form>
         </div>
     </div>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {

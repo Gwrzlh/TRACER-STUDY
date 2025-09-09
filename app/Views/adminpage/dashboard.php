@@ -69,6 +69,7 @@
         .dashboard-title::before {
             display: none;
         }
+
         .dashboard-title {
             background: linear-gradient(135deg, #3b82f6, #1e40af);
             color: #1e40af;
@@ -434,8 +435,15 @@
 
     /* Loading animation */
     @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.7;
+        }
     }
 
     .loading {
@@ -567,14 +575,14 @@
                 <div class="activity-card">
                     <h3 class="chart-title">Aktivitas Terbaru</h3>
                     <div class="activity-list">
-                        <?php foreach($recentActivities as $activity): ?>
-                        <div class="activity-item">
-                            <div class="activity-icon" style="background: <?= $activity['color'] ?>;"><?= $activity['icon'] ?></div>
-                            <div class="activity-content">
-                                <div class="activity-title"><?= $activity['title'] ?></div>
-                                <div class="activity-desc"><?= $activity['description'] ?></div>
+                        <?php foreach ($recentActivities as $activity): ?>
+                            <div class="activity-item">
+                                <div class="activity-icon" style="background: <?= $activity['color'] ?>;"><?= $activity['icon'] ?></div>
+                                <div class="activity-content">
+                                    <div class="activity-title"><?= $activity['title'] ?></div>
+                                    <div class="activity-desc"><?= $activity['description'] ?></div>
+                                </div>
                             </div>
-                        </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -587,377 +595,377 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Data dari controller
-    const userRoleData = <?= json_encode($userRoleData) ?>;
-    const statusPekerjaanData = <?= json_encode($statusPekerjaanData) ?>;
-    const responseTrendData = <?= json_encode($responseTrendData) ?>;
+    document.addEventListener('DOMContentLoaded', function() {
+        // Data dari controller
+        const userRoleData = <?= json_encode($userRoleData) ?>;
+        const statusPekerjaanData = <?= json_encode($statusPekerjaanData) ?>;
+        const responseTrendData = <?= json_encode($responseTrendData) ?>;
 
-    // Enhanced color palette
-    const colors = {
-        primary: '#3b82f6',
-        secondary: '#10b981', 
-        accent: '#8b5cf6',
-        warning: '#f59e0b',
-        danger: '#ef4444',
-        info: '#06b6d4',
-        success: '#22c55e',
-        indigo: '#6366f1',
-        teal: '#14b8a6'
-    };
+        // Enhanced color palette
+        const colors = {
+            primary: '#3b82f6',
+            secondary: '#10b981',
+            accent: '#8b5cf6',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            info: '#06b6d4',
+            success: '#22c55e',
+            indigo: '#6366f1',
+            teal: '#14b8a6'
+        };
 
-    // Enhanced Chart.js configuration
-    Chart.defaults.font.family = 'Inter, system-ui, -apple-system, sans-serif';
-    Chart.defaults.color = '#64748b';
-    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(30, 41, 59, 0.95)';
-    Chart.defaults.plugins.tooltip.titleColor = '#f8fafc';
-    Chart.defaults.plugins.tooltip.bodyColor = '#f8fafc';
-    Chart.defaults.plugins.tooltip.cornerRadius = 12;
-    Chart.defaults.plugins.tooltip.padding = 12;
+        // Enhanced Chart.js configuration
+        Chart.defaults.font.family = 'Inter, system-ui, -apple-system, sans-serif';
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(30, 41, 59, 0.95)';
+        Chart.defaults.plugins.tooltip.titleColor = '#f8fafc';
+        Chart.defaults.plugins.tooltip.bodyColor = '#f8fafc';
+        Chart.defaults.plugins.tooltip.cornerRadius = 12;
+        Chart.defaults.plugins.tooltip.padding = 12;
 
-    // Create gradient function
-    function createGradient(ctx, color1, color2) {
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, color1);
-        gradient.addColorStop(1, color2);
-        return gradient;
-    }
+        // Create gradient function
+        function createGradient(ctx, color1, color2) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, color1);
+            gradient.addColorStop(1, color2);
+            return gradient;
+        }
 
-    // 1. Enhanced User Role Distribution Chart
-    const userRoleCtx = document.getElementById('userRoleChart').getContext('2d');
-    new Chart(userRoleCtx, {
-        type: 'doughnut',
-        data: {
-            labels: userRoleData.labels,
-            datasets: [{
-                data: userRoleData.data,
-                backgroundColor: [
-                    colors.secondary,  // Alumni - Green
-                    colors.teal,       // Perusahaan - Teal
-                    colors.danger,     // Atasan - Red
-                    colors.indigo,     // Kaprodi - Indigo
-                    colors.warning,    // Admin - Orange
-                    colors.accent      // Jabatan Lainnya - Purple
-                ],
-                borderWidth: 3,
-                borderColor: '#ffffff',
-                hoverBorderWidth: 5,
-                hoverBorderColor: '#ffffff',
-                hoverOffset: 10
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '65%',
-            animation: {
-                duration: 2000,
-                easing: 'easeInOutCubic',
-                animateRotate: true,
-                animateScale: true
+        // 1. Enhanced User Role Distribution Chart
+        const userRoleCtx = document.getElementById('userRoleChart').getContext('2d');
+        new Chart(userRoleCtx, {
+            type: 'doughnut',
+            data: {
+                labels: userRoleData.labels,
+                datasets: [{
+                    data: userRoleData.data,
+                    backgroundColor: [
+                        colors.secondary, // Alumni - Green
+                        colors.teal, // Perusahaan - Teal
+                        colors.danger, // Atasan - Red
+                        colors.indigo, // Kaprodi - Indigo
+                        colors.warning, // Admin - Orange
+                        colors.accent // Jabatan Lainnya - Purple
+                    ],
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverBorderWidth: 5,
+                    hoverBorderColor: '#ffffff',
+                    hoverOffset: 10
+                }]
             },
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        padding: 20,
-                        usePointStyle: true,
-                        pointStyle: 'circle',
-                        font: {
-                            size: 13,
-                            weight: '600'
-                        }
-                    }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutCubic',
+                    animateRotate: true,
+                    animateScale: true
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = ((context.parsed / total) * 100).toFixed(1);
-                            return `${context.label}: ${context.parsed.toLocaleString()} (${percentage}%)`;
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return `${context.label}: ${context.parsed.toLocaleString()} (${percentage}%)`;
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
 
-    // 2. Enhanced Status Pekerjaan Alumni Chart
-    const statusPekerjaanCtx = document.getElementById('statusPekerjaanChart').getContext('2d');
-    new Chart(statusPekerjaanCtx, {
-        type: 'doughnut',
-        data: {
-            labels: statusPekerjaanData.labels,
-            datasets: [{
-                data: statusPekerjaanData.data,
-                backgroundColor: [
-                    colors.success,    // Bekerja - Green
-                    colors.warning,    // Wirausaha - Orange
-                    colors.info,       // Melanjutkan Studi - Blue
-                    colors.danger      // Mencari Kerja - Red
-                ],
-                borderWidth: 3,
-                borderColor: '#ffffff',
-                hoverBorderWidth: 5,
-                hoverBorderColor: '#ffffff',
-                hoverOffset: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '70%',
-            animation: {
-                duration: 2000,
-                easing: 'easeInOutCubic',
-                delay: 300
+        // 2. Enhanced Status Pekerjaan Alumni Chart
+        const statusPekerjaanCtx = document.getElementById('statusPekerjaanChart').getContext('2d');
+        new Chart(statusPekerjaanCtx, {
+            type: 'doughnut',
+            data: {
+                labels: statusPekerjaanData.labels,
+                datasets: [{
+                    data: statusPekerjaanData.data,
+                    backgroundColor: [
+                        colors.success, // Bekerja - Green
+                        colors.warning, // Wirausaha - Orange
+                        colors.info, // Melanjutkan Studi - Blue
+                        colors.danger // Mencari Kerja - Red
+                    ],
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverBorderWidth: 5,
+                    hoverBorderColor: '#ffffff',
+                    hoverOffset: 8
+                }]
             },
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 15,
-                        usePointStyle: true,
-                        pointStyle: 'circle',
-                        font: {
-                            size: 12,
-                            weight: '600'
-                        }
-                    }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutCubic',
+                    delay: 300
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.label}: ${context.parsed}%`;
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.parsed}%`;
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
 
-    // 3. Enhanced Response Trend Chart
-    const responseTrendCtx = document.getElementById('responseTrendChart').getContext('2d');
-    const gradient = createGradient(responseTrendCtx, colors.primary + '40', colors.primary + '10');
-    
-    new Chart(responseTrendCtx, {
-        type: 'line',
-        data: {
-            labels: responseTrendData.labels,
-            datasets: [{
-                label: 'Response Rate',
-                data: responseTrendData.data,
-                borderColor: colors.primary,
-                backgroundColor: gradient,
-                borderWidth: 4,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: colors.primary,
-                pointBorderColor: '#ffffff',
-                pointBorderWidth: 3,
-                pointRadius: 8,
-                pointHoverRadius: 12,
-                pointHoverBorderWidth: 4
-            }, {
-                label: 'Target (75%)',
-                data: [75, 75, 75, 75, 75, 75],
-                borderColor: colors.warning,
-                backgroundColor: 'transparent',
-                borderWidth: 3,
-                borderDash: [8, 6],
-                fill: false,
-                pointRadius: 0,
-                pointHoverRadius: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-                duration: 2500,
-                easing: 'easeInOutCubic',
-                delay: 600
+        // 3. Enhanced Response Trend Chart
+        const responseTrendCtx = document.getElementById('responseTrendChart').getContext('2d');
+        const gradient = createGradient(responseTrendCtx, colors.primary + '40', colors.primary + '10');
+
+        new Chart(responseTrendCtx, {
+            type: 'line',
+            data: {
+                labels: responseTrendData.labels,
+                datasets: [{
+                    label: 'Response Rate',
+                    data: responseTrendData.data,
+                    borderColor: colors.primary,
+                    backgroundColor: gradient,
+                    borderWidth: 4,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: colors.primary,
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 3,
+                    pointRadius: 8,
+                    pointHoverRadius: 12,
+                    pointHoverBorderWidth: 4
+                }, {
+                    label: 'Target (75%)',
+                    data: [75, 75, 75, 75, 75, 75],
+                    borderColor: colors.warning,
+                    backgroundColor: 'transparent',
+                    borderWidth: 3,
+                    borderDash: [8, 6],
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 0
+                }]
             },
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        usePointStyle: true,
-                        pointStyle: 'line',
-                        font: {
-                            size: 12,
-                            weight: '600'
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 2500,
+                    easing: 'easeInOutCubic',
+                    delay: 600
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'line',
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
                         }
                     }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            },
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            }
                         },
-                        font: {
-                            size: 11,
-                            weight: '500'
+                        grid: {
+                            color: 'rgba(226, 232, 240, 0.5)',
+                            drawBorder: false
                         }
                     },
-                    grid: {
-                        color: 'rgba(226, 232, 240, 0.5)',
-                        drawBorder: false
+                    x: {
+                        grid: {
+                            color: 'rgba(226, 232, 240, 0.3)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            }
+                        }
                     }
                 },
-                x: {
-                    grid: {
-                        color: 'rgba(226, 232, 240, 0.3)',
-                        drawBorder: false
-                    },
-                    ticks: {
-                        font: {
-                            size: 11,
-                            weight: '500'
-                        }
+                elements: {
+                    point: {
+                        hoverRadius: 12,
+                        hoverBorderWidth: 4
                     }
                 }
-            },
-            elements: {
-                point: {
-                    hoverRadius: 12,
-                    hoverBorderWidth: 4
+            }
+        });
+
+        // Enhanced animation for statistics cards
+        function animateValue(elementId, start, end, duration, suffix = '') {
+            const obj = document.getElementById(elementId);
+            if (!obj) return;
+
+            const range = end - start;
+            const minTimer = 50;
+            let stepTime = Math.abs(Math.floor(duration / range));
+            stepTime = Math.max(stepTime, minTimer);
+            const startTime = new Date().getTime();
+            const endTime = startTime + duration;
+            let timer;
+
+            function run() {
+                const now = new Date().getTime();
+                const remaining = Math.max((endTime - now) / duration, 0);
+                const value = Math.round(end - (remaining * range));
+
+                if (suffix === '%') {
+                    obj.innerHTML = value + '%';
+                } else if (elementId === 'totalAlumni' || elementId === 'totalPerusahaan') {
+                    obj.innerHTML = value.toLocaleString();
+                } else {
+                    obj.innerHTML = value;
+                }
+
+                if (value == end) {
+                    clearInterval(timer);
                 }
             }
+
+            timer = setInterval(run, stepTime);
+            run();
         }
+
+        // Enhanced card entrance animation
+        function animateCards() {
+            const cards = document.querySelectorAll('.stat-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+
+        // Initialize animations
+        setTimeout(() => {
+            animateCards();
+
+            // Animate statistics with staggered timing
+            const totalSurvei = parseInt(document.getElementById('totalSurvei').dataset.target);
+            const responseRate = parseInt(document.getElementById('responseRate').dataset.target);
+            const totalAlumni = parseInt(document.getElementById('totalAlumni').dataset.target);
+            const totalAdmin = parseInt(document.getElementById('totalAdmin').dataset.target);
+            const totalKaprodi = parseInt(document.getElementById('totalKaprodi').dataset.target);
+            const totalPerusahaan = parseInt(document.getElementById('totalPerusahaan').dataset.target);
+            const totalAtasan = parseInt(document.getElementById('totalAtasan').dataset.target);
+
+            // Staggered animation timing
+            setTimeout(() => animateValue('totalSurvei', 0, totalSurvei, 2000), 200);
+            setTimeout(() => animateValue('responseRate', 0, responseRate, 2000, '%'), 400);
+            setTimeout(() => animateValue('totalAlumni', 0, totalAlumni, 2500), 600);
+            setTimeout(() => animateValue('totalAdmin', 0, totalAdmin, 1500), 800);
+            setTimeout(() => animateValue('totalKaprodi', 0, totalKaprodi, 1800), 1000);
+            setTimeout(() => animateValue('totalPerusahaan', 0, totalPerusahaan, 2200), 1200);
+            setTimeout(() => animateValue('totalAtasan', 0, totalAtasan, 1800), 1400);
+            setTimeout(() => animateValue('totalJabatanLain', 0, totalAtasan, 1800), 1600);
+
+        }, 300);
+
+        // Chart hover effects enhancement
+        function enhanceChartInteractions() {
+            // Add subtle animations when hovering over chart areas
+            const chartCards = document.querySelectorAll('.chart-card');
+            chartCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px) scale(1.01)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        }
+
+        // Activity items animation
+        function animateActivityItems() {
+            const activityItems = document.querySelectorAll('.activity-item');
+            activityItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.5s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }, (index * 150) + 1000);
+            });
+        }
+
+        // Initialize all enhancements
+        setTimeout(() => {
+            enhanceChartInteractions();
+            animateActivityItems();
+        }, 2000);
+
+        // Add loading shimmer effect for charts
+        function addLoadingEffect() {
+            const chartContainers = document.querySelectorAll('.chart-container');
+            chartContainers.forEach(container => {
+                container.classList.add('loading');
+                setTimeout(() => {
+                    container.classList.remove('loading');
+                }, 2000);
+            });
+        }
+
+        addLoadingEffect();
     });
-
-    // Enhanced animation for statistics cards
-    function animateValue(elementId, start, end, duration, suffix = '') {
-        const obj = document.getElementById(elementId);
-        if (!obj) return;
-        
-        const range = end - start;
-        const minTimer = 50;
-        let stepTime = Math.abs(Math.floor(duration / range));
-        stepTime = Math.max(stepTime, minTimer);
-        const startTime = new Date().getTime();
-        const endTime = startTime + duration;
-        let timer;
-
-        function run() {
-            const now = new Date().getTime();
-            const remaining = Math.max((endTime - now) / duration, 0);
-            const value = Math.round(end - (remaining * range));
-            
-            if (suffix === '%') {
-                obj.innerHTML = value + '%';
-            } else if (elementId === 'totalAlumni' || elementId === 'totalPerusahaan') {
-                obj.innerHTML = value.toLocaleString();
-            } else {
-                obj.innerHTML = value;
-            }
-            
-            if (value == end) {
-                clearInterval(timer);
-            }
-        }
-
-        timer = setInterval(run, stepTime);
-        run();
-    }
-
-    // Enhanced card entrance animation
-    function animateCards() {
-        const cards = document.querySelectorAll('.stat-card');
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            setTimeout(() => {
-                card.style.transition = 'all 0.6s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100);
-        });
-    }
-
-    // Initialize animations
-    setTimeout(() => {
-        animateCards();
-        
-        // Animate statistics with staggered timing
-        const totalSurvei = parseInt(document.getElementById('totalSurvei').dataset.target);
-        const responseRate = parseInt(document.getElementById('responseRate').dataset.target);
-        const totalAlumni = parseInt(document.getElementById('totalAlumni').dataset.target);
-        const totalAdmin = parseInt(document.getElementById('totalAdmin').dataset.target);
-        const totalKaprodi = parseInt(document.getElementById('totalKaprodi').dataset.target);
-        const totalPerusahaan = parseInt(document.getElementById('totalPerusahaan').dataset.target);
-        const totalAtasan = parseInt(document.getElementById('totalAtasan').dataset.target);
-
-        // Staggered animation timing
-        setTimeout(() => animateValue('totalSurvei', 0, totalSurvei, 2000), 200);
-        setTimeout(() => animateValue('responseRate', 0, responseRate, 2000, '%'), 400);
-        setTimeout(() => animateValue('totalAlumni', 0, totalAlumni, 2500), 600);
-        setTimeout(() => animateValue('totalAdmin', 0, totalAdmin, 1500), 800);
-        setTimeout(() => animateValue('totalKaprodi', 0, totalKaprodi, 1800), 1000);
-        setTimeout(() => animateValue('totalPerusahaan', 0, totalPerusahaan, 2200), 1200);
-        setTimeout(() => animateValue('totalAtasan', 0, totalAtasan, 1800), 1400);
-        setTimeout(() => animateValue('totalJabatanLain', 0, totalAtasan, 1800), 1600);
-        
-    }, 300);
-
-    // Chart hover effects enhancement
-    function enhanceChartInteractions() {
-        // Add subtle animations when hovering over chart areas
-        const chartCards = document.querySelectorAll('.chart-card');
-        chartCards.forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-3px) scale(1.01)';
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0) scale(1)';
-            });
-        });
-    }
-
-    // Activity items animation
-    function animateActivityItems() {
-        const activityItems = document.querySelectorAll('.activity-item');
-        activityItems.forEach((item, index) => {
-            item.style.opacity = '0';
-            item.style.transform = 'translateX(-20px)';
-            setTimeout(() => {
-                item.style.transition = 'all 0.5s ease';
-                item.style.opacity = '1';
-                item.style.transform = 'translateX(0)';
-            }, (index * 150) + 1000);
-        });
-    }
-
-    // Initialize all enhancements
-    setTimeout(() => {
-        enhanceChartInteractions();
-        animateActivityItems();
-    }, 2000);
-
-    // Add loading shimmer effect for charts
-    function addLoadingEffect() {
-        const chartContainers = document.querySelectorAll('.chart-container');
-        chartContainers.forEach(container => {
-            container.classList.add('loading');
-            setTimeout(() => {
-                container.classList.remove('loading');
-            }, 2000);
-        });
-    }
-
-    addLoadingEffect();
-});
 </script>
 
 <?= $this->endSection() ?>

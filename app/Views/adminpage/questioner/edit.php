@@ -1,9 +1,7 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
-
-    <h2>Edit Kuesioner</h2>
-
+<h2>Edit Kuesioner</h2>
 <form action="<?= base_url('/admin/questionnaire/' .  $questionnaire['id'] . '/update/') ?>" method="post">
 
         <div>
@@ -15,13 +13,13 @@
             <textarea name="deskripsi"><?= esc($questionnaire['deskripsi']) ?></textarea>
         </div>
         <div>
-            <label for="status">Status :</label>
+          <label for="status">Status :</label>
+          
           <select name="is_active" id="status">
-    <option value="active" <?= $questionnaire['is_active'] == 'active' ? 'selected' : '' ?>>Aktif</option>
-    <option value="draft" <?= $questionnaire['is_active'] == 'draft' ? 'selected' : '' ?>>Draft</option>
-    <option value="inactive" <?= $questionnaire['is_active'] == 'inactive' ? 'selected' : '' ?>>Tidak Aktif</option>
-</select>
-
+              <option value="active" <?= $questionnaire['is_active'] == 'active' ? 'selected' : '' ?>>Aktif</option>
+              <option value="draft" <?= $questionnaire['is_active'] == 'draft' ? 'selected' : '' ?>>Draft</option>
+              <option value="inactive" <?= $questionnaire['is_active'] == 'inactive' ? 'selected' : '' ?>>Tidak Aktif</option>
+          </select>
         </div>
         <div>
             <label for="conditional_logic">
@@ -34,7 +32,7 @@
                         <div class="condition-row" style="margin-top:10px; display:flex; align-items:center; gap:10px;">
                             <select name="field_name[]" class="field-selector">
                                 <?php foreach ($fields as $f): ?>
-                                    <option value="<?= $f ?>" <?= $f == $condition['field'] ? 'selected' : '' ?>><?= ucwords(str_replace('_',' ',$f)) ?></option>
+                                    <option value="<?= $f ?>" <?= $f == $condition['field'] ? 'selected' : '' ?>><?= ucwords(str_replace('_', ' ', $f)) ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <select name="operator[]">
@@ -76,7 +74,7 @@
 
                                 if ($input_type == 'select' && !empty($options)): ?>
                                     <select name="value[]">
-                                        <?php foreach($options as $opt): ?>
+                                        <?php foreach ($options as $opt): ?>
                                             <option value="<?= $opt['id'] ?>" <?= $opt['id'] == $value ? 'selected' : '' ?>>
                                                 <?= $opt['name'] ?>
                                             </option>
@@ -93,7 +91,7 @@
                     <div class="condition-row" style="margin-top:10px; display:flex; align-items:center; gap:10px; display:none;">
                         <select name="field_name[]" class="field-selector">
                             <?php foreach ($fields as $f): ?>
-                                <option value="<?= $f ?>"><?= ucwords(str_replace('_',' ',$f)) ?></option>
+                                <option value="<?= $f ?>"><?= ucwords(str_replace('_', ' ', $f)) ?></option>
                             <?php endforeach; ?>
                         </select>
                         <select name="operator[]">

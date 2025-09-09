@@ -57,7 +57,29 @@
                     <i class="fas fa-file-import"></i> Import Akun
                 </a>
             </div>
+            <!-- Flash Messages -->
+            <?php if (session()->getFlashdata('success')): ?>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> <?= session()->getFlashdata('success') ?>
+                </div>
+            <?php endif; ?>
 
+            <?php if (session()->getFlashdata('error')): ?>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> <?= session()->getFlashdata('error') ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (session()->getFlashdata('errorLogs')): ?>
+                <div class="alert alert-danger">
+                    <strong>Data Gagal Import:</strong>
+                    <ul>
+                        <?php foreach(session()->getFlashdata('errorLogs') as $log): ?>
+                            <li><i class="fas fa-times-circle text-danger"></i> <?= esc($log) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
             <!-- Search Form -->
             <div class="controls-container">
                 <form method="get" action="<?= base_url('admin/pengguna') ?>">
