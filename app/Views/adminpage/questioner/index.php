@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="<?= base_url('css/questioner/index.css') ?>">
 
 <div>
+
    <!-- Navbar -->
    <!-- Navbar -->
 <nav class="sticky top-0 bg-white navbar-shadow nav-bg border-b border-gray-100 z-50">
@@ -19,20 +20,37 @@
             <div class="flex items-center gap-4">
                 <!-- Indikator status -->
                 <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 bg-white navbar-shadow nav-bg border-b border-gray-100 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <!-- Nav kiri -->
+                <div class="flex items-center gap-6">
+                    <span class="nav-title font-semibold text-xl cursor-pointer">
+                        Daftar Kuesioner
+                    </span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <!-- Main Card -->
     <div class="questionnaire-card">
         <div class="card-header flex justify-between items-center">
             <div class="flex items-center gap-2">
+
                 <div class="card-header-icon"></div>
                 <h3 class="card-title">Daftar Kuesioner </h3>
+                <div class="card-header-icon">📋</div>
+                <h3 class="card-title">Daftar Kuesioner</h3>
+
             </div>
             <a href="<?= base_url('admin/questionnaire/create') ?>"
-               class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
                 + Buat Kuesioner Baru
             </a>
         </div>
@@ -64,12 +82,15 @@
                             <?php endif; ?>
                         </td>
                         <td class="px-6 py-4">
-                            <?php if ($q['is_active']): ?>
-                                <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Aktif</span>
-                            <?php else: ?>
-                                <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Nonaktif</span>
-                            <?php endif; ?>
-                        </td>
+                              <?php if ($q['is_active'] === 'active'): ?>
+                                  <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Aktif</span>
+                              <?php elseif ($q['is_active'] === 'draft'): ?>
+                                  <span class="px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">Draft</span>
+                              <?php else: ?>
+                                  <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Nonaktif</span>
+                              <?php endif; ?>
+                          </td>
+
                         <td class="px-6 py-4 text-center">
                             <div class="flex justify-center gap-4">
                                 <!-- Kelola Halaman -->
@@ -102,31 +123,28 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const baseUrl = "<?= base_url('admin/questionnaire') ?>";
-
-    // SweetAlert hapus
-    document.querySelectorAll(".delete-questionnaire").forEach(button => {
-        button.addEventListener("click", function() {
-            const id = this.getAttribute("data-id");
-
-            Swal.fire({
-                title: 'Yakin ingin menghapus?',
-                text: "Data questionnaire beserta halaman & pertanyaan akan terhapus permanen!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = `${baseUrl}/${id}/delete`;
-                }
+    document.addEventListener("DOMContentLoaded", function() {
+        const baseUrl = "<?= base_url('admin/questionnaire') ?>";
+        document.querySelectorAll(".delete-questionnaire").forEach(button => {
+            button.addEventListener("click", function() {
+                const id = this.getAttribute("data-id");
+                Swal.fire({
+                    title: 'Yakin ingin menghapus?',
+                    text: "Data questionnaire beserta halaman & pertanyaan akan terhapus permanen!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `${baseUrl}/${id}/delete`;
+                    }
+                });
             });
         });
     });
-});
 </script>
 
 <?= $this->endSection() ?>
