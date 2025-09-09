@@ -2,10 +2,7 @@
 <?= $this->section('content') ?>
 
 <h2>Edit Kuesioner</h2>
-
-<form action="<?= base_url('/admin/questionnaire/update/' . $questionnaire['id']) ?>" method="post" class="form-kuesioner">
-
-    <form action="<?= base_url('/admin/questionnaire/' .  $questionnaire['id'] . '/update/') ?>" method="post">
+<form action="<?= base_url('/admin/questionnaire/' .  $questionnaire['id'] . '/update/') ?>" method="post">
 
         <div>
             <label>Judul Kuesioner</label><br>
@@ -16,12 +13,13 @@
             <textarea name="deskripsi"><?= esc($questionnaire['deskripsi']) ?></textarea>
         </div>
         <div>
-            <label for="status">Status :</label>
-            <select name="is_active" id="status">
-                <option value="active" <?= $questionnaire['is_active'] == 'active' ? 'selected' : '' ?>>Aktif</option>
-                <option value="draft" <?= $questionnaire['is_active'] == 'draft' ? 'selected' : '' ?>>Draft</option>
-                <option value="inactive" <?= $questionnaire['is_active'] == 'inactive' ? 'selected' : '' ?>>Tidak Aktif</option>
-            </select>
+          <label for="status">Status :</label>
+          
+          <select name="is_active" id="status">
+              <option value="active" <?= $questionnaire['is_active'] == 'active' ? 'selected' : '' ?>>Aktif</option>
+              <option value="draft" <?= $questionnaire['is_active'] == 'draft' ? 'selected' : '' ?>>Draft</option>
+              <option value="inactive" <?= $questionnaire['is_active'] == 'inactive' ? 'selected' : '' ?>>Tidak Aktif</option>
+          </select>
         </div>
         <div>
             <label for="conditional_logic">
@@ -113,105 +111,105 @@
         <button type="submit">Simpan Perubahan</button>
     </form>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Fungsi untuk memuat opsi berdasarkan field yang dipilih
-            function loadOptions(fieldSelector, currentValue = '') {
-                const selectedField = fieldSelector.val();
-                const valueContainer = fieldSelector.closest('.condition-row').find('.value-input-container');
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Fungsi untuk memuat opsi berdasarkan field yang dipilih
+    function loadOptions(fieldSelector, currentValue = '') {
+        const selectedField = fieldSelector.val();
+        const valueContainer = fieldSelector.closest('.condition-row').find('.value-input-container');
 
-                if (!selectedField) {
-                    valueContainer.html('<input type="text" name="value[]" placeholder="Value" value="' + currentValue + '">');
-                    return;
-                }
+        if (!selectedField) {
+            valueContainer.html('<input type="text" name="value[]" placeholder="Value" value="' + currentValue + '">');
+            return;
+        }
 
-                $.ajax({
-                    url: "<?= base_url('/admin/get-conditional-options') ?>",
-                    type: 'GET',
-                    data: {
-                        field: selectedField
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        let inputHtml = '';
-                        if (response.type === 'select' && response.options && response.options.length > 0) {
-                            inputHtml = '<select name="value[]">';
-                            $.each(response.options, function(index, option) {
-                                // Set selected jika option.id sesuai dengan currentValue
-                                const isSelected = option.id == currentValue ? 'selected' : '';
-                                inputHtml += `<option value="${option.id}" ${isSelected}>${option.name}</option>`;
-                            });
-                            inputHtml += '</select>';
-                        } else {
-                            inputHtml = '<input type="text" name="value[]" placeholder="Value" value="' + currentValue + '">';
-                        }
-                        valueContainer.html(inputHtml);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('AJAX Error: ' + status + ' - ' + error);
-                        valueContainer.html('<input type="text" name="value[]" placeholder="Error loading data" value="' + currentValue + '">');
-                    }
-                });
-            }
-
-            // Event handler untuk perubahan pada field selector
-            $(document).on('change', '.field-selector', function() {
-                // Ambil value saat ini dari input/dropdown (jika ada)
-                const currentValue = $(this).closest('.condition-row').find('[name="value[]"]').val() || '';
-                loadOptions($(this), currentValue);
-            });
-
-            // Event handler untuk checkbox Conditional Logic
-            $('#conditional_logic').on('change', function() {
-                if ($(this).is(':checked')) {
-                    $('.condition-row').first().show();
-                    $('#add-condition-btn').show();
+        $.ajax({
+            url: "<?= base_url('/admin/get-conditional-options') ?>",
+            type: 'GET',
+            data: {
+                field: selectedField
+            },
+            dataType: 'json',
+            success: function(response) {
+                let inputHtml = '';
+                if (response.type === 'select' && response.options && response.options.length > 0) {
+                    inputHtml = '<select name="value[]">';
+                    $.each(response.options, function(index, option) {
+                        // Set selected jika option.id sesuai dengan currentValue
+                        const isSelected = option.id == currentValue ? 'selected' : '';
+                        inputHtml += `<option value="${option.id}" ${isSelected}>${option.name}</option>`;
+                    });
+                    inputHtml += '</select>';
                 } else {
-                    $('.condition-row').hide();
-                    $('#add-condition-btn').hide();
-                    $('.condition-row:not(:first)').remove();
+                    inputHtml = '<input type="text" name="value[]" placeholder="Value" value="' + currentValue + '">';
                 }
-            });
-
-            // Event handler untuk tombol "Tambah Kondisi"
-            $('#add-condition-btn').on('click', function() {
-                const firstRow = $('.condition-row').first();
-                const newRow = firstRow.clone();
-
-                // Reset nilai-nilai di baris baru
-                newRow.find('select').val(firstRow.find('.field-selector').val());
-                newRow.find('.value-input-container').html('<input type="text" name="value[]" placeholder="Value">');
-
-                // Tampilkan tombol "Hapus" pada baris baru
-                newRow.find('.remove-condition-btn').show();
-
-                // Tambahkan baris baru ke container
-                $('#conditional-container').append(newRow);
-
-                // Panggil loadOptions untuk baris baru (tanpa currentValue karena baru)
-                loadOptions(newRow.find('.field-selector'));
-            });
-
-            // Event handler untuk tombol "Hapus"
-            $(document).on('click', '.remove-condition-btn', function() {
-                if ($('.condition-row').length > 1) {
-                    $(this).closest('.condition-row').remove();
-                }
-            });
-
-            // Inisialisasi pada halaman edit: tampilkan tombol "Hapus" dan load opsi untuk setiap baris
-            if ($('#conditional_logic').is(':checked')) {
-                $('.condition-row').each(function() {
-                    if ($('.condition-row').length > 1) {
-                        $(this).find('.remove-condition-btn').show();
-                    }
-                    // Ambil value dari database (tersimpan di input/dropdown saat ini)
-                    const currentValue = $(this).find('[name="value[]"]').val() || '';
-                    // Panggil loadOptions dengan value dari database
-                    loadOptions($(this).find('.field-selector'), currentValue);
-                });
+                valueContainer.html(inputHtml);
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error: ' + status + ' - ' + error);
+                valueContainer.html('<input type="text" name="value[]" placeholder="Error loading data" value="' + currentValue + '">');
             }
         });
-    </script>
-    <?= $this->endSection() ?>
+    }
+
+    // Event handler untuk perubahan pada field selector
+    $(document).on('change', '.field-selector', function() {
+        // Ambil value saat ini dari input/dropdown (jika ada)
+        const currentValue = $(this).closest('.condition-row').find('[name="value[]"]').val() || '';
+        loadOptions($(this), currentValue);
+    });
+
+    // Event handler untuk checkbox Conditional Logic
+    $('#conditional_logic').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('.condition-row').first().show();
+            $('#add-condition-btn').show();
+        } else {
+            $('.condition-row').hide();
+            $('#add-condition-btn').hide();
+            $('.condition-row:not(:first)').remove();
+        }
+    });
+
+    // Event handler untuk tombol "Tambah Kondisi"
+    $('#add-condition-btn').on('click', function() {
+        const firstRow = $('.condition-row').first();
+        const newRow = firstRow.clone();
+
+        // Reset nilai-nilai di baris baru
+        newRow.find('select').val(firstRow.find('.field-selector').val());
+        newRow.find('.value-input-container').html('<input type="text" name="value[]" placeholder="Value">');
+
+        // Tampilkan tombol "Hapus" pada baris baru
+        newRow.find('.remove-condition-btn').show();
+
+        // Tambahkan baris baru ke container
+        $('#conditional-container').append(newRow);
+
+        // Panggil loadOptions untuk baris baru (tanpa currentValue karena baru)
+        loadOptions(newRow.find('.field-selector'));
+    });
+
+    // Event handler untuk tombol "Hapus"
+    $(document).on('click', '.remove-condition-btn', function() {
+        if ($('.condition-row').length > 1) {
+            $(this).closest('.condition-row').remove();
+        }
+    });
+
+    // Inisialisasi pada halaman edit: tampilkan tombol "Hapus" dan load opsi untuk setiap baris
+    if ($('#conditional_logic').is(':checked')) {
+        $('.condition-row').each(function() {
+            if ($('.condition-row').length > 1) {
+                $(this).find('.remove-condition-btn').show();
+            }
+            // Ambil value dari database (tersimpan di input/dropdown saat ini)
+            const currentValue = $(this).find('[name="value[]"]').val() || '';
+            // Panggil loadOptions dengan value dari database
+            loadOptions($(this).find('.field-selector'), currentValue);
+        });
+    }
+});
+</script>
+<?= $this->endSection() ?>

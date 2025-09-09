@@ -255,14 +255,14 @@ class QuestionnairController extends BaseController
                 $conditionalLogic = json_encode($conditions);
             }
         }
-
-        $model->update($questionnaire_id, [
-            'title'             => $this->request->getPost('title'),
-            'deskripsi'         => $this->request->getPost('deskripsi'),
-            'is_active'         => $is_active, // enum langsung
-            'conditional_logic' => $conditionalLogic,
-            'updated_at'        => date('Y-m-d H:i:s')
-        ]);
+      
+     $model->update($questionnaire_id, [
+    'title' => $this->request->getPost('title'),
+    'deskripsi' => $this->request->getPost('deskripsi'),
+    'is_active' => $this->request->getPost('is_active'),
+    'conditional_logic' => $conditionalLogic,
+    'updated_at' => date('Y-m-d H:i:s')
+]);
 
         return redirect()->to('admin/questionnaire')->with('success', 'Kuesioner berhasil diperbarui!');
     }
@@ -435,392 +435,409 @@ class QuestionnairController extends BaseController
             'all_questions'    => $all_questions
         ]);
     }
-
-    public function getQuestionOptions($question_id)
+    public function getQuestionOptions($questionnaire_id, $page_id, $section_id, $questionId)
     {
-        $optionModel = new QuestionOptionModel();
-        $options = $optionModel->where('question_id', $question_id)
-            ->orderBy('order_number', 'ASC')
-            ->findAll();
+        try {
+            log_message('debug', "Mengambil opsi untuk questionId: $questionId, questionnaire: $questionnaire_id, page: $page_id, section: $section_id");
+            
+            $questionModel = new QuestionModel();
+            $optionModel = new QuestionOptionModel();
+            log_message('debug', 'Models initialized successfully');
 
-        return $this->response->setJSON([
-            'status' => 'success',
-            'options' => $options
-        ]);
-    }
+            $question = $questionModel->where('id', $questionId)
+                                    ->where('questionnaires_id', $questionnaire_id)
+                                    ->where('page_id', $page_id)
+                                    ->where('section_id', $section_id)
+                                    ->first();
+            log_message('debug', 'Question query executed: ' . ($question ? json_encode($question) : 'No question found'));
 
-    public function getOptions($questionId)
-    {
-        $questionModel = new QuestionModel();
-        $optionModel = new QuestionOptionModel();
-        $question = $questionModel->find($questionId);
+            if (!$question) {
+                log_message('error', "Question not found for ID: $questionId");
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
+            }
 
-        if ($question) {
             $options = [];
             if (in_array($question['question_type'], ['radio', 'checkbox', 'dropdown'])) {
                 $options = $optionModel->where('question_id', $questionId)
-                    ->orderBy('order_no', 'ASC')
-                    ->findAll();
+                                    ->select('option_text, option_value, order_number') // Gunakan order_number
+                                    ->orderBy('order_number', 'ASC') // Konsisten dengan order_number
+                                    ->findAll();
+                log_message('debug', "Options fetched: " . json_encode($options));
+            } else {
+                log_message('debug', "Question type {$question['question_type']} does not support options");
             }
             return $this->response->setJSON([
                 'status' => 'success',
                 'question_type' => $question['question_type'],
                 'options' => $options
             ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in getQuestionOptions: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+            return $this->response->setStatusCode(500)->setJSON([
+                'status' => 'error',
+                'message' => 'Internal server error: ' . $e->getMessage()
+            ]);
         }
-
-        return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
     }
+ public function getOptions($questionId)
+{
+    $questionModel = new QuestionModel();
+    $optionModel = new QuestionOptionModel();
+    $question = $questionModel->find($questionId);
 
-    public function storeSectionQuestion($questionnaire_id, $page_id, $section_id)
-    {
-        // ===== STEP 1: DEBUG POST DATA =====
-        log_message('debug', 'POST Data: ' . print_r($this->request->getPost(), true));
-
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'question_title' => 'required|max_length[255]',
-            'question_text' => 'required',
-            'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
-            'is_required' => 'permit_empty|in_list[0,1]',
-            'order_no' => 'required|integer',
-            'options' => 'permit_empty',
-            'scale_min' => 'permit_empty|integer',
-            'scale_max' => 'permit_empty|integer',
-            'scale_step' => 'permit_empty|integer',
-            'scale_min_label' => 'permit_empty',
-            'scale_max_label' => 'permit_empty',
-            'allowed_types' => 'permit_empty',
-            'max_file_size' => 'permit_empty|integer',
-            'matrix_rows' => 'permit_empty',
-            'matrix_columns' => 'permit_empty',
-            'parent_question_id' => 'permit_empty|integer',
-            'condition_operator' => 'permit_empty|in_list[is,is not]',
-            'condition_value' => 'permit_empty',
-            'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-            'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
-            'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-        ]);
-
-
-
-        if (!$validation->withRequest($this->request)->run()) {
-            log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
-            return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
+    if ($question) {
+        $options = [];
+        if (in_array($question['question_type'], ['radio', 'checkbox', 'dropdown'])) {
+            $options = $optionModel->where('question_id', $questionId)
+                                ->orderBy('order_no', 'ASC')
+                                ->findAll();
         }
+        return $this->response->setJSON([
+            'status' => 'success',
+            'question_type' => $question['question_type'],
+            'options' => $options
+        ]);
+    }
+    return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
+}
 
+  public function storeSectionQuestion($questionnaire_id, $page_id, $section_id)
+{
+    log_message('debug', 'POST Data: ' . print_r($this->request->getPost(), true));
+
+    $validation = \Config\Services::validation();
+    $validation->setRules([
+        'question_text' => 'required',
+        'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
+        'is_required' => 'permit_empty|in_list[0,1]',
+        'order_no' => 'required|integer',
+        'options' => 'permit_empty',
+        'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
+        'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_min_label' => 'permit_empty',
+        'scale_max_label' => 'permit_empty',
+        'allowed_types' => 'permit_empty',
+        'max_file_size' => 'permit_empty|integer',
+        'matrix_rows' => 'permit_empty',
+        'matrix_columns' => 'permit_empty',
+        'enable_conditional' => 'permit_empty|in_list[0,1]',
+        'parent_question_id' => 'permit_empty|integer',
+        'condition_operator' => 'permit_empty|in_list[is,is not]',
+        'condition_value' => 'permit_empty',
+    ]);
+
+    if (!$validation->withRequest($this->request)->run()) {
+        log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
+        return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
+    }
+    
+    $questionModel = new QuestionModel();
+    $maxOrder = $questionModel->where([
+        'questionnaires_id' => $questionnaire_id,
+        'page_id' => $page_id,
+        'section_id' => $section_id
+    ])->selectMax('order_no')->first()['order_no'] ?? 0;
+    
+    $db = \Config\Database::connect();
+    $db->transStart();
+
+    try {
         $questionModel = new QuestionModel();
-        $maxOrder = $questionModel->where([
+        $optionModel = new QuestionOptionModel();
+        $matrixRowModel = new \App\Models\MatrixRowModel();
+        $matrixColumnModel = new \App\Models\MatrixColumnModels();
+
+        $data = [
             'questionnaires_id' => $questionnaire_id,
             'page_id' => $page_id,
-            'section_id' => $section_id
-        ])->selectMax('order_no')->first()['order_no'] ?? 0;
+            'section_id' => $section_id,
+            'question_text' => $this->request->getPost('question_text'),
+            'question_type' => $this->request->getPost('question_type'),
+            'is_required' => $this->request->getPost('is_required') ? 1 : 0,
+           'order_no' => $maxOrder + 1,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
 
-        $db = \Config\Database::connect();
-        $db->transStart();
-
-        try {
-            $questionModel = new QuestionModel();
-            $optionModel = new QuestionOptionModel();
-            $matrixRowModel = new \App\Models\MatrixRowModel();
-            $matrixColumnModel = new \App\Models\MatrixColumnModels();
-
-            $data = [
-                'questionnaires_id' => $questionnaire_id,
-                'page_id' => $page_id,
-                'section_id' => $section_id,
-                'question_text' => $this->request->getPost('question_text'),
-                'question_type' => $this->request->getPost('question_type'),
-                'is_required' => $this->request->getPost('is_required') ? 1 : 0,
-                'order_no' => $maxOrder + 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
+        // Conditional logic to condition_json
+        $enableConditional = $this->request->getPost('enable_conditional') ? 1 : 0;
+        $parentId = $this->request->getPost('parent_question_id');
+        if ($enableConditional && $parentId) {
+            $condition = [
+                'field' => 'question_' . $parentId,
+                'operator' => $this->request->getPost('condition_operator') ?: 'is',
+                'value' => $this->request->getPost('condition_value')
             ];
-
-            // Conditional logic to condition_json
-            $enableConditional = $this->request->getPost('enable_conditional') ? 1 : 0;
-            $parentId = $this->request->getPost('parent_question_id');
-            if ($enableConditional && $parentId) {
-                $condition = [
-                    'field' => 'question_' . $parentId,
-                    'operator' => $this->request->getPost('condition_operator') ?: 'is',
-                    'value' => $this->request->getPost('condition_value')
-                ];
-                $data['condition_json'] = json_encode([$condition]);
-                log_message('debug', 'Saving condition_json: ' . $data['condition_json']);
-            } else {
-                $data['condition_json'] = null;
-            }
-
-            // Special type handling
-            $type = $data['question_type'];
-            log_message('debug', 'Processing special type: ' . $type);
-
-            if ($type === 'scale') {
-                $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
-                $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
-                $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
-                $data['scale_min_label'] = $this->request->getPost('scale_min_label');
-                $data['scale_max_label'] = $this->request->getPost('scale_max_label');
-                log_message('debug', 'Scale settings saved: min=' . $data['scale_min'] . ', max=' . $data['scale_max'] . ', step=' . $data['scale_step']);
-            } elseif ($type === 'file') {
-                $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
-                $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
-                log_message('debug', 'File settings saved: types=' . $data['allowed_types'] . ', size=' . $data['max_file_size']);
-            }
-
-            // Insert question
-            $question_id = $questionModel->insert($data);
-            log_message('debug', 'Question ID inserted: ' . $question_id);
-
-            // Matrix handling
-            if ($type === 'matrix') {
-                $rows = array_filter(array_map('trim', explode(',', $this->request->getPost('matrix_rows') ?? '')));
-                $columns = array_filter(array_map('trim', explode(',', $this->request->getPost('matrix_columns') ?? '')));
-
-                log_message('debug', 'Matrix rows: ' . print_r($rows, true));
-                log_message('debug', 'Matrix columns: ' . print_r($columns, true));
-
-                // Insert rows
-                $rowOrder = 1;
-                foreach ($rows as $row) {
-                    $matrixRowModel->insert([
-                        'question_id' => $question_id,
-                        'row_text' => $row,
-                        'order_no' => $rowOrder++
-                    ]);
-                }
-
-                // Insert columns
-                $colOrder = 1;
-                foreach ($columns as $col) {
-                    $matrixColumnModel->insert([
-                        'question_id' => $question_id,
-                        'column_text' => $col,
-                        'order_no' => $colOrder++
-                    ]);
-                }
-            }
-
-            // Options (radio, checkbox, dropdown)
-            if (in_array($type, ['radio', 'checkbox', 'dropdown'])) {
-                $options = $this->request->getPost('options');
-                $optionValues = $this->request->getPost('option_values');
-                $nextQuestionIds = $this->request->getPost('next_question_ids');
-
-                if (!empty($options)) {
-                    $optionsToInsert = [];
-                    $order = 1;
-                    foreach ($options as $index => $opt) {
-                        $optText = trim($opt);
-                        if (!empty($optText)) {
-                            $optValue = isset($optionValues[$index]) && !empty(trim($optionValues[$index]))
-                                ? trim($optionValues[$index])
-                                : strtolower(str_replace(' ', '_', $optText));
-                            $nextQuestionId = $nextQuestionIds[$index] ?? null;
-                            $optionsToInsert[] = [
-                                'question_id' => $question_id,
-                                'option_text' => $optText,
-                                'option_value' => $optValue,
-                                'next_question_id' => $nextQuestionId,
-                                'order_number' => $order++
-                            ];
-                        }
-                    }
-                    if (!empty($optionsToInsert)) {
-                        $optionModel->insertBatch($optionsToInsert);
-                    }
-                }
-            }
-
-            if ($db->transStatus() === false) {
-                log_message('error', 'Transaction failed before completion');
-                $db->transRollback();
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Transaction failed.']);
-            }
-
-            $db->transComplete();
-            log_message('debug', 'Transaction completed successfully');
-
-            return $this->response->setJSON(['status' => 'success', 'message' => 'Pertanyaan berhasil ditambahkan.']);
-        } catch (\Exception $e) {
-            log_message('error', 'Exception in storeSectionQuestion: ' . $e->getMessage());
-            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
-
-            $db->transRollback();
-            return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal menambahkan pertanyaan: ' . $e->getMessage()]);
+            $data['condition_json'] = json_encode([$condition]);
+            log_message('debug', 'Saving condition_json: ' . $data['condition_json']);
+        } else {
+            $data['condition_json'] = null;
         }
+        // Special type handling
+        $type = $data['question_type'];
+        log_message('debug', 'Processing special type: ' . $type);
+
+        if ($type === 'scale') {
+            $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
+            $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
+            $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
+            $data['scale_min_label'] = $this->request->getPost('scale_min_label');
+            $data['scale_max_label'] = $this->request->getPost('scale_max_label');
+            log_message('debug', 'Scale settings saved: min=' . $data['scale_min'] . ', max=' . $data['scale_max'] . ', step=' . $data['scale_step']);
+        } elseif ($type === 'file') {
+            $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
+            $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
+            log_message('debug', 'File settings saved: types=' . $data['allowed_types'] . ', size=' . $data['max_file_size']);
+        }
+
+        // Insert question
+        $question_id = $questionModel->insert($data);
+        log_message('debug', 'Question ID inserted: ' . $question_id);
+
+        // Matrix handling
+        if ($type === 'matrix') {
+            $rows = array_filter(array_map('trim', explode(',', $this->request->getPost('matrix_rows') ?? '')));
+            $columns = array_filter(array_map('trim', explode(',', $this->request->getPost('matrix_columns') ?? '')));
+
+            log_message('debug', 'Matrix rows: ' . print_r($rows, true));
+            log_message('debug', 'Matrix columns: ' . print_r($columns, true));
+
+            // Insert rows
+            $rowOrder = 1;
+            foreach ($rows as $row) {
+                $matrixRowModel->insert([
+                    'question_id' => $question_id,
+                    'row_text' => $row,
+                    'order_no' => $rowOrder++
+                ]);
+            }
+
+            // Insert columns
+            $colOrder = 1;
+            foreach ($columns as $col) {
+                $matrixColumnModel->insert([
+                    'question_id' => $question_id,
+                    'column_text' => $col,
+                    'order_no' => $colOrder++
+                ]);
+            }
+        }
+        // Options (radio, checkbox, dropdown)
+        if (in_array($type, ['radio', 'checkbox', 'dropdown'])) {
+            $options = $this->request->getPost('options');
+            $optionValues = $this->request->getPost('option_values');
+            $nextQuestionIds = $this->request->getPost('next_question_ids');
+
+            if (!empty($options)) {
+                $optionsToInsert = [];
+                $order = 1;
+                foreach ($options as $index => $opt) {
+                    $optText = trim($opt);
+                    if (!empty($optText)) {
+                        $optValue = isset($optionValues[$index]) && !empty(trim($optionValues[$index]))
+                            ? trim($optionValues[$index])
+                            : strtolower(str_replace(' ', '_', $optText));
+                        $nextQuestionId = $nextQuestionIds[$index] ?? null;
+                        $optionsToInsert[] = [
+                            'question_id' => $question_id,
+                            'option_text' => $optText,
+                            'option_value' => $optValue,
+                            'next_question_id' => $nextQuestionId,
+                            'order_number' => $order++
+                        ];
+                    }
+                }
+                if (!empty($optionsToInsert)) {
+                    $optionModel->insertBatch($optionsToInsert);
+                }
+            }
+        }
+        if ($db->transStatus() === false) {
+            log_message('error', 'Transaction failed before completion');
+            $db->transRollback();
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Transaction failed.']);
+        }
+
+        $db->transComplete();
+        log_message('debug', 'Transaction completed successfully');
+
+        return $this->response->setJSON(['status' => 'success', 'message' => 'Pertanyaan berhasil ditambahkan.']);
+    } catch (\Exception $e) {
+        log_message('error', 'Exception in storeSectionQuestion: ' . $e->getMessage());
+        log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+
+        $db->transRollback();
+        return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal menambahkan pertanyaan: ' . $e->getMessage()]);
+    }
+}
+
+
+// edit method
+
+public function updateQuestion($questionnaire_id, $page_id, $section_id, $question_id)
+{
+    $validation = \Config\Services::validation();
+    $validation->setRules([
+        'question_id' => 'required|integer',
+        'question_text' => 'required',
+        'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
+        'is_required' => 'permit_empty|in_list[0,1]',
+        'order_no' => 'permit_empty|integer',
+        'options' => 'permit_empty',
+        'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
+        'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_min_label' => 'permit_empty',
+        'scale_max_label' => 'permit_empty',
+        'allowed_types' => 'permit_empty',
+        'max_file_size' => 'permit_empty|integer',
+        'matrix_rows' => 'permit_empty',
+        'matrix_columns' => 'permit_empty',
+        'enable_conditional' => 'permit_empty|in_list[0,1]',
+        'parent_question_id' => 'permit_empty|integer',
+        'condition_operator' => 'permit_empty|in_list[is,is not]',
+        'condition_value' => 'permit_empty',
+    ]);
+
+    if (!$validation->withRequest($this->request)->run()) {
+        log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
+        return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
     }
 
+    $db = \Config\Database::connect();
+    $db->transStart();
 
-    // edit method
+    try {
+        $questionModel = new QuestionModel();
+        $optionModel = new QuestionOptionModel();
+        $rowModel = new \App\Models\MatrixRowModel();
+        $colModel = new \App\Models\MatrixColumnModels();
 
-    public function updateQuestion($questionnaire_id, $page_id, $section_id, $question_id)
-    {
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'question_id' => 'required|integer',
-            'question_text' => 'required',
-            'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
-            'is_required' => 'permit_empty|in_list[0,1]',
-            'order_no' => 'permit_empty|integer',
-            'options' => 'permit_empty',
-            'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-            'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
-            'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-            'scale_min_label' => 'permit_empty',
-            'scale_max_label' => 'permit_empty',
-            'allowed_types' => 'permit_empty',
-            'max_file_size' => 'permit_empty|integer',
-            'matrix_rows' => 'permit_empty',
-            'matrix_columns' => 'permit_empty',
-            'enable_conditional' => 'permit_empty|in_list[0,1]',
-            'parent_question_id' => 'permit_empty|integer',
-            'condition_operator' => 'permit_empty|in_list[is,is not]',
-            'condition_value' => 'permit_empty',
-        ]);
-
-        if (!$validation->withRequest($this->request)->run()) {
-            log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
-            return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
+        $question = $questionModel->find($question_id);
+        if (!$question) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
         }
 
-        $db = \Config\Database::connect();
-        $db->transStart();
+        $data = [
+            'question_text' => $this->request->getPost('question_text'),
+            'question_type' => $this->request->getPost('question_type'),
+            'is_required' => $this->request->getPost('is_required') ? 1 : 0,
+            'order_no' => $this->request->getPost('order_no') ?? $question['order_no'],
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
 
-        try {
-            $questionModel = new QuestionModel();
-            $optionModel = new QuestionOptionModel();
-            $rowModel = new \App\Models\MatrixRowModel();
-            $colModel = new \App\Models\MatrixColumnModels();
-
-            $question = $questionModel->find($question_id);
-            if (!$question) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
-            }
-
-            $data = [
-                'question_text' => $this->request->getPost('question_text'),
-                'question_type' => $this->request->getPost('question_type'),
-                'is_required' => $this->request->getPost('is_required') ? 1 : 0,
-                'order_no' => $this->request->getPost('order_no') ?? $question['order_no'],
-                'updated_at' => date('Y-m-d H:i:s'),
+        // Conditional logic
+        $enableConditional = $this->request->getPost('enable_conditional') ? 1 : 0;
+        $parentId = $this->request->getPost('parent_question_id');
+        if ($enableConditional && $parentId) {
+            $condition = [
+                'field' => 'question_' . $parentId,
+                'operator' => $this->request->getPost('condition_operator') ?: 'is',
+                'value' => $this->request->getPost('condition_value')
             ];
-
-            // Conditional logic
-            $enableConditional = $this->request->getPost('enable_conditional') ? 1 : 0;
-            $parentId = $this->request->getPost('parent_question_id');
-            if ($enableConditional && $parentId) {
-                $condition = [
-                    'field' => 'question_' . $parentId,
-                    'operator' => $this->request->getPost('condition_operator') ?: 'is',
-                    'value' => $this->request->getPost('condition_value')
-                ];
-                $data['condition_json'] = json_encode([$condition]);
-                log_message('debug', 'Saving condition_json: ' . $data['condition_json']);
-            } else {
-                $data['condition_json'] = null;
-                log_message('debug', 'No conditional logic enabled, condition_json set to null');
-            }
-
-            // Special type handling
-            $type = $data['question_type'];
-            if ($type === 'scale') {
-                $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
-                $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
-                $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
-                $data['scale_min_label'] = $this->request->getPost('scale_min_label');
-                $data['scale_max_label'] = $this->request->getPost('scale_max_label');
-            } elseif ($type === 'file') {
-                $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
-                $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
-            }
-
-            $questionModel->update($question_id, $data);
-
-            // Matrix handling (rows & columns simpan ke tabel terpisah)
-            if ($type === 'matrix') {
-                $rows = array_filter(array_map('trim', explode(',', $this->request->getPost('matrix_rows') ?? '')));
-                $columns = array_filter(array_map('trim', explode(',', $this->request->getPost('matrix_columns') ?? '')));
-
-                $rowModel->where('question_id', $question_id)->delete();
-                $colModel->where('question_id', $question_id)->delete();
-
-                log_message('debug', 'Matrix rows: ' . print_r($rows, true));
-                log_message('debug', 'Matrix columns: ' . print_r($columns, true));
-
-                // insert rows
-                $rowOrder = 1;
-                foreach ($rows as $row) {
-                    $rowModel->insert([
-                        'question_id' => $question_id,
-                        'row_text' => $row,
-                        'order_no' => $rowOrder++
-                    ]);
-                }
-
-                // insert columns
-                $colOrder = 1;
-                foreach ($columns as $col) {
-                    $colModel->insert([
-                        'question_id' => $question_id,
-                        'column_text' => $col,
-                        'order_no' => $colOrder++
-                    ]);
-                }
-            }
-
-            // Options (radio, checkbox, dropdown)
-            if (in_array($type, ['radio', 'checkbox', 'dropdown'])) {
-                $optionModel->where('question_id', $question_id)->delete();
-                $options = $this->request->getPost('options');
-                $optionValues = $this->request->getPost('option_values');
-                $nextQuestionIds = $this->request->getPost('next_question_ids');
-
-                if (!empty($options)) {
-                    $optionsToInsert = [];
-                    $order = 1;
-                    foreach ($options as $index => $opt) {
-                        $optText = trim($opt);
-                        if (!empty($optText)) {
-                            $optValue = isset($optionValues[$index]) && !empty(trim($optionValues[$index]))
-                                ? trim($optionValues[$index])
-                                : strtolower(str_replace(' ', '_', $optText));
-                            $nextQuestionId = $nextQuestionIds[$index] ?? null;
-                            $optionsToInsert[] = [
-                                'question_id' => $question_id,
-                                'option_text' => $optText,
-                                'option_value' => $optValue,
-                                'next_question_id' => $nextQuestionId,
-                                'order_number' => $order++
-                            ];
-                        }
-                    }
-                    if (!empty($optionsToInsert)) {
-                        $optionModel->insertBatch($optionsToInsert);
-                    }
-                }
-            }
-
-            if ($db->transStatus() === false) {
-                log_message('error', 'Transaction failed before completion');
-                $db->transRollback();
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Transaction failed.']);
-            }
-
-            $db->transComplete();
-            log_message('debug', 'Transaction completed successfully');
-
-            return $this->response->setJSON(['status' => 'success', 'message' => 'Pertanyaan berhasil diupdate.']);
-        } catch (\Exception $e) {
-            log_message('error', 'Exception in updateQuestion: ' . $e->getMessage());
-            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
-
-            $db->transRollback();
-            return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal mengupdate pertanyaan: ' . $e->getMessage()]);
+            $data['condition_json'] = json_encode([$condition]);
+            log_message('debug', 'Saving condition_json: ' . $data['condition_json']);
+        } else {
+            $data['condition_json'] = null;
+            log_message('debug', 'No conditional logic enabled, condition_json set to null');
         }
-    }
 
+        // Special type handling
+        $type = $data['question_type'];
+        if ($type === 'scale') {
+            $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
+            $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
+            $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
+            $data['scale_min_label'] = $this->request->getPost('scale_min_label');
+            $data['scale_max_label'] = $this->request->getPost('scale_max_label');
+        } elseif ($type === 'file') {
+            $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
+            $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
+        }
+
+        $questionModel->update($question_id, $data);
+
+        // Matrix handling (rows & columns simpan ke tabel terpisah)
+        if ($type === 'matrix') {
+            $rows = array_filter(array_map('trim', explode(',', $this->request->getPost('matrix_rows') ?? '')));
+            $columns = array_filter(array_map('trim', explode(',', $this->request->getPost('matrix_columns') ?? '')));
+
+            $rowModel->where('question_id', $question_id)->delete();
+            $colModel->where('question_id', $question_id)->delete();
+
+            log_message('debug', 'Matrix rows: ' . print_r($rows, true));
+            log_message('debug', 'Matrix columns: ' . print_r($columns, true));
+
+            // insert rows
+            $rowOrder = 1;
+            foreach ($rows as $row) {
+                $rowModel->insert([
+                    'question_id' => $question_id,
+                    'row_text' => $row,
+                    'order_no' => $rowOrder++
+                ]);
+            }
+
+            // insert columns
+            $colOrder = 1;
+            foreach ($columns as $col) {
+                $colModel->insert([
+                    'question_id' => $question_id,
+                    'column_text' => $col,
+                    'order_no' => $colOrder++
+                ]);
+            }
+        }
+        // Options (radio, checkbox, dropdown)
+        if (in_array($type, ['radio', 'checkbox', 'dropdown'])) {
+            $optionModel->where('question_id', $question_id)->delete();
+            $options = $this->request->getPost('options');
+            $optionValues = $this->request->getPost('option_values');
+            $nextQuestionIds = $this->request->getPost('next_question_ids');
+
+            if (!empty($options)) {
+                $optionsToInsert = [];
+                $order = 1;
+                foreach ($options as $index => $opt) {
+                    $optText = trim($opt);
+                    if (!empty($optText)) {
+                        $optValue = isset($optionValues[$index]) && !empty(trim($optionValues[$index]))
+                            ? trim($optionValues[$index])
+                            : strtolower(str_replace(' ', '_', $optText));
+                        $nextQuestionId = $nextQuestionIds[$index] ?? null;
+                        $optionsToInsert[] = [
+                            'question_id' => $question_id,
+                            'option_text' => $optText,
+                            'option_value' => $optValue,
+                            'next_question_id' => $nextQuestionId,
+                            'order_number' => $order++
+                        ];
+                    }
+                }
+                if (!empty($optionsToInsert)) {
+                    $optionModel->insertBatch($optionsToInsert);
+                }
+            }
+        }
+        if ($db->transStatus() === false) {
+            log_message('error', 'Transaction failed before completion');
+            $db->transRollback();
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Transaction failed.']);
+        }
+
+        $db->transComplete();
+        log_message('debug', 'Transaction completed successfully');
+
+        return $this->response->setJSON(['status' => 'success', 'message' => 'Pertanyaan berhasil diupdate.']);
+    } catch (\Exception $e) {
+        log_message('error', 'Exception in updateQuestion: ' . $e->getMessage());
+        log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+
+        $db->transRollback();
+        return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal mengupdate pertanyaan: ' . $e->getMessage()]);
+    }
+}
     public function getQuestionsWithOptions($questionnaire_id, $page_id, $section_id)
     {
         $questionModel = new QuestionModel();
@@ -889,47 +906,6 @@ class QuestionnairController extends BaseController
             $db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
         }
-    }
-    public function getQuestion($questionnaire_id, $page_id, $section_id, $question_id)
-    {
-        log_message('debug', "Fetching question: ID=$question_id, questionnaire=$questionnaire_id, page=$page_id, section=$section_id");
-        $questionModel = new QuestionModel();
-        $optionModel = new QuestionOptionModel();
-        $rowModel = new \App\Models\MatrixRowModel();
-        $colModel = new \App\Models\MatrixColumnModels();
-
-        $question = $questionModel
-            ->where('id', $question_id)
-            ->where('questionnaires_id', $questionnaire_id)
-            ->where('page_id', $page_id)
-            ->where('section_id', $section_id)
-            ->first();
-
-        if (!$question) {
-            log_message('error', "Question not found for ID: $question_id");
-            return $this->response->setJSON([
-                'status' => 'error',
-                'message' => 'Question not found'
-            ]);
-        }
-
-        // Tambah opsi untuk radio/checkbox/dropdown
-        if (in_array($question['question_type'], ['radio', 'checkbox', 'dropdown'])) {
-            $question['options'] = $optionModel->where('question_id', $question_id)
-                ->orderBy('order_number', 'ASC')
-                ->findAll();
-        } else {
-            $question['options'] = [];
-        }
-
-        // Tambah rows & columns untuk matrix
-        if ($question['question_type'] === 'matrix') {
-            $rows = $rowModel->where('question_id', $question_id)->orderBy('order_no', 'ASC')->findAll();
-            $cols = $colModel->where('question_id', $question_id)->orderBy('order_no', 'ASC')->findAll();
-            $question['matrix_rows'] = array_column($rows, 'row_text');
-            $question['matrix_columns'] = array_column($cols, 'column_text');
-            $question['matrix_options'] = [];
-        }
 
         log_message('debug', 'Question fetched: ' . json_encode($question));
         return $this->response->setJSON([
@@ -937,4 +913,54 @@ class QuestionnairController extends BaseController
             'question' => $question
         ]);
     }
+  
+    public function getQuestion($questionnaire_id, $page_id, $section_id, $question_id)
+{
+    log_message('debug', "Fetching question: ID=$question_id, questionnaire=$questionnaire_id, page=$page_id, section=$section_id");
+    $questionModel = new QuestionModel();
+    $optionModel = new QuestionOptionModel();
+    $rowModel = new \App\Models\MatrixRowModel();
+    $colModel = new \App\Models\MatrixColumnModels();
+
+    $question = $questionModel
+        ->where('id', $question_id)
+        ->where('questionnaires_id', $questionnaire_id)
+        ->where('page_id', $page_id)
+        ->where('section_id', $section_id)
+        ->first();
+
+    if (!$question) {
+        log_message('error', "Question not found for ID: $question_id");
+        return $this->response->setJSON([
+            'status' => 'error',
+            'message' => 'Question not found'
+        ]);
+    }
+
+    // Tambah opsi untuk radio/checkbox/dropdown
+    if (in_array($question['question_type'], ['radio', 'checkbox', 'dropdown'])) {
+        $question['options'] = $optionModel->where('question_id', $question_id)
+            ->orderBy('order_number', 'ASC')
+            ->findAll();
+    } else {
+        $question['options'] = [];
+    }
+
+    // Tambah rows & columns untuk matrix
+    if ($question['question_type'] === 'matrix') {
+        $rows = $rowModel->where('question_id', $question_id)->orderBy('order_no', 'ASC')->findAll();
+        $cols = $colModel->where('question_id', $question_id)->orderBy('order_no', 'ASC')->findAll();
+        $question['matrix_rows'] = array_column($rows, 'row_text');
+        $question['matrix_columns'] = array_column($cols, 'column_text');
+        $question['matrix_options'] = [];
+    }
+
+    log_message('debug', 'Question fetched: ' . json_encode($question));
+    return $this->response->setJSON([
+        'status' => 'success',
+        'question' => $question
+    ]);
+}
+
+
 }

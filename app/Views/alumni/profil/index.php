@@ -12,17 +12,14 @@
       <button onclick="closeAlert()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
         <span class="text-gray-600 font-bold text-lg">×</span>
       </button>
-
       <!-- Alert Icon -->
       <div id="alertIcon" class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center">
         <!-- Icon will be inserted by JavaScript -->
       </div>
-
       <!-- Alert Title -->
       <h3 id="alertTitle" class="text-xl font-bold mb-2 text-gray-800">
         <!-- Title will be inserted by JavaScript -->
       </h3>
-
       <!-- Alert Message -->
       <p id="alertMessage" class="text-gray-600 mb-6 leading-relaxed">
         <!-- Message will be inserted by JavaScript -->
@@ -85,13 +82,11 @@
     class="hidden fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
     <div class="bg-white p-6 rounded-2xl shadow-xl text-center w-[400px] relative">
       <h3 class="text-lg font-bold mb-4">Ambil Foto Profil</h3>
-
       <!-- Preview Kamera Lingkaran -->
       <div class="relative mx-auto w-60 h-60 rounded-full overflow-hidden shadow-lg border-4 border-gray-200">
         <video id="video" autoplay playsinline class="absolute inset-0 w-full h-full object-cover"></video>
         <canvas id="canvas" class="hidden absolute inset-0 w-full h-full rounded-full object-cover"></canvas>
       </div>
-
       <!-- Tombol Aksi Kamera -->
       <div id="cameraButtons" class="mt-5 flex justify-center gap-3">
         <button onclick="takeSnapshot()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-full shadow">
@@ -210,9 +205,7 @@
     document.getElementById('cameraModal').classList.remove('hidden');
     document.getElementById('cameraButtons').classList.remove('hidden');
     document.getElementById('previewButtons').classList.add('hidden');
-    navigator.mediaDevices.getUserMedia({
-        video: true
-      })
+    navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         videoStream = stream;
         document.getElementById('video').srcObject = stream;
@@ -362,7 +355,6 @@
   function closeAlert() {
     const alertBox = document.getElementById("alertBox");
     const alertContent = document.getElementById("alertContent");
-
     alertContent.classList.remove("scale-100", "opacity-100");
     alertContent.classList.add("scale-90", "opacity-0");
 

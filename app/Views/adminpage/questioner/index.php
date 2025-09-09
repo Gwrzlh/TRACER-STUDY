@@ -46,59 +46,53 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($questionnaires)): ?>
-                        <?php foreach ($questionnaires as $q): ?>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-6 py-4 font-medium text-gray-900">
-                                    <?= esc($q['title']) ?>
-                                </td>
-                                <td class="px-6 py-4"><?= esc($q['deskripsi']) ?></td>
-                                <td class="px-6 py-4">
-                                    <?php if ($q['conditional_logic']): ?>
-                                        <span class="px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">Ya</span>
-                                    <?php else: ?>
-                                        <span class="px-2 py-1 text-xs font-semibold text-gray-600 bg-gray-200 rounded-full">Tidak</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <?php if ($q['is_active'] === 'active'): ?>
-                                        <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Aktif</span>
-                                    <?php elseif ($q['is_active'] === 'draft'): ?>
-                                        <span class="px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">Sedang Dibuat</span>
-                                    <?php elseif ($q['is_active'] === 'inactive'): ?>
-                                        <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Tidak Aktif</span>
-                                    <?php else: ?>
-                                        <span class="px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-200 rounded-full">Unknown</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <div class="flex justify-center gap-4">
-                                        <a href="<?= base_url('admin/questionnaire/' . $q['id'] . '/pages') ?>"
-                                            class="text-blue-600 hover:text-blue-800"
-                                            title="Kelola Halaman">
-                                            <i class="fas fa-file-alt"></i>
-                                        </a>
-                                        <a href="<?= base_url('admin/questionnaire/' . $q['id'] . '/edit') ?>"
-                                            class="text-yellow-600 hover:text-yellow-800"
-                                            title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button class="delete-questionnaire text-red-600 hover:text-red-800"
-                                            data-id="<?= $q['id'] ?>"
-                                            title="Hapus">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="5" class="text-center py-6 text-gray-500">
-                                Belum ada kuesioner yang dibuat.
-                            </td>
-                        </tr>
-                    <?php endif; ?>
+                    <?php foreach($questionnaires as $q): ?>
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-6 py-4 font-medium text-gray-900">
+                            <?= esc($q['title']) ?>
+                        </td>
+                        <td class="px-6 py-4"><?= esc($q['deskripsi']) ?></td>
+                        <td class="px-6 py-4">
+                            <?php if ($q['conditional_logic']): ?>
+                                <span class="px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">Ya</span>
+                            <?php else: ?>
+                                <span class="px-2 py-1 text-xs font-semibold text-gray-600 bg-gray-200 rounded-full">Tidak</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="px-6 py-4">
+                              <?php if ($q['is_active'] === 'active'): ?>
+                                  <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Aktif</span>
+                              <?php elseif ($q['is_active'] === 'draft'): ?>
+                                  <span class="px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">Draft</span>
+                              <?php else: ?>
+                                  <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Nonaktif</span>
+                              <?php endif; ?>
+                          </td>
+
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex justify-center gap-4">
+                                <!-- Kelola Halaman -->
+                                <a href="<?= base_url('admin/questionnaire/' . $q['id'] . '/pages') ?>" 
+                                   class="text-blue-600 hover:text-blue-800" 
+                                   title="Kelola Halaman">
+                                    <i class="fas fa-file-alt"></i>
+                                </a>
+                                <!-- Edit -->
+                                <a href="<?= base_url('admin/questionnaire/' . $q['id'] . '/edit') ?>" 
+                                   class="text-yellow-600 hover:text-yellow-800" 
+                                   title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <!-- Hapus -->
+                                <button class="delete-questionnaire text-red-600 hover:text-red-800" 
+                                        data-id="<?= $q['id'] ?>" 
+                                        title="Hapus">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
