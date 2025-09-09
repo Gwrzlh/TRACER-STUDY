@@ -432,7 +432,7 @@ $routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
     $routes->post('profil/update', 'KaprodiController::updateProfil');
 });
 
-    // Profil Kaprodi
-    $routes->get('profil/edit', 'KaprodiController::editProfil');
-    $routes->post('profil/update', 'KaprodiController::updateProfil');
+$routes->group('api', function ($routes) {
+    $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
+

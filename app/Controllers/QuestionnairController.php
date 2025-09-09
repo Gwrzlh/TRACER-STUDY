@@ -45,20 +45,20 @@ class QuestionnairController extends BaseController
         $user_fields = [
             'email',
             'username',
-            'group_id',
-            'display_name',
-            'academic_nim',
-            'jurusan',
+            'id_role',
+            'nama_lengkap',
+            'nim',
+            'id_jurusan',
             'id_prodi',
-            'academic_year',
-            'academic_ipk',
-            'street_1',
-            'street_2',
-            'city',
-            'state_code',
-            'academic_graduate_year',
-            'jenis_kel',
-            'HP'
+            'angkatan',
+            'ipk',
+            'alamat',
+            'alamat2',
+            'id_cities',
+            'kodepos',
+            'tahun_kelulusan',
+            'jenisKelamin',
+            'no_tlp'
         ];
 
         return view('adminpage/questioner/tambah', [
@@ -90,7 +90,6 @@ class QuestionnairController extends BaseController
                 $type = 'select';
                 break;
             case 'tahun_kelulusan':
-            case 'tahun_kelulusan':
                 $options = [];
                 for ($i = date('Y'); $i >= 2000; $i--) {
                     $options[] = ['id' => (string)$i, 'name' => (string)$i];
@@ -102,11 +101,19 @@ class QuestionnairController extends BaseController
                 $options = $cityModel->select('id, name')->findAll();
                 $type = 'select';
                 break;
-            case 'role':
+            case 'id_role':
                 $groupModel = new Roles();
                 $options = $groupModel->select('id, nama as name')->findAll();
                 $type = 'select';
                 break;
+            case 'angkatan':
+                $options = [];
+                for ($i = date('Y'); $i >= 2000; $i--) {
+                    $options[] = ['id' => (string)$i, 'name' => (string)$i];
+                }
+                $type = 'select';
+                break;
+
         }
 
         return $this->response->setJSON([
@@ -183,20 +190,20 @@ class QuestionnairController extends BaseController
         $user_fields = [
             'email',
             'username',
-            'group_id',
-            'display_name',
-            'academic_nim',
-            'academic_faculty',
-            'academic_program',
-            'academic_year',
-            'academic_ipk',
-            'street_1',
-            'street_2',
-            'city',
-            'state_code',
-            'academic_graduate_year',
-            'jenis_kel',
-            'HP'
+            'id_role',
+            'nama_lengkap',
+            'nim',
+            'id_jurusan',
+            'id_prodi',
+            'angkatan',
+            'ipk',
+            'alamat',
+            'alamat2',
+            'id_cities',
+            'kodepos',
+            'tahun_kelulusan',
+            'jenisKelamin',
+            'no_tlp'
         ];
 
         $conditionalLogic = [];
