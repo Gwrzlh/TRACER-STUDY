@@ -9,6 +9,12 @@ use App\Models\AlumniModel;
 use App\Models\JurusanModel;
 use App\Models\Prodi;
 
+// Tambahan untuk kuesioner
+use App\Models\QuestionnairModel;
+use App\Models\ResponseModel;
+use App\Models\AnswerModel;
+use App\Models\QuestionModel;
+
 class AlumniController extends BaseController
 {
     protected $pesanModel;
@@ -23,25 +29,57 @@ class AlumniController extends BaseController
     // =============================
     public function dashboard()
     {
-        return view('alumni/dashboard');
+        $session = session();
+        $alumniId = $session->get('id'); // pastikan sesuai dengan kolom id user di tabel responses
+
+        $questionnaireModel = new \App\Models\QuestionnairModel();
+        $responseModel      = new \App\Models\ResponseModel();
+
+        // Hitung total kuesioner yang aktif
+        $totalKuesioner = $questionnaireModel
+            ->where('is_active', 'active')
+            ->countAllResults();
+
+        // Hitung kuesioner yang sudah diselesaikan oleh alumni ini
+        $selesai = $responseModel
+            ->where('account_id', $alumniId)
+            ->where('status', 'completed')
+            ->countAllResults();
+
+        // Hitung kuesioner yang sedang berjalan (draft / belum complete)
+        $sedangBerjalan = $responseModel
+            ->where('account_id', $alumniId)
+            ->where('status', 'draft')
+            ->countAllResults();
+
+        return view('alumni/dashboard', [
+            'title'          => 'Dashboard Alumni',
+            'totalKuesioner' => $totalKuesioner,
+            'selesai'        => $selesai,
+            'sedangBerjalan' => $sedangBerjalan,
+        ]);
     }
 
-    public function questioner()
-    {
-        return view('alumni/questioner/index');
-    }
+    // public function questioner()
+    // {
+    // langsung pakai method baru
+    //     return $this->questionnairesForAlumni();
+    // }
+
 
     public function questionersurveyor()
     {
         return view('alumni/alumnisurveyor/questioner/index');
     }
 
-    public function profil()
+    // =============================
+    // 📊 PROFIL ALUMNI (BISA UNTUK BIASA & SURVEYOR)
+    // =============================
+    public function profil($role = 'alumni')
     {
-        $session = session();
+        $session     = session();
         $alumniModel = new AlumniModel();
-
-        $idAccount = $session->get('id_account');
+        $idAccount   = $session->get('id_account');
 
         // Ambil data alumni dari database
         $alumni = $alumniModel->where('id_account', $idAccount)->first();
@@ -56,10 +94,16 @@ class AlumniController extends BaseController
             ];
         }
 
-        return view('alumni/profil/index', [
+        // Tentukan layout sesuai role
+        $viewFile = $role === 'surveyor'
+            ? 'alumni/alumnisurveyor/profil/index'
+            : 'alumni/profil/index';
+
+        return view($viewFile, [
             'alumni' => (object) $alumni
         ]);
     }
+
 
     public function editProfil()
     {
@@ -123,7 +167,6 @@ class AlumniController extends BaseController
     // 🔔 FITUR PESAN & NOTIFIKASI
     // =============================
 
-    // Form manual kirim pesan
     public function pesan($idPenerima)
     {
         $db = db_connect();
@@ -143,7 +186,7 @@ class AlumniController extends BaseController
         $idPengirim = session()->get('id');
         $idPenerima = $this->request->getPost('id_penerima');
         $subject    = $this->request->getPost('subject');
-        $message    = $this->request->getPost('message'); // ini untuk notif web
+        $message    = $this->request->getPost('message');
 
         $db = db_connect();
 
@@ -163,13 +206,10 @@ class AlumniController extends BaseController
             'status'      => 'terkirim'
         ]);
 
-        // =========================
         // Kirim email otomatis pakai template
-        // =========================
         $alumniModel    = new \App\Models\DetailaccountAlumni();
         $templateModel  = new \App\Models\EmailTemplateModel();
 
-        // Data penerima
         $alumni   = $alumniModel->where('id_account', $idPenerima)->first();
         $penerima = $db->table('account')->where('id', $idPenerima)->get()->getRowArray();
 
@@ -177,7 +217,6 @@ class AlumniController extends BaseController
             $template = $templateModel->where('status', $alumni['status'] ?? 'Belum Mengisi')->first();
 
             if ($template) {
-                // Replace placeholder
                 $subjectTpl = $this->replaceTemplate($template['subject'], $alumni);
                 $messageTpl = $this->replaceTemplate($template['message'], $alumni);
 
@@ -193,9 +232,6 @@ class AlumniController extends BaseController
         return redirect()->to('/alumni/lihat_teman')->with('success', 'Pesan berhasil dikirim & email otomatis terkirim.');
     }
 
-    /**
-     * Helper untuk replace template dengan data alumni
-     */
     private function replaceTemplate(string $text, array $alumni): string
     {
         $jurusanModel = new \App\Models\JurusanModel();
@@ -210,7 +246,6 @@ class AlumniController extends BaseController
         return strtr($text, $placeholders);
     }
 
-    // Halaman notifikasi
     public function notifikasi()
     {
         $idAlumni = session()->get('id');
@@ -225,7 +260,6 @@ class AlumniController extends BaseController
         return view('alumni/notifikasi', ['pesan' => $pesan]);
     }
 
-    // View detail pesan
     public function viewPesan($idPesan)
     {
         $pesan = $this->pesanModel
@@ -239,13 +273,11 @@ class AlumniController extends BaseController
             return redirect()->to('/alumni/notifikasi')->with('error', 'Pesan tidak ditemukan.');
         }
 
-        // tandai dibaca
         $this->pesanModel->update($idPesan, ['status' => 'dibaca']);
 
         return view('alumni/viewpesan', ['pesan' => $pesan]);
     }
 
-    // Jumlah notif (AJAX)
     public function getNotifCount()
     {
         $idAlumni = session()->get('id');
@@ -257,14 +289,12 @@ class AlumniController extends BaseController
         return $this->response->setJSON(['jumlah' => count($pesan)]);
     }
 
-    // Tandai sudah dibaca
     public function tandaiDibaca($id_pesan)
     {
         $this->pesanModel->update($id_pesan, ['status' => 'dibaca']);
         return redirect()->back()->with('success', 'Pesan ditandai sudah dibaca.');
     }
 
-    // Hapus pesan
     public function hapusNotifikasi($id)
     {
         $pesan = $this->pesanModel->find($id);
@@ -319,13 +349,11 @@ class AlumniController extends BaseController
 
         $alumniModel = new \App\Models\AlumniModel();
 
-        // Ambil data dari form
         $data = [
             'nama_lengkap' => $this->request->getPost('nama_lengkap'),
             'alamat'       => $this->request->getPost('alamat'),
         ];
 
-        // Upload foto jika ada
         $foto = $this->request->getFile('foto');
         if ($foto && $foto->isValid() && !$foto->hasMoved()) {
             $newName = $foto->getRandomName();
@@ -333,10 +361,8 @@ class AlumniController extends BaseController
             $data['foto'] = $newName;
         }
 
-        // Update data alumni
         $alumniModel->where('id_account', $idAccount)->set($data)->update();
 
-        // ✅ update session supaya sidebar ikut berubah langsung
         if (isset($data['nama_lengkap']) && !empty($data['nama_lengkap'])) {
             $session->set('nama_lengkap', $data['nama_lengkap']);
         }
@@ -346,6 +372,7 @@ class AlumniController extends BaseController
 
         return redirect()->to(base_url('alumni/profil'))->with('success', 'Profil berhasil diperbarui.');
     }
+
     public function updateFoto($idAccount)
     {
         $alumniModel = new AlumniModel();
@@ -361,15 +388,11 @@ class AlumniController extends BaseController
         }
 
         $newName = null;
-
-        // Upload file dari komputer
         $file = $this->request->getFile('foto');
         if ($file && $file->isValid() && !$file->hasMoved()) {
             $newName = $file->getRandomName();
             $file->move($uploadPath, $newName);
-        }
-        // Upload dari kamera
-        elseif ($this->request->getPost('foto_camera')) {
+        } elseif ($this->request->getPost('foto_camera')) {
             $dataUrl = $this->request->getPost('foto_camera');
             $dataParts = explode(',', $dataUrl);
             if (isset($dataParts[1])) {
@@ -383,13 +406,11 @@ class AlumniController extends BaseController
             return redirect()->back()->with('error', 'Tidak ada file untuk diupload');
         }
 
-        // Update database
         if ($newName && file_exists($uploadPath . $newName)) {
             $alumniModel->where('id_account', $idAccount)
                 ->set(['foto' => $newName])
                 ->update();
 
-            // ✅ Update session supaya sidebar ikut berubah otomatis
             $session = session();
             $session->set('foto', $newName);
 
@@ -397,5 +418,162 @@ class AlumniController extends BaseController
         }
 
         return redirect()->back()->with('error', 'Gagal update database');
+    }
+
+    // =============================
+    // 📋 KUESIONER ALUMNI (BARU)
+    // =============================
+    public function questionnairesForAlumni()
+    {
+        $alumniModel = new DetailaccountAlumni();
+        $alumni = $alumniModel->where('id_account', session()->get('id_account'))->first();
+
+        if (!$alumni) {
+            return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
+        }
+
+        $questionnaireModel = new QuestionnairModel();
+        $responseModel      = new ResponseModel();
+
+        $allQuestionnaires = $questionnaireModel->where('is_active', 'active')->findAll();
+        $list = [];
+
+        foreach ($allQuestionnaires as $q) {
+            $show = true;
+
+            if (!empty($q['conditional_logic'])) {
+                $conds = json_decode($q['conditional_logic'], true);
+                foreach ($conds as $c) {
+                    if ($c['field'] === 'id_jurusan' && $alumni['id_jurusan'] != $c['value']) $show = false;
+                    if ($c['field'] === 'id_prodi' && $alumni['id_prodi'] != $c['value']) $show = false;
+                }
+            }
+
+            if (!$show) continue;
+
+            $response = $responseModel->where('questionnaire_id', $q['id'])
+                ->where('account_id', $alumni['id_account'])
+                ->first();
+
+            if (!$response) {
+                $status = 'Belum Mengisi';
+            } elseif ($response['status'] === 'draft') {
+                $status = 'On Going';
+            } else {
+                $status = 'Finish';
+            }
+
+            $q['alumni_status'] = $status;
+            $list[] = $q;
+        }
+
+        return view('alumni/questionnaires', ['questionnaires' => $list]);
+    }
+    public function fillQuestionnaire($questionnaireId)
+    {
+        $questionModel = new \App\Models\QuestionModel();
+        $optionModel   = new \App\Models\QuestionOptionModel();
+
+        // Ambil semua pertanyaan
+        $questions = $questionModel
+            ->where('questionnaires_id', $questionnaireId)
+            ->orderBy('order_no', 'ASC')
+            ->findAll();
+
+        // Tambahkan opsi untuk pertanyaan yang punya pilihan
+        foreach ($questions as &$q) {
+            $q['options'] = $optionModel->getQuestionOptions($q['id']);
+        }
+
+        return view('alumni/fill_questionnaire', [
+            'questions' => $questions,
+            'questionnaire_id' => $questionnaireId
+        ]);
+    }
+
+
+    public function submitAnswers()
+    {
+        $responseModel = new ResponseModel();
+        $answerModel   = new AnswerModel();
+
+        $accountId     = session()->get('id_account');
+        $qid           = $this->request->getPost('questionnaire_id');
+        $answers       = $this->request->getPost('answers');
+
+        $response = $responseModel->where('questionnaire_id', $qid)
+            ->where('account_id', $accountId)
+            ->first();
+
+        if (!$response) {
+            $responseId = $responseModel->insert([
+                'questionnaire_id' => $qid,
+                'account_id'       => $accountId,
+                'status'           => 'draft',
+                'ip_address'       => $this->request->getIPAddress(),
+                'submitted_at'     => date('Y-m-d H:i:s')
+            ]);
+        } else {
+            $responseId = $response['id'];
+        }
+
+        $answerModel->where('response_id', $responseId)->delete();
+        $answerModel->saveAnswers($responseId, $answers);
+
+        $status = $this->request->getPost('submit_final') ? 'completed' : 'draft';
+        $responseModel->update($responseId, [
+            'status' => $status,
+            'submitted_at' => date('Y-m-d H:i:s')
+        ]);
+
+        return redirect()->to('questionnaires')
+            ->with('success', 'Jawaban berhasil disimpan.');
+    }
+    public function questionnairesForSurveyor()
+    {
+        $alumniModel = new DetailaccountAlumni();
+        $alumni = $alumniModel->where('id_account', session()->get('id_account'))->first();
+
+        if (!$alumni) {
+            return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
+        }
+
+        $questionnaireModel = new QuestionnairModel();
+        $responseModel      = new ResponseModel();
+
+        $allQuestionnaires = $questionnaireModel->where('is_active', 'active')->findAll();
+        $list = [];
+
+        foreach ($allQuestionnaires as $q) {
+            $show = true;
+
+            // cek conditional logic sama seperti alumni biasa
+            if (!empty($q['conditional_logic'])) {
+                $conds = json_decode($q['conditional_logic'], true);
+                foreach ($conds as $c) {
+                    if ($c['field'] === 'id_jurusan' && $alumni['id_jurusan'] != $c['value']) $show = false;
+                    if ($c['field'] === 'id_prodi' && $alumni['id_prodi'] != $c['value']) $show = false;
+                }
+            }
+
+            if (!$show) continue;
+
+            $response = $responseModel->where('questionnaire_id', $q['id'])
+                ->where('account_id', $alumni['id_account'])
+                ->first();
+
+            if (!$response) {
+                $status = 'Belum Mengisi';
+            } elseif ($response['status'] === 'draft') {
+                $status = 'On Going';
+            } else {
+                $status = 'Finish';
+            }
+
+            $q['alumni_status'] = $status;
+            $list[] = $q;
+        }
+
+        return view('alumni/alumnisurveyor/questioner/questionnaire', ['questionnaires' => $list]);
     }
 }
