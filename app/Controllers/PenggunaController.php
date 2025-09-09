@@ -227,195 +227,158 @@ public function store()
     $detailKaprodi = new DetailaccountKaprodi();
     $detailJabatanll = new DetailaccountJabatanLLnya();
     
-    // Ambil group dulu
     $group = $this->request->getPost('group');
-    
-    // DEBUG: Aktifkan untuk melihat data yang dikirim
-    // dd($this->request->getPost());
 
     // RULE VALIDASI DASAR
     $rules = [
-        'username'      => 'required|is_unique[account.username]',
-        'email'         => 'required|valid_email',
-        'password'      => 'required|min_length[6]',
-        'group'         => 'required|in_list[1,2,6,7,8,9]',
-        'status'        => 'required',
+        'username' => 'required|is_unique[account.username]',
+        'email'    => 'required|valid_email|is_unique[account.email]',
+        'password' => 'required|min_length[6]',
+        'group'    => 'required|in_list[1,2,6,7,8,9]',
+        'status'   => 'required',
     ];
 
-    // RULE TAMBAHAN BERDASARKAN ROLE - SEKARANG DENGAN UNIQUE FIELD NAMES
+    // RULE TAMBAHAN BERDASARKAN ROLE
     if ($group == 1) {
-        // Alumni - Field names dengan prefix alumni_
         $rules = array_merge($rules, [
-            'alumni_nama_lengkap'    => 'required|min_length[3]',
-            'alumni_nim'             => 'required',
-            'alumni_jurusan'         => 'permit_empty|numeric',
-            'alumni_prodi'           => 'permit_empty|numeric',
-            'alumni_angkatan'        => 'permit_empty|numeric',
-            'alumni_tahun_lulus'     => 'permit_empty|numeric',
-            'alumni_ipk'             => 'permit_empty|decimal',
-            'alumni_jeniskelamin'    => 'permit_empty|in_list[Laki-Laki,Perempuan]',
-            'alumni_notlp'           => 'required|min_length[10]',
-            'alumni_kota'            => 'permit_empty|numeric',
-            'alumni_province'        => 'permit_empty|numeric',
-            'alumni_kode_pos'        => 'permit_empty|numeric|max_length[5]',
-            'alumni_alamat'          => 'permit_empty',
-            'alumni_alamat2'         => 'permit_empty',
+            'alumni_nama_lengkap' => 'required|min_length[3]',
+            'alumni_nim'          => 'required',
+            'alumni_notlp'        => 'required|min_length[10]',
         ]);
     } elseif ($group == 2) {
-        // Admin
-        $rules = array_merge($rules, [
-            'admin_nama_lengkap' => 'required|min_length[3]',
-        ]);
+        $rules['admin_nama_lengkap'] = 'required|min_length[3]';
     } elseif ($group == 6) {
-        // Kaprodi - Field names dengan prefix kaprodi_
         $rules = array_merge($rules, [
-            'kaprodi_nama_lengkap'    => 'required|min_length[3]',
-            'kaprodi_notlp'           => 'required|min_length[10]',
-            'kaprodi_jurusan'         => 'required|numeric',
-            'kaprodi_prodi'           => 'required|numeric',
+            'kaprodi_nama_lengkap' => 'required|min_length[3]',
+            'kaprodi_notlp'        => 'required|min_length[10]',
+            'kaprodi_jurusan'      => 'required|numeric',
+            'kaprodi_prodi'        => 'required|numeric',
         ]);
     } elseif ($group == 7) {
-        // Perusahaan - Field names dengan prefix perusahaan_
         $rules = array_merge($rules, [
             'perusahaan_nama_perusahaan' => 'required|min_length[3]',
             'perusahaan_notlp'           => 'required|min_length[10]',
-            'perusahaan_kota'            => 'permit_empty|numeric',
-            'perusahaan_province'        => 'permit_empty|numeric',
-            'perusahaan_kode_pos'        => 'permit_empty|numeric|max_length[5]',
-            'perusahaan_alamat1'         => 'permit_empty',
-            'perusahaan_alamat2'         => 'permit_empty',
         ]);
     } elseif ($group == 8) {
-        // Atasan - Field names dengan prefix atasan_
         $rules = array_merge($rules, [
-            'atasan_nama_lengkap'    => 'required|min_length[3]',
-            'atasan_jabatan'         => 'required|numeric',
-            'atasan_notlp'           => 'required|min_length[10]',
+            'atasan_nama_lengkap' => 'required|min_length[3]',
+            'atasan_jabatan'      => 'required|numeric',
+            'atasan_notlp'        => 'required|min_length[10]',
         ]);
     } elseif ($group == 9) {
-        // Jabatan Lainnya - Field names dengan prefix lainnya_
         $rules = array_merge($rules, [
-            'lainnya_nama_lengkap'    => 'required|min_length[3]',
-            'lainnya_notlp'           => 'required|min_length[10]',
-            'lainnya_jabatan'         => 'required|numeric',
-            'lainnya_jurusan'         => 'required|numeric',
-            'lainnya_prodi'           => 'required|numeric',
+            'lainnya_nama_lengkap' => 'required|min_length[3]',
+            'lainnya_jabatan'      => 'required|numeric',
+            'lainnya_jurusan'      => 'required|numeric',
+            'lainnya_prodi'        => 'required|numeric',
+            'lainnya_notlp'        => 'required|min_length[10]',
         ]);
     }
 
     // VALIDASI
     if (!$this->validate($rules)) {
-        // DEBUG: Aktifkan untuk melihat error validasi
-        dd($validation->getErrors());
+        session()->setFlashdata('error', 'Email telah terdaftarx. Gagal menambahkan akun.');
         session()->setFlashdata('errors', $validation->getErrors());
-        return redirect()->back()->withInput();
+        return redirect()->to('/admin/pengguna'); // redirect ke index
     }
 
     try {
-        // SIMPAN AKUN
         $accountModel = new Accounts();
-        $accountData = [
-            'username'      => $this->request->getPost('username'),
-            'email'         => $this->request->getPost('email'),
-            'password'      => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
-            'status'        => $this->request->getPost('status'),
-            'id_role'       => $group,
-            'id_surveyor'   => $this->request->getPost($this->getHakFieldName($group)) ? 1 : null
-        ];
-        
-        $accountModel->insert($accountData);
-        $accountId = $accountModel->insertID();
 
-        // SIMPAN DETAIL BERDASARKAN ROLE - SEKARANG DENGAN FIELD NAMES YANG BENAR
-        if ($group == 2) {
-            // Admin
-            $adminDetail = new DetailaccountAdmins();
-            $dataDetailAdmin = [
-                'nama_lengkap' => $this->request->getPost('admin_nama_lengkap'),
-                'id_account'   => $accountId,
-            ];
-            $adminDetail->insert($dataDetailAdmin);
-            
-        } elseif ($group == 1) {
-            // Alumni
-            $alumniDetail = new DetailaccountAlumni();
-            $datadetailAlumni = [
-                'nama_lengkap'     => $this->request->getPost('alumni_nama_lengkap'),
-                'nim'              => $this->request->getPost('alumni_nim'),
-                'id_jurusan'       => $this->request->getPost('alumni_jurusan'),
-                'id_prodi'         => $this->request->getPost('alumni_prodi'),
-                'angkatan'         => $this->request->getPost('alumni_angkatan'),
-                'tahun_kelulusan'  => $this->request->getPost('alumni_tahun_lulus'),
-                'ipk'              => $this->request->getPost('alumni_ipk'),
-                'jenisKelamin'     => $this->request->getPost('alumni_jeniskelamin'),
-                'notlp'            => $this->request->getPost('alumni_notlp'),
-                'id_cities'        => $this->request->getPost('alumni_kota'),
-                'id_provinsi'      => $this->request->getPost('alumni_province'),
-                'kodepos'          => $this->request->getPost('alumni_kode_pos'),
-                'alamat'           => $this->request->getPost('alumni_alamat'),
-                'alamat2'          => $this->request->getPost('alumni_alamat2'),
-                'id_account'       => $accountId,
-            ];
-            $alumniDetail->insert($datadetailAlumni);
-            
-        } elseif ($group == 6) {
-            // Kaprodi
-            $dataKaprodi = [
-                'nama_lengkap' => $this->request->getPost('kaprodi_nama_lengkap'),
-                'id_jurusan'   => $this->request->getPost('kaprodi_jurusan'),
-                'id_prodi'     => $this->request->getPost('kaprodi_prodi'),
-                'notlp'        => $this->request->getPost('kaprodi_notlp'),
-                'id_account'   => $accountId,
-            ];
-            $detailKaprodi->insert($dataKaprodi);
-            
-        } elseif ($group == 7) {
-            // Perusahaan
-            $dataPerusahaan = [
-                'nama_perusahaan' => $this->request->getPost('perusahaan_nama_perusahaan'),
-                'id_provinsi'     => $this->request->getPost('perusahaan_province'),
-                'id_kota'         => $this->request->getPost('perusahaan_kota'),
-                'alamat1'         => $this->request->getPost('perusahaan_alamat1'),
-                'alamat2'         => $this->request->getPost('perusahaan_alamat2'),
-                'kodepos'         => $this->request->getPost('perusahaan_kode_pos'),
-                'noTlp'           => $this->request->getPost('perusahaan_notlp'),
-                'id_account'      => $accountId,
-            ];
-            $detailPerusahaan->insert($dataPerusahaan);
-            
-        } elseif ($group == 8) {
-            // Atasan
-            $dataAtasan = [
-                'nama_lengkap' => $this->request->getPost('atasan_nama_lengkap'),
-                'id_jabatan'      => $this->request->getPost('atasan_jabatan'),
-                'notlp'        => $this->request->getPost('atasan_notlp'),
-                'id_account'   => $accountId,
-            ];
-            $detailAtasan->insert($dataAtasan);
-            
-        } elseif ($group == 9) {
-            // Jabatan Lainnya
-            $datajabatanLL = [
-                'nama_lengkap' => $this->request->getPost('lainnya_nama_lengkap'),
-                'id_jabatan'   => $this->request->getPost('lainnya_jabatan'),
-                'id_jurusan'   => $this->request->getPost('lainnya_jurusan'),
-                'id_prodi'     => $this->request->getPost('lainnya_prodi'),
-                'notlp'        => $this->request->getPost('lainnya_notlp'),
-                'id_account'   => $accountId,
-            ];
-            $detailJabatanll->insert($datajabatanLL);
+        // SIMPAN AKUN
+        $accountData = [
+            'username'    => $this->request->getPost('username'),
+            'email'       => $this->request->getPost('email'),
+            'password'    => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+            'status'      => $this->request->getPost('status'),
+            'id_role'     => $group,
+            'id_surveyor' => $this->request->getPost($this->getHakFieldName($group)) ? 1 : null
+        ];
+
+        if (!$accountModel->insert($accountData)) {
+            throw new Exception('Gagal menyimpan akun.');
         }
 
-        // REDIRECT BERHASIL
+        $accountId = $accountModel->insertID();
+
+        // SIMPAN DETAIL SESUAI ROLE
+        switch ($group) {
+            case 2: // Admin
+                (new DetailaccountAdmins())->insert([
+                    'nama_lengkap' => $this->request->getPost('admin_nama_lengkap'),
+                    'id_account'   => $accountId,
+                ]);
+                break;
+            case 1: // Alumni
+                (new DetailaccountAlumni())->insert([
+                    'nama_lengkap'    => $this->request->getPost('alumni_nama_lengkap'),
+                    'nim'             => $this->request->getPost('alumni_nim'),
+                    'id_jurusan'      => $this->request->getPost('alumni_jurusan'),
+                    'id_prodi'        => $this->request->getPost('alumni_prodi'),
+                    'angkatan'        => $this->request->getPost('alumni_angkatan'),
+                    'tahun_kelulusan' => $this->request->getPost('alumni_tahun_lulus'),
+                    'ipk'             => $this->request->getPost('alumni_ipk'),
+                    'jenisKelamin'    => $this->request->getPost('alumni_jeniskelamin'),
+                    'notlp'           => $this->request->getPost('alumni_notlp'),
+                    'id_cities'       => $this->request->getPost('alumni_kota'),
+                    'id_provinsi'     => $this->request->getPost('alumni_province'),
+                    'kodepos'         => $this->request->getPost('alumni_kode_pos'),
+                    'alamat'          => $this->request->getPost('alumni_alamat'),
+                    'alamat2'         => $this->request->getPost('alumni_alamat2'),
+                    'id_account'      => $accountId,
+                ]);
+                break;
+            case 6: // Kaprodi
+                $detailKaprodi->insert([
+                    'nama_lengkap' => $this->request->getPost('kaprodi_nama_lengkap'),
+                    'id_jurusan'   => $this->request->getPost('kaprodi_jurusan'),
+                    'id_prodi'     => $this->request->getPost('kaprodi_prodi'),
+                    'notlp'        => $this->request->getPost('kaprodi_notlp'),
+                    'id_account'   => $accountId,
+                ]);
+                break;
+            case 7: // Perusahaan
+                $detailPerusahaan->insert([
+                    'nama_perusahaan' => $this->request->getPost('perusahaan_nama_perusahaan'),
+                    'id_provinsi'     => $this->request->getPost('perusahaan_province'),
+                    'id_kota'         => $this->request->getPost('perusahaan_kota'),
+                    'alamat1'         => $this->request->getPost('perusahaan_alamat1'),
+                    'alamat2'         => $this->request->getPost('perusahaan_alamat2'),
+                    'kodepos'         => $this->request->getPost('perusahaan_kode_pos'),
+                    'noTlp'           => $this->request->getPost('perusahaan_notlp'),
+                    'id_account'      => $accountId,
+                ]);
+                break;
+            case 8: // Atasan
+                $detailAtasan->insert([
+                    'nama_lengkap' => $this->request->getPost('atasan_nama_lengkap'),
+                    'id_jabatan'   => $this->request->getPost('atasan_jabatan'),
+                    'notlp'        => $this->request->getPost('atasan_notlp'),
+                    'id_account'   => $accountId,
+                ]);
+                break;
+            case 9: // Jabatan Lainnya
+                $detailJabatanll->insert([
+                    'nama_lengkap' => $this->request->getPost('lainnya_nama_lengkap'),
+                    'id_jabatan'   => $this->request->getPost('lainnya_jabatan'),
+                    'id_jurusan'   => $this->request->getPost('lainnya_jurusan'),
+                    'id_prodi'     => $this->request->getPost('lainnya_prodi'),
+                    'notlp'        => $this->request->getPost('lainnya_notlp'),
+                    'id_account'   => $accountId,
+                ]);
+                break;
+        }
+
         session()->setFlashdata('success', 'Data pengguna berhasil disimpan.');
         return redirect()->to('/admin/pengguna');
-        
+
     } catch (\Exception $e) {
         log_message('error', 'Error saving user: ' . $e->getMessage());
-        session()->setFlashdata('error', 'Terjadi kesalahan saat menyimpan data.');
-        return redirect()->back()->withInput();
+        session()->setFlashdata('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        return redirect()->to('/admin/pengguna'); // redirect ke index kalau gagal
     }
 }
+
 
 // Helper method untuk menentukan field name hak supervisi
 private function getHakFieldName($group)

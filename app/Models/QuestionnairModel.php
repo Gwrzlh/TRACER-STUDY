@@ -31,7 +31,6 @@ class QuestionnairModel extends Model
     private function checkConditions($conditions, $user_data)
     {
         if (empty($conditions)) return true;
-
         $conditions = json_decode($conditions, true);
         if (!$conditions) return true;
 
@@ -82,10 +81,6 @@ class QuestionnairModel extends Model
 
         return false;
     }
-
-
-
-
     // Dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';

@@ -39,8 +39,7 @@ if ($foto && file_exists($fotoPath)) {
     <!-- Sidebar -->
     <aside class="fixed top-0 left-0 h-screen w-64 bg-white shadow-md flex flex-col justify-between">
       <div>
-        <!-- Logo -->
-        <div class="flex items-center gap-3 px-6 py-4 border-b">
+        <div class="sidebar-logo flex items-center gap-3 px-6 py-4 border-b">
           <img src="<?= base_url('images/logo.png') ?>" alt="Logo POLBAN" class="w-10 h-10">
           <span class="text-lg font-bold text-gray-700">Tracer Study</span>
         </div>
@@ -58,9 +57,9 @@ if ($foto && file_exists($fotoPath)) {
           </a>
 
           <!-- Kuesioner -->
-          <a href="<?= base_url('alumni/questioner') ?>"
+          <a href="<?= base_url('alumni/questionnaires') ?>"
             class="flex items-center gap-3 px-6 py-2 rounded-lg transition 
-            hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/questioner') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
+            hover:bg-gray-200 <?= str_contains($currentRoute, 'alumni/questionnaires') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
             <i class="fa-solid fa-list"></i>
             <span>Kuesioner</span>
           </a>
@@ -79,8 +78,21 @@ if ($foto && file_exists($fotoPath)) {
 
       <!-- Profil + Logout -->
       <div class="px-6 py-4 border-t">
-        <div id="profileSidebar" class="flex items-center gap-3 mb-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition">
-          <img id="sidebarFoto" src="<?= $fotoUrl ?>" class="w-12 h-12 rounded-full shadow-md border object-cover">
+        <div class="flex items-center gap-3 mb-3">
+          <?php
+          $session = session();
+          $foto = $session->get('foto');
+
+          // Pastikan file benar-benar ada
+          $fotoPath = FCPATH . 'uploads/foto_alumni/' . ($foto ?? '');
+          if ($foto && file_exists($fotoPath)) {
+            $fotoUrl = base_url('uploads/foto_alumni/' . $foto);
+          } else {
+            $fotoUrl = base_url('uploads/default.png');
+          }
+          ?>
+          <img src="<?= $fotoUrl ?>"
+            class="w-12 h-12 rounded-full shadow-md border-2 border-white object-cover">
           <div>
             <p class="font-semibold text-gray-800 text-sm"><?= $session->get('nama_lengkap') ?? $session->get('username') ?></p>
             <p class="text-gray-500 text-xs"><?= $session->get('email') ?></p>
