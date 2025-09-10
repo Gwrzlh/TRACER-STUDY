@@ -14,7 +14,7 @@
         <thead class="bg-gray-100">
             <tr>
                 <th class="border px-4 py-2">Status</th>
-                <th class="border px-4 py-2">Subject</th>
+                <th class="border px-4 py-2">Judul</th>
                 <th class="border px-4 py-2">Message</th>
                 <th class="border px-4 py-2">Action</th>
             </tr>

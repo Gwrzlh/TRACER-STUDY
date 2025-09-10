@@ -176,7 +176,7 @@ class AlumniController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("User tidak ditemukan");
         }
 
-        return view('alumni/pesan_form', [
+        return view('alumni/pesanform', [
             'penerima' => $penerima
         ]);
     }
@@ -185,66 +185,99 @@ class AlumniController extends BaseController
     {
         $idPengirim = session()->get('id');
         $idPenerima = $this->request->getPost('id_penerima');
-        $subject    = $this->request->getPost('subject');
         $message    = $this->request->getPost('message');
 
         $db = db_connect();
 
-        // Ambil data pengirim
-        $pengirim = $db->table('detailaccount_alumni')
-            ->where('id_account', $idPengirim)
-            ->get()
-            ->getRowArray();
-        $namaPengirim = $pengirim['nama_lengkap'] ?? 'Alumni #' . $idPengirim;
-
-        // Simpan notif ke web
+        // ✅ 1. Simpan pesan ke dashboard (notif internal)
         $this->pesanModel->insert([
             'id_pengirim' => $idPengirim,
             'id_penerima' => $idPenerima,
-            'subject'     => $subject ?: 'Pesan dari ' . $namaPengirim,
             'pesan'       => $message,
             'status'      => 'terkirim'
         ]);
 
-        // Kirim email otomatis pakai template
-        $alumniModel    = new \App\Models\DetailaccountAlumni();
-        $templateModel  = new \App\Models\EmailTemplateModel();
+        // ✅ 2. Ambil data penerima
+        $alumniModel   = new \App\Models\DetailaccountAlumni();
+        $templateModel = new \App\Models\EmailTemplateModel();
 
         $alumni   = $alumniModel->where('id_account', $idPenerima)->first();
         $penerima = $db->table('account')->where('id', $idPenerima)->get()->getRowArray();
 
+        // ✅ 3. Cari template email sesuai status
         if ($alumni && $penerima && !empty($penerima['email'])) {
-            $template = $templateModel->where('status', $alumni['status'] ?? 'Belum Mengisi')->first();
+            $status   = $alumni['status'] ?? 'Belum Mengisi';
+            $template = $templateModel->where('status', $status)->first();
 
             if ($template) {
+                // Replace placeholder {nama_lengkap} dll
                 $subjectTpl = $this->replaceTemplate($template['subject'], $alumni);
                 $messageTpl = $this->replaceTemplate($template['message'], $alumni);
 
-                $email = \Config\Services::email();
-                $email->setFrom('reyhanvkp01@gmail.com', 'Tracer Study');
-                $email->setTo($penerima['email']);
-                $email->setSubject($subjectTpl);
-                $email->setMessage($messageTpl);
-                $email->send();
+                // ✅ 4. Kirim email via Brevo API
+                $this->sendEmailBrevo($penerima['email'], $subjectTpl, $messageTpl);
             }
         }
 
-        return redirect()->to('/alumni/lihat_teman')->with('success', 'Pesan berhasil dikirim & email otomatis terkirim.');
+        return redirect()->to('/alumni/lihat_teman')
+            ->with('success', 'Pesan berhasil dikirim');
     }
+
 
     private function replaceTemplate(string $text, array $alumni): string
     {
         $jurusanModel = new \App\Models\JurusanModel();
         $prodiModel   = new \App\Models\Prodi();
 
+        $prodi   = $alumni['id_prodi'] ? $prodiModel->find($alumni['id_prodi']) : null;
+        $jurusan = $alumni['id_jurusan'] ? $jurusanModel->find($alumni['id_jurusan']) : null;
+
         $placeholders = [
-            '{{nama}}'    => $alumni['nama_lengkap'] ?? '',
-            '{{prodi}}'   => $prodiModel->find($alumni['id_prodi'])['nama_prodi'] ?? '',
-            '{{jurusan}}' => $jurusanModel->find($alumni['id_jurusan'])['nama_jurusan'] ?? '',
+            '[NAMA]'    => $alumni['nama_lengkap'] ?? '',
+            '[PRODI]'   => $prodi['nama_prodi'] ?? '',
+            '[JURUSAN]' => $jurusan['nama_jurusan'] ?? '',
         ];
 
         return strtr($text, $placeholders);
     }
+
+    private function sendEmailBrevo(string $toEmail, string $subject, string $htmlContent): void
+    {
+        $apiKey = getenv('BREVO_API_KEY');
+
+        $data = [
+            "sender" => [
+                "email" => "tspolban@gmail.com", // pastikan sudah diverifikasi di Brevo
+                "name"  => "Tracer Study Polban"
+            ],
+            "to" => [["email" => $toEmail]],
+            "subject"     => $subject,
+            "htmlContent" => $htmlContent
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://api.brevo.com/v3/smtp/email");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "accept: application/json",
+            "api-key: {$apiKey}",
+            "content-type: application/json",
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (curl_errno($ch)) {
+            log_message('error', 'Brevo API Error: ' . curl_error($ch));
+        } else {
+            log_message('info', "Brevo API Response ({$httpCode}): " . $response);
+        }
+
+        curl_close($ch);
+    }
+
 
     public function notifikasi()
     {
