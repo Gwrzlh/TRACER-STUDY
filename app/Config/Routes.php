@@ -350,9 +350,11 @@ $routes->group('alumni', static function ($routes) {
     // -------------------------------
     // Questionnaires / Kuesioner Alumni Biasa
     // -------------------------------
-    $routes->get('questionnaires', 'AlumniController::questionnairesForAlumni');
-    $routes->get('questionnaire/(:num)', 'AlumniController::fillQuestionnaire/$1');
-    $routes->post('questionnaire/submit', 'AlumniController::submitAnswers');
+    $routes->get('questionnaires', 'UserQuestionController::index');
+    $routes->get('questionnaires/mulai/(:num)', 'UserQuestionController::mulai/$1');
+    $routes->get('questionnaires/lanjutkan/(:num)', 'UserQuestionController::lanjutkan/$1');
+    $routes->get('questionnaires/lihat/(:num)', 'UserQuestionController::lihat/$1');
+    $routes->post('questionnaires/save-answer', 'UserQuestionController::saveAnswer');
 });
 
 
