@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lihat Pesan</title>
-    
+
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    
+
     <style>
         /* Reset and Base Styles */
         * {
@@ -26,8 +27,10 @@
 
         /* Warna Utama */
         :root {
-            --blue: #1E90FF;   /* Dodger Blue */
-            --orange: #FF7F50; /* Coral Orange */
+            --blue: #1E90FF;
+            /* Dodger Blue */
+            --orange: #FF7F50;
+            /* Coral Orange */
         }
 
         /* Message Container */
@@ -322,6 +325,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -346,12 +350,13 @@
         }
     </style>
 </head>
+
 <body>
     <div class="message-container">
         <div class="message-card">
             <!-- Priority Indicator -->
             <div class="priority-indicator"></div>
-            
+
             <!-- Status Badge -->
             <div class="status-badge">
                 <i class="bi bi-envelope-open"></i>
@@ -362,7 +367,8 @@
             <div class="message-header">
                 <h1 class="message-title">
                     <i class="bi bi-chat-quote"></i>
-                    <?= esc($pesan['subject'] ?: 'Pesan dari ' . ($pesan['nama_pengirim'] ?? 'Alumni')) ?>
+                    <?= esc('Pesan dari ' . ($pesan['nama_pengirim'] ?? 'Alumni')) ?>
+
                 </h1>
             </div>
 
@@ -379,7 +385,7 @@
                         <?php endif; ?>
                     </div>
                 </div>
-                
+
                 <div class="message-date">
                     <i class="bi bi-calendar-event"></i>
                     <?= !empty($pesan['created_at']) ? date('d M Y, H:i', strtotime($pesan['created_at'])) : 'Tanggal tidak tersedia' ?>
@@ -400,8 +406,8 @@
                         <i class="bi bi-arrow-left"></i>
                         Kembali
                     </a>
-                    
-                    
+
+
                 </div>
             </div>
         </div>
@@ -437,7 +443,7 @@
             if (card) {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(30px)';
-                
+
                 setTimeout(() => {
                     card.style.transition = 'all 0.6s ease-out';
                     card.style.opacity = '1';
@@ -447,4 +453,5 @@
         });
     </script>
 </body>
+
 </html>
