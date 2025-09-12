@@ -9,18 +9,21 @@ use App\Models\QuestionModel;
 use App\Models\QuestionnairePageModel;
 use App\Models\QuestionnairConditionModel;
 use App\Models\SectionModel;
+use App\models\LogActivityModel;
 
 class UserQuestionController extends BaseController
 {
     protected $questionnaireModel;
     protected $answerModel;
     protected $conditionModel;
+    protected $logActivityModel;
 
     public function __construct()
     {
         $this->questionnaireModel = new QuestionnairModel();
-        $this->answerModel        = new AnswerModel();
-        $this->conditionModel     = new QuestionnairConditionModel();
+        $this->answerModel = new AnswerModel();
+        $this->conditionModel = new QuestionnairConditionModel();
+        $this->logActivityModel = new LogActivityModel();
     }
 
     /**
@@ -207,48 +210,7 @@ class UserQuestionController extends BaseController
                 }
             }
         }
-
-        // =============================
-        // ✅ Update status di tabel responses
-        // =============================
-        $progress = $this->answerModel->getProgress($q_id, $user_id);
-
-        // cek apakah sudah ada row responses
-        $response = $db->table('responses')
-            ->where('account_id', $user_id)
-            ->where('questionnaire_id', $q_id)
-            ->get()
-            ->getRow();
-
-        if ($response) {
-            // update status sesuai progress
-            $db->table('responses')
-                ->where('id', $response->id)
-                ->update([
-                    'status'       => ($progress >= 100) ? 'completed' : 'draft',
-                    'submitted_at' => date('Y-m-d H:i:s')
-                ]);
-        } else {
-            // insert baru kalau belum ada
-            $db->table('responses')->insert([
-                'account_id'       => $user_id,
-                'questionnaire_id' => $q_id,
-                'status'           => ($progress >= 100) ? 'completed' : 'draft',
-                'submitted_at'     => date('Y-m-d H:i:s')
-            ]);
-        }
-
-        // =============================
-        // ✅ Redirect pintar
-        // =============================
-        if ($progress >= 100) {
-            // sudah selesai semua pertanyaan
-            return redirect()->to("/alumni/questionnaires")
-                ->with('success', 'Kuesioner selesai. Terima kasih sudah mengisi.');
-        } else {
-            // masih ada pertanyaan
-            return redirect()->to("/alumni/questionnaires/mulai/$q_id")
-                ->with('success', 'Jawaban sementara berhasil disimpan. Silakan lanjutkan.');
-        }
+        $this->logActivityModel->logAction('submit_questionnaire', 'User ' . $user_id . ' submitted questionnaire ID ' . $q_id);
+        return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('success', 'Jawaban berhasil disimpan.');
     }
 }

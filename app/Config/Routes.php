@@ -64,11 +64,6 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
     $routes->group('api', function ($routes) {
         $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
     });
-
-
-
-
-
     $routes->group('admin/pengguna', function ($routes) {
         $routes->get('', 'PenggunaController::index', ['filter' => 'auth']);
         $routes->get('tambahPengguna', 'PenggunaController::create');
@@ -81,9 +76,6 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
         $routes->get('import', 'ImportAccount::form');
         $routes->post('import', 'ImportAccount::process');
     });
-
-
-
     // ================== Kontak ==================
     $routes->get('admin/kontak', 'Kontak::index', ['filter' => 'auth']);           // Halaman index kontak
     $routes->get('admin/kontak/search', 'Kontak::search');   // AJAX Search
@@ -93,13 +85,6 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
 
     // Opsional (Landing Page publik, jika dibutuhkan)
     // $routes->get('kontak', 'Kontak::landing');
-
-
-
-
-
-
-
 
     // --- Tipe Organisasi ---
     $routes->group('admin/tipeorganisasi', function ($routes) {
@@ -171,6 +156,11 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
         $routes->get('', 'AdminRespon::index');
     });
 
+    $routes->group('log_activities', function ($routes) {
+      $routes->get('/', 'LogController::index');
+      $routes->get('export', 'LogController::export');
+    });
+
     // Email Template
     $routes->get('emailtemplate', 'AdminEmailTemplateController::index');
     $routes->post('emailtemplate/update/(:num)', 'AdminEmailTemplateController::update/$1');
@@ -203,6 +193,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
         $routes->post('(:num)/delete', 'QuestionnairePageController::delete/$1/$2');
         // $routes->get('')
     });
+
+    
 
     // === Question Management - FIX: Semua route harus explicit ===
 
@@ -259,6 +251,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
         $routes->post('(:num)/update', 'QuestionnaireConditionController::update/$1/$2');
         $routes->post('(:num)/delete', 'QuestionnaireConditionController::delete/$1/$2');
     });
+    
 });
 
 // ===============================
