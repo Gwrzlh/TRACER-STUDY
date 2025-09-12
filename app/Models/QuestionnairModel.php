@@ -16,7 +16,7 @@ class QuestionnairModel extends Model
 
     protected bool $allowEmptyInserts = false;
 
-   public function checkConditions($conditions, $user_data, $previous_answers = [])
+    public function checkConditions($conditions, $user_data, $previous_answers = [])
     {
         if (empty($conditions) || $conditions === null || $conditions === '') {
             log_message('debug', '[checkConditions] No conditions provided or empty, return true');
@@ -29,9 +29,22 @@ class QuestionnairModel extends Model
         }
 
         $user_fields = [
-            'email', 'username', 'group_id', 'nama_lengkap', 'nim', 'id_jurusan', 'id_prodi',
-            'angkatan', 'ipk', 'alamat', 'alamat2', 'id_cities', 'kodepos', 'tahun_kelulusan',
-            'jeniskelamin', 'notlp'
+            'email',
+            'username',
+            'group_id',
+            'nama_lengkap',
+            'nim',
+            'id_jurusan',
+            'id_prodi',
+            'angkatan',
+            'ipk',
+            'alamat',
+            'alamat2',
+            'id_cities',
+            'kodepos',
+            'tahun_kelulusan',
+            'jeniskelamin',
+            'notlp'
         ];
         $all_fields = array_merge($user_fields, array_keys($previous_answers));
 

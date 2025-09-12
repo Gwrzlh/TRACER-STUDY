@@ -1,127 +1,192 @@
-<?= $this->extend('layout/sidebar') ?>
+<?php $layout = 'layout/layout_alumni'; ?>
+<?= $this->extend($layout) ?>
+
 <?= $this->section('content') ?>
-<link rel="stylesheet" href="<?= base_url('css/questioner/index.css') ?>">
 
-<div>
-    <!-- Navbar -->
-    <nav class="sticky top-0 bg-white navbar-shadow nav-bg border-b border-gray-100 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4">
-            <div class="flex justify-between items-center">
-                <!-- Nav kiri -->
-                <div class="flex items-center gap-6">
-                    <span class="nav-title font-semibold text-xl cursor-pointer">
-                        Daftar Kuesioner
-                    </span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                </div>
-            </div>
-        </div>
-    </nav>
+<!-- Profil Alumni -->
+<div class="bg-white rounded-xl shadow-md p-8 w-full max-w-7xl mx-auto">
+    <div class="flex items-center mb-6">
+        <img src="<?= base_url('images/logo.png') ?>" alt="Tracer Study" class="h-10 mr-3">
+        <h2 class="text-xl font-bold">Profil</h2>
+    </div>
 
-    <!-- Main Card -->
-    <div class="questionnaire-card">
-        <div class="card-header flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="card-header-icon">📋</div>
-                <h3 class="card-title">Daftar Kuesioner</h3>
-            </div>
-            <a href="<?= base_url('admin/questionnaire/create') ?>"
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
-                + Buat Kuesioner Baru
-            </a>
+    <div class="flex items-center mb-6 gap-6">
+        <!-- FOTO ALUMNI -->
+        <div class="flex flex-col items-center relative">
+            <img id="fotoPreview"
+                src="<?= $alumni->foto ? base_url('uploads/foto_alumni/' . $alumni->foto) : base_url('uploads/default.png') ?>"
+                class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg mb-3 cursor-pointer">
         </div>
 
-        <!-- Table -->
-        <div class="overflow-x-auto">
-            <table class="questionnaire-table w-full text-sm text-left text-gray-700">
-                <thead class="bg-gray-100 text-gray-600 text-sm uppercase">
-                    <tr>
-                        <th class="px-6 py-3">Judul</th>
-                        <th class="px-6 py-3">Deskripsi</th>
-                        <th class="px-6 py-3">Conditional</th>
-                        <th class="px-6 py-3">Status</th>
-                        <th class="px-6 py-3 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach($questionnaires as $q): ?>
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="px-6 py-4 font-medium text-gray-900">
-                            <?= esc($q['title']) ?>
-                        </td>
-                        <td class="px-6 py-4"><?= esc($q['deskripsi']) ?></td>
-                        <td class="px-6 py-4">
-                            <?php if ($q['conditional_logic']): ?>
-                                <span class="px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">Ya</span>
-                            <?php else: ?>
-                                <span class="px-2 py-1 text-xs font-semibold text-gray-600 bg-gray-200 rounded-full">Tidak</span>
-                            <?php endif; ?>
-                        </td>
-                        <td class="px-6 py-4">
-                              <?php if ($q['is_active'] === 'active'): ?>
-                                  <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">Aktif</span>
-                              <?php elseif ($q['is_active'] === 'draft'): ?>
-                                  <span class="px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">Draft</span>
-                              <?php else: ?>
-                                  <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">Nonaktif</span>
-                              <?php endif; ?>
-                          </td>
-
-                        <td class="px-6 py-4 text-center">
-                            <div class="flex justify-center gap-4">
-                                <!-- Kelola Halaman -->
-                                <a href="<?= base_url('admin/questionnaire/' . $q['id'] . '/pages') ?>" 
-                                   class="text-blue-600 hover:text-blue-800" 
-                                   title="Kelola Halaman">
-                                    <i class="fas fa-file-alt"></i>
-                                </a>
-                                <!-- Edit -->
-                                <a href="<?= base_url('admin/questionnaire/' . $q['id'] . '/edit') ?>" 
-                                   class="text-yellow-600 hover:text-yellow-800" 
-                                   title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <!-- Hapus -->
-                                <button class="delete-questionnaire text-red-600 hover:text-red-800" 
-                                        data-id="<?= $q['id'] ?>" 
-                                        title="Hapus">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+        <!-- INFO ALUMNI -->
+        <div>
+            <p class="text-lg font-semibold">Nama : <?= esc($alumni->nama_lengkap) ?></p>
+            <p class="text-gray-600">NIM : <?= esc($alumni->nim) ?></p>
+            <p class="text-gray-600">Program Studi : <?= esc($alumni->nama_prodi ?? '-') ?></p>
+            <p class="text-gray-600">Jurusan : <?= esc($alumni->nama_jurusan ?? '-') ?></p>
+            <p class="text-gray-600">Alamat : <?= esc($alumni->alamat ?? '-') ?></p>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Pekerjaan Saat Ini -->
+<div class="bg-white rounded-xl shadow-md p-8 w-full max-w-7xl mx-auto mt-8">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold">Pekerjaan Saat Ini</h3>
+        <div class="flex gap-2">
+            <a href="<?= base_url('alumni/profil/riwayat') ?>" class="btn btn-success">Riwayat Pekerjaan</a>
+            <a href="<?= base_url('alumni/profil/pekerjaan') ?>" class="btn btn-primary">Tentang Pekerjaan</a>
+        </div>
+    </div>
+
+    <?php if (!empty($currentJob)): ?>
+        <div class="grid grid-cols-2 gap-4">
+            <p><strong>Perusahaan:</strong> <?= esc($currentJob['perusahaan']) ?></p>
+            <p><strong>Jabatan:</strong> <?= esc($currentJob['jabatan']) ?></p>
+            <p><strong>Tahun Masuk:</strong> <?= esc($currentJob['tahun_masuk']) ?></p>
+            <p>
+                <strong>Tahun Keluar:</strong>
+                <?= ($currentJob['masih'] == 1 || $currentJob['tahun_keluar'] == 0)
+                    ? 'Masih bekerja'
+                    : esc($currentJob['tahun_keluar']) ?>
+            </p>
+            <p class="col-span-2"><strong>Alamat Perusahaan:</strong> <?= esc($currentJob['alamat_perusahaan']) ?></p>
+        </div>
+    <?php else: ?>
+        <p class="text-gray-500">Belum ada pekerjaan saat ini.</p>
+    <?php endif; ?>
+</div>
+
+<!-- Modal Ubah Foto -->
+<div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-xl w-80 flex flex-col gap-4 shadow-lg relative z-50">
+        <h3 class="text-lg font-semibold text-center">Ubah Foto Profil</h3>
+
+        <input type="file" id="fileInput" accept="image/*" class="border rounded px-2 py-1">
+        <video id="video" autoplay class="w-40 h-40 rounded-full border mx-auto hidden object-cover"></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <input type="hidden" id="foto_camera" name="foto_camera">
+        <button id="captureBtn" class="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 hidden">Ambil Foto</button>
+
+        <div class="flex justify-between mt-4">
+            <button type="button" onclick="useCamera()" class="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 flex-1 mr-1">Kamera</button>
+            <button type="button" onclick="submitFoto()" class="bg-purple-600 text-white px-3 py-1 rounded-md hover:bg-purple-700 flex-1 mx-1">Simpan</button>
+            <button type="button" onclick="window.closeModal()" class="bg-gray-400 text-white px-3 py-1 rounded-md hover:bg-gray-500 flex-1 ml-1">Batal</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded shadow-lg opacity-0 transform translate-y-5 transition-all duration-300 z-50"></div>
+
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const baseUrl = "<?= base_url('admin/questionnaire') ?>";
-        document.querySelectorAll(".delete-questionnaire").forEach(button => {
-            button.addEventListener("click", function() {
-                const id = this.getAttribute("data-id");
-                Swal.fire({
-                    title: 'Yakin ingin menghapus?',
-                    text: "Data questionnaire beserta halaman & pertanyaan akan terhapus permanen!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = `${baseUrl}/${id}/delete`;
-                    }
-                });
-            });
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('modal');
+        const fotoPreview = document.getElementById('fotoPreview');
+        const fileInput = document.getElementById('fileInput');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const fotoCamera = document.getElementById('foto_camera');
+        const captureBtn = document.getElementById('captureBtn');
+        const toast = document.getElementById('toast');
+        let stream = null;
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            fileInput.value = '';
+            fotoCamera.value = '';
+            video.classList.add('hidden');
+            captureBtn.classList.add('hidden');
+        }
+
+        window.closeModal = function() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        };
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) window.closeModal();
         });
+
+        window.useCamera = function() {
+            fileInput.value = '';
+            video.classList.remove('hidden');
+            captureBtn.classList.remove('hidden');
+
+            navigator.mediaDevices.getUserMedia({
+                    video: true
+                })
+                .then(s => {
+                    stream = s;
+                    video.srcObject = stream;
+                })
+                .catch(err => showToast('Gagal akses kamera: ' + err, 'bg-red-600'));
+        };
+
+        captureBtn.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            fotoCamera.value = canvas.toDataURL('image/png');
+            fotoPreview.src = fotoCamera.value;
+            showToast('Foto berhasil diambil', 'bg-green-600');
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            video.classList.add('hidden');
+            captureBtn.classList.add('hidden');
+        });
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    fotoPreview.src = e.target.result;
+                    showToast('Preview siap diupload', 'bg-blue-600');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function showToast(msg, color = 'bg-gray-800') {
+            toast.textContent = msg;
+            toast.className = `fixed bottom-5 right-5 ${color} text-white px-4 py-2 rounded shadow-lg opacity-100 transform translate-y-0 transition-all duration-300 z-50`;
+            setTimeout(() => {
+                toast.className = `fixed bottom-5 right-5 ${color} text-white px-4 py-2 rounded shadow-lg opacity-0 transform translate-y-5 transition-all duration-300 z-50`;
+            }, 3000);
+        }
+
+        window.submitFoto = function() {
+            const formData = new FormData();
+            if (fileInput.files[0]) formData.append('foto', fileInput.files[0]);
+            if (fotoCamera.value) formData.append('foto_camera', fotoCamera.value);
+            formData.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
+
+            fetch('<?= base_url("alumni/profil/update-foto/" . session()->get("id_account")) ?>', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showToast('✅ Foto berhasil disimpan', 'bg-green-600');
+                        window.closeModal();
+                        const sidebarFoto = document.getElementById('sidebarFoto');
+                        if (sidebarFoto) sidebarFoto.src = data.fotoUrl;
+                    } else {
+                        showToast('❌ Gagal menyimpan: ' + (data.message || 'Error'), 'bg-red-600');
+                    }
+                })
+                .catch(err => showToast('❌ Terjadi error: ' + err, 'bg-red-600'));
+        };
+
+        fotoPreview.addEventListener('click', openModal);
     });
 </script>
 
