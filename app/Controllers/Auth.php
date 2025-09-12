@@ -65,8 +65,17 @@ class Auth extends Controller
                 $sessionData['nama_lengkap'] = $detail['nama_lengkap'] ?? $user['username'];
                 $sessionData['foto']         = $detail['foto'] ?? 'default.png';
                 $fields = [
-                    'id_jurusan', 'id_prodi', 'angkatan', 'ipk', 'alamat', 'alamat2',
-                    'id_cities', 'kodepos', 'tahun_kelulusan', 'jeniskelamin', 'notlp'
+                    'id_jurusan',
+                    'id_prodi',
+                    'angkatan',
+                    'ipk',
+                    'alamat',
+                    'alamat2',
+                    'id_cities',
+                    'kodepos',
+                    'tahun_kelulusan',
+                    'jeniskelamin',
+                    'notlp'
                 ];
                 foreach ($fields as $field) {
                     $sessionData[$field] = $detail[$field] ?? null;
@@ -96,26 +105,30 @@ class Auth extends Controller
     private function redirectByRole($roleId)
     {
         switch ($roleId) {
-            case 1:
+            case 1: // Alumni
+                if (session('id_surveyor') == 1) {
+                    return redirect()->to('/alumni/supervisi');
+                } else {
+                    return redirect()->to('/alumni/dashboard');
+                }
+            case 2: // Admin
+                return redirect()->to('/admin/dashboard');
+            case 6: // Kaprodi
                 return session('id_surveyor') == 1
-                    ? redirect()->to('alumni/supervisi')
-                    : redirect()->to('alumni/dashboard');
-            case 2:
-                return redirect()->to('admin/dashboard');
-            case 6:
-                return session('id_surveyor') == 1
-                    ? redirect()->to('kaprodi/supervisi')
-                    : redirect()->to('kaprodi/dashboard');
+                    ? redirect()->to('/kaprodi/supervisi')
+                    : redirect()->to('/kaprodi/dashboard');
             case 7:
-                return redirect()->to('perusahaan/dashboard');
+                return redirect()->to('/perusahaan/dashboard');
             case 8:
-                return redirect()->to('atasan/dashboard');
+                return redirect()->to('/atasan/dashboard');
             case 9:
-                return redirect()->to('jabatan/dashboard');
+                return redirect()->to('/jabatan/dashboard');
             default:
                 return redirect()->to('/login');
         }
     }
+
+
 
     // Form lupa password
     public function forgotPassword()
