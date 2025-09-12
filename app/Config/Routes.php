@@ -75,8 +75,8 @@ $routes->group('admin/pengguna', function ($routes) {
     $routes->post('tambahPengguna/post', 'PenggunaController::store');
     $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
     $routes->post('update/(:num)', 'PenggunaController::update/$1');
+    $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
     $routes->post('delete/(:num)', 'PenggunaController::delete/$1');
-
     // ✅ Import akun (cukup tulis 'import')
     $routes->get('import', 'ImportAccount::form');
     $routes->post('import', 'ImportAccount::process');
@@ -171,6 +171,11 @@ $routes->post('admin/tentang/update', 'Tentang::update');
         $routes->get('', 'AdminRespon::index');
     });
 
+    $routes->group('log_activities', function ($routes) {
+      $routes->get('/', 'LogController::index');
+      $routes->get('export', 'LogController::export');
+    });
+
     // Email Template
     $routes->get('emailtemplate', 'AdminEmailTemplateController::index');
     $routes->post('emailtemplate/update/(:num)', 'AdminEmailTemplateController::update/$1');
@@ -203,6 +208,8 @@ $routes->post('admin/tentang/update', 'Tentang::update');
         $routes->post('(:num)/delete', 'QuestionnairePageController::delete/$1/$2');
         // $routes->get('')
     });
+
+    
 
     // === Question Management - FIX: Semua route harus explicit ===
 
@@ -259,6 +266,7 @@ $routes->post('admin/tentang/update', 'Tentang::update');
         $routes->post('(:num)/update', 'QuestionnaireConditionController::update/$1/$2');
         $routes->post('(:num)/delete', 'QuestionnaireConditionController::delete/$1/$2');
     });
+    
 });
 
 // ===============================

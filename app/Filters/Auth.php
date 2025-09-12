@@ -10,13 +10,13 @@ class Auth implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        $session = session();
-
-        if (! $session->get('logged_in')) {
-            return redirect()->to('/login');
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
         }
-
-        return;
+        // Cek role admin (misal, id_role = 2)
+        if (session()->get('role_id') != 2) {
+            return redirect()->to('/')->with('error', 'Akses ditolak.');
+        }
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
