@@ -31,7 +31,7 @@ $routes->get('/laporan/(:num)', 'AdminLaporan::showAll/$1');
 // ===============================
 // ADMIN ROUTES
 // ===============================
-$routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
+$routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
 
     $routes->get('dashboard', 'AdminController::dashboard');
     $routes->get('welcome-page', 'AdminWelcomePage::index');
@@ -157,8 +157,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
     });
 
     $routes->group('log_activities', function ($routes) {
-      $routes->get('/', 'LogController::index');
-      $routes->get('export', 'LogController::export');
+        $routes->get('/', 'LogController::index');
+        $routes->get('export', 'LogController::export');
     });
 
     // Email Template
@@ -194,7 +194,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
         // $routes->get('')
     });
 
-    
+
 
     // === Question Management - FIX: Semua route harus explicit ===
 
@@ -251,13 +251,12 @@ $routes->group('admin', ['namespace' => 'App\Controllers', 'filter' => 'auth'], 
         $routes->post('(:num)/update', 'QuestionnaireConditionController::update/$1/$2');
         $routes->post('(:num)/delete', 'QuestionnaireConditionController::delete/$1/$2');
     });
-    
 });
 
 // ===============================
 // KAPRODI ROUTES
 // ===============================
-$routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
+$routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
     $routes->get('dashboard', 'KaprodiController::dashboard');
     $routes->get('supervisi', 'KaprodiController::supervisi');
     $routes->get('questioner', 'KaprodiController::questioner');
@@ -268,11 +267,12 @@ $routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
 
 
 
-
+//alumni surveyor
+$routes->get('alumni/supervisi', 'AlumniController::supervisi');
 
 
 /// ROUTES ALUMNI
-$routes->group('alumni', static function ($routes) {
+$routes->group('alumni', ['filter' => 'alumniAuth'], static function ($routes) {
     // -------------------------------
     // Login & Logout
     // -------------------------------
@@ -283,8 +283,9 @@ $routes->group('alumni', static function ($routes) {
     // -------------------------------
     // Dashboard
     // -------------------------------
-    $routes->get('dashboard', 'AlumniController::dashboard', ['filter' => 'auth']); // alumni biasa
-    $routes->get('surveyor/dashboard', 'AlumniController::dashboardSurveyor', ['filter' => 'auth']); // surveyor
+    $routes->get('dashboard', 'AlumniController::dashboard'); // alumni biasa
+
+    // surveyor
 
     // -------------------------------
     // Profil Alumni Biasa
@@ -405,7 +406,7 @@ $routes->get('respon', function () {
 // =======================
 // ROUTES KAPRODI
 // =======================
-$routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
+$routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
     $routes->get('dashboard', 'KaprodiController::dashboard');
     $routes->get('supervisi', 'KaprodiController::supervisi');
 
