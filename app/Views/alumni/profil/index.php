@@ -1,373 +1,194 @@
-<?= $this->extend('layout/sidebar_alumni2') ?>
+<?php $layout = 'layout/layout_alumni'; ?>
+<?= $this->extend($layout) ?>
+
 <?= $this->section('content') ?>
 
-<!-- Profil Alumni (View Mode) -->
+<!-- Profil Alumni -->
 <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-7xl mx-auto">
-
-  <!-- ✅ New Alert Notification Design -->
-  <div id="alertBox"
-    class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[9999]">
-    <div id="alertContent" class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-11/12 text-center relative transform transition-all duration-300 scale-90 opacity-0">
-      <!-- Close Button -->
-      <button onclick="closeAlert()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
-        <span class="text-gray-600 font-bold text-lg">×</span>
-      </button>
-      <!-- Alert Icon -->
-      <div id="alertIcon" class="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center">
-        <!-- Icon will be inserted by JavaScript -->
-      </div>
-      <!-- Alert Title -->
-      <h3 id="alertTitle" class="text-xl font-bold mb-2 text-gray-800">
-        <!-- Title will be inserted by JavaScript -->
-      </h3>
-      <!-- Alert Message -->
-      <p id="alertMessage" class="text-gray-600 mb-6 leading-relaxed">
-        <!-- Message will be inserted by JavaScript -->
-      </p>
-    </div>
-  </div>
-
-  <!-- Header -->
   <div class="flex items-center mb-6">
     <img src="<?= base_url('images/logo.png') ?>" alt="Tracer Study" class="h-10 mr-3">
     <h2 class="text-xl font-bold">Profil</h2>
   </div>
 
-  <!-- Foto Profil -->
-  <div class="flex items-center mb-6">
-    <div class="relative">
-      <img id="profileFoto"
+  <div class="flex items-center mb-6 gap-6">
+    <!-- FOTO ALUMNI -->
+    <div class="flex flex-col items-center relative">
+      <img id="fotoPreview"
         src="<?= $alumni->foto ? base_url('uploads/foto_alumni/' . $alumni->foto) : base_url('uploads/default.png') ?>"
-        alt="Foto Profil" class="w-32 h-32 rounded-full object-cover shadow-lg border-4 border-white cursor-pointer">
-      <!-- Tombol Ubah Foto -->
-      <button onclick="openChoice()"
-        class="absolute bottom-1 right-1 bg-blue-600 text-white text-xs px-2 py-1 rounded shadow">
-        Ubah
-      </button>
+        class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg mb-3 cursor-pointer">
     </div>
-    <div class="ml-6">
-      <p class="text-lg font-semibold">Nama : <?= $alumni->nama_lengkap ?></p>
-      <p class="text-gray-600">NIM : <?= $alumni->nim ?></p>
-      <p class="text-gray-600">
-        Program Studi : <?= isset($prodiMap[$alumni->id_prodi]) ? $prodiMap[$alumni->id_prodi] : 'Belum ada' ?>
-      </p>
-      <p class="text-gray-600">
-        Jurusan : <?= isset($jurusanMap[$alumni->id_jurusan]) ? $jurusanMap[$alumni->id_jurusan] : 'Belum ada' ?>
-      </p>
+
+    <!-- INFO ALUMNI -->
+    <div>
+      <p class="text-lg font-semibold">Nama : <?= esc($alumni->nama_lengkap) ?></p>
+      <p class="text-gray-600">NIM : <?= esc($alumni->nim) ?></p>
+      <p class="text-gray-600">Program Studi : <?= esc($alumni->nama_prodi ?? '-') ?></p>
+      <p class="text-gray-600">Jurusan : <?= esc($alumni->nama_jurusan ?? '-') ?></p>
+      <p class="text-gray-600">Alamat : <?= esc($alumni->alamat ?? '-') ?></p>
     </div>
-  </div>
-
-  <!-- Modal Pilihan Upload/Kamera -->
-  <div id="choiceModal"
-    class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg text-center space-y-4 w-80">
-      <h3 class="text-lg font-bold">Pilih Opsi</h3>
-      <button onclick="document.getElementById('fotoInput').click()"
-        class="bg-blue-600 text-white px-4 py-2 rounded w-full">
-        Upload dari File
-      </button>
-      <button onclick="openCamera()"
-        class="bg-green-600 text-white px-4 py-2 rounded w-full">
-        Ambil dari Kamera
-      </button>
-      <button onclick="closeChoice()"
-        class="bg-gray-400 text-white px-4 py-2 rounded w-full">
-        Batal
-      </button>
-    </div>
-  </div>
-
-  <!-- Modal Kamera -->
-  <div id="cameraModal"
-    class="hidden fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-    <div class="bg-white p-6 rounded-2xl shadow-xl text-center w-[400px] relative">
-      <h3 class="text-lg font-bold mb-4">Ambil Foto Profil</h3>
-      <!-- Preview Kamera Lingkaran -->
-      <div class="relative mx-auto w-60 h-60 rounded-full overflow-hidden shadow-lg border-4 border-gray-200">
-        <video id="video" autoplay playsinline class="absolute inset-0 w-full h-full object-cover"></video>
-        <canvas id="canvas" class="hidden absolute inset-0 w-full h-full rounded-full object-cover"></canvas>
-      </div>
-      <!-- Tombol Aksi Kamera -->
-      <div id="cameraButtons" class="mt-5 flex justify-center gap-3">
-        <button onclick="takeSnapshot()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-full shadow">
-          📸 Ambil
-        </button>
-        <button onclick="closeCamera()" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-full shadow">
-          ✖ Batal
-        </button>
-      </div>
-
-      <!-- Tombol Aksi Preview -->
-      <div id="previewButtons" class="hidden mt-5 flex justify-center gap-3">
-        <button onclick="saveSnapshot()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full shadow">
-          ✅ Simpan
-        </button>
-        <button onclick="retakeSnapshot()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2 rounded-full shadow">
-          🔄 Ulangi
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Form Upload Foto -->
-  <form id="uploadForm" method="post" enctype="multipart/form-data"
-    action="<?= base_url('alumni/updateFoto/' . $alumni->id_account) ?>" class="hidden">
-    <input type="file" name="foto" id="fotoInput" accept="image/*" onchange="previewFile(this)">
-    <input type="hidden" name="foto_camera" id="fotoCamera">
-  </form>
-
-  <!-- Data Diri -->
-  <h3 class="text-lg font-bold mb-3">Data Diri</h3>
-  <table class="w-full border border-gray-200 rounded-lg overflow-hidden">
-    <tbody>
-      <tr>
-        <td class="px-4 py-2 border font-medium">NIK</td>
-        <td class="px-4 py-2 border"><?= $alumni->nik ?? 'Belum ada' ?></td>
-      </tr>
-      <tr>
-        <td class="px-4 py-2 border font-medium">NPWP</td>
-        <td class="px-4 py-2 border"><?= $alumni->npwp ?? 'Belum ada' ?></td>
-      </tr>
-      <tr>
-        <td class="px-4 py-2 border font-medium">Alamat</td>
-        <td class="px-4 py-2 border"><?= $alumni->alamat ?? 'Belum ada' ?></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <!-- Riwayat Pekerjaan -->
-  <h3 class="text-lg font-bold mt-8 mb-3">Riwayat Pekerjaan</h3>
-  <table class="w-full border border-gray-300 rounded-lg overflow-hidden">
-    <thead class="bg-gray-100 text-gray-700">
-      <tr>
-        <th class="px-4 py-2 border">Tahun Masuk</th>
-        <th class="px-4 py-2 border">Tahun Selesai</th>
-        <th class="px-4 py-2 border">Perusahaan</th>
-        <th class="px-4 py-2 border">Alamat</th>
-        <th class="px-4 py-2 border">No Telepon</th>
-        <th class="px-4 py-2 border">Jabatan</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="text-center">
-        <td class="px-4 py-2 border">2020</td>
-        <td class="px-4 py-2 border">2022</td>
-        <td class="px-4 py-2 border">PT Sejahtera</td>
-        <td class="px-4 py-2 border">Jakarta</td>
-        <td class="px-4 py-2 border">021-123456</td>
-        <td class="px-4 py-2 border">Staff IT</td>
-      </tr>
-      <tr class="text-center">
-        <td class="px-4 py-2 border">2023</td>
-        <td class="px-4 py-2 border">Sekarang</td>
-        <td class="px-4 py-2 border">PT Teknologi Maju</td>
-        <td class="px-4 py-2 border">Bandung</td>
-        <td class="px-4 py-2 border">022-654321</td>
-        <td class="px-4 py-2 border">Programmer</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <!-- Tombol Aksi -->
-  <div class="mt-6 flex justify-end gap-4">
-    <a href="<?= base_url('alumni/profil/edit') ?>"
-      class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-      Edit Profil
-    </a>
   </div>
 </div>
 
-<style>
-  #profileFoto {
-    width: 128px;
-    height: 128px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  }
-</style>
+<!-- Pekerjaan Saat Ini -->
+<div class="bg-white rounded-xl shadow-md p-8 w-full max-w-7xl mx-auto mt-8">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-bold">Pekerjaan Saat Ini</h3>
+    <div class="flex gap-2">
+      <a href="<?= base_url('alumni/profil/riwayat') ?>" class="btn btn-success">Riwayat Pekerjaan</a>
+      <a href="<?= base_url('alumni/profil/pekerjaan') ?>" class="btn btn-primary">Tentang Pekerjaan</a>
+    </div>
+  </div>
+
+  <?php if (!empty($currentJob)): ?>
+    <div class="grid grid-cols-2 gap-4">
+      <p><strong>Perusahaan:</strong> <?= esc($currentJob->perusahaan) ?></p>
+      <p><strong>Jabatan:</strong> <?= esc($currentJob->jabatan) ?></p>
+      <p><strong>Tahun Masuk:</strong> <?= esc($currentJob->tahun_masuk) ?></p>
+      <p>
+        <strong>Tahun Keluar:</strong>
+        <?= ($currentJob->masih == 1 || $currentJob->tahun_keluar === '0000')
+          ? 'Masih bekerja'
+          : esc($currentJob->tahun_keluar) ?>
+      </p>
+
+
+      <p class="col-span-2"><strong>Alamat Perusahaan:</strong> <?= esc($currentJob->alamat_perusahaan) ?></p>
+    </div>
+  <?php else: ?>
+    <p class="text-gray-500">Belum ada pekerjaan saat ini.</p>
+  <?php endif; ?>
+</div>
+
+<!-- MODAL FOTO (Ubah Foto Profil) -->
+<div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+  <div class="bg-white p-6 rounded-xl w-80 flex flex-col gap-4 shadow-lg relative z-50">
+    <h3 class="text-lg font-semibold text-center">Ubah Foto Profil</h3>
+
+    <input type="file" id="fileInput" accept="image/*" class="border rounded px-2 py-1">
+    <video id="video" autoplay class="w-40 h-40 rounded-full border mx-auto hidden object-cover"></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <input type="hidden" id="foto_camera" name="foto_camera">
+    <button id="captureBtn" class="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 hidden">Ambil Foto</button>
+
+    <div class="flex justify-between mt-4">
+      <button type="button" onclick="useCamera()" class="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 flex-1 mr-1">Kamera</button>
+      <button type="button" onclick="submitFoto()" class="bg-purple-600 text-white px-3 py-1 rounded-md hover:bg-purple-700 flex-1 mx-1">Simpan</button>
+      <button type="button" onclick="window.closeModal()" class="bg-gray-400 text-white px-3 py-1 rounded-md hover:bg-gray-500 flex-1 ml-1">Batal</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded shadow-lg opacity-0 transform translate-y-5 transition-all duration-300 z-50"></div>
 
 <script>
-  let videoStream;
-  let snapshotData = null;
-
-  function openChoice() {
-    document.getElementById('choiceModal').classList.remove('hidden');
-  }
-
-  function closeChoice() {
-    document.getElementById('choiceModal').classList.add('hidden');
-  }
-
-  function openCamera() {
-    closeChoice();
-    document.getElementById('cameraModal').classList.remove('hidden');
-    document.getElementById('cameraButtons').classList.remove('hidden');
-    document.getElementById('previewButtons').classList.add('hidden');
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        videoStream = stream;
-        document.getElementById('video').srcObject = stream;
-      })
-      .catch(err => {
-        showAlert("Tidak dapat mengakses kamera!", "error");
-      });
-  }
-
-  function closeCamera() {
-    document.getElementById('cameraModal').classList.add('hidden');
-    if (videoStream) videoStream.getTracks().forEach(track => track.stop());
-  }
-
-  function takeSnapshot() {
-    const canvas = document.getElementById('canvas');
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('modal');
+    const fotoPreview = document.getElementById('fotoPreview');
+    const fileInput = document.getElementById('fileInput');
     const video = document.getElementById('video');
-    const container = video.parentElement;
-    const size = container.offsetWidth;
+    const canvas = document.getElementById('canvas');
+    const fotoCamera = document.getElementById('foto_camera');
+    const captureBtn = document.getElementById('captureBtn');
+    const toast = document.getElementById('toast');
+    let stream = null;
 
-    canvas.width = size;
-    canvas.height = size;
-
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, size, size);
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2, true);
-    ctx.closePath();
-    ctx.clip();
-
-    const videoAspect = video.videoWidth / video.videoHeight;
-    let drawWidth, drawHeight, offsetX, offsetY;
-
-    if (videoAspect > 1) {
-      drawHeight = size;
-      drawWidth = video.videoWidth * (size / video.videoHeight);
-      offsetX = (size - drawWidth) / 2;
-      offsetY = 0;
-    } else {
-      drawWidth = size;
-      drawHeight = video.videoHeight * (size / video.videoWidth);
-      offsetX = 0;
-      offsetY = (size - drawHeight) / 2;
+    function openModal() {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      fileInput.value = '';
+      fotoCamera.value = '';
+      video.classList.add('hidden');
+      captureBtn.classList.add('hidden');
     }
 
-    ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
-    ctx.restore();
+    window.closeModal = function() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+    };
 
-    snapshotData = canvas.toDataURL("image/png");
-    document.getElementById('profileFoto').src = snapshotData;
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) window.closeModal();
+    });
 
-    video.classList.add("hidden");
-    canvas.classList.remove("hidden");
+    window.useCamera = function() {
+      fileInput.value = '';
+      video.classList.remove('hidden');
+      captureBtn.classList.remove('hidden');
 
-    document.getElementById('cameraButtons').classList.add('hidden');
-    document.getElementById('previewButtons').classList.remove('hidden');
-  }
+      navigator.mediaDevices.getUserMedia({
+          video: true
+        })
+        .then(s => {
+          stream = s;
+          video.srcObject = stream;
+        })
+        .catch(err => showToast('Gagal akses kamera: ' + err, 'bg-red-600'));
+    };
 
-  function retakeSnapshot() {
-    snapshotData = null;
-    document.getElementById('video').classList.remove("hidden");
-    document.getElementById('canvas').classList.add("hidden");
+    captureBtn.addEventListener('click', () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      fotoCamera.value = canvas.toDataURL('image/png');
+      fotoPreview.src = fotoCamera.value;
+      showToast('Foto berhasil diambil', 'bg-green-600');
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      video.classList.add('hidden');
+      captureBtn.classList.add('hidden');
+    });
 
-    document.getElementById('cameraButtons').classList.remove('hidden');
-    document.getElementById('previewButtons').classList.add('hidden');
-  }
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          fotoPreview.src = e.target.result;
+          showToast('Preview siap diupload', 'bg-blue-600');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
 
-  function saveSnapshot() {
-    if (!snapshotData) return;
-    document.getElementById('fotoCamera').value = snapshotData;
-    closeCamera();
-    setTimeout(() => {
-      document.getElementById('uploadForm').submit();
-      showAlert("Foto berhasil diperbarui!", "success");
-    }, 500);
-  }
-
-  function previewFile(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById('profileFoto').src = e.target.result;
+    function showToast(msg, color = 'bg-gray-800') {
+      toast.textContent = msg;
+      toast.className = `fixed bottom-5 right-5 ${color} text-white px-4 py-2 rounded shadow-lg opacity-100 transform translate-y-0 transition-all duration-300 z-50`;
       setTimeout(() => {
-        document.getElementById('uploadForm').submit();
-        showAlert("Foto berhasil diupload!", "success");
-      }, 1000);
-    }
-    reader.readAsDataURL(file);
-  }
-
-  // ✅ Updated Alert Function
-  function showAlert(message, type = "success") {
-    const alertBox = document.getElementById("alertBox");
-    const alertContent = document.getElementById("alertContent");
-    const alertIcon = document.getElementById("alertIcon");
-    const alertTitle = document.getElementById("alertTitle");
-    const alertMessage = document.getElementById("alertMessage");
-
-    // Set content based on type
-    if (type === "success") {
-      alertIcon.innerHTML = `
-        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-        </svg>
-      `;
-      alertIcon.className = "mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center bg-green-500";
-      alertTitle.textContent = "Success message";
-      alertTitle.className = "text-xl font-bold mb-2 text-gray-800";
-    } else if (type === "error") {
-      alertIcon.innerHTML = `
-        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-        </svg>
-      `;
-      alertIcon.className = "mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center bg-red-500";
-      alertTitle.textContent = "Error message";
-      alertTitle.className = "text-xl font-bold mb-2 text-gray-800";
-    } else {
-      alertIcon.innerHTML = `
-        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-        </svg>
-      `;
-      alertIcon.className = "mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center bg-blue-500";
-      alertTitle.textContent = "Information";
-      alertTitle.className = "text-xl font-bold mb-2 text-gray-800";
+        toast.className = `fixed bottom-5 right-5 ${color} text-white px-4 py-2 rounded shadow-lg opacity-0 transform translate-y-5 transition-all duration-300 z-50`;
+      }, 3000);
     }
 
-    alertMessage.textContent = message;
+    window.submitFoto = function() {
+      const formData = new FormData();
+      if (fileInput.files[0]) formData.append('foto', fileInput.files[0]);
+      if (fotoCamera.value) formData.append('foto_camera', fotoCamera.value);
+      formData.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
 
-    // Show alert with animation
-    alertBox.classList.remove("hidden");
-    setTimeout(() => {
-      alertContent.classList.remove("scale-90", "opacity-0");
-      alertContent.classList.add("scale-100", "opacity-100");
-    }, 50);
+      fetch('<?= base_url("alumni/profil/update-foto/" . session()->get("id_account")) ?>', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            showToast('✅ Foto berhasil disimpan', 'bg-green-600');
+            window.closeModal();
+            const sidebarFoto = document.getElementById('sidebarFoto');
+            if (sidebarFoto) sidebarFoto.src = data.fotoUrl;
+          } else {
+            showToast('❌ Gagal menyimpan: ' + (data.message || 'Error'), 'bg-red-600');
+          }
+        })
+        .catch(err => showToast('❌ Terjadi error: ' + err, 'bg-red-600'));
+    };
 
-    // Auto close after 4 seconds
-    setTimeout(() => {
-      closeAlert();
-    }, 4000);
-  }
-
-  function closeAlert() {
-    const alertBox = document.getElementById("alertBox");
-    const alertContent = document.getElementById("alertContent");
-    alertContent.classList.remove("scale-100", "opacity-100");
-    alertContent.classList.add("scale-90", "opacity-0");
-
-    setTimeout(() => {
-      alertBox.classList.add("hidden");
-    }, 300);
-  }
-
-  // Close alert when clicking outside the modal
-  document.getElementById('alertBox').addEventListener('click', function(e) {
-    if (e.target === this) {
-      closeAlert();
-    }
+    fotoPreview.addEventListener('click', openModal);
   });
 </script>
 

@@ -8,6 +8,7 @@ use App\Models\PesanModel;
 use App\Models\AlumniModel;
 use App\Models\JurusanModel;
 use App\Models\Prodi;
+use App\Models\RiwayatPekerjaanModel;
 
 // Tambahan untuk kuesioner
 use App\Models\QuestionnairModel;
@@ -18,47 +19,60 @@ use App\Models\QuestionModel;
 class AlumniController extends BaseController
 {
     protected $pesanModel;
+    protected $alumniModel;
+    protected $riwayatModel;
 
     public function __construct()
     {
         $this->pesanModel = new PesanModel();
+        $this->alumniModel = new AlumniModel();
+        $this->riwayatModel = new RiwayatPekerjaanModel();
     }
 
     // =============================
     // 📊 DASHBOARD & PROFIL
     // =============================
-    public function dashboard()
+    public function dashboard($role = 'alumni')
     {
         $session = session();
-        $alumniId = $session->get('id'); // pastikan sesuai dengan kolom id user di tabel responses
+
+        // Pastikan session role tersimpan
+        $role = ($role === 'surveyor') ? 'surveyor' : 'alumni';
+        $session->set('role', $role);
+
+        $alumniId = $session->get('id');
 
         $questionnaireModel = new \App\Models\QuestionnairModel();
         $responseModel      = new \App\Models\ResponseModel();
 
-        // Hitung total kuesioner yang aktif
         $totalKuesioner = $questionnaireModel
             ->where('is_active', 'active')
             ->countAllResults();
 
-        // Hitung kuesioner yang sudah diselesaikan oleh alumni ini
         $selesai = $responseModel
             ->where('account_id', $alumniId)
             ->where('status', 'completed')
             ->countAllResults();
 
-        // Hitung kuesioner yang sedang berjalan (draft / belum complete)
         $sedangBerjalan = $responseModel
             ->where('account_id', $alumniId)
             ->where('status', 'draft')
             ->countAllResults();
 
+        $showNotifikasi = $role === 'alumni';
+        $showLihatTeman = $role === 'surveyor';
+
         return view('alumni/dashboard', [
-            'title'          => 'Dashboard Alumni',
             'totalKuesioner' => $totalKuesioner,
-            'selesai'        => $selesai,
+            'selesai' => $selesai,
             'sedangBerjalan' => $sedangBerjalan,
+            'showNotifikasi' => $showNotifikasi,
+            'showLihatTeman' => $showLihatTeman,
+            'role' => $role
         ]);
     }
+
+
 
     // public function questioner()
     // {
@@ -67,10 +81,10 @@ class AlumniController extends BaseController
     // }
 
 
-    public function questionersurveyor()
-    {
-        return view('alumni/alumnisurveyor/questioner/index');
-    }
+    // public function questionersurveyor()
+    // {
+    //     return view('alumni/alumnisurveyor/questioner/index');
+    // }
 
     // =============================
     // 📊 PROFIL ALUMNI (BISA UNTUK BIASA & SURVEYOR)
@@ -78,47 +92,193 @@ class AlumniController extends BaseController
     public function profil($role = 'alumni')
     {
         $session     = session();
-        $alumniModel = new AlumniModel();
+        $alumniModel = new \App\Models\DetailaccountAlumni();
         $idAccount   = $session->get('id_account');
 
-        // Ambil data alumni dari database
-        $alumni = $alumniModel->where('id_account', $idAccount)->first();
+        // ambil data alumni
+        $alumni = $alumniModel
+            ->select('detailaccount_alumni.*, prodi.nama_prodi, jurusan.nama_jurusan')
+            ->join('prodi', 'prodi.id = detailaccount_alumni.id_prodi', 'left')
+            ->join('jurusan', 'jurusan.id = detailaccount_alumni.id_jurusan', 'left')
+            ->where('detailaccount_alumni.id_account', $idAccount)
+            ->first();
 
-        // Kalau tidak ada di DB, fallback dari session biar tidak error
-        if (!$alumni) {
-            $alumni = [
-                'nama_lengkap' => $session->get('nama_lengkap'),
-                'nim'          => '-',
-                'nama_prodi'   => '-',
-                'foto'         => null
-            ];
+        // ambil pekerjaan saat ini
+        $currentJob = $this->riwayatModel
+            ->where('id_alumni', $idAccount)
+            ->where('is_current', 1)
+            ->first();
+
+        // ambil riwayat pekerjaan
+        $riwayat = $this->riwayatModel
+            ->where('id_alumni', $idAccount)
+            ->where('is_current', 0)
+            ->orderBy('tahun_masuk', 'DESC')
+            ->findAll();
+
+        // tentukan layout
+        $layout = ($role === 'surveyor')
+            ? 'layout/sidebar_alumni2'
+            : 'layout/sidebar_alumni';
+
+        return view('alumni/profil/index', [
+            'alumni'     => $alumni ? (object) $alumni : null,
+            'layout'     => $layout,
+            'role'       => $role,
+            'currentJob' => $currentJob ? (object) $currentJob : null,   // 🔑 convert ke object
+            'riwayat'    => array_map(fn($r) => (object) $r, $riwayat)   // 🔑 convert semua ke object
+        ]);
+    }
+
+
+
+    // public function editProfil($role = 'alumni')
+    // {
+    //     $session     = session();
+    //     $alumniModel = new \App\Models\DetailaccountAlumni();
+    //     $idAccount   = $session->get('id_account');
+
+    //     $alumni = $alumniModel->where('id_account', $idAccount)->first();
+
+    //     $layout = ($role === 'surveyor')
+    //         ? 'layout/sidebar_alumni2'
+    //         : 'layout/sidebar_alumni';
+
+    //     return view('alumni/profil/edit', [
+    //         'alumni' => (object) $alumni,
+    //         'layout' => $layout
+    //     ]);
+    // }
+
+    // =============================
+    // 👔 PEKERJAAN
+    // =============================
+    public function pekerjaan($role = 'alumni')
+    {
+        $session = session();
+        $idAccount = $session->get('id_account');
+
+        // Ambil pekerjaan saat ini
+        $currentJob = $this->riwayatModel
+            ->where('id_alumni', $idAccount)
+            ->where('is_current', 1)
+            ->first();
+
+        $layout = ($role === 'surveyor') ? 'layout/sidebar_alumni2' : 'layout/sidebar_alumni';
+
+        return view('alumni/profil/pekerjaan', [
+            'currentJob' => $currentJob,
+            'layout'     => $layout,
+        ]);
+    }
+
+    public function savePekerjaan()
+    {
+        $session   = session();
+        $idAccount = $session->get('id_account');
+
+        $perusahaan        = $this->request->getPost('perusahaan');
+        $jabatan           = $this->request->getPost('jabatan');
+        $tahun_masuk       = $this->request->getPost('tahun_masuk');
+        $tahun_keluar      = $this->request->getPost('tahun_keluar');
+        $alamat_perusahaan = $this->request->getPost('alamat_perusahaan');
+        $status_kerja      = $this->request->getPost('status_kerja'); // "masih" / "hingga"
+
+        // 🔹 Pindahkan pekerjaan lama ke riwayat
+        $oldJob = $this->riwayatModel
+            ->where('id_alumni', $idAccount)
+            ->where('is_current', 1)
+            ->first();
+
+        if ($oldJob) {
+            $this->riwayatModel->update($oldJob['id'], [
+                'is_current'   => 0,
+                'masih'        => 0, // otomatis jadi riwayat
+                'tahun_keluar' => ($oldJob['masih'] == 1 || $oldJob['tahun_keluar'] === '0000')
+                    ? date('Y') // kalau masih "0000" isi tahun sekarang
+                    : $oldJob['tahun_keluar']
+            ]);
         }
 
-        // Tentukan layout sesuai role
-        $viewFile = $role === 'surveyor'
-            ? 'alumni/alumnisurveyor/profil/index'
-            : 'alumni/profil/index';
+        // 🔹 Tentukan data baru
+        $dataBaru = [
+            'id_alumni'         => $idAccount,
+            'perusahaan'        => $perusahaan,
+            'jabatan'           => $jabatan,
+            'tahun_masuk'       => $tahun_masuk,
+            'alamat_perusahaan' => $alamat_perusahaan,
+            'is_current'        => 1 // pekerjaan baru selalu jadi current
+        ];
 
-        return view($viewFile, [
-            'alumni' => (object) $alumni
-        ]);
+        if ($status_kerja === 'masih') {
+            // Jika masih bekerja
+            $dataBaru['masih']        = 1;
+            $dataBaru['tahun_keluar'] = '0000';
+        } else {
+            // Jika hingga tahun tertentu
+            $dataBaru['masih']        = 0;
+            $dataBaru['tahun_keluar'] = $tahun_keluar;
+        }
+
+        // 🔹 Simpan pekerjaan baru
+        $this->riwayatModel->insert($dataBaru);
+
+        return redirect()->to('/alumni/profil')->with('success', 'Pekerjaan berhasil disimpan.');
     }
 
 
-    public function editProfil()
+
+    // =============================
+    // 📜 RIWAYAT PEKERJAAN
+    // =============================
+    public function riwayatPekerjaan($role = 'alumni')
     {
-        $id = session()->get('id_account');
-        $alumniModel = new AlumniModel();
-        $alumni = $alumniModel->where('id_account', $id)->first();
+        $session   = session();
+        $idAccount = $session->get('id_account');
 
-        return view('alumni/profil/edit', [
-            'alumni' => (object) $alumni
+        $riwayat = $this->riwayatModel
+            ->where('id_alumni', $idAccount)
+            ->where('is_current', 0)
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
+
+        // 🔹 Ubah semua array hasil query jadi object
+        $riwayat = array_map(fn($r) => (object) $r, $riwayat);
+
+        $layout = ($role === 'surveyor') ? 'layout/sidebar_alumni2' : 'layout/sidebar_alumni';
+
+        return view('alumni/profil/riwayat_pekerjaan', [
+            'riwayat' => $riwayat,
+            'layout'  => $layout
         ]);
     }
+
+
+    public function deleteRiwayat($id)
+    {
+        $this->riwayatModel->delete($id);
+        return redirect()->back()->with('success', 'Riwayat pekerjaan berhasil dihapus.');
+    }
+
+
+    public function profilSurveyor()
+    {
+        return $this->profil('surveyor');
+    }
+
+    // public function editProfilSurveyor()
+    // {
+    //     return $this->editProfil('surveyor');
+    // }
+
 
     public function supervisi()
     {
-        return view('alumni/alumnisurveyor/supervisi');
+        // Set role surveyor di session supaya sidebar menampilkan Lihat Teman
+        session()->set('role', 'surveyor');
+
+        // Panggil dashboard dengan role surveyor
+        return $this->dashboard('surveyor');
     }
 
     // =============================
@@ -129,6 +289,7 @@ class AlumniController extends BaseController
         $alumniModel  = new DetailaccountAlumni();
         $jurusanModel = new JurusanModel();
         $prodiModel   = new Prodi();
+        $db           = \Config\Database::connect();
 
         $currentAlumni = $alumniModel
             ->where('id_account', session('id'))
@@ -147,10 +308,26 @@ class AlumniController extends BaseController
             ->where('id_account !=', session('id'))
             ->findAll();
 
-        // contoh dummy status
+        // cek status kuesioner multi
         foreach ($teman as &$t) {
-            $statuses = ['Finish', 'Ongoing', 'Belum Mengisi'];
-            $t['status'] = $statuses[array_rand($statuses)];
+            $responses = $db->table('responses')
+                ->where('account_id', $t['id_account'])
+                ->get()
+                ->getResult();
+
+            if (empty($responses)) {
+                $t['status'] = 'Belum Mengisi';
+            } else {
+                $statuses = array_column($responses, 'status');
+
+                if (count(array_unique($statuses)) === 1 && $statuses[0] === 'completed') {
+                    // semua completed
+                    $t['status'] = 'Finish';
+                } else {
+                    // ada draft atau campuran
+                    $t['status'] = 'Ongoing';
+                }
+            }
         }
         unset($t);
 
@@ -162,6 +339,7 @@ class AlumniController extends BaseController
 
         return view('alumni/alumnisurveyor/lihat_teman', $data);
     }
+
 
     // =============================
     // 🔔 FITUR PESAN & NOTIFIKASI
@@ -341,39 +519,11 @@ class AlumniController extends BaseController
     }
 
     // =============================
-    // ✏️ UPDATE PROFIL
+    // ✏️ UPDATE PROFIL (Data + Foto)
     // =============================
-    public function update()
+    public function updateProfil($role = 'alumni')
     {
-        $id_account = session()->get('id_account');
-        $alumniModel = new AlumniModel();
-
-        $alumni = $alumniModel->where('id_account', $id_account)->first();
-        if (!$alumni) {
-            return redirect()->to(base_url('alumni/profil'))
-                ->with('error', 'Data alumni tidak ditemukan');
-        }
-
-        $data = [
-            'nama_lengkap' => $this->request->getPost('nama_lengkap'),
-            'alamat'       => $this->request->getPost('alamat'),
-        ];
-
-        $foto = $this->request->getFile('foto');
-        if ($foto && $foto->isValid() && !$foto->hasMoved()) {
-            $newName = $foto->getRandomName();
-            $foto->move('uploads', $newName);
-            $data['foto'] = $newName;
-        }
-
-        $alumniModel->where('id_account', $id_account)->set($data)->update();
-
-        return redirect()->to(base_url('alumni/profil'))->with('success', 'Profil berhasil diupdate');
-    }
-
-    public function updateProfil()
-    {
-        $session = session();
+        $session   = session();
         $idAccount = $session->get('id_account');
 
         if (!$idAccount) {
@@ -381,75 +531,142 @@ class AlumniController extends BaseController
         }
 
         $alumniModel = new \App\Models\AlumniModel();
+        $riwayatModel = new \App\Models\RiwayatPekerjaanModel();
 
-        $data = [
+        // =====================
+        // Update data profil
+        // =====================
+        $profilData = [
             'nama_lengkap' => $this->request->getPost('nama_lengkap'),
             'alamat'       => $this->request->getPost('alamat'),
         ];
 
+        // Upload foto jika ada
         $foto = $this->request->getFile('foto');
         if ($foto && $foto->isValid() && !$foto->hasMoved()) {
+            $uploadPath = FCPATH . 'uploads/foto_alumni/';
+            if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
+
             $newName = $foto->getRandomName();
-            $foto->move(FCPATH . 'uploads', $newName);
-            $data['foto'] = $newName;
+            $foto->move($uploadPath, $newName);
+            $profilData['foto'] = $newName;
+
+            // Update session foto
+            $session->set('foto', $newName);
         }
 
-        $alumniModel->where('id_account', $idAccount)->set($data)->update();
+        // Update tabel alumni
+        $alumniModel->where('id_account', $idAccount)->set($profilData)->update();
 
-        if (isset($data['nama_lengkap']) && !empty($data['nama_lengkap'])) {
-            $session->set('nama_lengkap', $data['nama_lengkap']);
-        }
-        if (isset($data['foto'])) {
-            $session->set('foto', $data['foto']);
+        // Update session nama_lengkap
+        if (!empty($profilData['nama_lengkap'])) {
+            $session->set('nama_lengkap', $profilData['nama_lengkap']);
         }
 
-        return redirect()->to(base_url('alumni/profil'))->with('success', 'Profil berhasil diperbarui.');
+        // =====================
+        // Tambah riwayat pekerjaan (jika ada)
+        // =====================
+        if ($this->request->getPost('perusahaan')) {
+            $riwayatData = [
+                'id_alumni'         => $idAccount,
+                'perusahaan'        => $this->request->getPost('perusahaan'),
+                'jabatan'           => $this->request->getPost('jabatan'),
+                'tahun_masuk'       => $this->request->getPost('tahun_masuk'),
+                'tahun_keluar'      => $this->request->getPost('tahun_keluar'),
+                'alamat_perusahaan' => $this->request->getPost('alamat_perusahaan'),
+            ];
+
+            $riwayatModel->insert($riwayatData);
+        }
+
+        // =====================
+        // Redirect sesuai role
+        // =====================
+        $redirectUrl = $role === 'surveyor'
+            ? base_url('alumni/surveyor/profil')
+            : base_url('alumni/profil');
+
+        return redirect()->to($redirectUrl)->with('success', 'Profil & riwayat pekerjaan berhasil diperbarui.');
     }
 
-    public function updateFoto($idAccount)
+
+    // public function editProfil($role = 'alumni')
+    // {
+    //     $session = session();
+    //     $idAccount = $session->get('id_account');
+
+    //     // Ambil data alumni
+    //     $alumniModel = new \App\Models\DetailaccountAlumni();
+    //     $alumni = $alumniModel->where('id_account', $idAccount)->first();
+
+    //     // Ambil riwayat pekerjaan alumni
+    //     $riwayatModel = new RiwayatPekerjaanModel();
+    //     $riwayat = $riwayatModel->where('id_alumni', $idAccount)->orderBy('tahun_masuk', 'DESC')->findAll();
+
+    //     // Tentukan layout
+    //     $layout = ($role === 'surveyor') ? 'layout/sidebar_alumni2' : 'layout/sidebar_alumni';
+
+    //     return view('alumni/profil/edit', [
+    //         'alumni'  => (object) $alumni,
+    //         'riwayat' => $riwayat,
+    //         'layout'  => $layout
+    //     ]);
+    // }
+
+
+
+
+    // =============================
+    // 📸 UPDATE FOTO SAJA (Upload / Kamera)
+    // =============================
+    public function updateFoto($idAccount, $role = 'alumni')
     {
-        $alumniModel = new AlumniModel();
-        $uploadPath = FCPATH . 'uploads/foto_alumni/';
-
-        if (!is_dir($uploadPath)) {
-            mkdir($uploadPath, 0777, true);
-        }
-
-        $alumni = $alumniModel->where('id_account', $idAccount)->first();
+        $alumni = $this->alumniModel->where('id_account', $idAccount)->first();
         if (!$alumni) {
-            return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Data alumni tidak ditemukan']);
         }
+
+        $uploadPath = FCPATH . 'uploads/foto_alumni/';
+        if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
 
         $newName = null;
+
+        // Upload dari file
         $file = $this->request->getFile('foto');
         if ($file && $file->isValid() && !$file->hasMoved()) {
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!in_array($file->getMimeType(), $allowedTypes)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Format file tidak didukung']);
+            }
             $newName = $file->getRandomName();
             $file->move($uploadPath, $newName);
-        } elseif ($this->request->getPost('foto_camera')) {
+        }
+        // Upload dari kamera (base64)
+        elseif ($this->request->getPost('foto_camera')) {
             $dataUrl = $this->request->getPost('foto_camera');
             $dataParts = explode(',', $dataUrl);
-            if (isset($dataParts[1])) {
-                $decoded = base64_decode($dataParts[1]);
-                $newName = uniqid('foto_') . '.png';
-                file_put_contents($uploadPath . $newName, $decoded);
-            } else {
-                return redirect()->back()->with('error', 'Format foto dari kamera salah');
+            if (!isset($dataParts[1])) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Format foto dari kamera salah']);
             }
+            $decoded = base64_decode($dataParts[1]);
+            $newName = uniqid('foto_') . '.png';
+            file_put_contents($uploadPath . $newName, $decoded);
         } else {
-            return redirect()->back()->with('error', 'Tidak ada file untuk diupload');
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Tidak ada file untuk diupload']);
         }
 
+        // Simpan ke database dan update session
         if ($newName && file_exists($uploadPath . $newName)) {
-            $alumniModel->where('id_account', $idAccount)
-                ->set(['foto' => $newName])
-                ->update();
+            $this->alumniModel->update($idAccount, ['foto' => $newName]);
+            session()->set('foto', $newName);
 
-            $session = session();
-            $session->set('foto', $newName);
-
-            return redirect()->back()->with('success', 'Foto profil berhasil diubah');
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Foto profil berhasil diubah',
+                'fotoUrl' => base_url('uploads/foto_alumni/' . $newName)
+            ]);
         }
 
-        return redirect()->back()->with('error', 'Gagal update database');
+        return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal update database']);
     }
 }
