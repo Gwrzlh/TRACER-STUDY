@@ -26,30 +26,37 @@ class UserQuestionController extends BaseController
         $this->logActivityModel = new LogActivityModel();
     }
 
+    /**
+     * Daftar semua kuesioner yang bisa diakses user
+     */
     public function index()
     {
         if (!session()->get('logged_in')) {
             return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
         }
 
-        $userId = session()->get('id');
+        $userId   = session()->get('id');
         $userData = session()->get();
 
         $questionnaires = $this->questionnaireModel->getAccessibleQuestionnaires($userData);
 
         $data = [];
         foreach ($questionnaires as $q) {
-            if ($q['is_active'] === 'inactive') continue;
+            if ($q['is_active'] === 'inactive') {
+                continue; // skip kalau tidak aktif
+            }
 
             $statusPengisian = $this->answerModel->getStatus($q['id'], $userId) ?: 'Belum Mengisi';
-            $progress = ($statusPengisian === 'On Going') ? $this->answerModel->getProgress($q['id'], $userId) : 0;
+            $progress        = ($statusPengisian === 'On Going')
+                ? $this->answerModel->getProgress($q['id'], $userId)
+                : 0;
 
             $data[] = [
-                'id' => $q['id'],
-                'judul' => $q['title'],
-                'statusIsi' => $statusPengisian,
-                'progress' => $progress,
-                'is_active' => $q['is_active'],
+                'id'          => $q['id'],
+                'judul'       => $q['title'],
+                'statusIsi'   => $statusPengisian,
+                'progress'    => $progress,
+                'is_active'   => $q['is_active'],
                 'conditional' => $q['conditional_logic'] ?? '-',
             ];
         }
@@ -57,15 +64,18 @@ class UserQuestionController extends BaseController
         return view('alumni/questioner/index', ['data' => $data]);
     }
 
+    /**
+     * Mulai isi kuesioner
+     */
     public function mulai($q_id)
     {
         if (!session()->get('logged_in')) {
             return redirect()->to('/login');
         }
 
-        $userId = session()->get('id');
+        $userId   = session()->get('id');
         $userData = session()->get();
-        $q_id = (int)$q_id;
+        $q_id     = (int)$q_id;
 
         log_message('debug', '[mulai] UserData: ' . print_r($userData, true));
 
@@ -75,18 +85,22 @@ class UserQuestionController extends BaseController
             return redirect()->back()->with('error', 'Kuesioner tidak ditemukan.');
         }
 
+        // cek syarat akses
         if (!$this->questionnaireModel->checkConditions($questionnaire['conditional_logic'] ?? '', $userData)) {
             return redirect()->back()->with('error', 'Anda tidak memiliki akses ke kuesioner ini.');
         }
 
+        // cek status
         $status = $this->answerModel->getStatus($q_id, $userId);
         if ($status === 'Finish') {
             return redirect()->to("/alumni/questioner/lihat/$q_id");
         }
 
+        // ambil jawaban sebelumnya
         $previous_answers = $this->answerModel->getUserAnswers($q_id, $userId);
         log_message('debug', '[mulai] Previous answers: ' . print_r($previous_answers, true));
 
+        // ambil struktur pertanyaan
         $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $userData, $previous_answers);
         log_message('debug', '[mulai] Structure: ' . print_r($structure, true));
 
@@ -100,53 +114,72 @@ class UserQuestionController extends BaseController
         session()->set("current_q_id", $q_id);
 
         return view('alumni/questioner/fill', [
-            'structure' => $structure,
-            'user_id' => $userId,
-            'q_id' => $q_id,
-            'progress' => $progress,
+            'structure'        => $structure,
+            'user_id'          => $userId,
+            'q_id'             => $q_id,
+            'progress'         => $progress,
             'previous_answers' => $previous_answers
         ]);
     }
 
+    /**
+     * Lanjutkan isi kuesioner
+     */
     public function lanjutkan($q_id)
     {
         return $this->mulai($q_id);
     }
 
+    /**
+     * Review / lihat hasil kuesioner
+     */
     public function lihat($q_id)
     {
         $user_data = session()->get();
-        $data['structure'] = $this->questionnaireModel->getQuestionnaireStructure($q_id, $user_data, $this->answerModel->getUserAnswers($q_id, $user_data['id']));
+
+        $data['structure'] = $this->questionnaireModel->getQuestionnaireStructure(
+            $q_id,
+            $user_data,
+            $this->answerModel->getUserAnswers($q_id, $user_data['id'])
+        );
+
         if (!$data['structure']) {
-            return redirect()->to('/alumni/questionnaire')->with('error', 'Kuesioner tidak ditemukan atau tidak dapat diakses.');
+            return redirect()->to('/alumni/questioner')
+                ->with('error', 'Kuesioner tidak ditemukan atau tidak dapat diakses.');
         }
-        $data['q_id'] = $q_id;
-        $data['progress'] = $this->answerModel->getProgress($q_id, $user_data['id']);
+
+        $data['q_id']             = $q_id;
+        $data['progress']         = $this->answerModel->getProgress($q_id, $user_data['id']);
         $data['previous_answers'] = $this->answerModel->getUserAnswers($q_id, $user_data['id']);
+
         return view('alumni/questioner/review', $data);
     }
 
+    /**
+     * Simpan jawaban kuesioner
+     */
     public function saveAnswer()
     {
+        $db      = \Config\Database::connect();
         $user_id = session()->get('id');
-        $q_id = $this->request->getPost('q_id');
+        $q_id    = $this->request->getPost('q_id');
         $answers = $this->request->getPost('answer');
-        $files = $this->request->getFiles();
+        $files   = $this->request->getFiles();
 
         if (empty($answers) && empty($files)) {
-            return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Tidak ada jawaban yang disimpan.');
+            return redirect()->to("/alumni/questionnaires/mulai/$q_id")
+                ->with('error', 'Tidak ada jawaban yang disimpan.');
         }
 
+        // proses jawaban
         if ($answers) {
             foreach ($answers as $question_id => $answer) {
-                // Skip jika answer kosong
                 if (empty($answer) && !is_array($answer)) {
-                    continue;
+                    continue; // skip kosong
                 }
-                // Handle file upload
+
+                // handle file upload
                 if (!is_array($answer) && strpos($answer, 'uploaded_file:') === 0) {
-                    $file_path = $answer;
-                    // Upload logic
                     $file = $files['answer_' . $question_id] ?? null;
                     if ($file && $file->isValid()) {
                         $upload_path = WRITEPATH . 'uploads/answers/';
@@ -157,13 +190,13 @@ class UserQuestionController extends BaseController
                         $this->answerModel->saveAnswer($user_id, $q_id, $question_id, $file_path);
                     }
                 } else {
-                    // Handle non-file answers (text, dropdown, matrix, dll.)
+                    // non-file answer
                     $this->answerModel->saveAnswer($user_id, $q_id, $question_id, $answer);
                 }
             }
         }
 
-        // Handle file uploads yang tidak ada di $answers
+        // handle file upload standalone
         foreach ($files as $key => $file) {
             if (preg_match('/answer_(\d+)/', $key, $matches)) {
                 $question_id = $matches[1];
