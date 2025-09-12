@@ -190,23 +190,30 @@ class Auth extends Controller
 
     // Simpan password baru
     public function doResetPassword()
-    {
-        $token       = $this->request->getPost('token');
-        $newPassword = $this->request->getPost('password');
-        $confirm     = $this->request->getPost('confirm_password');
+{
+    $token = $this->request->getPost('token');
+    $password = $this->request->getPost('password');
+    $confirmPassword = $this->request->getPost('confirm_password');
 
-        if ($newPassword !== $confirm) {
-            return redirect()->back()->with('error', 'Password dan konfirmasi tidak sama.');
-        }
+    // Cari user berdasarkan token
+    $user = $this->accountModel->getUserByResetToken($token);
 
-        $user = $this->accountModel->getUserByResetToken($token);
-
-        if (!$user) {
-            return redirect()->to('/login')->with('error', 'Token tidak valid atau sudah kadaluarsa.');
-        }
-
-        $this->accountModel->updatePasswordAndExpire($user['id'], $newPassword);
-
-        return redirect()->to('/login')->with('success', 'Password berhasil direset, silakan login.');
+    if (!$user) {
+        return redirect()->to('/login')->with('error', 'Token tidak valid atau sudah kadaluarsa.');
     }
+
+    if ($password !== $confirmPassword) {
+        return redirect()->back()->with('error', 'Konfirmasi password tidak sama.');
+    }
+
+    // Update password & hapus token
+    $this->accountModel->update($user['id'], [
+        'password' => password_hash($password, PASSWORD_DEFAULT),
+        'reset_token' => null,
+        'reset_expires' => null
+    ]);
+
+    // Redirect ke login dengan alert sukses
+    return redirect()->to('/login')->with('success', 'Password berhasil diupdate. Silakan login.');
+}
 }
