@@ -3,6 +3,24 @@
 <link rel="stylesheet" href="<?= base_url('css/questioner/index.css') ?>">
 
 <div>
+
+   <!-- Navbar -->
+   <!-- Navbar -->
+<nav class="sticky top-0 bg-white navbar-shadow nav-bg border-b border-gray-100 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex justify-between items-center">
+            <!-- Nav link kiri -->
+            <div class="flex items-center gap-6">
+                <span class="nav-title font-semibold text-xl cursor-pointer">
+                    Daftar Kuesionerr
+                </span>
+            </div>
+            
+            <!-- Optional: Tambahan elemen kanan jika diperlukan -->
+            <div class="flex items-center gap-4">
+                <!-- Indikator status -->
+                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+
     <!-- Navbar -->
     <nav class="sticky top-0 bg-white navbar-shadow nav-bg border-b border-gray-100 z-50">
         <div class="max-w-7xl mx-auto px-6 py-4">
@@ -24,8 +42,12 @@
     <div class="questionnaire-card">
         <div class="card-header flex justify-between items-center">
             <div class="flex items-center gap-2">
+
+                <div class="card-header-icon"></div>
+                <h3 class="card-title">Daftar Kuesioner </h3>
                 <div class="card-header-icon">📋</div>
                 <h3 class="card-title">Daftar Kuesioner</h3>
+
             </div>
             <a href="<?= base_url('admin/questionnaire/create') ?>"
                 class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">

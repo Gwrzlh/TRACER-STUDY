@@ -487,49 +487,47 @@ public function edit($id)
 
 public function update($id)
 {
-    $accountModel = new Accounts();
-    $detailAlumni = new DetailaccountAlumni();
-    $detailAdmin = new DetailaccountAdmins();
-    $detailPerusahaan = new DetailaccountPerusahaan();
-    // Tambahkan model untuk role baru
-    $detailKaprodi = new DetailaccountKaprodi();
-    $detailAtasan = new DetailaccountAtasan();
-    $detailLainnya = new DetailaccountJabatanLLnya();
+    $accountModel    = new Accounts();
+    $detailAlumni    = new DetailaccountAlumni();
+    $detailAdmin     = new DetailaccountAdmins();
+    $detailPerusahaan= new DetailaccountPerusahaan();
+    $detailKaprodi   = new DetailaccountKaprodi();
+    $detailAtasan    = new DetailaccountAtasan();
+    $detailLainnya   = new DetailaccountJabatanLLnya();
 
-    // Get existing account data
     $account = $accountModel->find($id);
     if (!$account) {
         return redirect()->back()->with('error', 'Data akun tidak ditemukan.');
     }
 
     $existingRole = $account['id_role'];
-    $newRole = $this->request->getPost('group');
-    $username = $this->request->getPost('username');
-    $password = $this->request->getPost('password');
-    $status = $this->request->getPost('status');
+    $newRole      = $this->request->getPost('group'); // pastikan sesuai dengan form
+    $username     = $this->request->getPost('username');
+    $email        = $this->request->getPost('email');
+    $password     = $this->request->getPost('password');
+    $status       = $this->request->getPost('status');
 
-    // Basic validation rules
+    // Validasi umum
     $rules = [
         'username' => "required|is_unique[account.username,id,{$id}]",
-         'email'    => "required|valid_email|is_unique[account.email,id,{$id}]",
-        'group' => 'required',
-        'status' => 'required',
+        'email'    => "required|valid_email|is_unique[account.email,id,{$id}]",
+        'group'    => 'required',
+        'status'   => 'required',
     ];
 
-    // Password validation (only if filled)
     if (!empty($password)) {
         $rules['password'] = 'min_length[6]';
     }
 
-    // Role-specific validation
+    // Validasi tambahan berdasarkan role
     switch ($newRole) {
         case '1': // Alumni
             $rules = array_merge($rules, [
                 'alumni_nama_lengkap' => 'required',
-                'alumni_nim' => 'required|numeric',
-                'alumni_jurusan' => 'required',
-                'alumni_prodi' => 'required',
-                'alumni_notlp' => 'required|numeric',
+                'alumni_nim'          => 'required|numeric',
+                'alumni_jurusan'      => 'required',
+                'alumni_prodi'        => 'required',
+                'alumni_notlp'        => 'required|numeric',
             ]);
             break;
         case '2': // Admin
@@ -538,87 +536,79 @@ public function update($id)
         case '6': // Kaprodi
             $rules = array_merge($rules, [
                 'kaprodi_nama_lengkap' => 'required',
-                'kaprodi_jurusan' => 'required',
-                'kaprodi_prodi' => 'required',
-                'kaprodi_notlp' => 'required|numeric'
+                'kaprodi_jurusan'      => 'required',
+                'kaprodi_prodi'        => 'required',
+                'kaprodi_notlp'        => 'required|numeric',
             ]);
             break;
         case '7': // Perusahaan
             $rules = array_merge($rules, [
                 'perusahaan_nama_perusahaan' => 'required',
-                'perusahaan_notlp' => 'required|numeric'
+                'perusahaan_notlp'           => 'required|numeric',
             ]);
             break;
         case '8': // Atasan
             $rules = array_merge($rules, [
                 'atasan_nama_lengkap' => 'required',
-                'atasan_jabatan' => 'required',
-                'atasan_notlp' => 'required|numeric'
+                'atasan_jabatan'      => 'required',
+                'atasan_notlp'        => 'required|numeric',
             ]);
             break;
         case '9': // Jabatan Lainnya
             $rules = array_merge($rules, [
                 'lainnya_nama_lengkap' => 'required',
-                'lainnya_jabatan' => 'required',
-                'lainnya_jurusan' => 'required',
-                'lainnya_prodi' => 'required',
-                'lainnya_notlp' => 'required|numeric'
+                'lainnya_jabatan'      => 'required',
+                'lainnya_jurusan'      => 'required',
+                'lainnya_prodi'        => 'required',
+                'lainnya_notlp'        => 'required|numeric',
             ]);
             break;
     }
 
-    // Validate input
     if (!$this->validate($rules)) {
         return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
     }
 
-    // Determine surveyor status based on role and checkbox
+    // Hak surveyor
     $hakSurveyor = null;
     switch ($newRole) {
-        case '1': // Alumni
-            $hakSurveyor = $this->request->getPost('alumni_hak') ? 1 : null;
-            break;
-        case '6': // Kaprodi
-            $hakSurveyor = $this->request->getPost('kaprodi_hak') ? 1 : null;
-            break;
-        case '9': // Jabatan Lainnya
-            $hakSurveyor = $this->request->getPost('lainnya_hak') ? 1 : null;
-            break;
+        case '1': $hakSurveyor = $this->request->getPost('alumni_hak') ? 1 : null; break;
+        case '6': $hakSurveyor = $this->request->getPost('kaprodi_hak') ? 1 : null; break;
+        case '9': $hakSurveyor = $this->request->getPost('lainnya_hak') ? 1 : null; break;
     }
 
-    // Prepare account update data
+    // Data utama
     $updateData = [
-        'username' => $username,
-        'email' => $this->request->getPost('email'),
-        'status' => $status,
-        'id_role' => $newRole,
-        'id_surveyor' => $hakSurveyor
+        'username'    => $username,
+        'email'       => $email,
+        'status'      => $status,
+        'id_role'     => $newRole,
+        'id_surveyor' => $hakSurveyor,
     ];
-
-    // Add password to update data only if provided
     if (!empty($password)) {
         $updateData['password'] = password_hash($password, PASSWORD_DEFAULT);
     }
 
-    // Start transaction
     $db = \Config\Database::connect();
     $db->transStart();
 
     try {
-        // Update account data
         if (!$accountModel->update($id, $updateData)) {
-            throw new Exception('Failed to update account data');
+            throw new \Exception('Gagal update akun utama.');
         }
 
-        // Handle role change or update
-        $this->handleDetailAccountUpdate($id, $existingRole, $newRole, $detailAlumni, $detailAdmin, $detailPerusahaan, $detailKaprodi, $detailAtasan, $detailLainnya);
+        // Update detail sesuai role
+        $this->handleDetailAccountUpdate(
+            $id, $existingRole, $newRole,
+            $detailAlumni, $detailAdmin, $detailPerusahaan,
+            $detailKaprodi, $detailAtasan, $detailLainnya
+        );
 
         $db->transCommit();
         return redirect()->to('/admin/pengguna')->with('success', 'Data pengguna berhasil diperbarui.');
-
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         $db->transRollback();
-        log_message('error', 'Update user failed: ' . $e->getMessage());
+        log_message('error', 'Update user gagal: ' . $e->getMessage());
         return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
 }

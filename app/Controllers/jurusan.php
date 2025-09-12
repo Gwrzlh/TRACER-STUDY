@@ -10,30 +10,32 @@ use CodeIgniter\Controller;
 class Jurusan extends Controller
 {
     public function index()
-    {
-        $jurusanModel = new JurusanModel();
-        $satuanModel  = new SatuanOrganisasiModel();
-        $prodiModel   = new Prodi();
+{
+    $jurusanModel = new JurusanModel();
+    $satuanModel  = new SatuanOrganisasiModel();
+    $prodiModel   = new Prodi();
 
-        // Ambil keyword dari GET
-        $keyword = $this->request->getGet('keyword');
+    // Ambil keyword dari GET
+    $keyword = $this->request->getGet('keyword');
 
-        // Query untuk badge (hitung total tanpa filter)
-        $data['count_satuan']  = $satuanModel->countAll();
-        $data['count_jurusan'] = $jurusanModel->countAll();
-        $data['count_prodi']   = $prodiModel->countAll();
+    // Query untuk badge (hitung total tanpa filter)
+    $data['count_satuan']  = $satuanModel->countAll();
+    $data['count_jurusan'] = $jurusanModel->countAll();
+    $data['count_prodi']   = $prodiModel->countAll();
 
-        // Filter jika ada keyword (pencarian berdasarkan nama_jurusan)
-        if ($keyword) {
-            $jurusanModel->like('nama_jurusan', $keyword);
-        }
-
-        // Ambil data jurusan
-        $data['jurusan'] = $jurusanModel->findAll();
-        $data['keyword'] = $keyword; // supaya input search tetap terisi
-
-        return view('adminpage/organisasi/satuanorganisasi/jurusan/index', $data);
+    // Filter jika ada keyword (pencarian berdasarkan nama_jurusan)
+    if ($keyword) {
+        $jurusanModel->like('nama_jurusan', $keyword);
     }
+
+    // Ambil data jurusan terbaru duluan (id DESC)
+    $data['jurusan'] = $jurusanModel->orderBy('id', 'DESC')->findAll();
+
+    // Supaya input search tetap terisi
+    $data['keyword'] = $keyword;
+
+    return view('adminpage/organisasi/satuanorganisasi/jurusan/index', $data);
+}
 
     public function create()
     {

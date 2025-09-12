@@ -1,354 +1,283 @@
-/* ====== MODERN DAFTAR KUESIONER ALUMNI STYLE ====== */
+/* Modern Table Design - Inspired by Norsk Timeregistering */
 
-/* Container */
-.questionnaire-container {
-    background: #f8fafc;
-    min-height: 100vh;
-    padding: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Top Statistics Cards */
-.stats-container {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 32px;
-}
-
-.stat-card {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    border: 1px solid #e5e7eb;
-    flex: 1;
-    position: relative;
-}
-
-.stat-card.total {
-    border-left: 4px solid #6366f1;
-}
-
-.stat-card.completed {
-    border-left: 4px solid #10b981;
-}
-
-.stat-card.ongoing {
-    border-left: 4px solid #f59e0b;
-}
-
-.stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 12px;
-    font-size: 20px;
-}
-
-.stat-card.total .stat-icon {
-    background: #eef2ff;
-    color: #6366f1;
-}
-
-.stat-card.completed .stat-icon {
-    background: #ecfdf5;
-    color: #10b981;
-}
-
-.stat-card.ongoing .stat-icon {
-    background: #fffbeb;
-    color: #f59e0b;
-}
-
-.stat-number {
-    font-size: 32px;
-    font-weight: 700;
-    color: #111827;
-    line-height: 1;
-    margin-bottom: 4px;
-}
-
-.stat-label {
-    font-size: 14px;
-    color: #6b7280;
-    font-weight: 500;
-}
-
-/* Main Card Container */
+/* Main questionnaire card styling */
 .questionnaire-card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    margin: 24px;
     overflow: hidden;
 }
 
-/* Card Header */
 .card-header {
+    background: #ffffff;
     padding: 24px 32px;
     border-bottom: 1px solid #e5e7eb;
-    display: flex;
-    align-items: center;
-    gap: 12px;
 }
 
 .card-header-icon {
-    width: 40px;
-    height: 40px;
-    background: #10b981;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 18px;
+    width: 20px;
+    height: 20px;
+   
+    border-radius: 4px;
+    position: relative;
+}
+
+.card-header-icon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 2px;
+    opacity: 0.9;
 }
 
 .card-title {
     font-size: 20px;
     font-weight: 600;
-    color: #111827;
+    color: #1f2937;
     margin: 0;
 }
 
-/* Table Styles */
+/* Modern table styling */
 .questionnaire-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
 }
 
-/* Table Header */
 .questionnaire-table thead {
-    background: #f9fafb;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
 }
 
-.questionnaire-table th {
-    padding: 16px 32px;
-    text-align: left;
-    font-size: 13px;
+.questionnaire-table thead th {
+    padding: 16px 24px;
     font-weight: 600;
-    color: #6b7280;
+    font-size: 12px;
+    color: #64748b;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 2px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
 }
 
-/* Table Body */
-.questionnaire-table td {
-    padding: 20px 32px;
-    border-bottom: 1px solid #f3f4f6;
-    vertical-align: middle;
+.questionnaire-table tbody tr {
+    background: #ffffff;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .questionnaire-table tbody tr:hover {
-    background: #f9fafb;
-    transition: background 0.2s ease;
+    background: linear-gradient(135deg, #fafbff, #f8faff);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.1);
 }
 
-/* Row Number */
-.row-number {
+.questionnaire-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.questionnaire-table tbody td {
+    padding: 20px 24px;
+    color: #374151;
+    vertical-align: middle;
+    border: none;
+}
+
+/* First column (Title) styling */
+.questionnaire-table tbody td:first-child {
     font-weight: 600;
-    color: #6b7280;
-    font-size: 14px;
+    color: #1f2937;
 }
 
-/* Questionnaire Title */
-.questionnaire-title {
+/* Status badges modern styling */
+.questionnaire-table .px-2.py-1 {
+    padding: 6px 12px !important;
+    border-radius: 20px;
+    font-size: 11px;
     font-weight: 600;
-    color: #111827;
-    font-size: 15px;
-    margin-bottom: 4px;
-}
-
-.questionnaire-description {
-    font-size: 13px;
-    color: #6b7280;
-    line-height: 1.4;
-}
-
-/* Status Badges */
-.status-badge {
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: capitalize;
+    gap: 4px;
+    border: 1px solid transparent;
 }
 
-.status-badge.belum-mengisi {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
+/* Active status */
+.questionnaire-table .text-green-700.bg-green-100 {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0) !important;
+    color: #065f46 !important;
+    border-color: #a7f3d0;
 }
 
-.status-badge.ongoing {
-    background: #fffbeb;
-    color: #d97706;
-    border: 1px solid #fed7aa;
-}
-
-.status-badge.finish {
-    background: #ecfdf5;
-    color: #059669;
-    border: 1px solid #a7f3d0;
-}
-
-/* Action Buttons */
-.action-buttons {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.action-btn {
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    border: none;
-    cursor: pointer;
-}
-
-.btn-primary {
-    background: #3b82f6;
-    color: white;
-}
-
-.btn-primary:hover {
-    background: #2563eb;
-    transform: translateY(-1px);
-}
-
-.btn-success {
+.questionnaire-table .text-green-700.bg-green-100::before {
+    content: '';
+    width: 6px;
+    height: 6px;
     background: #10b981;
-    color: white;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
 }
 
-.btn-success:hover {
-    background: #059669;
-    transform: translateY(-1px);
+/* Inactive status */
+.questionnaire-table .text-red-700.bg-red-100 {
+    background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
+    color: #991b1b !important;
+    border-color: #fecaca;
 }
 
-.btn-secondary {
-    background: #f3f4f6;
-    color: #6b7280;
+/* Conditional logic badges */
+.questionnaire-table .text-blue-700.bg-blue-100 {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe) !important;
+    color: #1e40af !important;
+    border-color: #bfdbfe;
 }
 
-.btn-secondary:hover {
-    background: #e5e7eb;
-    color: #374151;
+.questionnaire-table .text-gray-600.bg-gray-200 {
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb) !important;
+    color: #4b5563 !important;
+    border-color: #e5e7eb;
 }
 
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #6b7280;
+/* Action buttons container */
+.questionnaire-table tbody td:last-child {
+    padding: 20px 24px;
 }
 
-.empty-state-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    opacity: 0.5;
+.questionnaire-table .flex.justify-center.gap-4 {
+    gap: 12px;
 }
 
-.empty-state-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #374151;
+/* Action buttons styling */
+.questionnaire-table a,
+.questionnaire-table button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    background: #f8fafc;
+    position: relative;
+    overflow: hidden;
 }
 
-.empty-state-description {
+.questionnaire-table a::before,
+.questionnaire-table button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.3));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.questionnaire-table a:hover::before,
+.questionnaire-table button:hover::before {
+    opacity: 1;
+}
+
+/* Blue action button (Pages) */
+.questionnaire-table .text-blue-600 {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #2563eb !important;
+    border-color: #dbeafe;
+}
+
+.questionnaire-table .text-blue-600:hover {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Yellow action button (Edit) */
+.questionnaire-table .text-yellow-600 {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    color: #d97706 !important;
+    border-color: #fef3c7;
+}
+
+.questionnaire-table .text-yellow-600:hover {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+}
+
+/* Red action button (Delete) */
+.questionnaire-table .text-red-600 {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    color: #dc2626 !important;
+    border-color: #fee2e2;
+}
+
+.questionnaire-table .text-red-600:hover {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
+/* Icons styling */
+.questionnaire-table i {
     font-size: 14px;
 }
 
-/* Responsive Design */
+/* Responsive design */
 @media (max-width: 768px) {
-    .stats-container {
-        flex-direction: column;
-        gap: 16px;
-    }
-    
-    .stat-card {
-        padding: 20px;
-    }
-    
-    .questionnaire-table th,
-    .questionnaire-table td {
-        padding: 12px 16px;
+    .questionnaire-card {
+        margin: 12px;
     }
     
     .card-header {
-        padding: 20px;
+        padding: 16px 20px;
     }
     
-    .action-buttons {
-        flex-direction: column;
-        align-items: stretch;
+    .questionnaire-table thead th,
+    .questionnaire-table tbody td {
+        padding: 12px 16px;
+        font-size: 13px;
     }
     
-    .action-btn {
-        text-align: center;
+    .questionnaire-table a,
+    .questionnaire-table button {
+        width: 32px;
+        height: 32px;
     }
 }
 
-/* Scrollbar Styling */
-.questionnaire-container::-webkit-scrollbar {
-    width: 6px;
+/* Subtle animations */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
 }
 
-.questionnaire-container::-webkit-scrollbar-track {
-    background: #f1f5f9;
+/* Table container styling */
+.overflow-x-auto {
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
 }
 
-.questionnaire-container::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
+/* Additional modern touches */
+.questionnaire-table tbody tr:nth-child(even) {
+    background: linear-gradient(135deg, #fafbff, #ffffff);
 }
 
-.questionnaire-container::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+.questionnaire-table tbody tr:nth-child(even):hover {
+    background: linear-gradient(135deg, #f8faff, #fafbff);
 }
-/* Custom animations */
-        .navbar-shadow {
-            box-shadow: 0 2px 20px rgba(59, 130, 246, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .nav-title {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
-        }
-        
-        .nav-title::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            transition: width 0.3s ease;
-        }
-        
-        .nav-title:hover::after {
-            width: 100%;
-        }
-        
-        /* Subtle background pattern */
-        .nav-bg {
-            background: 
-                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
-        }
