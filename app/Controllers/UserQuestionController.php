@@ -9,18 +9,21 @@ use App\Models\QuestionModel;
 use App\Models\QuestionnairePageModel;
 use App\Models\QuestionnairConditionModel;
 use App\Models\SectionModel;
+use App\models\LogActivityModel;
 
 class UserQuestionController extends BaseController
 {
     protected $questionnaireModel;
     protected $answerModel;
     protected $conditionModel;
+    protected $logActivityModel;
 
     public function __construct()
     {
         $this->questionnaireModel = new QuestionnairModel();
         $this->answerModel = new AnswerModel();
         $this->conditionModel = new QuestionnairConditionModel();
+        $this->logActivityModel = new LogActivityModel();
     }
 
     public function index()
@@ -174,7 +177,7 @@ class UserQuestionController extends BaseController
                 }
             }
         }
-
+        $this->logActivityModel->logAction('submit_questionnaire', 'User ' . $user_id . ' submitted questionnaire ID ' . $q_id);
         return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('success', 'Jawaban berhasil disimpan.');
     }
 }

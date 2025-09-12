@@ -25,6 +25,7 @@ class Filters extends BaseConfig
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
         'auth' => \App\Filters\Auth::class,
+        'logActivity' => \App\Filters\LogActivityMiddleware::class,
     ];
 
     /**
@@ -35,6 +36,7 @@ class Filters extends BaseConfig
      */
     public array $globals = [
         'before' => [
+            
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',
@@ -43,8 +45,15 @@ class Filters extends BaseConfig
             'toolbar',
             // 'honeypot',
             // 'secureheaders',
-        ],
-    ];
+            'logActivity' => ['except' => [
+            'assets/*',
+            'static/*',
+            'images/*',
+            'css/*',
+            'js/*',
+        ],],  // Hindari log file statis
+    ],
+];
 
     /**
      * List of filter aliases that works on a
