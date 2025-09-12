@@ -6,21 +6,25 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Filters\FilterInterface;
 
-class Auth implements FilterInterface
+class AlumniSurveyor implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        if (!session()->get('logged_in')) {
+        $session = session();
+
+        // Harus login dulu
+        if (!$session->get('logged_in')) {
             return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
         }
-        // Cek role admin (misal, id_role = 2)
-        if (session()->get('role_id') != 2) {
+
+        // Hanya role Alumni (1) dengan id_surveyor = 1
+        if ($session->get('role_id') != 1 || $session->get('id_surveyor') != 1) {
             return redirect()->to('/')->with('error', 'Akses ditolak.');
         }
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
-        // Tidak perlu apa-apa di sini
+        // tidak perlu
     }
 }

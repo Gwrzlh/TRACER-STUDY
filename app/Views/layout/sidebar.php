@@ -135,6 +135,14 @@ $currentRoute = service('request')->uri->getPath();
 
             <span class="font-medium">Email</span>
           </a>
+           <!-- log -->
+          <a href="<?= base_url('admin/log_activities') ?>"
+            class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities') ? 'active' : '' ?>">
+            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
+            </svg>
+            <span>aktivitas Pengguna</span>
+          </a>
 
         </nav>
       </div>
