@@ -274,43 +274,47 @@ $routes->group('kaprodi', ['filter' => 'auth'], function ($routes) {
 });
 
 
-/// ===============================
-// ALUMNI ROUTES
-// ===============================
-
-
 
 
 
 
 /// ROUTES ALUMNI
 $routes->group('alumni', static function ($routes) {
+    // -------------------------------
     // Login & Logout
+    // -------------------------------
     $routes->get('login', 'AlumniController::login');
     $routes->post('login', 'AlumniController::doLogin');
     $routes->get('logout', 'AlumniController::logout');
 
-
     // -------------------------------
     // Dashboard
     // -------------------------------
-    $routes->get('/', 'AlumniController::dashboard');
-    $routes->get('dashboard', 'AlumniController::dashboard');
+    $routes->get('dashboard', 'AlumniController::dashboard', ['filter' => 'auth']); // alumni biasa
+    $routes->get('surveyor/dashboard', 'AlumniController::dashboardSurveyor', ['filter' => 'auth']); // surveyor
 
     // -------------------------------
     // Profil Alumni Biasa
     // -------------------------------
-    $routes->get('profil', 'AlumniController::profil');
-    $routes->get('profil/edit', 'AlumniController::editProfil');
+    $routes->get('profil', 'AlumniController::profil');                  // index profil
     $routes->post('profil/update', 'AlumniController::updateProfil');
-    $routes->post('updateFoto/(:num)', 'AlumniController::updateFoto/$1');
+    $routes->post('profil/update-foto/(:num)', 'AlumniController::updateFoto/$1');
+
+    // Tentang Pekerjaan
+    $routes->get('profil/pekerjaan', 'AlumniController::pekerjaan');
+    $routes->post('profil/pekerjaan/save', 'AlumniController::savePekerjaan');
+
+    // Riwayat Pekerjaan
+    $routes->get('profil/riwayat', 'AlumniController::riwayatPekerjaan');
+    $routes->get('profil/riwayat/delete/(:num)', 'AlumniController::deleteRiwayat/$1');
 
     // -------------------------------
-    // Profil & Supervisi Alumni Surveyor
+    // Profil Alumni Surveyor
     // -------------------------------
-    $routes->group('surveyor', function ($routes) {
-        $routes->get('profil', fn() => (new \App\Controllers\AlumniController())->profil('surveyor'));
-
+    $routes->group('surveyor', static function ($routes) {
+        $routes->get('profil', 'AlumniController::profilSurveyor');
+        $routes->post('profil/update', 'AlumniController::updateProfil');
+        $routes->post('profil/update-foto/(:num)', 'AlumniController::updateFoto/$1');
 
         // Kuesioner Surveyor
         $routes->get('questionnaires', 'AlumniController::questionnairesForSurveyor');
@@ -329,23 +333,11 @@ $routes->group('alumni', static function ($routes) {
     $routes->post('kirimPesanManual', 'AlumniController::kirimPesanManual');
     $routes->get('viewpesan/(:num)', 'AlumniController::viewPesan/$1');
 
-
     // -------------------------------
-    // Lihat teman
-    // -------------------------------
-
-    $routes->get('/', 'AlumniController::dashboard', ['filter' => 'auth']);
-    $routes->get('dashboard', 'AlumniController::dashboard', ['filter' => 'auth']); // /alumni/dashboard
-
-    // Halaman Questioner
-    $routes->get('questioner', 'UserQuestionController::index', ['filter' => 'auth']);
-    $routes->get('questionersurveyor', 'AlumniController::questionersurveyor', ['filter' => 'auth']);
-
     // Supervisi & Lihat Teman
-    $routes->get('supervisi', 'AlumniController::supervisi', ['filter' => 'auth']);
-
+    // -------------------------------
     $routes->get('lihat_teman', 'AlumniController::lihatTeman');
-    $routes->get('supervisi', 'AlumniController::supervisi');
+    $routes->get('supervisi', 'AlumniController::supervisi', ['filter' => 'auth']);
 
     // -------------------------------
     // Questionnaires / Kuesioner Alumni Biasa
