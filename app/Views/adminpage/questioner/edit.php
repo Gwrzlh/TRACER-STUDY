@@ -1,46 +1,85 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
-<h2>Edit Kuesioner</h2>
-<form action="<?= base_url('/admin/questionnaire/' .  $questionnaire['id'] . '/update/') ?>" method="post">
+<div class="bg-white rounded-xl shadow-md p-8 w-full mx-auto">
+    <!-- Header + Divider -->
+    <div class="-mx-8 mb-6 border-b border-gray-300 pb-3 px-8">
+        <div class="flex items-center">
+            <img src="/images/logo.png" alt="Tracer Study" class="h-12 mr-3">
+            <h2 class="text-xl font-semibold">Edit Kuesioner</h2>
+        </div>
+    </div>
 
+    <form action="<?= base_url('/admin/questionnaire/' .  $questionnaire['id'] . '/update/') ?>" method="post" class="space-y-5">
+        
+        <!-- Judul Kuesioner -->
         <div>
-            <label>Judul Kuesioner</label><br>
-            <input type="text" name="title" value="<?= esc($questionnaire['title']) ?>" required>
+            <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                Judul Kuesioner <span class="text-red-500">*</span>
+            </label>
+            <input type="text" 
+                   name="title" 
+                   id="title"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                   value="<?= esc($questionnaire['title']) ?>" 
+                   required>
         </div>
+
+        <!-- Deskripsi -->
         <div>
-            <label>Deskripsi</label><br>
-            <textarea name="deskripsi"><?= esc($questionnaire['deskripsi']) ?></textarea>
+            <label for="deskripsi" class="block text-sm font-medium text-gray-700 mb-2">
+                Deskripsi
+            </label>
+            <textarea name="deskripsi" 
+                      id="deskripsi"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical" 
+                      rows="4"><?= esc($questionnaire['deskripsi']) ?></textarea>
         </div>
+
+        <!-- Status -->
         <div>
-          <label for="status">Status :</label>
-          
-          <select name="is_active" id="status">
-              <option value="active" <?= $questionnaire['is_active'] == 'active' ? 'selected' : '' ?>>Aktif</option>
-              <option value="draft" <?= $questionnaire['is_active'] == 'draft' ? 'selected' : '' ?>>Draft</option>
-              <option value="inactive" <?= $questionnaire['is_active'] == 'inactive' ? 'selected' : '' ?>>Tidak Aktif</option>
-          </select>
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                Status
+            </label>
+            <select name="is_active" 
+                    id="status" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <option value="active" <?= $questionnaire['is_active'] == 'active' ? 'selected' : '' ?>>Aktif</option>
+                <option value="draft" <?= $questionnaire['is_active'] == 'draft' ? 'selected' : '' ?>>Draft</option>
+                <option value="inactive" <?= $questionnaire['is_active'] == 'inactive' ? 'selected' : '' ?>>Tidak Aktif</option>
+            </select>
         </div>
+
+        <!-- Conditional Logic -->
         <div>
-            <label for="conditional_logic">
-                Conditional Logic <input type="checkbox" name="conditional_logic" id="conditional_logic" value="1" <?= !empty($conditionalLogic) ? 'checked' : '' ?>>
+            <label class="flex items-center">
+                <input type="checkbox" 
+                       name="conditional_logic" 
+                       id="conditional_logic" 
+                       value="1" 
+                       <?= !empty($conditionalLogic) ? 'checked' : '' ?>
+                       class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <span class="ml-2 text-sm font-medium text-gray-700">Conditional Logic</span>
             </label>
 
-            <div id="conditional-container">
+            <div id="conditional-container" class="mt-3">
                 <?php if (!empty($conditionalLogic)): ?>
                     <?php foreach ($conditionalLogic as $i => $condition): ?>
-                        <div class="condition-row" style="margin-top:10px; display:flex; align-items:center; gap:10px;">
-                            <select name="field_name[]" class="field-selector">
+                        <div class="condition-row flex items-center gap-2 mb-3 p-3 bg-gray-50 rounded-md border">
+                            <select name="field_name[]" 
+                                    class="field-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                 <?php foreach ($fields as $f): ?>
                                     <option value="<?= $f ?>" <?= $f == $condition['field'] ? 'selected' : '' ?>><?= ucwords(str_replace('_', ' ', $f)) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <select name="operator[]">
+                            <select name="operator[]" 
+                                    class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                                    style="width: auto;">
                                 <?php foreach ($operators as $key => $label): ?>
                                     <option value="<?= $key ?>" <?= $key == $condition['operator'] ? 'selected' : '' ?>><?= $label ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <span class="value-input-container">
+                            <span class="value-input-container flex-1">
                                 <?php
                                 $input_type = 'text';
                                 $options = [];
@@ -73,7 +112,8 @@
                                 }
 
                                 if ($input_type == 'select' && !empty($options)): ?>
-                                    <select name="value[]">
+                                    <select name="value[]" 
+                                            class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                         <?php foreach ($options as $opt): ?>
                                             <option value="<?= $opt['id'] ?>" <?= $opt['id'] == $value ? 'selected' : '' ?>>
                                                 <?= $opt['name'] ?>
@@ -81,35 +121,76 @@
                                         <?php endforeach; ?>
                                     </select>
                                 <?php else: ?>
-                                    <input type="text" name="value[]" placeholder="Value" value="<?= esc($value) ?>">
+                                    <input type="text" 
+                                           name="value[]" 
+                                           placeholder="Value" 
+                                           value="<?= esc($value) ?>"
+                                           class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                 <?php endif; ?>
                             </span>
-                            <button type="button" class="remove-condition-btn">Hapus</button>
+                            <button type="button" 
+                                    class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
+                                Hapus
+                            </button>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <div class="condition-row" style="margin-top:10px; display:flex; align-items:center; gap:10px; display:none;">
-                        <select name="field_name[]" class="field-selector">
+                    <div class="condition-row flex items-center gap-2 mb-3 p-3 bg-gray-50 rounded-md border" style="display:none;">
+                        <select name="field_name[]" 
+                                class="field-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                             <?php foreach ($fields as $f): ?>
                                 <option value="<?= $f ?>"><?= ucwords(str_replace('_', ' ', $f)) ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <select name="operator[]">
+                        <select name="operator[]" 
+                                class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                                style="width: auto;">
                             <?php foreach ($operators as $key => $label): ?>
                                 <option value="<?= $key ?>"><?= $label ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <span class="value-input-container">
-                            <input type="text" name="value[]" placeholder="Value">
+                        <span class="value-input-container flex-1">
+                            <input type="text" 
+                                   name="value[]" 
+                                   placeholder="Value"
+                                   class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                         </span>
-                        <button type="button" class="remove-condition-btn" style="display:none;">Hapus</button>
+                        <button type="button" 
+                                class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium" 
+                                style="display:none;">
+                            Hapus
+                        </button>
                     </div>
                 <?php endif; ?>
             </div>
-            <button type="button" id="add-condition-btn" style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>;">Tambah Kondisi</button>
+            
+            <button type="button" 
+                    id="add-condition-btn" 
+                    style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>; background-color: #3b82f6; color: #fff; padding: 0.625rem 1.5rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; margin-top: 0.75rem;"
+                    onmouseover="this.style.backgroundColor='#2563eb'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.25)'"
+                    onmouseout="this.style.backgroundColor='#3b82f6'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                Tambah Kondisi
+            </button>
         </div>
-        <button type="submit">Simpan Perubahan</button>
+
+        <!-- Tombol Aksi -->
+        <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
+            <button type="button" 
+                    onclick="window.history.back();"
+                    style="background-color: #fbbf24; color: #fff; padding: 0.625rem 1.5rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;"
+                    onmouseover="this.style.backgroundColor='#f59e0b'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(251, 191, 36, 0.25)'"
+                    onmouseout="this.style.backgroundColor='#fbbf24'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                Batal
+            </button>
+            <button type="submit" 
+                    style="background-color: #3b82f6; color: #fff; padding: 0.625rem 1.5rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;"
+                    onmouseover="this.style.backgroundColor='#2563eb'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.25)'"
+                    onmouseout="this.style.backgroundColor='#3b82f6'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                Simpan Perubahan
+            </button>
+        </div>
     </form>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>

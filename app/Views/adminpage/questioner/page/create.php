@@ -1,75 +1,96 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
  <link rel="stylesheet" href="<?= base_url('css/questioner/page/tambah.css') ?>">
-<div class="container mt-4">
-    <h2>Tambah Halaman Kuesioner</h2>
+<div class="bg-white rounded-xl shadow-md p-8 w-full mx-auto">
+    <!-- Header + Divider -->
+    <div class="-mx-8 mb-6 border-b border-gray-300 pb-3 px-8">
+        <div class="flex items-center">
+            <img src="/images/logo.png" alt="Tracer Study" class="h-12 mr-3">
+            <h2 class="text-xl font-semibold">Tambah Halaman Kuesioner</h2>
+        </div>
+    </div>
 
-    <form action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/store") ?>" method="post">
+    <form action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/store") ?>" method="post" class="space-y-5">
         <?= csrf_field() ?>
 
-        <div class="mb-3">
-            <label class="form-label">Judul Halaman</label>
-            <input type="text" name="title" class="form-control" required>
+        <!-- Judul Halaman -->
+        <div>
+            <label class="block font-medium mb-1">Judul Halaman</label>
+            <input type="text" name="title" required
+                class="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-300 focus:outline-none">
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Deskripsi</label>
-            <textarea name="description" class="form-control"></textarea>
+        <!-- Deskripsi -->
+        <div>
+            <label class="block font-medium mb-1">Deskripsi</label>
+            <textarea name="description" rows="3"
+                class="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-300 focus:outline-none"></textarea>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Urutan</label>
-            <input type="number" name="order_no" class="form-control" value="1" min="1" required>
+        <!-- Urutan -->
+        <div>
+            <label class="block font-medium mb-1">Urutan</label>
+            <input type="number" name="order_no" value="1" min="1" required
+                class="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-300 focus:outline-none">
         </div>
 
-
-       
-<div class="mb-3">
-    <label for="conditional_logic">
-        <input type="checkbox" name="conditional_logic" id="conditional_logic" value="1">
-        **Aktifkan Conditional Logic**
-    </label>
-</div>
-
-<div id="conditional-form" style="display:none;">
-    <div class="d-flex align-items-center mb-2">
-        <span class="me-2">Show this page if</span>
-        <select name="logic_type" class="form-control me-2" style="width: auto;">
-            <option value="any">Any</option>
-            <option value="all">All</option>
-        </select>
-        <span>of this/these following match:</span>
-    </div>
-
-    <div id="conditional-container" class="mb-3">
-        <div class="condition-row d-flex align-items-center gap-2 mb-2">
-            <select name="condition_question_id[]" class="question-selector form-control">
-                <option value="">Pilih Pertanyaan</option>
-                <?php foreach ($questions as $q): ?>
-                    <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <select name="operator[]" class="form-control" style="width: auto;">
-                <?php foreach ($operators as $key => $label): ?>
-                    <option value="<?= $key ?>"><?= $label ?></option>
-                <?php endforeach; ?>
-            </select>
-            <span class="value-input-container w-100">
-                <input type="text" name="condition_value[]" placeholder="Value" class="form-control">
-            </span>
-            <button type="button" class="remove-condition-btn btn btn-danger btn-sm" style="display:none;">Hapus</button>
+        <!-- Conditional Logic Checkbox -->
+        <div>
+            <label class="inline-flex items-center">
+                <input type="checkbox" name="conditional_logic" id="conditional_logic" value="1"
+                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <span class="ml-2">Aktifkan Conditional Logic</span>
+            </label>
         </div>
-    </div>
-    
-    <button type="button" id="add-condition-btn" class="btn btn-primary btn-sm">Tambah Kondisi</button>
-</div>
 
-        <hr>
+        <!-- Conditional Logic Container (hidden by default) -->
+        <div id="conditional-form" class="hidden border rounded-lg p-4 bg-gray-50">
+            <div class="flex items-center gap-2 mb-3">
+                <span>Show this page if</span>
+                <select name="logic_type" class="border rounded px-2 py-1">
+                    <option value="any">Any</option>
+                    <option value="all">All</option>
+                </select>
+                <span>of these conditions match:</span>
+            </div>
 
-        <button type="submit" class="btn btn-success">Simpan</button>
-        <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages") ?>" class="btn btn-secondary">Batal</a>
+            <div id="conditional-container" class="space-y-2">
+                <div class="flex items-center gap-2">
+                    <select name="condition_question_id[]" class="border rounded px-2 py-1">
+                        <option value="">Pilih Pertanyaan</option>
+                        <?php foreach ($questions as $q): ?>
+                            <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <select name="operator[]" class="border rounded px-2 py-1">
+                        <?php foreach ($operators as $key => $label): ?>
+                            <option value="<?= $key ?>"><?= $label ?></option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <input type="text" name="condition_value[]" placeholder="Value"
+                        class="border rounded px-2 py-1 flex-1">
+
+                    <button type="button"
+                        class="remove-condition-btn bg-red-500 text-white px-2 py-1 rounded hidden">Hapus</button>
+                </div>
+            </div>
+
+            <button type="button" id="add-condition-btn" class="mt-3 bg-blue-500 text-white px-3 py-1 rounded">
+                Tambah Kondisi
+            </button>
+        </div>
+
+        <!-- Tombol -->
+        <div class="flex gap-3 pt-4">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Simpan</button>
+            <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages") ?>"
+                class="bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg">Batal</a>
+        </div>
     </form>
 </div>
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

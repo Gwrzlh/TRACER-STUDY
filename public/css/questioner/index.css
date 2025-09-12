@@ -1,11 +1,11 @@
-/* ====== MODERN DAFTAR KUESIONER ALUMNI STYLE ====== */
+/* ====== MODERN DAFTAR KUESIONER STYLE ====== */
 
 /* Container */
 .questionnaire-container {
     background: #f8fafc;
     min-height: 100vh;
     padding: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Top Statistics Cards */
@@ -77,22 +77,23 @@
     font-weight: 500;
 }
 
-/* Main Card Container */
+/* Main Card Container - Updated to match user table style */
 .questionnaire-card {
     background: white;
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
     overflow: hidden;
 }
 
-/* Card Header */
+/* Card Header - Updated to match user table style */
 .card-header {
     padding: 24px 32px;
     border-bottom: 1px solid #e5e7eb;
     display: flex;
     align-items: center;
     gap: 12px;
+    background-color: white;
 }
 
 .card-header-icon {
@@ -114,163 +115,254 @@
     margin: 0;
 }
 
-/* Table Styles */
+/* Table Wrapper */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+/* Table Styles - Updated to match user table exactly */
 .questionnaire-table {
     width: 100%;
     border-collapse: collapse;
+    background-color: white;
+    font-size: 14px;
 }
 
-/* Table Header */
+/* Table Header - Match user table style */
 .questionnaire-table thead {
-    background: #f9fafb;
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .questionnaire-table th {
-    padding: 16px 32px;
+    padding: 16px 20px;
     text-align: left;
-    font-size: 13px;
     font-weight: 600;
-    color: #6b7280;
+    color: #374151;
+    font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     border-bottom: 1px solid #e5e7eb;
 }
 
-/* Table Body */
-.questionnaire-table td {
-    padding: 20px 32px;
+/* Hide checkbox column if exists */
+.questionnaire-table th:first-child,
+.questionnaire-table td:first-child {
+    display: none;
+}
+
+.questionnaire-table th:last-child {
+    width: 120px;
+    text-align: center;
+}
+
+/* Table Body - Match user table style */
+.questionnaire-table tbody tr {
     border-bottom: 1px solid #f3f4f6;
-    vertical-align: middle;
+    transition: background-color 0.2s ease;
 }
 
 .questionnaire-table tbody tr:hover {
-    background: #f9fafb;
-    transition: background 0.2s ease;
+    background-color: #f9fafb;
 }
 
-/* Row Number */
+.questionnaire-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.questionnaire-table td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    color: #374151;
+}
+
+/* Row Number - Updated style */
 .row-number {
     font-weight: 600;
     color: #6b7280;
     font-size: 14px;
 }
 
-/* Questionnaire Title */
+/* Questionnaire Title - Updated to match user info style */
+.questionnaire-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
 .questionnaire-title {
     font-weight: 600;
-    color: #111827;
-    font-size: 15px;
-    margin-bottom: 4px;
+    color: #1e293b;
+    font-size: 14px;
+    margin-bottom: 2px;
 }
 
 .questionnaire-description {
     font-size: 13px;
-    color: #6b7280;
+    color: #64748b;
     line-height: 1.4;
 }
 
-/* Status Badges */
+/* Status Badges - Updated to match user table style */
 .status-badge {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
-    border-radius: 20px;
+    padding: 4px 12px;
+    border-radius: 16px;
     font-size: 12px;
     font-weight: 500;
     text-transform: capitalize;
 }
 
-.status-badge.belum-mengisi {
-    background: #fef2f2;
-    color: #dc2626;
+.status-badge.belum-mengisi,
+.status-badge.draft {
+    background-color: #fef2f2;
+    color: #991b1b;
     border: 1px solid #fecaca;
 }
 
 .status-badge.ongoing {
-    background: #fffbeb;
+    background-color: #fffbeb;
     color: #d97706;
     border: 1px solid #fed7aa;
 }
 
-.status-badge.finish {
-    background: #ecfdf5;
-    color: #059669;
-    border: 1px solid #a7f3d0;
+.status-badge.finish,
+.status-badge.active {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
 }
 
-/* Action Buttons */
-.action-buttons {
-    display: flex;
-    gap: 8px;
+/* Conditional Badge */
+.conditional-badge {
+    display: inline-flex;
     align-items: center;
-}
-
-.action-btn {
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 4px 12px;
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
     font-size: 12px;
     font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s ease;
+    text-transform: capitalize;
+}
+
+.conditional-badge.ya {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.conditional-badge.tidak {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* Action Buttons - Updated to match user table style */
+.action-cell {
+    text-align: center;
+}
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.btn-action,
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
     border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-size: 12px;
 }
 
 .btn-primary {
-    background: #3b82f6;
-    color: white;
+    background-color: #f0f9ff;
+    color: #0369a1;
 }
 
 .btn-primary:hover {
-    background: #2563eb;
-    transform: translateY(-1px);
+    background-color: #0369a1;
+    color: white;
+    text-decoration: none;
 }
 
 .btn-success {
-    background: #10b981;
-    color: white;
+    background-color: #ecfdf5;
+    color: #059669;
 }
 
 .btn-success:hover {
-    background: #059669;
-    transform: translateY(-1px);
+    background-color: #059669;
+    color: white;
+    text-decoration: none;
 }
 
-.btn-secondary {
-    background: #f3f4f6;
-    color: #6b7280;
+.btn-secondary,
+.btn-edit {
+    background-color: #f0f9ff;
+    color: #0369a1;
 }
 
-.btn-secondary:hover {
-    background: #e5e7eb;
-    color: #374151;
+.btn-secondary:hover,
+.btn-edit:hover {
+    background-color: #0369a1;
+    color: white;
+    text-decoration: none;
 }
 
-/* Empty State */
+.btn-delete {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+    background-color: #dc2626;
+    color: white;
+}
+
+/* Empty State - Updated to match user table style */
 .empty-state {
     text-align: center;
-    padding: 60px 20px;
-    color: #6b7280;
+    padding: 80px 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
 }
 
 .empty-state-icon {
     font-size: 48px;
-    margin-bottom: 16px;
-    opacity: 0.5;
+    color: #9ca3af;
+    margin-bottom: 20px;
+    opacity: 1;
 }
 
 .empty-state-title {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
-    margin-bottom: 8px;
     color: #374151;
+    margin-bottom: 8px;
 }
 
 .empty-state-description {
+    color: #6b7280;
     font-size: 14px;
+    margin-bottom: 24px;
 }
 
-/* Responsive Design */
+/* Responsive Design - Updated to match user table style */
 @media (max-width: 768px) {
     .stats-container {
         flex-direction: column;
@@ -290,13 +382,51 @@
         padding: 20px;
     }
     
-    .action-buttons {
-        flex-direction: column;
-        align-items: stretch;
+    .questionnaire-table {
+        font-size: 13px;
     }
     
-    .action-btn {
-        text-align: center;
+    .questionnaire-title {
+        font-size: 13px;
+    }
+    
+    .questionnaire-description {
+        font-size: 12px;
+    }
+    
+    .action-buttons {
+        gap: 2px;
+    }
+    
+    .btn-action {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 576px) {
+    .table-container {
+        margin: 0 -8px;
+    }
+    
+    .questionnaire-table th,
+    .questionnaire-table td {
+        padding: 10px 12px;
+    }
+    
+    /* Hide description column on very small screens */
+    .questionnaire-table th:nth-child(3),
+    .questionnaire-table td:nth-child(3) {
+        display: none;
+    }
+    
+    .empty-state {
+        padding: 40px 16px;
+    }
+    
+    .empty-state-icon {
+        font-size: 36px;
     }
 }
 
@@ -317,38 +447,39 @@
 .questionnaire-container::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
+
 /* Custom animations */
-        .navbar-shadow {
-            box-shadow: 0 2px 20px rgba(59, 130, 246, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .nav-title {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
-        }
-        
-        .nav-title::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            transition: width 0.3s ease;
-        }
-        
-        .nav-title:hover::after {
-            width: 100%;
-        }
-        
-        /* Subtle background pattern */
-        .nav-bg {
-            background: 
-                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
-        }
+.navbar-shadow {
+    box-shadow: 0 2px 20px rgba(59, 130, 246, 0.1);
+    transition: all 0.3s ease;
+}
+
+.nav-title {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+}
+
+.nav-title::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    transition: width 0.3s ease;
+}
+
+.nav-title:hover::after {
+    width: 100%;
+}
+
+/* Subtle background pattern */
+.nav-bg {
+    background: 
+        radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
+}

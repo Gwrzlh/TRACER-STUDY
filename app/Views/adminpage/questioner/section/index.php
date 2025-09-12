@@ -98,197 +98,148 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Navbar -->
-    <nav class="bg-white navbar-shadow nav-bg border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-6 py-4">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center gap-6">
-                    <!-- Link ke daftar kuesioner -->
-                    <a href="<?= base_url('admin/questionnaire') ?>"
-                     class="nav-link font-semibold text-lg cursor-pointer">
-                        Daftar Kuesioner
-                    </a>
-                    
-                    <!-- Link ke daftar halaman (section) dalam kuesioner -->
-                    <a href="<?= base_url('admin/questionnaire/' . $questionnaire['id'] . '/pages') ?>" class="nav-link font-semibold text-lg cursor-pointer">
-                        <?= esc($questionnaire['title']) ?>
-                    </a>
-                    
-                    <!-- Nama halaman (teks biasa, bukan link) -->
-                    <span class="nav-title font-semibold text-xl cursor-pointer">
-                        Data Pribadi
-                    </span>
-                </div>
-                
-                <!-- Optional: Tambahan elemen kanan jika diperlukan -->
-                <div class="flex items-center gap-4">
-                    <!-- Indikator status atau menu lainnya bisa ditambah di sini -->
-                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                </div>
-            </div>
+
+   <!-- Header Section -->
+<div class="pengguna-page">
+  <div class="page-wrapper">
+    <div class="page-container">
+      <h2 class="page-title">📑 Sunting Kuesioner Section</h2>
+
+      <!-- Info Card -->
+      <div class="top-controls">
+        <div class="controls-container">
+          <div class="info-box">
+            <div class="info-value"><?= count($sections) ?></div>
+            <div class="info-label">Total Sections</div>
+          </div>
         </div>
-    </nav>
 
-
-    <!-- Header Card -->
-
-    <div>
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>
-                <?= session()->getFlashdata('success') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
-    </div>
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h4 class="mb-1">
-                        <i class="fas fa-layer-group me-2"></i>
-                        Sunting Kuesioner Section
-                    </h4>
-                    <p class="mb-0">
-                        <small>Halaman: <?= esc($page['page_title']) ?></small><br>
-                        <small><?= esc($page['page_description']) ?></small>
-                    </p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <div class="bg-white bg-opacity-25 rounded p-3">
-                        <div class="h4 mb-0 text-white"><?= count($sections) ?></div>
-                        <small class="text-white opacity-75">Total Sections</small>
-                    </div>
-                </div>
-            </div>
+        <!-- Button Container -->
+        <div class="button-container">
+          <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/create") ?>" 
+             class="btn-add">
+            <i class="fas fa-plus"></i> Tambah Section
+          </a>
         </div>
-    </div>
+      </div>
 
-    <!-- Action Button -->
-    <div class="mb-3">
-        <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/create") ?>" 
-           class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Tambah Section
-        </a>
-    </div>
-
-    <!-- Flash Messages -->
-    <?php if (session()->getFlashdata('success')): ?>
+      <!-- Flash Messages -->
+      <?php if (session()->getFlashdata('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            <?= session()->getFlashdata('success') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          <i class="fas fa-check-circle me-2"></i>
+          <?= session()->getFlashdata('success') ?>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    <?php endif; ?>
+      <?php endif; ?>
 
-    <?php if (session()->getFlashdata('error')): ?>
+      <?php if (session()->getFlashdata('error')): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <?= session()->getFlashdata('error') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <?= session()->getFlashdata('error') ?>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    <?php endif; ?>
+      <?php endif; ?>
 
-    <!-- Sections Table -->
-    <?php if (empty($sections)): ?>
+      <!-- Sections Table -->
+      <?php if (empty($sections)): ?>
         <div class="card">
-            <div class="card-body text-center py-5">
-                <i class="fas fa-layer-group fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">Belum ada section</h5>
-                <p class="text-muted">Mulai dengan menambahkan section pertama untuk halaman ini.</p>
-                <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/create") ?>" 
-                   class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Tambah Section Pertama
-                </a>
-            </div>
+          <div class="card-body text-center py-5">
+            <i class="fas fa-layer-group fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Belum ada section</h5>
+            <p class="text-muted">Mulai dengan menambahkan section pertama untuk halaman ini.</p>
+            <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/create") ?>" 
+               class="btn-add">
+              <i class="fas fa-plus"></i> Tambah Section Pertama
+            </a>
+          </div>
         </div>
-    <?php else: ?>
-        <div class="card">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th width="80">Section ID</th>
-                                <th>Section Name</th>
-                                <th>Description</th>
-                                <th width="120">Conditional Logic</th>
-                                <th width="120">Num of Question</th>
-                                <th width="120">Status</th>
-                                <th width="200">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($sections as $section): ?>
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-primary"><?= $section['id'] ?></span>
-                                    </td>
-                                    <td>
-                                        <strong><?= esc($section['section_title']) ?></strong>
-                                        <br>
-                                        <small class="text-muted">
-                                            <i class="fas fa-eye me-1"></i>Show Title: <?= $section['show_section_title'] ? 'Yes' : 'No' ?>
-                                            <i class="fas fa-align-left ms-2 me-1"></i>Show Desc: <?= $section['show_section_description'] ? 'Yes' : 'No' ?>
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <div class="section-description" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" 
-                                             title="<?= esc($section['section_description']) ?>">
-                                            <?= esc($section['section_description']) ?>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-secondary">none</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info fs-6"><?= $section['question_count'] ?? 0 ?></span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-<?= $section['conditional_status'] == 'Active' ? 'success' : 'secondary' ?>"><?= $section['conditional_status'] ?></span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <!-- Move Up/Down buttons -->
-                                           <button class="btn btn-sm btn-secondary move-up-btn" title="Move Up" data-section-id="<?= $section['id'] ?>">
-                                                <i class="fas fa-arrow-up"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-secondary move-down-btn" title="Move Down" data-section-id="<?= $section['id'] ?>">
-                                                <i class="fas fa-arrow-down"></i>
-                                            </button>
-                                            
-                                            <!-- Manage Questions -->
-                                            <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section['id']}/questions") ?>" 
-                                               class="btn btn-sm btn-info" title="Manage Questions">
-                                                <i class="fas fa-cogs"></i>  manage questions
-                                            </a>
-                                            
-                                            <!-- Edit -->
-                                            <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section['id']}/edit") ?>" 
-                                               class="btn btn-sm btn-warning" title="Edit">
-                                                <i class="fas fa-edit"></i> edit section
-                                            </a>
-                                            
-                                            <!-- Delete -->
-                                            <form action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section['id']}/delete") ?>" 
-                                                  method="post" style="display:inline-block;" 
-                                                  onsubmit="return confirm('Yakin ingin menghapus section ini dan semua pertanyaannya?');">
-                                                <?= csrf_field() ?>
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete">
-                                                    <i class="fas fa-trash"></i> delete section
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                    
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+      <?php else: ?>
+        <!-- ✅ Table Container sama dengan daftar halaman -->
+        <div class="table-container">
+          <div class="table-wrapper">
+            <table class="user-table">
+              <thead>
+                <tr>
+                  <th>Section ID</th>
+                  <th>Section Name</th>
+                  <th>Description</th>
+                  <th>Conditional Logic</th>
+                  <th>Num of Question</th>
+                  <th>Status</th>
+                  <th class="text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($sections as $section): ?>
+                  <tr>
+                    <td>
+                      <span class="badge bg-primary"><?= $section['id'] ?></span>
+                    </td>
+                    <td>
+                      <div class="questionnaire-title"><?= esc($section['section_title']) ?></div>
+                      <small class="text-muted">
+                        <i class="fas fa-eye me-1"></i>Show Title: <?= $section['show_section_title'] ? 'Yes' : 'No' ?>
+                        <i class="fas fa-align-left ms-2 me-1"></i>Show Desc: <?= $section['show_section_description'] ? 'Yes' : 'No' ?>
+                      </small>
+                    </td>
+                    <td>
+                      <div class="questionnaire-description" title="<?= esc($section['section_description']) ?>">
+                        <?= esc($section['section_description']) ?>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="status-badge status-inactive">None</span>
+                    </td>
+                    <td>
+                      <span class="status-badge status-active"><?= $section['question_count'] ?? 0 ?></span>
+                    </td>
+                    <td>
+                      <?php if ($section['conditional_status'] == 'Active'): ?>
+                        <span class="status-badge status-active">Active</span>
+                      <?php else: ?>
+                        <span class="status-badge status-inactive">Inactive</span>
+                      <?php endif; ?>
+                    </td>
+                    <td class="action-cell">
+                      <div class="action-buttons">
+                        <!-- Move Up -->
+                        <button class="btn-action btn-edit move-up-btn" title="Move Up" data-section-id="<?= $section['id'] ?>">
+                          <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <!-- Move Down -->
+                        <button class="btn-action btn-edit move-down-btn" title="Move Down" data-section-id="<?= $section['id'] ?>">
+                          <i class="fas fa-arrow-down"></i>
+                        </button>
+                        <!-- Manage Questions -->
+                        <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section['id']}/questions") ?>" 
+                           class="btn-action btn-edit" title="Manage Questions">
+                          <i class="fas fa-cogs"></i>
+                        </a>
+                        <!-- Edit -->
+                        <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section['id']}/edit") ?>" 
+                           class="btn-action btn-edit" title="Edit">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        <!-- Delete -->
+                        <form action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section['id']}/delete") ?>" 
+                              method="post" style="display:inline-block;" 
+                              onsubmit="return confirm('Yakin ingin menghapus section ini dan semua pertanyaannya?');">
+                          <?= csrf_field() ?>
+                          <button type="submit" class="btn-action btn-delete" title="Delete">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
         </div>
-    <?php endif; ?>
+      <?php endif; ?>
+    </div>
+  </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
