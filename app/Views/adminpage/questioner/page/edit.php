@@ -57,7 +57,7 @@
                                 <?php endforeach; ?>
                             </select>
                             <span class="value-input-container w-100">
-                                <input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="<?= esc($condition['value']) ?>" required>
+                                <input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="<?= esc($condition['value']) ?>">
                             </span>
                             <button type="button" class="remove-condition-btn btn btn-danger btn-sm">Hapus</button>
                         </div>
@@ -76,13 +76,13 @@
                             <?php endforeach; ?>
                         </select>
                         <span class="value-input-container w-100">
-                            <input type="text" name="condition_value[]" placeholder="Value" class="form-control" >
+                            <input type="text" name="condition_value[]" placeholder="Value" class="form-control">
                         </span>
                         <button type="button" class="remove-condition-btn btn btn-danger btn-sm" style="display:none;">Hapus</button>
                     </div>
                 <?php endif; ?>
             </div>
-            
+
             <button type="button" id="add-condition-btn" class="btn btn-primary btn-sm" style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>;">Tambah Kondisi</button>
         </div>
 
@@ -95,52 +95,54 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-$(document).ready(function() {
-    // Fungsi untuk memuat opsi jawaban pertanyaan
-    function loadConditionalValueInput(questionSelector, initialValue = null) {
-        const questionId = questionSelector.val();
-        const valueContainer = questionSelector.closest('.condition-row').find('.value-input-container');
+    $(document).ready(function() {
+        // Fungsi untuk memuat opsi jawaban pertanyaan
+        function loadConditionalValueInput(questionSelector, initialValue = null) {
+            const questionId = questionSelector.val();
+            const valueContainer = questionSelector.closest('.condition-row').find('.value-input-container');
 
-        if (!questionId) {
-            valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" required>`);
-            return;
+            if (!questionId) {
+                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" required>`);
+                return;
+            }
+
+            $.ajax({
+                url: "<?= base_url('admin/questionnaire/pages/getQuestionOptions') ?>",
+                type: 'GET',
+                data: {
+                    question_id: questionId
+                },
+                dataType: 'json',
+                success: function(response) {
+                    console.log('AJAX Success:', response); // Debug
+                    let inputHtml = '';
+                    if (response.type === 'select' && response.options && response.options.length > 0) {
+                        inputHtml = '<select name="condition_value[]" class="form-control" required>';
+                        response.options.forEach(function(option) {
+                            const isSelected = initialValue !== null && String(initialValue) === String(option.id) ? 'selected' : '';
+                            inputHtml += `<option value="${option.id}" ${isSelected}>${option.option_text}</option>`;
+                        });
+                        inputHtml += '</select>';
+                    } else {
+                        inputHtml = `<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" required>`;
+                    }
+                    valueContainer.html(inputHtml);
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error, xhr.responseText);
+                    valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="form-control" value="${initialValue || ''}" required>`);
+                }
+            });
         }
 
-        $.ajax({
-            url: "<?= base_url('admin/questionnaire/pages/getQuestionOptions') ?>",
-            type: 'GET',
-            data: { question_id: questionId },
-            dataType: 'json',
-            success: function(response) {
-                console.log('AJAX Success:', response); // Debug
-                let inputHtml = '';
-                if (response.type === 'select' && response.options && response.options.length > 0) {
-                    inputHtml = '<select name="condition_value[]" class="form-control" required>';
-                    response.options.forEach(function(option) {
-                        const isSelected = initialValue !== null && String(initialValue) === String(option.id) ? 'selected' : '';
-                        inputHtml += `<option value="${option.id}" ${isSelected}>${option.option_text}</option>`;
-                    });
-                    inputHtml += '</select>';
-                } else {
-                    inputHtml = `<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" required>`;
-                }
-                valueContainer.html(inputHtml);
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error, xhr.responseText);
-                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="form-control" value="${initialValue || ''}" required>`);
-            }
+        // Event handler saat pertanyaan berubah
+        $(document).on('change', '.question-selector', function() {
+            loadConditionalValueInput($(this), null);
         });
-    }
 
-    // Event handler saat pertanyaan berubah
-    $(document).on('change', '.question-selector', function() {
-        loadConditionalValueInput($(this), null);
-    });
-
-    // Event handler untuk tombol "Tambah Kondisi"
-    $('#add-condition-btn').on('click', function() {
-        const templateRow = `
+        // Event handler untuk tombol "Tambah Kondisi"
+        $('#add-condition-btn').on('click', function() {
+            const templateRow = `
             <div class="condition-row d-flex align-items-center gap-2 mb-2">
                 <select name="condition_question_id[]" class="question-selector form-control">
                     <option value="">Pilih Pertanyaan</option>
@@ -159,50 +161,50 @@ $(document).ready(function() {
                 <button type="button" class="remove-condition-btn btn btn-danger btn-sm">Hapus</button>
             </div>
         `;
-        $('#conditional-container').append(templateRow);
-        loadConditionalValueInput($('.condition-row:last .question-selector'));
-    });
+            $('#conditional-container').append(templateRow);
+            loadConditionalValueInput($('.condition-row:last .question-selector'));
+        });
 
-    // Event handler untuk tombol "Hapus"
-    $(document).on('click', '.remove-condition-btn', function() {
-        if ($('.condition-row').length > 1) {
-            $(this).closest('.condition-row').remove();
-        } else {
-            const row = $(this).closest('.condition-row');
-            row.find('.question-selector').val('');
-            row.find('select[name="operator[]"]').val('is');
-            row.find('.value-input-container').html('<input type="text" name="condition_value[]" placeholder="Value" class="form-control" required>');
-            row.find('.remove-condition-btn').hide();
-        }
-    });
-
-    // Inisialisasi awal saat halaman dimuat
-    $('#conditional_logic').on('change', function() {
-        $('#conditional-form').toggle(this.checked);
-        if (this.checked) {
-            $('.condition-row').first().show();
-            $('#add-condition-btn').show();
-            $('.condition-row').first().find('.remove-condition-btn').hide();
-        } else {
-            $('.condition-row:not(:first)').remove();
-            $('.condition-row').first().hide();
-            $('#add-condition-btn').hide();
-        }
-    }).trigger('change');
-
-    // Inisialisasi untuk existing conditions
-    <?php if (!empty($conditionalLogic)): ?>
-        $('.condition-row').each(function(index) {
-            const condition = <?= json_encode($conditionalLogic) ?>[index];
-            if (condition) {
-                $(this).find('.question-selector').val(condition.question_id);
-                $(this).find('select[name="operator[]"]').val(condition.operator);
-                loadConditionalValueInput($(this).find('.question-selector'), condition.value);
-                $(this).find('.remove-condition-btn').show();
+        // Event handler untuk tombol "Hapus"
+        $(document).on('click', '.remove-condition-btn', function() {
+            if ($('.condition-row').length > 1) {
+                $(this).closest('.condition-row').remove();
+            } else {
+                const row = $(this).closest('.condition-row');
+                row.find('.question-selector').val('');
+                row.find('select[name="operator[]"]').val('is');
+                row.find('.value-input-container').html('<input type="text" name="condition_value[]" placeholder="Value" class="form-control" required>');
+                row.find('.remove-condition-btn').hide();
             }
         });
-    <?php endif; ?>
-});
+
+        // Inisialisasi awal saat halaman dimuat
+        $('#conditional_logic').on('change', function() {
+            $('#conditional-form').toggle(this.checked);
+            if (this.checked) {
+                $('.condition-row').first().show();
+                $('#add-condition-btn').show();
+                $('.condition-row').first().find('.remove-condition-btn').hide();
+            } else {
+                $('.condition-row:not(:first)').remove();
+                $('.condition-row').first().hide();
+                $('#add-condition-btn').hide();
+            }
+        }).trigger('change');
+
+        // Inisialisasi untuk existing conditions
+        <?php if (!empty($conditionalLogic)): ?>
+            $('.condition-row').each(function(index) {
+                const condition = <?= json_encode($conditionalLogic) ?>[index];
+                if (condition) {
+                    $(this).find('.question-selector').val(condition.question_id);
+                    $(this).find('select[name="operator[]"]').val(condition.operator);
+                    loadConditionalValueInput($(this).find('.question-selector'), condition.value);
+                    $(this).find('.remove-condition-btn').show();
+                }
+            });
+        <?php endif; ?>
+    });
 </script>
 
 <?= $this->endSection() ?>
