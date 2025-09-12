@@ -31,7 +31,6 @@ class Auth extends Controller
         $usernameOrEmail = $request->getPost('username');
         $password        = $request->getPost('password');
 
-        // Cari user berdasarkan username / email
         $user = $this->accountModel
             ->where('username', $usernameOrEmail)
             ->orWhere('email', $usernameOrEmail)
@@ -39,8 +38,6 @@ class Auth extends Controller
 
         if ($user && password_verify($password, $user['password']) && $user['status'] === 'Aktif') {
             $db = db_connect();
-
-            // Ambil detail berdasarkan role
             $detail = null;
             if ($user['id_role'] == 1) { // Alumni
                 $detail = $db->table('detailaccount_alumni')
@@ -54,7 +51,6 @@ class Auth extends Controller
                     ->getRowArray();
             }
 
-            // Data session dasar
             $sessionData = [
                 'id'          => $user['id'],
                 'id_account'  => $user['id'],
@@ -65,35 +61,23 @@ class Auth extends Controller
                 'logged_in'   => true,
             ];
 
-            // Tambah data detail (kalau ada)
             if ($detail) {
                 $sessionData['nama_lengkap'] = $detail['nama_lengkap'] ?? $user['username'];
                 $sessionData['foto']         = $detail['foto'] ?? 'default.png';
-
-                // 🚀 masukkan semua field penting untuk conditional logic
                 $fields = [
-                    'id_jurusan',
-                    'id_prodi',
-                    'angkatan',
-                    'ipk',
-                    'alamat',
-                    'alamat2',
-                    'id_cities',
-                    'kodepos',
-                    'tahun_kelulusan',
-                    'jeniskelamin',
-                    'notlp'
+                    'id_jurusan', 'id_prodi', 'angkatan', 'ipk', 'alamat', 'alamat2',
+                    'id_cities', 'kodepos', 'tahun_kelulusan', 'jeniskelamin', 'notlp'
                 ];
                 foreach ($fields as $field) {
                     $sessionData[$field] = $detail[$field] ?? null;
                 }
             } else {
-                // fallback kalau tidak ada detail
                 $sessionData['nama_lengkap'] = $user['username'];
                 $sessionData['foto']         = 'default.png';
             }
 
             session()->set($sessionData);
+            log_message('debug', '[AuthController] Session set: ' . json_encode($session->get()));
 
             return $this->redirectByRole($user['id_role']);
         }
@@ -101,16 +85,14 @@ class Auth extends Controller
         return redirect()->back()->with('error', 'Username atau password salah atau akun tidak aktif.');
     }
 
-
-
     public function logout()
     {
         $session = session();
+        log_message('debug', '[AuthController] Session before logout: ' . json_encode($session->get()));
         $session->destroy();
         return redirect()->to('/login')->with('success', 'Anda berhasil logout.');
     }
 
-    // Redirect sesuai role
     private function redirectByRole($roleId)
     {
         switch ($roleId) {
