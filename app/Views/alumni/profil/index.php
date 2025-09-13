@@ -35,7 +35,7 @@
     <h3 class="text-lg font-bold">Pekerjaan Saat Ini</h3>
     <div class="flex gap-2">
       <a href="<?= base_url('alumni/profil/riwayat') ?>" class="btn btn-success">Riwayat Pekerjaan</a>
-      <a href="<?= base_url('alumni/profil/pekerjaan') ?>" class="btn btn-primary">Tentang Pekerjaan</a>
+      <a href="<?= base_url('alumni/profil/pekerjaan') ?>" class="btn btn-primary">Update Tentang Pekerjaan</a>
     </div>
   </div>
 

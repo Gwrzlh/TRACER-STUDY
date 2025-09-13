@@ -10,7 +10,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-        /* Reset and Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -25,15 +24,11 @@
             padding: 2rem 0;
         }
 
-        /* Warna Utama */
         :root {
             --blue: #1E90FF;
-            /* Dodger Blue */
             --orange: #FF7F50;
-            /* Coral Orange */
         }
 
-        /* Message Container */
         .message-container {
             max-width: 900px;
             margin: 0 auto;
@@ -47,15 +42,14 @@
             border: 1px solid #e2e8f0;
             overflow: hidden;
             position: relative;
+            animation: slideIn 0.6s ease-out;
         }
 
-        /* Header Section */
         .message-header {
             background: linear-gradient(135deg, var(--blue) 0%, var(--orange) 100%);
             color: white;
             padding: 2rem 2.5rem;
             position: relative;
-            overflow: hidden;
         }
 
         .message-header::before {
@@ -74,10 +68,10 @@
             font-size: 1.5rem;
             font-weight: 700;
             margin: 0;
-            position: relative;
-            z-index: 2;
             display: flex;
             align-items: center;
+            position: relative;
+            z-index: 2;
         }
 
         .message-title i {
@@ -86,7 +80,6 @@
             opacity: 0.9;
         }
 
-        /* Sender Info */
         .sender-info {
             background: #f8fafc;
             border-bottom: 1px solid #e2e8f0;
@@ -119,14 +112,13 @@
         .sender-text h5 {
             margin: 0;
             font-weight: 600;
-            color: #2d3748;
             font-size: 1.1rem;
+            color: #2d3748;
         }
 
         .sender-text .email {
-            color: #718096;
             font-size: 0.9rem;
-            margin: 0.25rem 0 0 0;
+            color: #718096;
         }
 
         .message-date {
@@ -145,7 +137,6 @@
             color: var(--blue);
         }
 
-        /* Message Body */
         .message-body {
             padding: 2.5rem;
         }
@@ -174,20 +165,8 @@
             font-size: 1.1rem;
             line-height: 1.7;
             color: #2d3748;
-            margin: 0;
-            position: relative;
-            z-index: 1;
         }
 
-        .message-text p {
-            margin-bottom: 1rem;
-        }
-
-        .message-text p:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Action Buttons */
         .message-actions {
             display: flex;
             gap: 1rem;
@@ -207,12 +186,10 @@
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
         }
 
         .btn i {
             margin-right: 0.5rem;
-            font-size: 1rem;
         }
 
         .btn-secondary {
@@ -252,7 +229,6 @@
             transform: translateY(-2px);
         }
 
-        /* Status Badge */
         .status-badge {
             position: absolute;
             top: 1.5rem;
@@ -266,7 +242,6 @@
             backdrop-filter: blur(10px);
         }
 
-        /* Message Priority Indicator */
         .priority-indicator {
             width: 4px;
             position: absolute;
@@ -276,14 +251,9 @@
             background: linear-gradient(to bottom, var(--blue), var(--orange));
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             body {
                 padding: 1rem 0;
-            }
-
-            .message-container {
-                padding: 0 0.5rem;
             }
 
             .message-header,
@@ -302,10 +272,6 @@
                 gap: 1rem;
             }
 
-            .message-date {
-                align-self: flex-start;
-            }
-
             .message-actions {
                 flex-direction: column;
             }
@@ -313,11 +279,6 @@
             .btn {
                 width: 100%;
             }
-        }
-
-        /* Animation */
-        .message-card {
-            animation: slideIn 0.6s ease-out;
         }
 
         @keyframes slideIn {
@@ -332,7 +293,6 @@
             }
         }
 
-        /* Print Styles */
         @media print {
             body {
                 background: white;
@@ -359,15 +319,14 @@
 
             <!-- Status Badge -->
             <div class="status-badge">
-                <i class="bi bi-envelope-open"></i>
-                Dibaca
+                <i class="bi bi-envelope-open"></i> Dibaca
             </div>
 
-            <!-- Header Section -->
+            <!-- Header -->
             <div class="message-header">
                 <h1 class="message-title">
                     <i class="bi bi-chat-quote"></i>
-                    <?= esc('Pesan dari ' . ($pesan['nama_pengirim'] ?? 'Alumni')) ?>
+                    <?= esc('Pesan dari ' . $pesan['nama_pengirim']) ?>
 
                 </h1>
             </div>
@@ -388,11 +347,24 @@
 
                 <div class="message-date">
                     <i class="bi bi-calendar-event"></i>
-                    <?= !empty($pesan['created_at']) ? date('d M Y, H:i', strtotime($pesan['created_at'])) : 'Tanggal tidak tersedia' ?>
+                    <?php if (!empty($pesan['created_at'])):
+                        try {
+                            // anggap data dari DB tersimpan sebagai UTC
+                            $dt = new DateTime($pesan['created_at'], new DateTimeZone('UTC'));
+                            // konversi ke WIB
+                            $dt->setTimezone(new DateTimeZone('Asia/Jakarta'));
+                            echo $dt->format('d M Y, H:i');
+                        } catch (Exception $e) {
+                            echo 'Tanggal tidak tersedia';
+                        }
+                    else: ?>
+                        Tanggal tidak tersedia
+                    <?php endif; ?>
                 </div>
+
             </div>
 
-            <!-- Message Body -->
+            <!-- Body -->
             <div class="message-body">
                 <div class="message-content">
                     <div class="message-text">
@@ -400,21 +372,17 @@
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
+                <!-- Actions -->
                 <div class="message-actions">
                     <a href="<?= base_url('alumni/notifikasi') ?>" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i>
-                        Kembali
+                        <i class="bi bi-arrow-left"></i> Kembali
                     </a>
-
-
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Reply Message Function
         function replyMessage() {
             const senderId = <?= json_encode($pesan['id_pengirim'] ?? '') ?>;
             if (senderId) {
@@ -424,31 +392,14 @@
             }
         }
 
-        // Print Message Function
         function printMessage() {
             window.print();
         }
 
-        // Mark message as read (optional AJAX)
         document.addEventListener('DOMContentLoaded', function() {
             const messageId = <?= json_encode($pesan['id'] ?? '') ?>;
             if (messageId) {
                 console.log('Message opened:', messageId);
-            }
-        });
-
-        // Add smooth scroll animation
-        document.addEventListener('DOMContentLoaded', function() {
-            const card = document.querySelector('.message-card');
-            if (card) {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(30px)';
-
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease-out';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, 100);
             }
         });
     </script>
