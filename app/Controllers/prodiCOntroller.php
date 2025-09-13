@@ -12,36 +12,40 @@ class ProdiController extends Controller
     protected $helpers = ['form'];
 
     public function index()
-    {
-        $satuanModel  = new SatuanOrganisasiModel();
-        $jurusanModel = new JurusanModel();
-        $prodiModel   = new Prodi();
+{
+    $satuanModel  = new SatuanOrganisasiModel();
+    $jurusanModel = new JurusanModel();
+    $prodiModel   = new Prodi();
 
-        // Ambil keyword dari GET
-        $keyword = $this->request->getGet('keyword');
+    // Ambil keyword dari GET
+    $keyword = $this->request->getGet('keyword');
 
-        // Query untuk badge (hitung total tanpa filter)
-        $data['count_satuan']  = $satuanModel->countAll();
-        $data['count_jurusan'] = $jurusanModel->countAll();
-        $data['count_prodi']   = $prodiModel->countAll();
+    // Query untuk badge (hitung total tanpa filter)
+    $data['count_satuan']  = $satuanModel->countAll();
+    $data['count_jurusan'] = $jurusanModel->countAll();
+    $data['count_prodi']   = $prodiModel->countAll();
 
-        // Ambil data Prodi + Join ke Jurusan
-        $builder = $prodiModel->select('prodi.id, prodi.nama_prodi, jurusan.nama_jurusan')
-            ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left');
+    // Ambil data Prodi + Join ke Jurusan
+    $builder = $prodiModel->select('prodi.id, prodi.nama_prodi, jurusan.nama_jurusan')
+        ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left');
 
-        // Filter jika ada keyword (pencarian nama_prodi atau nama_jurusan)
-        if (!empty($keyword)) {
-            $builder->groupStart()
-                ->like('prodi.nama_prodi', $keyword)
-                ->orLike('jurusan.nama_jurusan', $keyword)
-                ->groupEnd();
-        }
-
-        $data['prodi']   = $builder->findAll();
-        $data['keyword'] = $keyword;
-
-        return view('adminpage/organisasi/satuanorganisasi/prodi/index', $data);
+    // Filter jika ada keyword (pencarian nama_prodi atau nama_jurusan)
+    if (!empty($keyword)) {
+        $builder->groupStart()
+            ->like('prodi.nama_prodi', $keyword)
+            ->orLike('jurusan.nama_jurusan', $keyword)
+            ->groupEnd();
     }
+
+    // Tambahkan ORDER BY biar data baru tampil di atas
+    $builder->orderBy('prodi.id', 'DESC');
+
+    $data['prodi']   = $builder->findAll();
+    $data['keyword'] = $keyword;
+
+    return view('adminpage/organisasi/satuanorganisasi/prodi/index', $data);
+}
+
 
     public function create()
     {

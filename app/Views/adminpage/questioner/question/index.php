@@ -1,5 +1,7 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
+<link rel="stylesheet" href="<?= base_url('css/questioner/question/index.css') ?>">
+
 <div class="container-fluid mt-4">
     <div class="row">
         <!-- Main Content -->
@@ -1236,4 +1238,9 @@ function generateQuestionPreview($q)
             return "<label class='form-label small'>{$text}</label><input type='text' class='form-control form-control-sm' disabled>";
     }
 }
+
+
 ?>
+
+
+
