@@ -21,7 +21,7 @@ class KaprodiController extends Controller
             return redirect()->to('/login')->with('error', 'Akses ditolak.');
         }
 
-        return view('kaprodi/dashboard'); // Kaprodi biasa
+        return view('kaprodi/dashboard');
     }
 
     public function supervisi()
@@ -30,7 +30,7 @@ class KaprodiController extends Controller
             return redirect()->to('/login')->with('error', 'Akses ditolak.');
         }
 
-        return view('kaprodi/supervisi'); // Kaprodi dengan hak supervisi
+        return view('kaprodi/supervisi');
     }
 
     // ================== MENU BARU ==================
@@ -52,7 +52,7 @@ class KaprodiController extends Controller
     // ================== PROFIL ==================
     public function profil()
     {
-        $idAccount = session()->get('id_account'); // ambil id account dari session
+        $idAccount = session()->get('id_account');
 
         $builder = $this->db->table('detailaccount_kaprodi');
         $kaprodi = $builder->where('id_account', $idAccount)->get()->getRowArray();
@@ -70,30 +70,38 @@ class KaprodiController extends Controller
         return view('kaprodi/profil/edit', ['kaprodi' => $kaprodi]);
     }
 
-   public function updateProfil()
-{
-    $idAccount = session()->get('id_account');
+    public function updateProfil()
+    {
+        $idAccount = session()->get('id_account');
+        $data = [];
 
-    $data = [];
+        // 📂 Upload file manual
+        $file = $this->request->getFile('foto');
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $newName = time() . '_' . $file->getRandomName();
+            $file->move(FCPATH . 'uploads/kaprodi', $newName);
+            $data['foto'] = $newName;
+            session()->set('foto', $newName);
+        }
 
-    // handle upload foto
-    $file = $this->request->getFile('foto');
-    if ($file && $file->isValid() && !$file->hasMoved()) {
-        $newName = time() . '_' . $file->getRandomName();
-        $file->move(FCPATH . 'uploads/kaprodi', $newName);
-        $data['foto'] = $newName;
+        // 📷 Upload dari kamera (base64)
+        $fotoCamera = $this->request->getPost('foto_camera');
+        if ($fotoCamera) {
+            $fotoData = explode(',', $fotoCamera);
+            if (count($fotoData) == 2) {
+                $imageData = base64_decode($fotoData[1]);
+                $newName = time() . '_camera.png';
+                file_put_contents(FCPATH . 'uploads/kaprodi/' . $newName, $imageData);
+                $data['foto'] = $newName;
+                session()->set('foto', $newName);
+            }
+        }
 
-        // update session biar sidebar langsung berubah
-        session()->set('foto', $newName);
+        if (!empty($data)) {
+            $builder = $this->db->table('detailaccount_kaprodi');
+            $builder->where('id_account', $idAccount)->update($data);
+        }
+
+        return redirect()->to('/kaprodi/profil')->with('success', 'Foto profil berhasil diperbarui.');
     }
-
-    if (!empty($data)) {
-        $builder = $this->db->table('detailaccount_kaprodi');
-        $builder->where('id_account', $idAccount)->update($data);
-    }
-
-    return redirect()->to('/kaprodi/profil')->with('success', 'Foto profil berhasil diperbarui.');
-}
-
-
 }
