@@ -461,7 +461,7 @@ class AlumniController extends BaseController
     {
         $idAlumni = session()->get('id');
         $pesan = $this->pesanModel
-            ->select('pesan.*, detailaccount_alumni.nama_lengkap as nama_pengirim')
+            ->select('pesan.*, COALESCE(detailaccount_alumni.nama_lengkap, account.username, "Pengguna") as nama_pengirim')
             ->join('account', 'account.id = pesan.id_pengirim', 'left')
             ->join('detailaccount_alumni', 'detailaccount_alumni.id_account = account.id', 'left')
             ->where('id_penerima', $idAlumni)
@@ -474,7 +474,7 @@ class AlumniController extends BaseController
     public function viewPesan($idPesan)
     {
         $pesan = $this->pesanModel
-            ->select('pesan.*, detailaccount_alumni.nama_lengkap as nama_pengirim')
+            ->select('pesan.*, COALESCE(detailaccount_alumni.nama_lengkap, account.username, "Pengguna") as nama_pengirim')
             ->join('account', 'account.id = pesan.id_pengirim', 'left')
             ->join('detailaccount_alumni', 'detailaccount_alumni.id_account = account.id', 'left')
             ->where('pesan.id_pesan', $idPesan)
@@ -484,10 +484,12 @@ class AlumniController extends BaseController
             return redirect()->to('/alumni/notifikasi')->with('error', 'Pesan tidak ditemukan.');
         }
 
+        // update status
         $this->pesanModel->update($idPesan, ['status' => 'dibaca']);
 
         return view('alumni/viewpesan', ['pesan' => $pesan]);
     }
+
 
     public function getNotifCount()
     {

@@ -283,7 +283,8 @@ $routes->group('alumni', ['filter' => 'alumniAuth'], static function ($routes) {
     // -------------------------------
     // Dashboard
     // -------------------------------
-    $routes->get('dashboard', 'AlumniController::dashboard'); // alumni biasa
+    $routes->get('dashboard', 'AlumniController::dashboard');
+    $routes->get('surveyor/dashboard', 'AlumniController::dashboard/surveyor'); // alumni biasa
 
     // surveyor
 
@@ -397,10 +398,8 @@ $routes->group('admin/respon', static function ($routes) {
     $routes->get('/', 'AdminRespon::index'); // Tampilkan daftar respon
 });
 
-// Route untuk user/landing page
-$routes->get('respon', function () {
-    return view('LandingPage/respon');
-});
+// // Route untuk user/landing page
+$routes->get('/respon', 'UserQuestionController::responseLanding');
 
 
 // =======================
