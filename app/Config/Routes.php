@@ -145,7 +145,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
 $routes->get('/admin/welcome-page', 'AdminWelcomePage::index', ['filter' => 'auth']);
 $routes->post('/admin/welcome-page/update', 'AdminWelcomePage::update');
 
-
+});
 // --------------------
 // ROUTES: Landing
 // --------------------
