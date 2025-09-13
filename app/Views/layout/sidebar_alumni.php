@@ -90,7 +90,7 @@ $fotoUrl = ($foto && file_exists($fotoPath))
         }
       }, "json");
     }
-    setInterval(loadNotifCount, 5000);
+    setInterval(loadNotifCount, 2000);
     loadNotifCount();
   <?php endif; ?>
 

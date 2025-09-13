@@ -41,11 +41,12 @@
                             <tr>
                                 <td><?= $no++ ?></td>
                                 <td>
-                                    <img src="<?= base_url('uploads/foto/' . (!empty($t['foto']) ? $t['foto'] : 'default.png')) ?>"
+                                    <img src="<?= base_url('uploads/foto_alumni/' . (!empty($t['foto']) ? $t['foto'] : 'default.png')) ?>"
                                         alt="Foto <?= esc($t['nama_lengkap']) ?>"
                                         class="rounded-circle border"
                                         style="width:45px; height:45px; object-fit:cover;">
                                 </td>
+
                                 <td><?= esc($t['nama_lengkap']) ?></td>
                                 <td><?= esc($t['nim']) ?></td>
                                 <td>

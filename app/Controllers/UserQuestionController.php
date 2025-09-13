@@ -10,6 +10,7 @@ use App\Models\QuestionnairePageModel;
 use App\Models\QuestionnairConditionModel;
 use App\Models\SectionModel;
 use App\models\LogActivityModel;
+use App\Models\ResponseModel;
 
 class UserQuestionController extends BaseController
 {
@@ -92,9 +93,11 @@ class UserQuestionController extends BaseController
 
         // cek status
         $status = $this->answerModel->getStatus($q_id, $userId);
+        // di UserQuestionController::mulai()
         if ($status === 'Finish') {
-            return redirect()->to("/alumni/questioner/lihat/$q_id");
+            return redirect()->to("/alumni/questionnaires/lihat/$q_id");
         }
+
 
         // ambil jawaban sebelumnya
         $previous_answers = $this->answerModel->getUserAnswers($q_id, $userId);
@@ -171,14 +174,12 @@ class UserQuestionController extends BaseController
                 ->with('error', 'Tidak ada jawaban yang disimpan.');
         }
 
-        // proses jawaban
+        // Proses jawaban
         if ($answers) {
             foreach ($answers as $question_id => $answer) {
-                if (empty($answer) && !is_array($answer)) {
-                    continue; // skip kosong
-                }
+                if (empty($answer) && !is_array($answer)) continue;
 
-                // handle file upload
+                // File upload
                 if (!is_array($answer) && strpos($answer, 'uploaded_file:') === 0) {
                     $file = $files['answer_' . $question_id] ?? null;
                     if ($file && $file->isValid()) {
@@ -190,13 +191,13 @@ class UserQuestionController extends BaseController
                         $this->answerModel->saveAnswer($user_id, $q_id, $question_id, $file_path);
                     }
                 } else {
-                    // non-file answer
+                    // Non-file
                     $this->answerModel->saveAnswer($user_id, $q_id, $question_id, $answer);
                 }
             }
         }
 
-        // handle file upload standalone
+        // File upload standalone
         foreach ($files as $key => $file) {
             if (preg_match('/answer_(\d+)/', $key, $matches)) {
                 $question_id = $matches[1];
@@ -210,7 +211,65 @@ class UserQuestionController extends BaseController
                 }
             }
         }
-        $this->logActivityModel->logAction('submit_questionnaire', 'User ' . $user_id . ' submitted questionnaire ID ' . $q_id);
-        return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('success', 'Jawaban berhasil disimpan.');
+
+        // =======================================
+        // Update / Insert responses + status completed
+        // =======================================
+        $responseModel = new \App\Models\ResponseModel();
+
+        // Cek progress kuesioner
+        $totalQuestions    = $this->answerModel->countQuestions($q_id);
+        $answeredQuestions = $this->answerModel->countAnswered($user_id, $q_id);
+        $isCompleted       = ($totalQuestions > 0 && $answeredQuestions == $totalQuestions);
+
+        $dataResponse = [
+            'questionnaire_id' => $q_id,
+            'account_id'       => $user_id,
+            'submitted_at'     => date('Y-m-d H:i:s'),
+            'ip_address'       => $this->request->getIPAddress(),
+            'status'           => $isCompleted ? 'completed' : 'draft'
+        ];
+
+        $existing = $responseModel->where('questionnaire_id', $q_id)
+            ->where('account_id', $user_id)
+            ->first();
+
+        if ($existing) {
+            $responseModel->update($existing['id'], $dataResponse);
+        } else {
+            $responseModel->insert($dataResponse);
+        }
+
+        // Logging
+        $this->logActivityModel->logAction(
+            'submit_questionnaire',
+            'User ' . $user_id . ' submitted questionnaire ID ' . $q_id
+        );
+
+        return redirect()->to("/alumni/questionnaires/mulai/$q_id")
+            ->with('success', 'Jawaban berhasil disimpan.');
+    }
+
+
+
+    public function responseLanding()
+    {
+        $responseModel = new \App\Models\ResponseModel();
+
+        // Ambil semua tahun kelulusan unik
+        $yearsRaw = $responseModel->getAvailableYears() ?? [];
+        $allYears = array_map(fn($y) => $y['tahun_kelulusan'], $yearsRaw);
+
+        // Tentukan tahun yang dipilih (GET ?tahun atau default terbaru)
+        $selectedYear = $this->request->getGet('tahun') ?? ($allYears[0] ?? date('Y'));
+
+        // Ambil ringkasan data per prodi untuk tahun tersebut
+        $data = $responseModel->getSummaryByYear($selectedYear);
+
+        return view('LandingPage/respon', [
+            'selectedYear' => $selectedYear,
+            'allYears'     => $allYears,
+            'data'         => $data
+        ]);
     }
 }

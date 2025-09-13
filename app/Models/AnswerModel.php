@@ -59,6 +59,22 @@ class AnswerModel extends Model
             $this->insert($data);
         }
     }
+    public function countQuestions($questionnaireId)
+    {
+        return $this->db->table('questions')
+            ->where('questionnaires_id', $questionnaireId)
+            ->countAllResults();
+    }
+
+    public function countAnswered($userId, $questionnaireId)
+    {
+        return $this->db->table('answers a')
+            ->join('questions q', 'a.question_id = q.id')
+            ->where('a.user_id', $userId)
+            ->where('q.questionnaires_id', $questionnaireId)
+            ->countAllResults();
+    }
+
 
     // Dates
     protected $useTimestamps = false;

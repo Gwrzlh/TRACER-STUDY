@@ -21,3 +21,4 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_USER_NOTICE &
  | release of the framework.
  */
 defined('CI_DEBUG') || define('CI_DEBUG', false);
+date_default_timezone_set('Asia/Jakarta');
