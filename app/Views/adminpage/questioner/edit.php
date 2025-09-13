@@ -13,6 +13,13 @@
             <textarea name="deskripsi"><?= esc($questionnaire['deskripsi']) ?></textarea>
         </div>
         <div>
+            <label for="status">Status :</label>
+           <select name="is_active" id="status">
+    <option value="active" <?= $questionnaire['is_active'] == 'active' ? 'selected' : '' ?>>Aktif</option>
+    <option value="draft" <?= $questionnaire['is_active'] == 'draft' ? 'selected' : '' ?>>Draft</option>
+    <option value="inactive" <?= $questionnaire['is_active'] == 'inactive' ? 'selected' : '' ?>>Tidak Aktif</option>
+</select>
+
           <label for="status">Status :</label>
           
           <select name="is_active" id="status">
@@ -20,6 +27,7 @@
               <option value="draft" <?= $questionnaire['is_active'] == 'draft' ? 'selected' : '' ?>>Draft</option>
               <option value="inactive" <?= $questionnaire['is_active'] == 'inactive' ? 'selected' : '' ?>>Tidak Aktif</option>
           </select>
+
         </div>
         <div>
             <label for="conditional_logic">
