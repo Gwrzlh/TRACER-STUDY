@@ -33,6 +33,13 @@
                     <td colspan="6" class="text-center text-gray-500 py-4">Belum ada data</td>
                 </tr>
             <?php endif ?>
+            <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-6xl mx-auto">
+                <div class="flex items-center justify-between mb-4">
+                    <a href="<?= base_url('alumni/profil') ?>"
+                        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+                        Kembali ke Profil
+                    </a>
+                </div>
         </tbody>
     </table>
 </div>
