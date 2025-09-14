@@ -461,7 +461,7 @@ class AlumniController extends BaseController
     {
         $idAlumni = session()->get('id');
         $pesan = $this->pesanModel
-            ->select('pesan.*, detailaccount_alumni.nama_lengkap as nama_pengirim')
+            ->select('pesan.*, COALESCE(detailaccount_alumni.nama_lengkap, account.username, "Pengguna") as nama_pengirim')
             ->join('account', 'account.id = pesan.id_pengirim', 'left')
             ->join('detailaccount_alumni', 'detailaccount_alumni.id_account = account.id', 'left')
             ->where('id_penerima', $idAlumni)
@@ -474,7 +474,7 @@ class AlumniController extends BaseController
     public function viewPesan($idPesan)
     {
         $pesan = $this->pesanModel
-            ->select('pesan.*, detailaccount_alumni.nama_lengkap as nama_pengirim')
+            ->select('pesan.*, COALESCE(detailaccount_alumni.nama_lengkap, account.username, "Pengguna") as nama_pengirim')
             ->join('account', 'account.id = pesan.id_pengirim', 'left')
             ->join('detailaccount_alumni', 'detailaccount_alumni.id_account = account.id', 'left')
             ->where('pesan.id_pesan', $idPesan)
@@ -484,10 +484,12 @@ class AlumniController extends BaseController
             return redirect()->to('/alumni/notifikasi')->with('error', 'Pesan tidak ditemukan.');
         }
 
+        // update status
         $this->pesanModel->update($idPesan, ['status' => 'dibaca']);
 
         return view('alumni/viewpesan', ['pesan' => $pesan]);
     }
+
 
     public function getNotifCount()
     {
@@ -621,52 +623,75 @@ class AlumniController extends BaseController
     // =============================
     public function updateFoto($idAccount, $role = 'alumni')
     {
+        // Cari data alumni berdasarkan id_account
         $alumni = $this->alumniModel->where('id_account', $idAccount)->first();
         if (!$alumni) {
-            return $this->response->setJSON(['status' => 'error', 'message' => 'Data alumni tidak ditemukan']);
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => 'Data alumni tidak ditemukan'
+            ]);
         }
 
         $uploadPath = FCPATH . 'uploads/foto_alumni/';
-        if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
 
         $newName = null;
 
-        // Upload dari file
+        // 🔹 Upload dari file (manual pilih file)
         $file = $this->request->getFile('foto');
         if ($file && $file->isValid() && !$file->hasMoved()) {
             $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
             if (!in_array($file->getMimeType(), $allowedTypes)) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Format file tidak didukung']);
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Format file tidak didukung (hanya jpg, jpeg, png)'
+                ]);
             }
             $newName = $file->getRandomName();
             $file->move($uploadPath, $newName);
         }
-        // Upload dari kamera (base64)
+        // 🔹 Upload dari kamera (base64)
         elseif ($this->request->getPost('foto_camera')) {
             $dataUrl = $this->request->getPost('foto_camera');
             $dataParts = explode(',', $dataUrl);
             if (!isset($dataParts[1])) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Format foto dari kamera salah']);
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Format foto dari kamera salah'
+                ]);
             }
             $decoded = base64_decode($dataParts[1]);
             $newName = uniqid('foto_') . '.png';
             file_put_contents($uploadPath . $newName, $decoded);
         } else {
-            return $this->response->setJSON(['status' => 'error', 'message' => 'Tidak ada file untuk diupload']);
-        }
-
-        // Simpan ke database dan update session
-        if ($newName && file_exists($uploadPath . $newName)) {
-            $this->alumniModel->update($idAccount, ['foto' => $newName]);
-            session()->set('foto', $newName);
-
             return $this->response->setJSON([
-                'status' => 'success',
-                'message' => 'Foto profil berhasil diubah',
-                'fotoUrl' => base_url('uploads/foto_alumni/' . $newName)
+                'status'  => 'error',
+                'message' => 'Tidak ada file untuk diupload'
             ]);
         }
 
-        return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal update database']);
+        // 🔹 Update database dan session
+        if ($newName && file_exists($uploadPath . $newName)) {
+            // Update data alumni (pastikan pakai id_account sebagai filter)
+            $this->alumniModel->where('id_account', $idAccount)
+                ->set(['foto' => $newName])
+                ->update();
+
+            // Update session biar sidebar/profil ikut ganti
+            session()->set('foto', $newName);
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => 'Foto profil berhasil diubah',
+                'fotoUrl' => base_url('uploads/foto_alumni/' . $newName) . '?t=' . time()
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'status'  => 'error',
+            'message' => 'Gagal update database'
+        ]);
     }
 }

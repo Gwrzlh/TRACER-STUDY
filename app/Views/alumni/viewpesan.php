@@ -367,7 +367,8 @@
             <div class="message-header">
                 <h1 class="message-title">
                     <i class="bi bi-chat-quote"></i>
-                    <?= esc('Pesan dari ' . ($pesan['nama_pengirim'] ?? 'Alumni')) ?>
+                    <?= esc('Pesan dari ' . $pesan['nama_pengirim']) ?>
+
 
                 </h1>
             </div>
@@ -379,7 +380,7 @@
                         <?= strtoupper(substr($pesan['nama_pengirim'] ?? 'A', 0, 1)) ?>
                     </div>
                     <div class="sender-text">
-                        <h5><?= esc($pesan['nama_pengirim'] ?? 'Alumni') ?></h5>
+                        <h5><?= esc($pesan['nama_pengirim']) ?></h5>
                         <?php if (!empty($pesan['email_pengirim'])): ?>
                             <p class="email"><?= esc($pesan['email_pengirim']) ?></p>
                         <?php endif; ?>
@@ -388,8 +389,21 @@
 
                 <div class="message-date">
                     <i class="bi bi-calendar-event"></i>
-                    <?= !empty($pesan['created_at']) ? date('d M Y, H:i', strtotime($pesan['created_at'])) : 'Tanggal tidak tersedia' ?>
+                    <?php if (!empty($pesan['created_at'])):
+                        try {
+                            // anggap data dari DB tersimpan sebagai UTC
+                            $dt = new DateTime($pesan['created_at'], new DateTimeZone('UTC'));
+                            // konversi ke WIB
+                            $dt->setTimezone(new DateTimeZone('Asia/Jakarta'));
+                            echo $dt->format('d M Y, H:i');
+                        } catch (Exception $e) {
+                            echo 'Tanggal tidak tersedia';
+                        }
+                    else: ?>
+                        Tanggal tidak tersedia
+                    <?php endif; ?>
                 </div>
+
             </div>
 
             <!-- Message Body -->

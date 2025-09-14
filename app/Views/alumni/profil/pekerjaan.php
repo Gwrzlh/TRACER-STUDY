@@ -46,16 +46,22 @@
         <div class="mt-4">
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Simpan</button>
         </div>
-    </form>
-</div>
 
-<script>
-    function toggleTahunKeluar(enable) {
-        const tahunKeluarInput = document.getElementById('tahun_keluar');
-        tahunKeluarInput.disabled = !enable;
-        if (!enable) {
-            tahunKeluarInput.value = '';
+    </form>
+    <div class="flex items-center justify-between mb-4">
+        <a href="<?= base_url('alumni/profil') ?>"
+            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+            Kembali ke Profil
+        </a>
+    </div>
+
+    <script>
+        function toggleTahunKeluar(enable) {
+            const tahunKeluarInput = document.getElementById('tahun_keluar');
+            tahunKeluarInput.disabled = !enable;
+            if (!enable) {
+                tahunKeluarInput.value = '';
+            }
         }
-    }
-</script>
-<?= $this->endSection() ?>
+    </script>
+    <?= $this->endSection() ?>

@@ -14,9 +14,12 @@
     <!-- FOTO ALUMNI -->
     <div class="flex flex-col items-center relative">
       <img id="fotoPreview"
-        src="<?= $alumni->foto ? base_url('uploads/foto_alumni/' . $alumni->foto) : base_url('uploads/default.png') ?>"
+        src="<?= $alumni->foto
+                ? base_url('uploads/foto_alumni/' . $alumni->foto) . '?t=' . time()
+                : base_url('uploads/default.png') ?>"
         class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg mb-3 cursor-pointer">
     </div>
+
 
     <!-- INFO ALUMNI -->
     <div>

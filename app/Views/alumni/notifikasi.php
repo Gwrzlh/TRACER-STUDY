@@ -60,11 +60,26 @@
                         <div class="message-content">
                             <div class="message-header">
                                 <h4 class="message-subject">
-                                    <?= esc($p['subject'] ?? 'Tanpa Subjek') ?>
+                                    Pesan dari <?= esc($p['nama_pengirim']) ?>
+
                                 </h4>
                                 <div class="message-meta">
-                                    <span class="sender">Alumni Surveyor #<?= esc($p['id_pengirim']) ?></span>
-                                    <span class="date"><?= date('d M Y H:i', strtotime($p['created_at'])) ?></span>
+                                    <span class="sender"><?= esc($p['nama_pengirim']) ?></span>
+                                    <span class="date">
+                                        <?php if (!empty($p['created_at'])):
+                                            try {
+                                                // anggap data di DB tersimpan UTC
+                                                $dt = new DateTime($p['created_at'], new DateTimeZone('UTC'));
+                                                $dt->setTimezone(new DateTimeZone('Asia/Jakarta'));
+                                                echo $dt->format('d M Y H:i');
+                                            } catch (Exception $e) {
+                                                echo 'Tanggal tidak tersedia';
+                                            }
+                                        else: ?>
+                                            Tanggal tidak tersedia
+                                        <?php endif; ?>
+                                    </span>
+
                                 </div>
                             </div>
                             <div class="message-preview">
