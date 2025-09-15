@@ -110,7 +110,7 @@
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = `${baseUrl}/${id}/delete`;
+                        window.location.href = ${baseUrl}/${id}/delete;
                     }
                 });
             });

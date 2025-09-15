@@ -116,12 +116,12 @@ $currentRoute = service('request')->uri->getPath();
 
             class="sidebar-link <?= str_contains($currentRoute, 'admin/laporan') ? 'active' : '' ?>">
             <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6.586a2 2 0 0 0 1.414-.586l6.414-6.414A2 2 0 0 0 21 13.586V4a2 2 0 0 0-2-2H6zM8 6h8v2H8V6zm0 4h5v2H8v-2zm0 4h3v2H8v-2z"/>
-              <path d="M18.414 12 13 17.414V20h2.586L21 14.586 18.414 12z"/>
+              <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6.586a2 2 0 0 0 1.414-.586l6.414-6.414A2 2 0 0 0 21 13.586V4a2 2 0 0 0-2-2H6zM8 6h8v2H8V6zm0 4h5v2H8v-2zm0 4h3v2H8v-2z" />
+              <path d="M18.414 12 13 17.414V20h2.586L21 14.586 18.414 12z" />
             </svg>
             <span>Laporan</span>
           </a>
-          
+
           <!-- Email Template -->
           <a href="<?= base_url('admin/emailtemplate') ?>"
             class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
@@ -134,6 +134,22 @@ $currentRoute = service('request')->uri->getPath();
             </svg>
 
             <span class="font-medium">Email</span>
+          </a>
+          <!-- log -->
+          <a href="<?= base_url('admin/log_activities') ?>"
+            class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities') ? 'active' : '' ?>">
+            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
+            </svg>
+            <span>aktivitas Pengguna</span>
+          </a>
+
+          <a href="<?= base_url('admin/respon') ?>"
+            class="sidebar-link <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">
+            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
+            </svg>
+            <span>Respon</span>
           </a>
 
         </nav>
@@ -152,19 +168,19 @@ $currentRoute = service('request')->uri->getPath();
           </div>
         </div>
 
-     <form action="/logout" method="get">
-  <button type="submit"
-    style="background-color: <?= get_setting('logout_button_color', '#dc3545') ?>;
+        <form action="/logout" method="get">
+          <button type="submit"
+            style="background-color: <?= get_setting('logout_button_color', '#dc3545') ?>;
            color: <?= get_setting('logout_button_text_color', '#ffffff') ?>;
            padding: 10px 20px;
            font-weight: 600;
            border-radius: 8px;
            width: 100%; text-align:center;"
-    onmouseover="this.style.backgroundColor='<?= get_setting('logout_button_hover_color', '#a71d2a') ?>';"
-    onmouseout="this.style.backgroundColor='<?= get_setting('logout_button_color', '#dc3545') ?>';">
-    <?= esc(get_setting('logout_button_text', 'Logout')) ?>
-  </button>
-</form>
+            onmouseover="this.style.backgroundColor='<?= get_setting('logout_button_hover_color', '#a71d2a') ?>';"
+            onmouseout="this.style.backgroundColor='<?= get_setting('logout_button_color', '#dc3545') ?>';">
+            <?= esc(get_setting('logout_button_text', 'Logout')) ?>
+          </button>
+        </form>
 
       </div>
     </aside>
@@ -175,4 +191,5 @@ $currentRoute = service('request')->uri->getPath();
     </main>
   </div>
 </body>
+
 </html>

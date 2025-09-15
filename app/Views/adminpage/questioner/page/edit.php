@@ -180,7 +180,7 @@ $(document).ready(function() {
         const valueContainer = questionSelector.closest('.condition-row').find('.value-input-container');
 
         if (!questionId) {
-            valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" required>`);
+            valueContainer.html(<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" required>);
             return;
         }
 
@@ -196,17 +196,17 @@ $(document).ready(function() {
                     inputHtml = '<select name="condition_value[]" class="form-control" required>';
                     response.options.forEach(function(option) {
                         const isSelected = initialValue !== null && String(initialValue) === String(option.id) ? 'selected' : '';
-                        inputHtml += `<option value="${option.id}" ${isSelected}>${option.option_text}</option>`;
+                        inputHtml += <option value="${option.id}" ${isSelected}>${option.option_text}</option>;
                     });
                     inputHtml += '</select>';
                 } else {
-                    inputHtml = `<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" required>`;
+                    inputHtml = <input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" required>;
                 }
                 valueContainer.html(inputHtml);
             },
             error: function(xhr, status, error) {
                 console.error('AJAX Error:', status, error, xhr.responseText);
-                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="form-control" value="${initialValue || ''}" required>`);
+                valueContainer.html(<input type="text" name="condition_value[]" placeholder="Error loading options" class="form-control" value="${initialValue || ''}" required>);
             }
         });
     }
