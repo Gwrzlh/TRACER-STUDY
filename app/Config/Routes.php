@@ -137,6 +137,10 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('delete/(:num)', 'TipeOrganisasiController::delete/$1');
     });
 
+
+
+
+
     // Tentang
     $routes->get('tentang', 'Tentang::index');
     $routes->get('tentang/edit', 'Tentang::edit');
@@ -266,7 +270,40 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
 //     $routes->get('profil', 'KaprodiController::profil');
 // });
 
+// --------------------
+// ROUTES: Satuan Organisasi + Nested
+// --------------------
+$routes->group('satuanorganisasi', ['filter' => 'adminAuth'], ['namespace' => 'App\Controllers'], function ($routes) {
 
+    // Satuan Organisasi - Main
+    $routes->get('', 'SatuanOrganisasi::index');
+    $routes->get('create', 'SatuanOrganisasi::create');
+    $routes->post('store', 'SatuanOrganisasi::store');
+    $routes->get('edit/(:num)', 'SatuanOrganisasi::edit/$1');
+    $routes->post('update/(:num)', 'SatuanOrganisasi::update/$1');
+    $routes->post('delete/(:num)', 'SatuanOrganisasi::delete/$1');
+    $routes->get('getProdi/(:num)', 'ProdiController::getProdi/$1');
+
+    // Jurusan - Nested
+    $routes->group('jurusan', function ($routes) {
+        $routes->get('', 'Jurusan::index');
+        $routes->get('create', 'Jurusan::create');
+        $routes->post('store', 'Jurusan::store');
+        $routes->get('edit/(:num)', 'Jurusan::edit/$1');
+        $routes->post('update/(:num)', 'Jurusan::update/$1');
+        $routes->post('delete/(:num)', 'Jurusan::delete/$1');
+    });
+
+    // Prodi - Nested
+    $routes->group('prodi', function ($routes) {
+        $routes->get('', 'ProdiController::index');
+        $routes->get('create', 'ProdiController::create');
+        $routes->post('store', 'ProdiController::store');
+        $routes->get('edit/(:num)', 'ProdiController::edit/$1');
+        $routes->post('update/(:num)', 'ProdiController::update/$1');
+        $routes->post('delete/(:num)', 'ProdiController::delete/$1');
+    });
+});
 
 //alumni surveyor
 $routes->get('alumni/supervisi', 'AlumniController::supervisi');
