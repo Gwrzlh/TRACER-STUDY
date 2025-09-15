@@ -1,3 +1,4 @@
+/* desain css tambah di sections */
 /* ================================
    Questionnaire Section Styles
    ================================ */
@@ -75,4 +76,72 @@
 .card h4,
 .card h6 {
     font-weight: 600;
+}
+
+/* ========== UPDATED BUTTON STYLES ========== */
+
+/* Tombol Biru - untuk Simpan */
+.btn-blue {
+    background-color: #3b82f6; /* Warna biru seperti di foto */
+    color: #fff;
+    padding: 0.625rem 1.5rem; /* Ukuran lebih besar seperti di foto */
+    border: none;
+    border-radius: 0.375rem; /* Rounded corners */
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.btn-blue:hover {
+    background-color: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
+}
+
+/* Tombol Kuning - untuk Reset/Batal */
+.btn-orange {
+    background-color: #fbbf24; /* Warna kuning seperti di foto */
+    color: #1f2937; /* Text warna gelap untuk kontras yang baik */
+    padding: 0.625rem 1.5rem; /* Ukuran sama dengan btn-blue */
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.btn-orange:hover {
+    background-color: #f59e0b;
+    color: #1f2937;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.25);
+}
+
+/* Tombol Merah - untuk Kembali */
+.btn-red {
+    background-color: #ef4444;
+    color: #fff;
+    padding: 0.625rem 1.5rem; /* Ukuran sama dengan tombol lainnya */
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}   
+.btn-red:hover {
+    background-color: #dc2626;
+    color: #fff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
 }

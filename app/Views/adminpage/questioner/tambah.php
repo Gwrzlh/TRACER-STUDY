@@ -1,4 +1,4 @@
-
+<!-- desain tambah kuesioner -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,52 +11,89 @@
 <?= $this->section('content') ?>
 <link rel="stylesheet" href="<?= base_url('css/questioner/tambah.css') ?>">
 
-<h2>Buat Kuesioner Baru</h2>
-<form action="<?= base_url('/admin/questionnaire/store') ?>" method="post" class="form-kuesioner">
+<div class="bg-white rounded-xl shadow-md p-8 w-full max-w-7xl mx-auto">
+    <div class="flex items-center mb-4">
+        <img src="/images/logo.png" alt="Tracer Study" class="h-12 mr-3">
+        <h2 class="text-xl font-semibold">Buat Kuesioner Baru</h2>
+    </div>
+    <hr class="mb-6 border-gray-300">   
+  <form action="<?= base_url('/admin/questionnaire/store') ?>" method="post" class="space-y-5">
 
-    <div>
-        <label>Judul Kuesioner</label><br>
-        <input type="text" name="title" required>
-    </div>
-    <div>
-        <label>Deskripsi</label><br>
-        <textarea name="deskripsi"></textarea>
-    </div>
-    <div>
-        <label for="status">Status :</label>
-        <select name="is_active" id="status">
-            <option value="active">Aktif</option>
-            <option value="draft">Draft</option>
-            <option value="inactive">Tidak Aktif</option>
-        </select>
-    </div>
-    <div>
-        <label for="conditional_logic">
-            Conditional Logic <input type="checkbox" name="conditional_logic" id="conditional_logic" value="1">
-        </label>
+      <!-- Judul -->
+      <div>
+          <label class="block font-medium text-gray-700 mb-1">Judul Kuesioner</label>
+          <input type="text" name="title" required
+                 class="w-full border rounded-lg p-2 focus:ring focus:border-blue-400">
+      </div>
 
-        <div id="conditional-container">
-            <div class="condition-row" style="margin-top:10px; display:flex; align-items:center; gap:10px; display:none;">
-                <select name="field_name[]" class="field-selector">
-                    <?php foreach ($fields as $f): ?>
-                        <option value="<?= $f ?>"><?= ucwords(str_replace('_', ' ', $f)) ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <select name="operator[]">
-                    <?php foreach ($operators as $key => $label): ?>
-                        <option value="<?= $key ?>"><?= $label ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <span class="value-input-container">
-                    <input type="text" name="value[]" placeholder="Value">
-                </span>
-                <button type="button" class="remove-condition-btn" style="display:none;">Hapus</button>
-            </div>
-        </div>
-        <button type="button" id="add-condition-btn" style="display:none;">Tambah Kondisi</button>
-    </div>
-    <button type="submit">Simpan</button>
-</form>
+      <!-- Deskripsi -->
+      <div>
+          <label class="block font-medium text-gray-700 mb-1">Deskripsi</label>
+          <textarea name="deskripsi" rows="4"
+                    class="w-full border rounded-lg p-2 focus:ring focus:border-blue-400"></textarea>
+      </div>
+
+      <!-- Status -->
+      <div>
+          <label class="block font-medium text-gray-700 mb-1">Status</label>
+          <select name="is_active" id="status"
+                  class="w-full border rounded-lg p-2 focus:ring focus:border-blue-400">
+              <option value="active">Aktif</option>
+              <option value="draft">Draft</option>
+              <option value="inactive">Tidak Aktif</option>
+          </select>
+      </div>
+
+      <!-- Conditional Logic -->
+      <div>
+          <label for="conditional_logic" class="block font-medium text-gray-700">
+              <input type="checkbox" name="conditional_logic" id="conditional_logic" value="1" class="mr-2">
+              Conditional Logic
+          </label>
+
+          <div id="conditional-container" class="mt-3 space-y-3">
+              <div class="condition-row hidden flex items-center gap-3">
+                  <select name="field_name[]" class="field-selector border rounded-lg p-2">
+                      <?php foreach ($fields as $f): ?>
+                          <option value="<?= $f ?>"><?= ucwords(str_replace('_', ' ', $f)) ?></option>
+                      <?php endforeach; ?>
+                  </select>
+
+                  <select name="operator[]" class="border rounded-lg p-2">
+                      <?php foreach ($operators as $key => $label): ?>
+                          <option value="<?= $key ?>"><?= $label ?></option>
+                      <?php endforeach; ?>
+                  </select>
+
+                  <span class="value-input-container">
+                      <input type="text" name="value[]" placeholder="Value"
+                             class="border rounded-lg p-2">
+                  </span>
+
+                  <button type="button" class="remove-condition-btn hidden bg-red-500 text-white px-3 py-1 rounded-lg text-sm">
+                      Hapus
+                  </button>
+              </div>
+          </div>
+
+          <button type="button" id="add-condition-btn"
+                  class="hidden mt-2 bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm">
+              Tambah Kondisi
+          </button>
+      </div>
+
+      <!-- Tombol -->
+      <div class="flex gap-3 pt-4">
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              Simpan
+          </button>
+          <a href="<?= base_url('/admin/questionnaire') ?>"
+             class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
+              Batal
+          </a>
+      </div>
+  </form>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>

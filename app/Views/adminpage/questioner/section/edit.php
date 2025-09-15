@@ -1,27 +1,19 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 <div class="container mt-4">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>">Home</a></li>
-            <li class="breadcrumb-item"><a href="<?= base_url('admin/questionnaire') ?>">Daftar Kuesioner</a></li>
-            <li class="breadcrumb-item"><a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages") ?>"><?= esc($questionnaire['title']) ?></a></li>
-            <li class="breadcrumb-item"><a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections") ?>"><?= esc($page['page_title']) ?></a></li>
-            <li class="breadcrumb-item active" aria-current="page">Edit: <?= esc($section['section_title']) ?></li>
-        </ol>
-    </nav>
-    <div class="card mb-4">
-        <div class="card-header bg-warning text-dark">
-            <h4 class="mb-0">
-                <i class="fas fa-edit me-2"></i>Edit Section: <?= esc($section['section_title']) ?>
-            </h4>
-            <p class="mb-0"><small>Halaman: <?= esc($page['page_title']) ?></small></p>
+    <div class="bg-white rounded-xl shadow-md p-8 w-full mx-auto">
+    <!-- Header + Divider -->
+    <div class="-mx-8 mb-6 border-b border-gray-300 pb-3 px-8">
+        <div class="flex items-center">
+            <img src="/images/logo.png" alt="Tracer Study" class="h-12 mr-3">
+            <h2 class="text-xl font-semibold">Edit Section: <?= esc($section['section_title']) ?></h2>
         </div>
+        <p class="text-sm text-gray-600 mt-1">Halaman: <?= esc($page['page_title']) ?></p>
     </div>
 
     <?php if (session()->getFlashdata('errors')): ?>
-        <div class="alert alert-danger">
-            <ul class="mb-0">
+        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+            <ul class="text-sm text-red-600 space-y-1">
                 <?php foreach (session()->getFlashdata('errors') as $error): ?>
                     <li><?= esc($error) ?></li>
                 <?php endforeach; ?>
@@ -29,164 +21,212 @@
         </div>
     <?php endif; ?>
 
-    <div class="card">
-        <div class="card-body">
-            <form method="post" action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/update") ?>">
-                <?= csrf_field() ?>
+    <form method="post" action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/update") ?>" class="space-y-5">
+        <?= csrf_field() ?>
 
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="mb-3">
-                            <label for="section_title" class="form-label">
-                                <i class="fas fa-heading me-2"></i>Judul Section <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" class="form-control" id="section_title" name="section_title" 
-                                   value="<?= old('section_title', $section['section_title']) ?>" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="section_description" class="form-label">
-                                <i class="fas fa-align-left me-2"></i>Deskripsi Section
-                            </label>
-                            <textarea class="form-control" id="section_description" name="section_description" 
-                                      rows="4"><?= old('section_description', $section['section_description']) ?></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="conditional_logic">
-                                <input type="checkbox" name="conditional_logic" id="conditional_logic" value="1" 
-                                       <?= !empty($conditionalLogic) ? 'checked' : '' ?>>
-                                <strong>Aktifkan Conditional Logic</strong>
-                            </label>
-                        </div>
-
-                        <div id="conditional-form" style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>;">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="me-2">Show this section if</span>
-                                <select name="logic_type" class="form-control me-2" style="width: auto;">
-                                    <option value="any" <?= isset($conditionalLogic['logic_type']) && $conditionalLogic['logic_type'] === 'any' ? 'selected' : '' ?>>Any</option>
-                                    <option value="all" <?= !isset($conditionalLogic['logic_type']) || $conditionalLogic['logic_type'] === 'all' ? 'selected' : '' ?>>All</option>
-                                </select>
-                                <span>of this/these following match:</span>
-                            </div>
-
-                            <div id="conditional-container" class="mb-3">
-                                <?php if (!empty($conditionalLogic)): ?>
-                                    <?php foreach ($conditionalLogic as $condition): ?>
-                                        <div class="condition-row d-flex align-items-center gap-2 mb-2">
-                                            <select name="condition_question_id[]" class="question-selector form-control">
-                                                <option value="">Pilih Pertanyaan</option>
-                                                <?php foreach ($questions as $q): ?>
-                                                    <option value="<?= $q['id'] ?>" <?= $q['id'] == $condition['question_id'] ? 'selected' : '' ?>><?= esc($q['question_text']) ?></option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            <select name="operator[]" class="form-control" style="width: auto;">
-                                                <?php foreach ($operators as $key => $label): ?>
-                                                    <option value="<?= $key ?>" <?= $key == $condition['operator'] ? 'selected' : '' ?>><?= $label ?></option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            <span class="value-input-container w-100">
-                                                <input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="<?= esc($condition['value']) ?>" required>
-                                            </span>
-                                            <button type="button" class="remove-condition-btn btn btn-danger btn-sm">Hapus</button>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <div class="condition-row d-flex align-items-center gap-2 mb-2" style="display:none;">
-                                        <select name="condition_question_id[]" class="question-selector form-control">
-                                            <option value="">Pilih Pertanyaan</option>
-                                            <?php foreach ($questions as $q): ?>
-                                                <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <select name="operator[]" class="form-control" style="width: auto;">
-                                            <?php foreach ($operators as $key => $label): ?>
-                                                <option value="<?= $key ?>"><?= $label ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <span class="value-input-container w-100">
-                                            <input type="text" name="condition_value[]" placeholder="Value" class="form-control" >
-                                        </span>
-                                        <button type="button" class="remove-condition-btn btn btn-danger btn-sm" style="display:none;">Hapus</button>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                            <button type="button" id="add-condition-btn" class="btn btn-primary btn-sm" style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>;">Tambah Kondisi</button>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="card bg-light">
-                            <div class="card-header">
-                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Pengaturan Tampilan</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="show_section_title" 
-                                               name="show_section_title" value="1" <?= old('show_section_title', $section['show_section_title']) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="show_section_title">
-                                            <i class="fas fa-eye me-1"></i>Tampilkan Judul Section
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="show_section_description" 
-                                               name="show_section_description" value="1" <?= old('show_section_description', $section['show_section_description']) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="show_section_description">
-                                            <i class="fas fa-align-left me-1"></i>Tampilkan Deskripsi
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="order_no" class="form-label">
-                                        <i class="fas fa-sort-numeric-up me-2"></i>Urutan
-                                    </label>
-                                    <input type="number" class="form-control" id="order_no" name="order_no" 
-                                           value="<?= old('order_no', $section['order_no']) ?>" min="1" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card bg-info bg-opacity-10 border-info">
-                            <div class="card-header bg-info bg-opacity-25">
-                                <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-grid gap-2">
-                                    <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions") ?>"
-                                        class="btn btn-sm btn-info">
-                                        <i class="fas fa-cogs me-2"></i>Kelola Pertanyaan
-                                    </a>
-                                    <button type="button" class="btn btn-sm btn-secondary" onclick="duplicateSection()">
-                                        <i class="fas fa-copy me-2"></i>Duplikasi Section
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections") ?>"
-                        class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Kembali
-                    </a>
-                    <div>
-                        <button type="submit" class="btn btn-success me-2">
-                            <i class="fas fa-check me-2"></i>Update Section
-                        </button>
-                        <button type="button" class="btn btn-outline-danger" onclick="deleteSection()">
-                            <i class="fas fa-trash me-2"></i>Hapus Section
-                        </button>
-                    </div>
-                </div>
-            </form>
+        <!-- Judul Section -->
+        <div>
+            <label for="section_title" class="block text-sm font-medium text-gray-700 mb-2">
+                Judul Section <span class="text-red-500">*</span>
+            </label>
+            <input type="text" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                   id="section_title" 
+                   name="section_title" 
+                   value="<?= old('section_title', $section['section_title']) ?>" 
+                   required>
         </div>
-    </div>
+
+        <!-- Deskripsi Section -->
+        <div>
+            <label for="section_description" class="block text-sm font-medium text-gray-700 mb-2">
+                Deskripsi Section
+            </label>
+            <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical" 
+                      id="section_description" 
+                      name="section_description" 
+                      rows="4"><?= old('section_description', $section['section_description']) ?></textarea>
+        </div>
+
+        <!-- Urutan -->
+        <div>
+            <label for="order_no" class="block text-sm font-medium text-gray-700 mb-2">
+                Urutan
+            </label>
+            <input type="number" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                   id="order_no" 
+                   name="order_no" 
+                   value="<?= old('order_no', $section['order_no']) ?>" 
+                   min="1" 
+                   required>
+        </div>
+
+        <!-- Pengaturan Tampilan -->
+        <div class="space-y-3">
+            <h3 class="text-sm font-medium text-gray-700">Pengaturan Tampilan</h3>
+            
+            <div>
+                <label class="flex items-center">
+                    <input type="checkbox" 
+                           class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" 
+                           id="show_section_title" 
+                           name="show_section_title" 
+                           value="1" 
+                           <?= old('show_section_title', $section['show_section_title']) ? 'checked' : '' ?>>
+                    <span class="ml-2 text-sm text-gray-700">Tampilkan Judul Section</span>
+                </label>
+            </div>
+
+            <div>
+                <label class="flex items-center">
+                    <input type="checkbox" 
+                           class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" 
+                           id="show_section_description" 
+                           name="show_section_description" 
+                           value="1" 
+                           <?= old('show_section_description', $section['show_section_description']) ? 'checked' : '' ?>>
+                    <span class="ml-2 text-sm text-gray-700">Tampilkan Deskripsi</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Conditional Logic -->
+        <div>
+            <label class="flex items-center">
+                <input type="checkbox" 
+                       name="conditional_logic" 
+                       id="conditional_logic" 
+                       value="1" 
+                       <?= !empty($conditionalLogic) ? 'checked' : '' ?>
+                       class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <span class="ml-2 text-sm font-medium text-gray-700">Aktifkan Conditional Logic</span>
+            </label>
+
+            <div id="conditional-form" style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>;" class="mt-3">
+                <div class="flex items-center gap-2 mb-3 text-sm text-gray-600">
+                    <span>Show this section if</span>
+                    <select name="logic_type" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
+                        <option value="any" <?= isset($conditionalLogic['logic_type']) && $conditionalLogic['logic_type'] === 'any' ? 'selected' : '' ?>>Any</option>
+                        <option value="all" <?= !isset($conditionalLogic['logic_type']) || $conditionalLogic['logic_type'] === 'all' ? 'selected' : '' ?>>All</option>
+                    </select>
+                    <span>of this/these following match:</span>
+                </div>
+
+                <div id="conditional-container" class="space-y-3">
+                    <?php if (!empty($conditionalLogic)): ?>
+                        <?php foreach ($conditionalLogic as $condition): ?>
+                            <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border">
+                                <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                    <option value="">Pilih Pertanyaan</option>
+                                    <?php foreach ($questions as $q): ?>
+                                        <option value="<?= $q['id'] ?>" <?= $q['id'] == $condition['question_id'] ? 'selected' : '' ?>><?= esc($q['question_text']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
+                                    <?php foreach ($operators as $key => $label): ?>
+                                        <option value="<?= $key ?>" <?= $key == $condition['operator'] ? 'selected' : '' ?>><?= $label ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <span class="value-input-container flex-1">
+                                    <input type="text" 
+                                           name="condition_value[]" 
+                                           placeholder="Value" 
+                                           class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                                           value="<?= esc($condition['value']) ?>" 
+                                           required>
+                                </span>
+                                <button type="button" 
+                                        class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
+                                    Hapus
+                                </button>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border" style="display:none;">
+                            <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                <option value="">Pilih Pertanyaan</option>
+                                <?php foreach ($questions as $q): ?>
+                                    <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
+                                <?php foreach ($operators as $key => $label): ?>
+                                    <option value="<?= $key ?>"><?= $label ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <span class="value-input-container flex-1">
+                                <input type="text" 
+                                       name="condition_value[]" 
+                                       placeholder="Value" 
+                                       class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            </span>
+                            <button type="button" 
+                                    class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium" 
+                                    style="display:none;">
+                                Hapus
+                            </button>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                
+                <button type="button" 
+                        id="add-condition-btn" 
+                        style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>; background-color: #3b82f6; color: #fff; padding: 0.625rem 1.5rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; margin-top: 0.75rem;"
+                        onmouseover="this.style.backgroundColor='#2563eb'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.25)'"
+                        onmouseout="this.style.backgroundColor='#3b82f6'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    Tambah Kondisi
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="p-4 bg-blue-50 rounded-md border border-blue-200">
+            <h3 class="text-sm font-medium text-gray-700 mb-3">Quick Actions</h3>
+            <div class="flex gap-2">
+                <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions") ?>"
+                   style="background-color: #06b6d4; color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; text-decoration: none; cursor: pointer; transition: all 0.2s ease; display: inline-block;"
+                   onmouseover="this.style.backgroundColor='#0891b2'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(6, 182, 212, 0.25)'"
+                   onmouseout="this.style.backgroundColor='#06b6d4'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    Kelola Pertanyaan
+                </a>
+                <button type="button" 
+                        onclick="duplicateSection()"
+                        style="background-color: #6b7280; color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;"
+                        onmouseover="this.style.backgroundColor='#4b5563'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(107, 114, 128, 0.25)'"
+                        onmouseout="this.style.backgroundColor='#6b7280'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    Duplikasi Section
+                </button>
+            </div>
+        </div>
+
+        <!-- Tombol Aksi -->
+        <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+            <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections") ?>"
+               onclick="deleteSection()"
+                style="background-color: #ef4444; color: #fff; padding: 0.625rem 1.5rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;"
+                onmouseover="this.style.backgroundColor='#dc2626'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(239, 68, 68, 0.25)'"
+                onmouseout="this.style.backgroundColor='#ef4444'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                Kembali
+            </a>
+            
+            <div class="flex gap-3">
+                <button type="submit" 
+                        style="background-color: #3b82f6; color: #fff; padding: 0.625rem 1.5rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;"
+                    onmouseover="this.style.backgroundColor='#2563eb'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.25)'"
+                    onmouseout="this.style.backgroundColor='#3b82f6'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    Update Section
+                </button>
+                <button type="button" 
+                    style="background-color: #fbbf24; color: #fff; padding: 0.625rem 1.5rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; text-decoration: none; cursor: pointer; transition: all 0.2s ease; display: inline-block;"
+                    onmouseover="this.style.backgroundColor='#f59e0b'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(251, 191, 36, 0.25)'"
+                    onmouseout="this.style.backgroundColor='#fbbf24'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    Hapus Section
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
