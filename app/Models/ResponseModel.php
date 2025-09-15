@@ -105,6 +105,55 @@ class ResponseModel extends Model
             ->getResultArray();
     }
 
+    /**
+     * Ambil semua judul kuesioner
+     */
+    public function getAllQuestionnaires()
+    {
+        return $this->db->table('questionnaires')
+            ->select('id, title')
+            ->orderBy('title', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Ambil response dengan filter tahun, status, dan judul kuesioner
+     */
+    public function getFilteredResponses($year = null, $status = null, $questionnaireId = null)
+    {
+        $builder = $this->db->table('responses r');
+        $builder->select('r.*, a.username, da.nama_lengkap, da.tahun_kelulusan, q.title as judul_kuesioner');
+        $builder->join('account a', 'a.id = r.account_id', 'left');
+        $builder->join('detailaccount_alumni da', 'da.id_account = a.id', 'left');
+        $builder->join('questionnaires q', 'q.id = r.questionnaire_id', 'left');
+
+
+        if ($year) {
+            $builder->where('da.tahun_kelulusan', $year);
+        }
+
+        if ($status) {
+            $builder->where('r.status', $status);
+        }
+
+        if ($questionnaireId) {
+            $builder->where('r.questionnaire_id', $questionnaireId);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
+    public function getAllYears()
+    {
+        return $this->db->table('detailaccount_alumni')
+            ->select('tahun_kelulusan as year')
+            ->where('tahun_kelulusan IS NOT NULL')
+            ->groupBy('tahun_kelulusan')
+            ->orderBy('tahun_kelulusan', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
     // Dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';
