@@ -1,4 +1,6 @@
-<?= $this->extend('layout/sidebar_alumni2') ?>
+<?php $layout = 'layout/layout_alumni'; ?>
+<?= $this->extend($layout) ?>
+
 <?= $this->section('content') ?>
 <link rel="stylesheet" href="<?= base_url('css/alumni/lihatteman.css') ?>">
 
@@ -33,23 +35,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (count($teman) > 0): ?>
-                        <?php $no = 1;
-                        foreach ($teman as $t): ?>
+                    <?php if (!empty($teman)): ?>
+                        <?php $no = 1; ?>
+                        <?php foreach ($teman as $t): ?>
                             <tr>
                                 <td><?= $no++ ?></td>
                                 <td>
-                                    <?php if (!empty($t['foto'])): ?>
-                                        <img src="<?= base_url('uploads/foto/' . $t['foto']) ?>"
-                                            alt="Foto <?= esc($t['nama_lengkap']) ?>"
-                                            class="rounded-circle border"
-                                            style="width:45px; height:45px; object-fit:cover;">
-                                    <?php else: ?>
-                                        <img src="<?= base_url('uploads/foto/default.png') ?>"
-                                            alt="Default Foto"
-                                            class="rounded-circle border"
-                                            style="width:45px; height:45px; object-fit:cover;">
-                                    <?php endif; ?>
+                                    <img src="<?= base_url('uploads/foto_alumni/' . (!empty($t['foto']) ? $t['foto'] : 'default.png')) ?>"
+                                        alt="Foto <?= esc($t['nama_lengkap']) ?>"
+                                        class="rounded-circle border"
+                                        style="width:45px; height:45px; object-fit:cover;">
                                 </td>
                                 <td><?= esc($t['nama_lengkap']) ?></td>
                                 <td><?= esc($t['nim']) ?></td>
@@ -63,8 +58,7 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if ($t['id_account'] != session()->get('id_account')): ?>
-                                        <!-- ✅ FIX: Tambah "/" sebelum ID -->
+                                    <?php if ($t['id_account'] != session('id')): ?>
                                         <a href="<?= base_url('alumni/pesan/' . $t['id_account']) ?>"
                                             class="btn btn-sm btn-primary">
                                             <i class="bi bi-send"></i> Kirim Pesan

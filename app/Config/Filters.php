@@ -25,6 +25,12 @@ class Filters extends BaseConfig
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
         'auth' => \App\Filters\Auth::class,
+        'adminAuth'    => \App\Filters\AdminAuth::class,
+        'alumniAuth'   => \App\Filters\AlumniAuth::class,
+        'kaprodiAuth'  => \App\Filters\KaprodiAuth::class,
+        'perusahaanAuth' => \App\Filters\PerusahaanAuth::class,
+        'alumniSurveyor'   => \App\Filters\AlumniSurveyor::class,
+        'logActivity' => \App\Filters\LogActivityMiddleware::class,
     ];
 
     /**
@@ -35,6 +41,7 @@ class Filters extends BaseConfig
      */
     public array $globals = [
         'before' => [
+
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',
@@ -43,6 +50,13 @@ class Filters extends BaseConfig
             'toolbar',
             // 'honeypot',
             // 'secureheaders',
+            'logActivity' => ['except' => [
+                'assets/*',
+                'static/*',
+                'images/*',
+                'css/*',
+                'js/*',
+            ],],  // Hindari log file statis
         ],
     ];
 

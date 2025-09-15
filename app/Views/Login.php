@@ -223,6 +223,22 @@
                 padding: 30px;
             }
         }
+        .alert {
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.alert-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.alert-error {
+    background: #fee2e2;
+    color: #b91c1c;
+}
     </style>
 </head>
 
@@ -232,6 +248,18 @@
             <img src="images/logo.png" class="logo" alt="Logo POLBAN" />
             <h1>Selamat Datang</h1>
             <p>Silakan login menggunakan akun Anda</p>
+            <?php if (session()->getFlashdata('success')): ?>
+    <div class="alert alert-success">
+        <?= esc(session()->getFlashdata('success')) ?>
+    </div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('error')): ?>
+    <div class="alert alert-error">
+        <?= esc(session()->getFlashdata('error')) ?>
+    </div>
+<?php endif; ?>
+
 
             <?php if (session()->getFlashdata('error')) : ?>
                 <div style="margin-bottom: 15px; padding: 12px; background-color: #fee2e2; color: #991b1b; border-radius: 6px; font-size: 14px;">
@@ -279,7 +307,6 @@
             </div>
         </div>
     </div>
-
     <script>
         let currentSlide = 0;
         const slides = document.querySelectorAll(".slide");

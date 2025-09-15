@@ -17,14 +17,17 @@ public function index()
     $tipeorganisasi = new \App\Models\Tipeorganisasi();
 
     $data = [
-        'Tipeorganisasi' => $tipeorganisasi->getgroupid()->paginate($perPage), // pagination
-        'pager'          => $tipeorganisasi->pager,
-        'perPage'        => $perPage
+        'Tipeorganisasi' => $tipeorganisasi
+                                ->getgroupid()
+                                ->orderBy('id', 'DESC') // urutkan dari data terbaru
+                                ->paginate($perPage),   // pagination
+        'pager'   => $tipeorganisasi->pager,
+        'perPage' => $perPage
     ];
 
     return view('adminpage/organisasi/tipe_organisasi/index', $data);
 }
-    public function create()
+     public function create()
     {
         $tipeorganisasi = new Tipeorganisasi();
         $roles = new Roles();

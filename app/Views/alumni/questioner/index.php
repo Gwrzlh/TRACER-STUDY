@@ -1,4 +1,6 @@
-<?= $this->extend('layout/sidebar_alumni') ?>
+<?php $layout = 'layout/layout_alumni'; ?>
+<?= $this->extend($layout) ?>
+
 <?= $this->section('content') ?>
 <link rel="stylesheet" href="<?= base_url('css/alumni/kuesioner/index.css') ?>">
 <div class="container mt-4">
@@ -18,67 +20,49 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $no = 1; foreach ($data as $row): ?>
+                                <?php $no = 1;
+                                if (empty($data)): ?>
                                     <tr>
-                                        <td class="text-center"><?= $no++ ?></td>
-                                        <td><?= esc($row['judul']) ?></td>
-                                        <td class="text-center">
-                                            <?php if ($row['status'] == 'Belum Mengisi'): ?>
-                                                <span class="badge bg-secondary">Belum Mengisi</span>
-                                            <?php elseif ($row['status'] == 'On Going'): ?>
-                                                <span class="badge bg-warning">On Going</span>
-                                            <?php else: ?>
-                                                <span class="badge bg-success">Finish</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="text-center">
-                                            <?php if ($row['status'] == 'Belum Mengisi'): ?>
-                                                <a href="<?= base_url('alumni/questionnaire/mulai/' . $row['id']) ?>" class="btn btn-primary btn-sm">Isi</a>
-                                            <?php elseif ($row['status'] == 'On Going'): ?>
-                                                <a href="<?= base_url('alumni/questionnaire/lanjutkan/' . $row['id']) ?>" class="btn btn-warning btn-sm">Lanjutkan</a>
-                                            <?php else: ?>
-                                                <a href="<?= base_url('alumni/questionnaire/lihat/' . $row['id']) ?>" class="btn btn-success btn-sm">Lihat Jawaban</a>
-                                            <?php endif; ?>
-                                        </td>
+                                        <td colspan="4" class="text-center text-muted">Tidak ada kuesioner yang tersedia untuk Anda saat ini.</td>
                                     </tr>
-                                <?php endforeach; ?>
+                                    <?php else: foreach ($data as $row): ?>
+                                        <tr>
+                                            <td class="text-center"><?= $no++ ?></td>
+                                            <td><?= esc($row['judul']) ?></td>
+                                            <td class="text-center">
+                                                <?php if ($row['statusIsi'] == 'Belum Mengisi'): ?>
+                                                    <span class="badge bg-secondary">Belum Mengisi</span>
+                                                <?php elseif ($row['statusIsi'] == 'On Going'): ?>
+                                                    <span class="badge bg-warning">On Going
+                                                        <?php if (isset($row['progress']) && $row['progress'] > 0): ?>
+                                                            (<?= round($row['progress'], 1) ?>%)
+                                                        <?php endif; ?>
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-success">Finish</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <?php if ($row['statusIsi'] == 'Belum Mengisi'): ?>
+                                                    <a href="<?= base_url('alumni/questionnaires/mulai/' . $row['id']) ?>" class="btn btn-primary btn-sm">Mulai Isi</a>
+                                                <?php elseif ($row['statusIsi'] == 'On Going'): ?>
+                                                    <a href="<?= base_url('alumni/questionnaires/lanjutkan/' . $row['id']) ?>" class="btn btn-warning btn-sm">Lanjutkan</a>
+                                                <?php else: ?>
+                                                    <a href="<?= base_url('alumni/questionnaires/lihat/' . $row['id']) ?>" class="btn btn-success btn-sm">Lihat Jawaban</a>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                <?php endforeach;
+                                endif; ?>
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <div class="card-footer bg-light text-muted">
-                    <small>Menampilkan <?= count($data) ?> kuesioner</small>
+                    <small>Menampilkan <?= count($data ?? []) ?> kuesioner yang sesuai dengan profil Anda.</small>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const baseUrl = "<?= base_url('admin/questionnaire') ?>";
-
-    // SweetAlert hapus
-    document.querySelectorAll(".delete-questionnaire").forEach(button => {
-        button.addEventListener("click", function() {
-            const id = this.getAttribute("data-id");
-
-            Swal.fire({
-                title: 'Yakin ingin menghapus?',
-                text: "Data questionnaire beserta halaman & pertanyaan akan terhapus permanen!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = `${baseUrl}/${id}/delete`;
-                }
-            });
-        });
-    });
-});
-</script>
 <?= $this->endSection() ?>

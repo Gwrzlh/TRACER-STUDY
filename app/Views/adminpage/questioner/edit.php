@@ -220,7 +220,7 @@ $(document).ready(function() {
                     $.each(response.options, function(index, option) {
                         // Set selected jika option.id sesuai dengan currentValue
                         const isSelected = option.id == currentValue ? 'selected' : '';
-                        inputHtml += `<option value="${option.id}" ${isSelected}>${option.name}</option>`;
+                        inputHtml += <option value="${option.id}" ${isSelected}>${option.name}</option>;
                     });
                     inputHtml += '</select>';
                 } else {

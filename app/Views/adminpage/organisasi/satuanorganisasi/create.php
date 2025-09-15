@@ -24,12 +24,12 @@
                 </select>
             </div>
 
-            <!-- Prodi -->
+            <!-- Prodi (hanya tampil sesuai jurusan) -->
             <div class="mb-3">
-                <label for="id_prodi" class="form-label required">Prodi</label>
-                <select name="id_prodi" id="id_prodi" class="form-control" required>
-                    <option value="">-- Pilih Prodi --</option>
-                </select>
+                <label class="form-label">Prodi</label>
+                <div id="prodi_list" class="border rounded p-2 bg-light">
+                    <em>Pilih jurusan terlebih dahulu</em>
+                </div>
             </div>
 
             <!-- Nama Satuan -->
@@ -76,34 +76,49 @@
     </div>
 </div>
 
-<!-- Script untuk slug & load prodi -->
+<!-- Script -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $('#nama_satuan').on('input', function() {
-        const nama = $(this).val();
-        const slug = nama.toLowerCase()
-                         .replace(/\s+/g, '-')
-                         .replace(/[^a-z0-9\-]/g, '');
-        $('#nama_slug').val(slug);
+    // Slug & singkatan otomatis
+$('#nama_satuan').on('input', function() {
+    const nama = $(this).val();
+    const slug = nama.toLowerCase()
+                     .replace(/\s+/g, '-')
+                     .replace(/[^a-z0-9\-]/g, '');
+    $('#nama_slug').val(slug);
 
-        let singkatan = '';
-        nama.split(' ').forEach(w => {
-            if (w.length > 0) singkatan += w[0].toUpperCase();
-        });
-        $('#nama_singkatan').val(singkatan);
+    let singkatan = '';
+    nama.split(' ').forEach(w => {
+        if (w.length > 0) singkatan += w[0].toUpperCase();
     });
+    $('#nama_singkatan').val(singkatan);
+});
 
-    $('#id_jurusan').change(function() {
-        const jurusanId = $(this).val();
-        $('#id_prodi').empty().append('<option value="">-- Pilih Prodi --</option>');
-        if (jurusanId) {
-            $.getJSON("<?= base_url('satuanorganisasi/getProdi') ?>/" + jurusanId, function(data) {
-                $.each(data, function(k, v) {
-                    $('#id_prodi').append('<option value="' + v.id + '">' + v.nama_prodi + '</option>');
+// Tampilkan Prodi sesuai Jurusan dan buat hidden input otomatis
+$('#id_jurusan').change(function() {
+    const jurusanId = $(this).val();
+    $('#prodi_list').html('<em>Memuat data...</em>');
+
+    if (jurusanId) {
+        $.getJSON("<?= base_url('satuanorganisasi/getProdiByJurusan') ?>/" + jurusanId, function(data) {
+            if (data && data.length > 0) {
+                let html = '<ul>';
+                data.forEach(p => {
+                    html += `<li>${p.nama_prodi}</li>`;
+                    // hidden input supaya ikut ke form
+                    html += `<input type="hidden" name="prodi_ids[]" value="${p.id}">`;
                 });
-            });
-        }
-    });
+                html += '</ul>';
+                $('#prodi_list').html(html);
+            } else {
+                $('#prodi_list').html('<em>Tidak ada prodi untuk jurusan ini</em>');
+            }
+        });
+    } else {
+        $('#prodi_list').html('<em>Pilih jurusan terlebih dahulu</em>');
+    }
+});
+
 </script>
 
 <?= $this->endSection() ?>

@@ -1,6 +1,7 @@
 <!-- desain kelola pertanyaan -->
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
+
 <link rel="stylesheet" href="/css/questioner/question/index.css">
 <!-- Modern Container Wrapper -->
 <div class="bg-white rounded-xl shadow-md p-8 w-full mx-auto">
@@ -14,6 +15,30 @@
             </div>
         </div>
     </div>
+
+<link rel="stylesheet" href="<?= base_url('css/questioner/question/index.css') ?>">
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <h4>Kelola Pertanyaan - <?= esc($section['section_title']) ?></h4>
+            <p class="text-muted"><?= esc($section['section_description'] ?? '') ?></p>
+
+            <!-- Form Tambah Pertanyaan -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <span>Tambah Pertanyaan Baru</span>
+                    <button type="button" class="btn btn-sm btn-outline-light" id="toggleForm">
+                        <i class="fas fa-plus"></i> Tambah
+                    </button>
+                </div>
+                <div class="card-body" id="formContainer" style="display: none;">
+                    <form id="questionForm" action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/store") ?>" method="post">
+                        <?= csrf_field() ?>
+
+
+
 
     <!-- Original Content with Modern Styling -->
     <div class="container-fluid mt-4">
@@ -1245,5 +1270,13 @@ function generateQuestionPreview($q)
             return "<label class='form-label small'>{$text}</label><input type='text' class='form-control form-control-sm' disabled>";
     }
 }
+
 ?>
 <?= $this->endSection() ?>
+
+
+
+
+
+
+
