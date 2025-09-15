@@ -128,14 +128,18 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="pengguna_button_color" class="form-label">Warna Tombol</label>
-                    <input type="color" 
-                           name="pengguna_button_color" 
-                           id="pengguna_button_color" 
-                           value="<?= esc($settings['pengguna_button_color']) ?>" 
-                           class="form-control form-control-color" 
-                           title="Pilih warna tombol">
-                </div>
+    <label for="pengguna_button_color" class="form-label">Warna Tombol</label>
+    <div class="d-flex gap-2">
+        <input type="color" 
+               name="pengguna_button_color" 
+               id="pengguna_button_color" 
+               value="<?= esc($settings['pengguna_button_color']) ?>" 
+               class="form-control form-control-color">
+       <button type="button" class="btn-reset" id="resetPenggunaColor">
+            Reset
+        </button>
+    </div>
+</div>
 
                 <div class="mb-3">
                     <label for="pengguna_button_text_color" class="form-label">Warna Teks Tombol</label>
@@ -184,6 +188,50 @@
             </form>
         </div>
     </div>
+</div>
+<div class="card mt-4">
+  <div class="card-header">
+      <h5>Pengaturan Tombol Import Akun</h5>
+  </div>
+  <div class="card-body p-4">
+      <form action="<?= base_url('pengaturan-situs/save') ?>" method="post">
+
+          <div class="mb-3">
+              <label for="import_button_text" class="form-label">Teks Tombol</label>
+              <input type="text" name="import_button_text" id="import_button_text"
+       value="<?= esc($settings['import_button_text'] ?? 'Import Akun') ?>" 
+       class="form-control">
+          </div>
+
+          <div class="mb-3">
+              <label for="import_button_color" class="form-label">Warna Tombol</label>
+              <div class="d-flex gap-2">
+                  <input type="color" name="import_button_color" id="import_button_color"
+                         value="<?= esc($settings['import_button_color'] ?? '#22c55e') ?>" 
+                         class="form-control form-control-color">
+                  <button type="button" class="btn-reset" id="resetImportColor">Reset</button>
+              </div>
+          </div>
+
+          <div class="mb-3">
+              <label for="import_button_text_color" class="form-label">Warna Teks Tombol</label>
+              <input type="color" name="import_button_text_color" id="import_button_text_color"
+                     value="<?= esc($settings['import_button_text_color'] ?? '#ffffff') ?>" 
+                     class="form-control form-control-color">
+          </div>
+
+          <div class="mb-3">
+              <label for="import_button_hover_color" class="form-label">Warna Hover Tombol</label>
+              <input type="color" name="import_button_hover_color" id="import_button_hover_color"
+                     value="<?= esc($settings['import_button_hover_color'] ?? '#16a34a') ?>" 
+                     class="form-control form-control-color">
+          </div>
+
+          <div class="text-end">
+              <button type="submit" class="btn btn-success">💾 Simpan Tombol Import</button>
+          </div>
+      </form>
+  </div>
 </div>
 
 <div class="card mt-4">
@@ -337,6 +385,23 @@
 
 
 
+<style>
+.btn-reset {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background-color: #f3f4f6; /* abu muda */
+    color: #374151; /* abu gelap */
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-reset:hover {
+    background-color: #e5e7eb; /* abu sedikit lebih gelap */
+    border-color: #9ca3af;
+}
+</style>
 
 
 
@@ -390,6 +455,28 @@ document.addEventListener("DOMContentLoaded", function() {
         preview.style.backgroundColor = btnHover.value;
     });
     preview.addEventListener("mouseout", updatePreview);
+// Warna default bawaan CSS .btn-add
+const defaultPengguna = {
+    bg: "#3b82f6",       // biru default
+    text: "#ffffff",     // putih
+    hover: "#2563eb"     // biru lebih gelap
+};
+
+document.getElementById("resetPenggunaColor").addEventListener("click", () => {
+    btnColor.value = defaultPengguna.bg;
+    updatePreview();
+});
+
+document.getElementById("resetPenggunaTextColor").addEventListener("click", () => {
+    btnTextColor.value = defaultPengguna.text;
+    updatePreview();
+});
+
+document.getElementById("resetPenggunaHover").addEventListener("click", () => {
+    btnHover.value = defaultPengguna.hover;
+    updatePreview();
+});
+
 
     // --- Preview Login ---
     const loginText = document.getElementById("login_button_text");
