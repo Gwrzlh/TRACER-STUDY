@@ -1,3 +1,4 @@
+<!-- desain dashboard admin -->
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
