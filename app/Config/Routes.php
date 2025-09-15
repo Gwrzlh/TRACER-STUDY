@@ -65,7 +65,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
     });
     $routes->group('admin/pengguna', function ($routes) {
-        $routes->get('', 'PenggunaController::index', ['filter' => 'auth']);
+        $routes->get('', 'PenggunaController::index');
         $routes->get('tambahPengguna', 'PenggunaController::create');
         $routes->post('tambahPengguna/post', 'PenggunaController::store');
         $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
@@ -77,7 +77,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('import', 'ImportAccount::process');
     });
     // ================== Kontak ==================
-    $routes->get('admin/kontak', 'Kontak::index', ['filter' => 'auth']);           // Halaman index kontak
+    $routes->get('admin/kontak', 'Kontak::index');           // Halaman index kontak
     $routes->get('admin/kontak/search', 'Kontak::search');   // AJAX Search
     $routes->post('admin/kontak/store', 'Kontak::store');    // Tambah kontak
     $routes->post('admin/kontak/delete/(:num)', 'Kontak::delete/$1'); // Hapus kontak
@@ -88,7 +88,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
 
     // --- Tipe Organisasi ---
     $routes->group('admin/tipeorganisasi', function ($routes) {
-        $routes->get('', 'TipeOrganisasiController::index', ['filter' => 'auth']);
+        $routes->get('', 'TipeOrganisasiController::index');
         $routes->get('form', 'TipeOrganisasiController::create');
         $routes->post('insert', 'TipeOrganisasiController::store');
         $routes->get('edit/(:num)', 'TipeOrganisasiController::edit/$1');
@@ -98,7 +98,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
 
     // --- Tentang ---
     $routes->get('tentang', 'Tentang::index');
-    $routes->get('tentang', 'Tentang::index', ['filter' => 'auth']);
+    $routes->get('tentang', 'Tentang::index');
     $routes->get('admin/tentang/edit', 'Tentang::edit');
     $routes->post('admin/tentang/update', 'Tentang::update');
 
@@ -151,10 +151,11 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('update/(:num)', 'AdminLaporan::update/$1');
     });
 
-    // Respon
-    $routes->group('respon', function ($routes) {
-        $routes->get('', 'AdminRespon::index');
-    });
+    // $routes->group('respon', function ($routes) {
+    //     $routes->get('', 'AdminRespon::index');
+    //     $routes->get('export', 'AdminRespon::exportExcel');
+    // });
+
 
     $routes->group('log_activities', function ($routes) {
         $routes->get('/', 'LogController::index');
@@ -256,21 +257,19 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
 // ===============================
 // KAPRODI ROUTES
 // ===============================
-$routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
-    $routes->get('dashboard', 'KaprodiController::dashboard');
-    $routes->get('supervisi', 'KaprodiController::supervisi');
-    $routes->get('questioner', 'KaprodiController::questioner');
-    $routes->get('akreditasi', 'KaprodiController::akreditasi');
-    $routes->get('ami', 'KaprodiController::ami');
-    $routes->get('profil', 'KaprodiController::profil');
-});
+// $routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
+//     $routes->get('dashboard', 'KaprodiController::dashboard');
+//     $routes->get('supervisi', 'KaprodiController::supervisi');
+//     $routes->get('questioner', 'KaprodiController::questioner');
+//     $routes->get('akreditasi', 'KaprodiController::akreditasi');
+//     $routes->get('ami', 'KaprodiController::ami');
+//     $routes->get('profil', 'KaprodiController::profil');
+// });
 
 
 
 //alumni surveyor
 $routes->get('alumni/supervisi', 'AlumniController::supervisi');
-
-
 /// ROUTES ALUMNI
 $routes->group('alumni', ['filter' => 'alumniAuth'], static function ($routes) {
     // -------------------------------
@@ -332,7 +331,7 @@ $routes->group('alumni', ['filter' => 'alumniAuth'], static function ($routes) {
     // Supervisi & Lihat Teman
     // -------------------------------
     $routes->get('lihat_teman', 'AlumniController::lihatTeman');
-    // $routes->get('supervisi', 'AlumniController::supervisi', ['filter' => 'auth']);
+    // $routes->get('supervisi', 'AlumniController::supervisi');
 
     // -------------------------------
     // Questionnaires / Kuesioner Alumni Biasa
@@ -376,7 +375,7 @@ $routes->get('admin/questionnaire/(:num)/pages/(:num)/sections/(:num)/questions-
 // ===============================
 // Admin - Laporan
 // ===============================
-$routes->group('admin', ['namespace' => 'App\Controllers'], function ($routes) {
+$routes->group('admin', ['filter' => 'adminAuth'], ['namespace' => 'App\Controllers'], function ($routes) {
     $routes->get('laporan', 'AdminLaporan::index');                     // list laporan (max 7)
     $routes->get('laporan/create', 'AdminLaporan::create');             // form tambah laporan
     $routes->post('laporan/save', 'AdminLaporan::save');                // simpan banyak laporan
@@ -394,9 +393,18 @@ $routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan
 // ===============================
 // Admin - Respon
 // ===============================
-$routes->group('admin/respon', static function ($routes) {
-    $routes->get('/', 'AdminRespon::index'); // Tampilkan daftar respon
+// $routes->group('admin/respon', static function ($routes) {
+//     $routes->get('/', 'AdminRespon::index'); // Tampilkan daftar respon
+// });
+
+$routes->group('admin/respon', ['filter' => 'adminAuth'], function ($routes) {
+    $routes->get('/', 'AdminRespon::index');
+    $routes->get('export', 'AdminRespon::exportExcel');
 });
+
+
+// Landing page tetap
+// $routes->get('/respon', 'UserQuestionController::responseLanding');
 
 // // Route untuk user/landing page
 $routes->get('/respon', 'UserQuestionController::responseLanding');
