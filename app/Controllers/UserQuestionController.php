@@ -213,4 +213,28 @@ class UserQuestionController extends BaseController
         $this->logActivityModel->logAction('submit_questionnaire', 'User ' . $user_id . ' submitted questionnaire ID ' . $q_id);
         return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('success', 'Jawaban berhasil disimpan.');
     }
+    public function responseLanding()
+    {
+        $responseModel = new \App\Models\ResponseModel();
+
+        $yearsRaw = $responseModel->getAvailableYears() ?? [];
+        $allYears = array_column($yearsRaw, 'tahun');
+
+        // ambil tahun terpilih (atau default tahun terbaru)
+        $selectedYear = $this->request->getGet('tahun');
+        if (!$selectedYear && !empty($allYears)) {
+            $selectedYear = $allYears[0]; // default tahun terbaru
+        }
+        if (!$selectedYear) {
+            $selectedYear = date('Y'); // fallback kalau kosong semua
+        }
+
+        $data = [
+            'selectedYear' => $selectedYear,
+            'allYears'     => $allYears,
+            'data'         => $responseModel->getSummaryByYear($selectedYear)
+        ];
+
+        return view('LandingPage/respon', $data);
+    }
 }
