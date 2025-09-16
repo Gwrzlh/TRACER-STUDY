@@ -40,6 +40,13 @@ class PengaturanSitus extends BaseController
         'logout_button_color'       => get_setting('logout_button_color', '#dc3545'),
         'logout_button_text_color'  => get_setting('logout_button_text_color', '#ffffff'),
         'logout_button_hover_color' => get_setting('logout_button_hover_color', '#a71d2a'),
+
+        
+        // ✅ Tambahkan Import Akun (ini yang hilang kemarin)
+        'import_button_text'          => get_setting('import_button_text', 'Import Akun'),
+        'import_button_color'         => get_setting('import_button_color', '#22c55e'),
+        'import_button_text_color'    => get_setting('import_button_text_color', '#ffffff'),
+        'import_button_hover_color'   => get_setting('import_button_hover_color', '#16a34a'),
     ];
 
     return view('adminpage/pengaturan_situs/index', $data);
