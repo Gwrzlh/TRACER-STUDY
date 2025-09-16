@@ -217,4 +217,55 @@ class AlumniModel extends Model
 
         return $builder->get()->getResultArray();
     }
+    public function getWithResponsesBuilder(array $filters = [])
+    {
+        $builder = $this->db->table('detailaccount_alumni da');
+        $builder->select("
+        da.id as alumni_id,
+        da.nama_lengkap,
+        da.nim,
+        da.angkatan,
+        da.tahun_kelulusan,
+        j.nama_jurusan,
+        p.nama_prodi,
+        r.id as response_id,
+        r.status,
+        r.submitted_at,
+        q.title as judul_kuesioner
+    ");
+        $builder->join('jurusan j', 'j.id = da.id_jurusan', 'left');
+        $builder->join('prodi p', 'p.id = da.id_prodi', 'left');
+        $builder->join('account a', 'a.id = da.id_account', 'left');
+        $builder->join('responses r', 'r.account_id = a.id', 'left');
+        $builder->join('questionnaires q', 'q.id = r.questionnaire_id', 'left');
+
+        // Filters
+        if (!empty($filters['nim'])) $builder->like('da.nim', trim($filters['nim']));
+        if (!empty($filters['nama'])) $builder->like('da.nama_lengkap', trim($filters['nama']));
+        if (!empty($filters['jurusan'])) $builder->where('da.id_jurusan', $filters['jurusan']);
+        if (!empty($filters['prodi'])) $builder->where('da.id_prodi', $filters['prodi']);
+        if (!empty($filters['angkatan'])) $builder->where('da.angkatan', $filters['angkatan']);
+        if (!empty($filters['tahun'])) $builder->where('da.tahun_kelulusan', $filters['tahun']);
+        if (!empty($filters['status'])) {
+            if ($filters['status'] === 'Belum') $builder->where('r.id IS NULL');
+            else $builder->where('r.status', $filters['status']);
+        }
+        if (!empty($filters['questionnaire'])) $builder->where('r.questionnaire_id', $filters['questionnaire']);
+
+        // Sorting
+        $sortBy = $filters['sort_by'] ?? 'nama_lengkap';
+        $sortOrder = strtoupper($filters['sort_order'] ?? 'ASC');
+        $allowedSortColumns = ['nim', 'nama_lengkap', 'angkatan', 'tahun_kelulusan', 'status'];
+        if (!in_array($sortBy, $allowedSortColumns)) $sortBy = 'nama_lengkap';
+        if (!in_array($sortOrder, ['ASC', 'DESC'])) $sortOrder = 'ASC';
+        $builder->orderBy("da.$sortBy", $sortOrder);
+
+        return $builder;
+    }
+    public function getWithResponsesPaginated(array $filters = [], int $perPage = 10)
+    {
+        $builder = $this->getWithResponsesBuilder($filters);
+        return $this->pager = $this->pager ?? \Config\Services::pager(); // pastikan pager tersedia
+        return $builder->get()->getResultArray(); // pagination manual nanti
+    }
 }
