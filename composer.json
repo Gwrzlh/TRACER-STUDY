@@ -12,7 +12,7 @@
     "require": {
         "php": "^7.4 || ^8.0",
         "codeigniter4/framework": "^4.0",
-        "phpoffice/phpspreadsheet": "^5.0",
+        "phpoffice/phpspreadsheet": "^5.1",
         "sendinblue/api-v3-sdk": "^8.4"
     },
     "require-dev": {

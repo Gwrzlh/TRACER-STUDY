@@ -28,6 +28,20 @@ $routes->get('/kontak', 'Kontak::landing');
 $routes->get('/laporan', 'AdminLaporan::showAll');         // default tahun terbaru
 $routes->get('/laporan/(:num)', 'AdminLaporan::showAll/$1');
 
+
+// admin pengguna
+$routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
+    $routes->get('', 'PenggunaController::index');
+    $routes->get('tambahPengguna', 'PenggunaController::create');
+    $routes->post('tambahPengguna/post', 'PenggunaController::store');
+    $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
+    $routes->post('update/(:num)', 'PenggunaController::update/$1');
+    $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
+
+    // ✅ Import akun (cukup tulis 'import')
+    $routes->get('import', 'ImportAccount::form');
+    $routes->post('import', 'ImportAccount::process');
+});
 // ===============================
 // ADMIN ROUTES
 // ===============================
@@ -38,15 +52,15 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     $routes->post('welcome-page/update', 'AdminWelcomePage::update');
 
     // Pengguna
-    $routes->group('pengguna', function ($routes) {
-        $routes->get('', 'PenggunaController::index');
-        $routes->get('tambahPengguna', 'PenggunaController::create');
-        $routes->post('tambahPengguna/post', 'PenggunaController::store');
-        $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
-        $routes->post('update/(:num)', 'PenggunaController::update/$1');
-        $routes->post('delete/(:num)', 'PenggunaController::delete/$1');
-        $routes->post('import', 'ImportAccount::upload');
-    });
+    // $routes->group('pengguna', function ($routes) {
+    //     $routes->get('', 'PenggunaController::index');
+    //     $routes->get('tambahPengguna', 'PenggunaController::create');
+    //     $routes->post('tambahPengguna/post', 'PenggunaController::store');
+    //     $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
+    //     $routes->post('update/(:num)', 'PenggunaController::update/$1');
+    //     $routes->post('delete/(:num)', 'PenggunaController::delete/$1');
+    //     $routes->post('import', 'ImportAccount::upload');
+    // });
     // Kontak
     $routes->group('kontak', function ($routes) {
         $routes->get('', 'Kontak::index');
@@ -64,18 +78,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     $routes->group('api', function ($routes) {
         $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
     });
-    $routes->group('admin/pengguna', function ($routes) {
-        $routes->get('', 'PenggunaController::index');
-        $routes->get('tambahPengguna', 'PenggunaController::create');
-        $routes->post('tambahPengguna/post', 'PenggunaController::store');
-        $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
-        $routes->post('update/(:num)', 'PenggunaController::update/$1');
-        $routes->post('delete/(:num)', 'PenggunaController::delete/$1');
 
-        // ✅ Import akun (cukup tulis 'import')
-        $routes->get('import', 'ImportAccount::form');
-        $routes->post('import', 'ImportAccount::process');
-    });
     // ================== Kontak ==================
     $routes->get('admin/kontak', 'Kontak::index');           // Halaman index kontak
     $routes->get('admin/kontak/search', 'Kontak::search');   // AJAX Search
@@ -437,7 +440,12 @@ $routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan
 $routes->group('admin/respon', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('/', 'AdminRespon::index');
     $routes->get('export', 'AdminRespon::exportExcel');
+
+    // Tambahan baru
+    $routes->get('grafik', 'AdminRespon::grafik');           // untuk tombol "Grafik"
+    $routes->get('detail/(:num)', 'AdminRespon::detail/$1'); // untuk tombol "Jawaban"
 });
+
 
 
 // Landing page tetap
