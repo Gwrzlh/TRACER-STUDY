@@ -3,95 +3,111 @@
 
 <link rel="stylesheet" href="<?= base_url('css/organisasi/prodi.css') ?>">
 
-<div class="page-container">
-
-    <!-- Judul -->
-    <h2 class="page-title">Prodi</h2>
-
-    <!-- Tombol Tambah -->
-    <div class="btn-tambah-wrapper">
-        <a href="<?= base_url('satuanorganisasi/prodi/create') ?>" class="btn-tambah">
-            + Tambah
-        </a>
-    </div>
-
-    <!-- Tabs -->
-    <div class="tab-container">
-        <a href="<?= base_url('satuanorganisasi') ?>" 
-           class="tab-link <?= (uri_string() == 'satuanorganisasi') ? 'active' : '' ?>">
-            Satuan Organisasi (<?= esc($count_satuan) ?>)
-        </a>
-        <a href="<?= base_url('satuanorganisasi/jurusan') ?>" 
-           class="tab-link <?= (uri_string() == 'satuanorganisasi/jurusan') ? 'active' : '' ?>">
-            Jurusan (<?= esc($count_jurusan) ?>)
-        </a>
-        <a href="<?= base_url('satuanorganisasi/prodi') ?>" 
-           class="tab-link <?= (uri_string() == 'satuanorganisasi/prodi') ? 'active' : '' ?>">
-            Prodi (<?= esc($count_prodi) ?>)
-        </a>
-    </div>
-
-    <!-- Search -->
-    <form method="get" action="<?= base_url('satuanorganisasi/prodi') ?>" class="search-form">
-        <div class="search-box">
-            <input type="text" 
-                   name="keyword"
-                   value="<?= esc($keyword ?? '') ?>"
-                   placeholder="Cari nama atau singkatan..." 
-                   class="search-input">
-            <button type="submit" class="search-button">
-                Search
-            </button>
+<!-- Main Container -->
+<div class="main-container">
+    <div class="page-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Prodi</h1>
+            <div class="header-actions">
+                <a href="<?= base_url('satuanorganisasi/prodi/create') ?>" class="btn-primary">
+                    <span class="btn-icon">+</span> Tambah
+                </a>
+            </div>
         </div>
-    </form>
 
-    <!-- Tabel -->
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nama Prodi</th>
-                    <th>Nama Jurusan</th>
-                    <th style="text-align:center;">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($prodi)): ?>
-                    <?php foreach ($prodi as $row): ?>
+        <!-- Tabs -->
+        <div class="tab-container">
+            <a href="<?= base_url('satuanorganisasi') ?>" 
+               class="tab-link <?= (uri_string() == 'satuanorganisasi') ? 'active' : '' ?>">
+                Satuan Organisasi (<?= esc($count_satuan) ?>)
+            </a>
+            <a href="<?= base_url('satuanorganisasi/jurusan') ?>" 
+               class="tab-link <?= (uri_string() == 'satuanorganisasi/jurusan') ? 'active' : '' ?>">
+                Jurusan (<?= esc($count_jurusan) ?>)
+            </a>
+            <a href="<?= base_url('satuanorganisasi/prodi') ?>" 
+               class="tab-link <?= (uri_string() == 'satuanorganisasi/prodi') ? 'active' : '' ?>">
+                Prodi (<?= esc($count_prodi) ?>)
+            </a>
+        </div>
+
+        <!-- Search -->
+        <form method="get" action="<?= base_url('satuanorganisasi/prodi') ?>" class="search-form">
+            <div class="search-box">
+                <input type="text" 
+                       name="keyword"
+                       value="<?= esc($keyword ?? '') ?>"
+                       placeholder="Cari nama atau singkatan..." 
+                       class="search-input">
+                <button type="submit" class="search-button">Search</button>
+            </div>
+        </form>
+
+        <!-- Content Card -->
+        <div class="content-card">
+            <!-- Table -->
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
                         <tr>
-                            <td><?= esc($row['nama_prodi']) ?></td>
-                            <td><?= esc($row['nama_jurusan']) ?></td>
-                            <td style="text-align:center;">
-                                <a href="<?= base_url('satuanorganisasi/prodi/edit/' . $row['id']) ?>" 
-                                   class="btn-edit">
-                                    Edit
-                                </a>
-                                 <form action="<?= base_url('satuanorganisasi/prodi/delete/' . $row['id']) ?>" 
-                                    method="post" 
-                                    class="d-inline delete-form">
-                                    <?= csrf_field() ?>
-                                    <button type="button" class="btn-delete" onclick="confirmDelete(this)">Hapus</button>
-                                </form>
-                            </td>
+                            <th>Nama Prodi</th>
+                            <th>Nama Jurusan</th>
+                            <th class="action-column">Aksi</th>
                         </tr>
-                    <?php endforeach ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="3" style="text-align:center; color:#6c757d;">Tidak ada data</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($prodi)): ?>
+                            <?php foreach ($prodi as $row): ?>
+                                <tr>
+                                    <td class="name-cell"><?= esc($row['nama_prodi']) ?></td>
+                                    <td><?= esc($row['nama_jurusan']) ?></td>
+                                    <td class="action-cell">
+                                        <div class="action-buttons">
+                                            <!-- Edit Button -->
+                                            <a href="<?= base_url('satuanorganisasi/prodi/edit/' . $row['id']) ?>" 
+                                               class="btn-edit" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
 
-</div>
-<!-- Flashdata -->
-    <?php if(session()->getFlashdata('success')): ?>
-        <div class="alert alert-success mt-3">
-            <?= session()->getFlashdata('success') ?>
+                                            <!-- Delete Button -->
+                                            <form action="<?= base_url('satuanorganisasi/prodi/delete/' . $row['id']) ?>" 
+                                                  method="post" 
+                                                  class="delete-form">
+                                                <?= csrf_field() ?>
+                                                <button type="button" class="btn-delete" 
+                                                        onclick="confirmDelete(this)" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="3" class="empty-state">
+                                    <div class="empty-content">
+                                        <i class="fas fa-university"></i>
+                                        <p>Belum ada data prodi</p>
+                                        <small>Klik tombol "+ Tambah" untuk menambah data baru</small>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    <?php endif; ?>
 
+        <!-- Flashdata -->
+        <?php if(session()->getFlashdata('success')): ?>
+            <div class="alert alert-success">
+                <?= session()->getFlashdata('success') ?>
+            </div>
+        <?php endif; ?>
+
+    </div>
 </div>
 
 <!-- SweetAlert2 -->
@@ -125,6 +141,5 @@ function confirmDelete(button) {
     })
 }
 </script>
-
 
 <?= $this->endSection() ?>
