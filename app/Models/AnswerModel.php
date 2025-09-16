@@ -30,17 +30,36 @@ class AnswerModel extends Model
         $totalQuestions = (new QuestionModel())->where('questionnaires_id', $questionnaire_id)->countAllResults();
         return $totalQuestions > 0 ? ($answered / $totalQuestions) * 100 : 0;
     }
-
-    public function getUserAnswers($questionnaire_id, $user_id)
+    public function getUserAnswers($questionnaire_id, $user_id, bool $forAdmin = false): array
     {
-        $answers = $this->select('question_id, answer_text')->where(['questionnaire_id' => $questionnaire_id, 'user_id' => $user_id])->findAll();
+        $answers = $this->select('question_id, answer_text')
+            ->where([
+                'questionnaire_id' => $questionnaire_id,
+                'user_id'          => $user_id
+            ])
+            ->findAll();
+
         $result = [];
         foreach ($answers as $ans) {
-            $result['q_' . $ans['question_id']] = $ans['answer_text'];
+            if ($forAdmin) {
+                // Untuk admin → simpan dengan key ID asli pertanyaan
+                $result[$ans['question_id']] = $ans['answer_text'];
+            } else {
+                // Untuk alumni → tetap pakai prefix q_
+                $result['q_' . $ans['question_id']] = $ans['answer_text'];
+            }
         }
-        log_message('debug', '[getUserAnswers] Answers for q_id ' . $questionnaire_id . ': ' . print_r($result, true));
+
+        log_message(
+            'debug',
+            '[getUserAnswers] (forAdmin=' . ($forAdmin ? 'true' : 'false') . ') ' .
+                'Answers for q_id ' . $questionnaire_id . ': ' . print_r($result, true)
+        );
+
         return $result;
     }
+
+
 
     public function saveAnswer($user_id, $questionnaire_id, $question_id, $answer)
     {
