@@ -1,0 +1,592 @@
+* [33m2ac5301[m[33m ([m[1;36mHEAD -> [m[1;32mNazar[m[33m)[m style desain di dashboard,daftar pengguna dan kuesioner
+* [33m65ee005[m menambahkan fitur foto kamera di profil kaprodi
+[31m|[m * [33mab2a55f[m[33m ([m[1;31morigin/daus[m[33m)[m lupapassandsitesetings
+[31m|[m *   [33mc6405d7[m Merge branch 'main' of https://github.com/Gwrzlh/TRACER-STUDY into daus
+[31m|[m [33m|[m[31m\[m  
+[31m|[m [33m|[m[31m/[m  
+[31m|[m[31m/[m[33m|[m   
+[31m|[m * [33m23225e3[m update tipis tipis
+[31m|[m * [33m1e6fea8[m 'sayaya'
+[31m|[m [34m|[m *   [33m2737644[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #84 from Gwrzlh/Rere
+[31m|[m [34m|[m [35m|[m[36m\[m  
+[31m|[m [34m|[m [35m|[m * [33m4bb3340[m[33m ([m[1;31morigin/Rere[m[33m)[m ahauah
+[31m|[m [34m|[m * [36m|[m [33m74c6929[m Merge pull request #83 from Gwrzlh/Rere
+[31m|[m [34m|[m [1;31m|[m[36m\[m[36m|[m 
+[31m|[m [34m|[m [1;31m|[m * [33m1535642[m ngebisainloginalumni
+[31m|[m [34m|[m [1;31m|[m[1;31m/[m  
+[31m|[m [34m|[m *   [33mf20497e[m Merge pull request #82 from Gwrzlh/Daffa
+[31m|[m [34m|[m [1;33m|[m[1;34m\[m  
+[31m|[m [34m|[m [1;33m|[m *   [33m684e2f1[m[33m ([m[1;31morigin/Daffa[m[33m)[m Merge branch 'main' into Daffa
+[31m|[m [34m|[m [1;33m|[m [1;35m|[m[1;33m\[m  
+[31m|[m [34m|[m [1;33m|[m [1;35m|[m[1;33m/[m  
+[31m|[m [34m|[m [1;33m|[m[1;33m/[m[1;35m|[m   
+[31m|[m [34m|[m * [1;35m|[m   [33m111f05c[m Merge pull request #81 from Gwrzlh/Rere
+[31m|[m [34m|[m [31m|[m[32m\[m [1;35m\[m  
+[31m|[m [34m|[m [31m|[m * [1;35m|[m [33meb9d274[m upgradealumni
+[31m|[m [34m|[m [31m|[m[31m/[m [1;35m/[m  
+[31m|[m [34m|[m * [1;35m|[m   [33m887d770[m Merge pull request #80 from Gwrzlh/Rere
+[31m|[m [34m|[m [33m|[m[34m\[m [1;35m\[m  
+[31m|[m [34m|[m [33m|[m * [1;35m|[m [33mda60ce7[m memperbaiki email
+[31m|[m [34m|[m[31m_[m[33m|[m[31m/[m [1;35m/[m  
+[31m|[m[31m/[m[34m|[m [33m|[m [1;35m|[m   
+[31m|[m [34m|[m * [1;35m|[m [33m83cd96b[m Merge pull request #79 from Gwrzlh/Daffa
+[31m|[m [34m|[m[31m/[m[36m|[m [1;35m|[m 
+[31m|[m[31m/[m[34m|[m [36m|[m [1;35m|[m 
+[31m|[m [34m|[m [36m|[m * [33m51ceea8[m add fitur log_activities
+[31m|[m [34m|[m [36m|[m[36m/[m  
+[31m|[m [34m|[m * [33mad204c3[m questionnaire in alumni with answer
+[31m|[m [34m|[m[31m/[m  
+[31m|[m[31m/[m[34m|[m   
+* [34m|[m [33me119977[m fix in main
+* [34m|[m   [33mf77ed54[m Merge pull request #78 from Gwrzlh/Daffa
+[1;31m|[m[1;32m\[m [34m\[m  
+[1;31m|[m * [34m|[m [33m5ca3651[m fix tipeOrganisasi
+[1;31m|[m [34m|[m[34m/[m  
+* [34m|[m   [33m990030b[m Merge pull request #76 from Gwrzlh/Rere
+[1;33m|[m[1;34m\[m [34m\[m  
+[1;33m|[m * [34m\[m   [33m9debb1c[m Merge branch 'main' into Rere
+[1;33m|[m [1;35m|[m[1;33m\[m [34m\[m  
+[1;33m|[m [1;35m|[m[1;33m/[m [34m/[m  
+[1;33m|[m[1;33m/[m[1;35m|[m [34m|[m   
+* [1;35m|[m [34m|[m   [33mbbe9e02[m Merge pull request #77 from Gwrzlh/ramdan
+[34m|[m[32m\[m [1;35m\[m [34m\[m  
+[34m|[m [32m|[m[34m_[m[1;35m|[m[34m/[m  
+[34m|[m[34m/[m[32m|[m [1;35m|[m   
+[34m|[m * [1;35m|[m [33m3cee147[m[33m ([m[1;31morigin/ramdan[m[33m)[m  update segala gala
+[34m|[m * [1;35m|[m   [33ma2561d3[m Merge branch 'main' of https://github.com/Gwrzlh/TRACER-STUDY
+[34m|[m [33m|[m[34m\[m [1;35m\[m  
+[34m|[m [33m|[m[34m/[m [1;35m/[m  
+[34m|[m[34m/[m[33m|[m [1;35m|[m   
+[34m|[m * [1;35m|[m [33mdef2b55[m  update p.s
+[34m|[m [34m|[m * [33m1246dcd[m testingkuesioner
+[34m|[m [34m|[m * [33m5aeb50c[m abangjago
+[34m|[m [34m|[m * [33mea51ed1[m update css import
+[34m|[m [34m|[m * [33mbde677b[m update import
+[34m|[m [34m|[m * [33m791e2df[m fix
+[34m|[m [34m|[m * [33mdd2c218[m membuat profil kaprodi sama profil alumni
+[34m|[m [34m|[m * [33mc26fce9[m fixxx
+[34m|[m [34m|[m * [33md8b590a[m bissmilah jangan ilang lagii
+[34m|[m [34m|[m * [33mc4c6567[m 'anyar'
+[34m|[m [34m|[m * [33m026fede[m final commit for questionnaire admin
+[34m|[m [34m|[m * [33m6f302d1[m truru
+[34m|[m [34m|[m [34m|[m * [33mda4bd70[m[33m ([m[1;31morigin/yadi[m[33m)[m animasi landing page
+[34m|[m [34m|[m [34m|[m *   [33m5187b6a[m selesaikan merge dari main ke yadi
+[34m|[m [34m|[m [34m|[m [36m|[m[34m\[m  
+[34m|[m [34m|[m[34m_[m[34m|[m[34m_[m[36m|[m[34m/[m  
+[34m|[m[34m/[m[34m|[m [34m|[m [36m|[m   
+[34m|[m [34m|[m [34m|[m * [33m2ecf9d4[m laporan don
+[34m|[m [34m|[m [34m|[m [1;31m|[m * [33m48b3145[m[33m ([m[1;31morigin/Nazar[m[33m)[m menambahkan fitur foto kamera di profil kaprodi
+[34m|[m [34m|[m[34m_[m[34m|[m[34m_[m[1;31m|[m[34m/[m  
+[34m|[m[34m/[m[34m|[m [34m|[m [1;31m|[m   
+* [34m|[m [34m|[m [1;31m|[m   [33mb4a2848[m Merge pull request #74 from Gwrzlh/ramdan
+[1;33m|[m[1;34m\[m [34m\[m [34m\[m [1;31m\[m  
+[1;33m|[m * [34m|[m [34m|[m [1;31m|[m [33m024979a[m update css import
+[1;33m|[m * [34m|[m [34m|[m [1;31m|[m [33m3053d4a[m update import
+[1;33m|[m * [34m|[m [34m|[m [1;31m|[m [33m2512df2[m Merge branch 'main' of https://github.com/Gwrzlh/TRACER-STUDY into ramdan
+[1;33m|[m [1;35m|[m[34m\[m[34m|[m [34m|[m [1;31m|[m 
+[1;33m|[m * [34m|[m [34m|[m [1;31m|[m [33m5b6d188[m update route eror
+* [1;36m|[m [34m|[m [34m|[m [1;31m|[m   [33m3d7eae8[m Merge pull request #73 from Gwrzlh/Nazar
+[31m|[m[32m\[m [1;36m\[m [34m\[m [34m\[m [1;31m\[m  
+[31m|[m * [1;36m|[m [34m|[m [34m|[m [1;31m|[m [33m375f5f8[m membuat profil kaprodi sama profil alumni
+[31m|[m [34m|[m [1;36m|[m[34m_[m[34m|[m[34m/[m [1;31m/[m  
+[31m|[m [34m|[m[34m/[m[1;36m|[m [34m|[m [1;31m|[m   
+* [34m|[m [1;36m|[m [34m|[m [1;31m|[m [33mdaed3c3[m fixxx
+* [34m|[m [1;36m|[m [34m|[m [1;31m|[m   [33m8e25c16[m Merge pull request #72 from Gwrzlh/Daffa
+[33m|[m[34m\[m [34m\[m [1;36m\[m [34m\[m [1;31m\[m  
+[33m|[m * [34m|[m [1;36m|[m [34m|[m [1;31m|[m [33m9e23059[m bissmilah jangan ilang lagii
+* [34m|[m [34m|[m [1;36m|[m [34m|[m [1;31m|[m   [33mbb58b3b[m Merge pull request #71 from Gwrzlh/daus
+[35m|[m[36m\[m [34m\[m [34m\[m [1;36m\[m [34m\[m [1;31m\[m  
+[35m|[m * [34m|[m [34m|[m [1;36m|[m [34m|[m [1;31m|[m [33m3d131b5[m 'anyar'
+[35m|[m [34m|[m [34m|[m[34m/[m [1;36m/[m [34m/[m [1;31m/[m  
+[35m|[m [34m|[m[34m/[m[34m|[m [1;36m|[m [34m|[m [1;31m|[m   
+* [34m|[m [34m|[m [1;36m|[m [34m|[m [1;31m|[m   [33mf30a877[m Merge pull request #70 from Gwrzlh/Daffa
+[34m|[m[1;32m\[m [34m\[m [34m\[m [1;36m\[m [34m\[m [1;31m\[m  
+[34m|[m [1;32m|[m[34m/[m [34m/[m [1;36m/[m [34m/[m [1;31m/[m  
+[34m|[m[34m/[m[1;32m|[m [34m|[m [1;36m|[m [34m|[m [1;31m|[m   
+[34m|[m * [34m|[m [1;36m|[m [34m|[m [1;31m|[m   [33m1fc7271[m Merge branch 'main' into Daffa
+[34m|[m [34m|[m[34m\[m [34m\[m [1;36m\[m [34m\[m [1;31m\[m  
+[34m|[m [34m|[m[34m/[m [34m/[m [1;36m/[m [34m/[m [1;31m/[m  
+[34m|[m[34m/[m[34m|[m [34m/[m [1;36m/[m [34m/[m [1;31m/[m   
+[34m|[m [34m|[m[34m/[m [1;36m/[m [34m/[m [1;31m/[m    
+* [34m|[m [1;36m|[m [34m|[m [1;31m|[m   [33m833e67b[m Merge pull request #69 from Gwrzlh/Rere
+[1;35m|[m[1;36m\[m [34m\[m [1;36m\[m [34m\[m [1;31m\[m  
+[1;35m|[m * [34m\[m [1;36m\[m [34m\[m [1;31m\[m   [33m7054110[m Merge branch 'main' into Rere
+[1;35m|[m [31m|[m[1;35m\[m [34m\[m [1;36m\[m [34m\[m [1;31m\[m  
+[1;35m|[m [31m|[m[1;35m/[m [34m/[m [1;36m/[m [34m/[m [1;31m/[m  
+[1;35m|[m[1;35m/[m[31m|[m [34m|[m [1;36m|[m [34m|[m [1;31m|[m   
+* [31m|[m [34m|[m [1;36m|[m [34m|[m [1;31m|[m   [33mdfe0929[m Merge pull request #68 from Gwrzlh/daus
+[33m|[m[34m\[m [31m\[m [34m\[m [1;36m\[m [34m\[m [1;31m\[m  
+[33m|[m * [31m|[m [34m|[m [1;36m|[m [34m|[m [1;31m|[m [33md57fd93[m 'nuanyar'
+* [34m|[m [31m|[m [34m|[m [1;36m|[m [34m|[m [1;31m|[m   [33m75ddda8[m Merge pull request #67 from Gwrzlh/Nazar
+[34m|[m[36m\[m [34m\[m [31m\[m [34m\[m [1;36m\[m [34m\[m [1;31m\[m  
+[34m|[m [36m|[m[34m_[m[34m|[m[34m_[m[31m|[m[34m_[m[34m|[m[34m_[m[1;36m|[m[34m/[m [1;31m/[m  
+[34m|[m[34m/[m[36m|[m [34m|[m [31m|[m [34m|[m [1;36m|[m [1;31m|[m   
+[34m|[m * [34m|[m [31m|[m [34m|[m [1;36m|[m [1;31m|[m [33m0cee06f[m membuat kaprodi sama nge style alumni
+[34m|[m [34m|[m[34m/[m [31m/[m [34m/[m [1;36m/[m [1;31m/[m  
+* [34m/[m [31m/[m [34m/[m [1;36m/[m [1;31m/[m [33m6bde18a[m  update pengaturan situs
+[34m|[m[34m/[m [31m/[m [34m/[m [1;36m/[m [1;31m/[m  
+[34m|[m * [34m/[m [1;36m/[m [1;31m/[m [33mfdd027b[m hihiw
+[34m|[m[34m/[m [34m/[m [1;36m/[m [1;31m/[m  
+[34m|[m * [1;36m/[m [1;31m/[m [33mab62962[m final commit for questionnaire admin
+[34m|[m[34m/[m [1;36m/[m [1;31m/[m  
+* [1;36m|[m [1;31m|[m   [33m23bec22[m Merge pull request #66 from Gwrzlh/daus
+[1;31m|[m[1;32m\[m [1;36m\[m [1;31m\[m  
+[1;31m|[m * [1;36m|[m [1;31m|[m [33m9de11b8[m 'adminbar'
+* [1;32m|[m [1;36m|[m [1;31m|[m   [33me56d758[m Merge pull request #65 from Gwrzlh/Nazar
+[1;32m|[m[1;34m\[m [1;32m\[m [1;36m\[m [1;31m\[m  
+[1;32m|[m [1;34m|[m[1;32m/[m [1;36m/[m [1;31m/[m  
+[1;32m|[m[1;32m/[m[1;34m|[m [1;36m|[m [1;31m|[m   
+[1;32m|[m * [1;36m|[m [1;31m|[m [33m747c114[m memperbaiki alumni
+[1;32m|[m[1;32m/[m [1;36m/[m [1;31m/[m  
+* [1;36m|[m [1;31m|[m   [33m4ebcb2d[m Merge pull request #64 from Gwrzlh/Nazar
+[1;35m|[m[1;36m\[m [1;36m\[m [1;31m\[m  
+[1;35m|[m * [1;36m\[m [1;31m\[m   [33md84c85b[m Merge branch 'main' into Nazar
+[1;35m|[m [31m|[m[1;35m\[m [1;36m\[m [1;31m\[m  
+[1;35m|[m [31m|[m[1;35m/[m [1;36m/[m [1;31m/[m  
+[1;35m|[m[1;35m/[m[31m|[m [1;36m|[m [1;31m|[m   
+* [31m|[m [1;36m|[m [1;31m|[m   [33m794ce3a[m Merge pull request #63 from Gwrzlh/daus
+[33m|[m[34m\[m [31m\[m [1;36m\[m [1;31m\[m  
+[33m|[m * [31m|[m [1;36m|[m [1;31m|[m [33m59ad73b[m 'style'
+* [34m|[m [31m|[m [1;36m|[m [1;31m|[m   [33m73ffaed[m Merge pull request #62 from Gwrzlh/yadi
+[34m|[m[1;31m\[m [34m\[m [31m\[m [1;36m\[m [1;31m\[m  
+[34m|[m [1;31m|[m[34m/[m [31m/[m [1;36m/[m [1;31m/[m  
+[34m|[m[34m/[m[1;31m|[m [31m|[m [1;36m|[m [1;31m/[m   
+[34m|[m [1;31m|[m [31m|[m[1;31m_[m[1;36m|[m[1;31m/[m    
+[34m|[m [1;31m|[m[1;31m/[m[31m|[m [1;36m|[m     
+[34m|[m * [31m|[m [1;36m|[m [33mba23655[m update laporan dan membenarkan landingpage tentang
+* [36m|[m [31m|[m [1;36m|[m   [33m565c9df[m Merge pull request #61 from Gwrzlh/Rere
+[1;31m|[m[1;32m\[m [36m\[m [31m\[m [1;36m\[m  
+[1;31m|[m * [36m|[m [31m|[m [1;36m|[m [33mc2c5e40[m punyarere
+[1;31m|[m [36m|[m[36m/[m [31m/[m [1;36m/[m  
+* [36m|[m [31m|[m [1;36m|[m   [33m962233a[m Merge pull request #60 from Gwrzlh/daus
+[36m|[m[1;34m\[m [36m\[m [31m\[m [1;36m\[m  
+[36m|[m [1;34m|[m[36m/[m [31m/[m [1;36m/[m  
+[36m|[m[36m/[m[1;34m|[m [31m|[m [1;36m|[m   
+[36m|[m * [31m|[m [1;36m|[m [33mad2ba07[m 'penyesuaianstyle'
+[36m|[m * [31m|[m [1;36m|[m   [33m90aba35[m Merge branch 'main' of https://github.com/Gwrzlh/TRACER-STUDY into daus
+[36m|[m [1;35m|[m[36m\[m [31m\[m [1;36m\[m  
+[36m|[m [1;35m|[m[36m/[m [31m/[m [1;36m/[m  
+[36m|[m[36m/[m[1;35m|[m [31m|[m [1;36m|[m   
+* [1;35m|[m [31m|[m [1;36m|[m   [33m73e2b3f[m Merge pull request #59 from Gwrzlh/daus
+[31m|[m[32m\[m [1;35m\[m [31m\[m [1;36m\[m  
+[31m|[m [32m|[m * [31m|[m [1;36m|[m [33mdf032cc[m Merge branch 'main' of https://github.com/Gwrzlh/TRACER-STUDY into daus
+[31m|[m [32m|[m[32m/[m[31m|[m [31m|[m [1;36m|[m 
+[31m|[m [32m|[m[31m/[m [31m/[m [1;36m/[m  
+[31m|[m[31m/[m[32m|[m [31m|[m [1;36m|[m   
+[31m|[m * [31m|[m [1;36m|[m [33m9b535c3[m 'alumnisidebar'
+[31m|[m * [31m|[m [1;36m|[m   [33m908d69e[m Merge branch 'main' of https://github.com/Gwrzlh/TRACER-STUDY into daus
+[31m|[m [35m|[m[36m\[m [31m\[m [1;36m\[m  
+[31m|[m * [36m|[m [31m|[m [1;36m|[m [33mdd09d8c[m 'stylealumnisuv'
+[31m|[m [36m|[m [36m|[m * [1;36m|[m [33m8dbac74[m menambahkan db buat alumni dan buat tampilan respon
+[31m|[m [36m|[m[31m_[m[36m|[m[31m/[m [1;36m/[m  
+[31m|[m[31m/[m[36m|[m [36m|[m [1;36m|[m   
+* [36m|[m [36m|[m [1;36m|[m   [33m2af12b1[m Merge pull request #58 from Gwrzlh/Daffa
+[36m|[m[1;32m\[m [36m\[m [36m\[m [1;36m\[m  
+[36m|[m [1;32m|[m[36m_[m[36m|[m[36m/[m [1;36m/[m  
+[36m|[m[36m/[m[1;32m|[m [36m|[m [1;36m|[m   
+[36m|[m * [36m|[m [1;36m|[m   [33m9d9397c[m Merge branch 'main' into Daffa
+[36m|[m [1;33m|[m[36m\[m [36m\[m [1;36m\[m  
+[36m|[m [1;33m|[m[36m/[m [36m/[m [1;36m/[m  
+[36m|[m[36m/[m[1;33m|[m [36m|[m [1;36m|[m   
+* [1;33m|[m [36m|[m [1;36m|[m   [33m7e3aa19[m Merge pull request #56 from Gwrzlh/yadi
+[1;35m|[m[1;36m\[m [1;33m\[m [36m\[m [1;36m\[m  
+[1;35m|[m * [1;33m\[m [36m\[m [1;36m\[m   [33m37fe09d[m Merge branch 'main' into yadi
+[1;35m|[m [31m|[m[1;35m\[m [1;33m\[m [36m\[m [1;36m\[m  
+[1;35m|[m [31m|[m[1;35m/[m [1;33m/[m [36m/[m [1;36m/[m  
+[1;35m|[m[1;35m/[m[31m|[m [1;33m|[m [36m|[m [1;36m|[m   
+* [31m|[m [1;33m|[m [36m|[m [1;36m|[m   [33m9fe066e[m Merge pull request #55 from Gwrzlh/Nazar
+[33m|[m[34m\[m [31m\[m [1;33m\[m [36m\[m [1;36m\[m  
+[33m|[m * [31m\[m [1;33m\[m [36m\[m [1;36m\[m   [33m77063d8[m Merge branch 'main' into Nazar
+[33m|[m [35m|[m[33m\[m [31m\[m [1;33m\[m [36m\[m [1;36m\[m  
+[33m|[m [35m|[m[33m/[m [31m/[m [1;33m/[m [36m/[m [1;36m/[m  
+[33m|[m[33m/[m[35m|[m [31m|[m [1;33m|[m [36m|[m [1;36m|[m   
+* [35m|[m [31m|[m [1;33m|[m [36m|[m [1;36m|[m   [33mf6368aa[m Merge pull request #53 from Gwrzlh/Rere
+[1;31m|[m[1;32m\[m [35m\[m [31m\[m [1;33m\[m [36m\[m [1;36m\[m  
+[1;31m|[m * [35m|[m [31m|[m [1;33m|[m [36m|[m [1;36m|[m [33mafc8750[m hihiuduagda
+* [1;32m|[m [35m|[m [31m|[m [1;33m|[m [36m|[m [1;36m|[m [33mbb448c5[m Merge pull request #52 from Gwrzlh/Rere
+[36m|[m[1;32m\[m[1;32m|[m [35m|[m [31m|[m [1;33m|[m [36m|[m [1;36m|[m 
+[36m|[m [1;32m|[m[36m_[m[35m|[m[36m_[m[31m|[m[36m_[m[1;33m|[m[36m/[m [1;36m/[m  
+[36m|[m[36m/[m[1;32m|[m [35m|[m [31m|[m [1;33m|[m [1;36m|[m   
+[36m|[m * [35m|[m [31m|[m [1;33m|[m [1;36m|[m [33ma780a1e[m bau lagi
+[36m|[m[36m/[m [35m/[m [31m/[m [1;33m/[m [1;36m/[m  
+[36m|[m * [31m/[m [1;33m/[m [1;36m/[m [33mb27381b[m membuat profile di alumni
+[36m|[m[36m/[m [31m/[m [1;33m/[m [1;36m/[m  
+* [31m|[m [1;33m|[m [1;36m|[m   [33m9d7aade[m Merge pull request #51 from Gwrzlh/Rere
+[1;35m|[m[1;36m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[1;35m|[m * [31m|[m [1;33m|[m [1;36m|[m [33m2badb35[m yang bu
+* [1;36m|[m [31m|[m [1;33m|[m [1;36m|[m   [33m46a00d9[m Merge pull request #50 from Gwrzlh/daus
+[1;36m|[m[32m\[m [1;36m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[1;36m|[m [32m|[m[1;36m/[m [31m/[m [1;33m/[m [1;36m/[m  
+[1;36m|[m[1;36m/[m[32m|[m [31m|[m [1;33m|[m [1;36m|[m   
+[1;36m|[m * [31m|[m [1;33m|[m [1;36m|[m   [33m8dfa8b5[m Merge branch 'main' into daus
+[1;36m|[m [33m|[m[1;36m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[1;36m|[m [33m|[m[1;36m/[m [31m/[m [1;33m/[m [1;36m/[m  
+[1;36m|[m[1;36m/[m[33m|[m [31m|[m [1;33m|[m [1;36m|[m   
+* [33m|[m [31m|[m [1;33m|[m [1;36m|[m   [33m193e3f4[m Merge pull request #49 from Gwrzlh/Rere
+[35m|[m[36m\[m [33m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[35m|[m * [33m\[m [31m\[m [1;33m\[m [1;36m\[m   [33mad9b94c[m Merge branch 'main' into Rere
+[35m|[m [1;31m|[m[35m\[m [33m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[35m|[m [1;31m|[m[35m/[m [33m/[m [31m/[m [1;33m/[m [1;36m/[m  
+[35m|[m[35m/[m[1;31m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m   
+* [1;31m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m   [33m041b46e[m Merge pull request #48 from Gwrzlh/Nazar
+[1;33m|[m[1;34m\[m [1;31m\[m [33m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[1;33m|[m * [1;31m\[m [33m\[m [31m\[m [1;33m\[m [1;36m\[m   [33m97d9a1b[m Merge branch 'main' into Nazar
+[1;33m|[m [1;35m|[m[1;33m\[m [1;31m\[m [33m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[1;33m|[m [1;35m|[m[1;33m/[m [1;31m/[m [33m/[m [31m/[m [1;33m/[m [1;36m/[m  
+[1;33m|[m[1;33m/[m[1;35m|[m [1;31m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m   
+* [1;35m|[m [1;31m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m   [33m70f71f7[m Merge pull request #47 from Gwrzlh/Rere
+[31m|[m[32m\[m [1;35m\[m [1;31m\[m [33m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[31m|[m [32m|[m * [1;31m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m [33m3ba5027[m membuat tampilan dan akes alumni
+[31m|[m [32m|[m [32m|[m * [33m|[m [31m|[m [1;33m|[m [1;36m|[m [33m426df30[m untuk supervisi
+[31m|[m [32m|[m [32m|[m[32m/[m [33m/[m [31m/[m [1;33m/[m [1;36m/[m  
+[31m|[m [32m|[m[32m/[m[32m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m   
+[31m|[m * [32m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m [33me6cac2c[m login terbaru yaa
+[31m|[m[31m/[m [32m/[m [33m/[m [31m/[m [1;33m/[m [1;36m/[m  
+* [32m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m   [33m775e2cf[m Merge pull request #46 from Gwrzlh/Rere
+[33m|[m[34m\[m [32m\[m [33m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[33m|[m * [32m\[m [33m\[m [31m\[m [1;33m\[m [1;36m\[m   [33md039f6d[m Merge branch 'main' into Rere
+[33m|[m [35m|[m[33m\[m [32m\[m [33m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[33m|[m [35m|[m[33m/[m [32m/[m [33m/[m [31m/[m [1;33m/[m [1;36m/[m  
+[33m|[m[33m/[m[35m|[m [32m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m   
+* [35m|[m [32m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m   [33m373c3a7[m Merge pull request #45 from Gwrzlh/Nazar
+[1;31m|[m[32m\[m [35m\[m [32m\[m [33m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[1;31m|[m [32m|[m [35m|[m[32m/[m [33m/[m [31m/[m [1;33m/[m [1;36m/[m  
+[1;31m|[m [32m|[m[32m/[m[35m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m   
+[1;31m|[m * [35m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m [33ma4836cd[m Menambahkan tampilan Alumni
+[1;31m|[m * [35m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m   [33mf1a3230[m Resolve merge conflict in Auth.php
+[1;31m|[m [1;33m|[m[1;34m\[m [35m\[m [33m\[m [31m\[m [1;33m\[m [1;36m\[m  
+[1;31m|[m * [1;34m|[m [35m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m [33mb1a13f2[m perubahan Auth.php lokal\
+[1;31m|[m [1;34m|[m [1;34m|[m * [33m|[m [31m|[m [1;33m|[m [1;36m|[m [33m8ebab26[m menambah login para user dll
+[1;31m|[m [1;34m|[m[1;31m_[m[1;34m|[m[1;31m/[m [33m/[m [31m/[m [1;33m/[m [1;36m/[m  
+[1;31m|[m[1;31m/[m[1;34m|[m [1;34m|[m [33m|[m [31m|[m [1;33m|[m [1;36m|[m   
+[1;31m|[m [1;34m|[m [1;34m|[m * [31m|[m [1;33m|[m [1;36m|[m [33m39cc908[m 'styleques'
+[1;31m|[m [1;34m|[m[1;31m_[m[1;34m|[m[1;31m/[m [31m/[m [1;33m/[m [1;36m/[m  
+[1;31m|[m[1;31m/[m[1;34m|[m [1;34m|[m [31m|[m [1;33m|[m [1;36m|[m   
+[1;31m|[m [1;34m|[m [1;34m|[m * [1;33m|[m [1;36m|[m [33m68f16d6[m menambahkan sidebar laporan dan juga landing pagenya
+[1;31m|[m [1;34m|[m [1;34m|[m[1;34m/[m [1;33m/[m [1;36m/[m  
+[1;31m|[m [1;34m|[m [1;34m|[m * [1;36m/[m [33m748e245[m akhirnyeee questionnaire selesai
+[1;31m|[m [1;34m|[m[1;31m_[m[1;34m|[m[1;31m/[m [1;36m/[m  
+[1;31m|[m[1;31m/[m[1;34m|[m [1;34m|[m [1;36m|[m   
+* [1;34m|[m [1;34m|[m [1;36m|[m   [33m120990a[m Merge pull request #44 from Gwrzlh/Rere
+[1;35m|[m[1;36m\[m [1;34m\[m [1;34m\[m [1;36m\[m  
+[1;35m|[m * [1;34m|[m [1;34m|[m [1;36m|[m [33ma6a0afa[m ini satuan organisasi
+[1;35m|[m[1;35m/[m [1;34m/[m [1;34m/[m [1;36m/[m  
+* [1;34m|[m [1;34m|[m [1;36m|[m   [33ma767c88[m Merge pull request #43 from Gwrzlh/Rere
+[1;34m|[m[32m\[m [1;34m\[m [1;34m\[m [1;36m\[m  
+[1;34m|[m [32m|[m[1;34m_[m[1;34m|[m[1;34m/[m [1;36m/[m  
+[1;34m|[m[1;34m/[m[32m|[m [1;34m|[m [1;36m|[m   
+[1;34m|[m * [1;34m|[m [1;36m|[m [33ma43f3a7[m kontak dei yeeee
+[1;34m|[m[1;34m/[m [1;34m/[m [1;36m/[m  
+* [1;34m|[m [1;36m|[m   [33m1334b7f[m Merge pull request #42 from Gwrzlh/Rere
+[33m|[m[34m\[m [1;34m\[m [1;36m\[m  
+[33m|[m * [1;34m|[m [1;36m|[m [33mb6885a9[m kontak dei kontak dei
+[33m|[m[33m/[m [1;34m/[m [1;36m/[m  
+* [1;34m|[m [1;36m|[m   [33m76207ed[m update confilict
+[35m|[m[36m\[m [1;34m\[m [1;36m\[m  
+[35m|[m * [1;34m\[m [1;36m\[m   [33m2cd895c[m Merge pull request #41 from Gwrzlh/yadi
+[35m|[m [1;31m|[m[1;32m\[m [1;34m\[m [1;36m\[m  
+[35m|[m [1;31m|[m * [1;34m|[m [1;36m|[m [33mef6d129[m merapihkan sidebar satuanorganisasi,tipe organisasi dan button sidebar
+[35m|[m * [1;32m|[m [1;34m|[m [1;36m|[m   [33m47cac40[m Merge pull request #40 from Gwrzlh/ramdan
+[35m|[m [1;33m|[m[1;36m\[m [1;32m\[m [1;34m\[m [1;36m\[m  
+[35m|[m [1;33m|[m [1;36m|[m [1;32m|[m[1;36m_[m[1;34m|[m[1;36m/[m  
+[35m|[m [1;33m|[m [1;36m|[m[1;36m/[m[1;32m|[m [1;34m|[m   
+[35m|[m [1;33m|[m * [1;32m|[m [1;34m|[m   [33m0e89d53[m Merge branch 'main' into ramdan
+[35m|[m [1;33m|[m [1;35m|[m[1;33m\[m [1;32m\[m [1;34m\[m  
+[35m|[m [1;33m|[m [1;35m|[m[1;33m/[m [1;32m/[m [1;34m/[m  
+[35m|[m [1;33m|[m[1;33m/[m[1;35m|[m [1;32m|[m [1;34m|[m   
+[35m|[m * [1;35m|[m [1;32m|[m [1;34m|[m   [33m4918d67[m Merge pull request #39 from Gwrzlh/Rere
+[35m|[m [31m|[m[32m\[m [1;35m\[m [1;32m\[m [1;34m\[m  
+[35m|[m [31m|[m * [1;35m\[m [1;32m\[m [1;34m\[m   [33m8fd7a67[m Merge branch 'main' into Rere
+[35m|[m [31m|[m [33m|[m[31m\[m [1;35m\[m [1;32m\[m [1;34m\[m  
+[35m|[m [31m|[m [33m|[m[31m/[m [1;35m/[m [1;32m/[m [1;34m/[m  
+[35m|[m [31m|[m[31m/[m[33m|[m [1;35m|[m [1;32m|[m [1;34m|[m   
+[35m|[m * [33m|[m [1;35m|[m [1;32m|[m [1;34m|[m   [33m5ff631a[m Merge pull request #38 from Gwrzlh/Nazar
+[35m|[m [1;32m|[m[1;34m\[m [33m\[m [1;35m\[m [1;32m\[m [1;34m\[m  
+[35m|[m [1;32m|[m [1;34m|[m[1;32m_[m[33m|[m[1;32m_[m[1;35m|[m[1;32m/[m [1;34m/[m  
+[35m|[m [1;32m|[m[1;32m/[m[1;34m|[m [33m|[m [1;35m|[m [1;34m/[m   
+[35m|[m [1;32m|[m [1;34m|[m [33m|[m[1;34m_[m[1;35m|[m[1;34m/[m    
+[35m|[m [1;32m|[m [1;34m|[m[1;34m/[m[33m|[m [1;35m|[m     
+[35m|[m [1;32m|[m * [33m|[m [1;35m|[m [33m9708a41[m perbaruan dashboard dan alumni
+[35m|[m [1;32m|[m [36m|[m * [1;35m|[m [33m08b2a33[m merevisi kontakkkk
+[35m|[m [1;32m|[m [36m|[m * [1;35m|[m [33me2a5c48[m ngebenerin login euyy
+[35m|[m [1;32m|[m [36m|[m[1;32m/[m [1;35m/[m  
+[35m|[m [1;32m|[m[1;32m/[m[36m|[m [1;35m|[m   
+[35m|[m * [36m|[m [1;35m|[m   [33m22e2106[m Merge pull request #37 from Gwrzlh/Rere
+[35m|[m [1;31m|[m[1;32m\[m [36m\[m [1;35m\[m  
+[35m|[m [1;31m|[m * [36m|[m [1;35m|[m [33m1e0f6a1[m memperbarui satuan organisasi
+[35m|[m * [1;32m|[m [36m|[m [1;35m|[m [33mfda384f[m Merge pull request #36 from Gwrzlh/Rere
+[35m|[m [1;33m|[m[1;32m\[m[1;32m|[m [36m|[m [1;35m|[m 
+[35m|[m [1;33m|[m * [36m|[m [1;35m|[m [33mfcbda1b[m merevisi kontak anj
+[35m|[m * [1;34m|[m [36m|[m [1;35m|[m [33mea02774[m Merge pull request #35 from Gwrzlh/Rere
+[35m|[m [1;35m|[m[1;34m\[m[1;34m|[m [36m|[m [1;35m|[m 
+[35m|[m [1;35m|[m * [36m|[m [1;35m|[m [33m68e7661[m memperbarui kontak euy
+[35m|[m * [1;36m|[m [36m|[m [1;35m|[m [33m60109c6[m Merge pull request #34 from Gwrzlh/Rere
+[35m|[m [36m|[m[1;36m\[m[1;36m|[m [36m|[m [1;35m|[m 
+[35m|[m [36m|[m [1;36m|[m[36m/[m [1;35m/[m  
+[35m|[m [36m|[m[36m/[m[1;36m|[m [1;35m|[m   
+[35m|[m [36m|[m * [1;35m|[m [33mba9a242[m membuat fitur kontak
+[35m|[m [36m|[m[36m/[m [1;35m/[m  
+[35m|[m [36m|[m * [33m63952c9[m nyoba import
+[35m|[m [36m|[m * [33m42dd42f[m ngedit tampilan pengsit
+[35m|[m [36m|[m[36m/[m  
+* [36m/[m [33ma160add[m nambahin conditional logic di questionnair
+[36m|[m[36m/[m  
+* [33m0794d64[m melakukan fix terhadap error merge yang terjadi
+*   [33med3f9af[m Merge pull request #31 from Gwrzlh/yadi
+[33m|[m[34m\[m  
+[33m|[m *   [33mab80a7f[m Merge branch 'main' into yadi
+[33m|[m [35m|[m[33m\[m  
+[33m|[m [35m|[m[33m/[m  
+[33m|[m[33m/[m[35m|[m   
+* [35m|[m   [33m9183995[m Merge pull request #32 from Gwrzlh/Nazar
+[1;31m|[m[1;32m\[m [35m\[m  
+[1;31m|[m * [35m\[m   [33m9fc2051[m Merge branch 'main' into Nazar
+[1;31m|[m [1;33m|[m[1;31m\[m [35m\[m  
+[1;31m|[m [1;33m|[m[1;31m/[m [35m/[m  
+[1;31m|[m[1;31m/[m[1;33m|[m [35m|[m   
+* [1;33m|[m [35m|[m   [33mcb72c49[m Merge pull request #33 from Gwrzlh/daus
+[1;35m|[m[1;36m\[m [1;33m\[m [35m\[m  
+[1;35m|[m * [1;33m\[m [35m\[m   [33mabe8a5e[m Merge branch 'main' into daus
+[1;35m|[m [31m|[m[1;35m\[m [1;33m\[m [35m\[m  
+[1;35m|[m [31m|[m[1;35m/[m [1;33m/[m [35m/[m  
+[1;35m|[m[1;35m/[m[31m|[m [1;33m|[m [35m|[m   
+* [31m|[m [1;33m|[m [35m|[m   [33m3e502da[m Merge pull request #30 from Gwrzlh/Daffa
+[33m|[m[34m\[m [31m\[m [1;33m\[m [35m\[m  
+[33m|[m * [31m\[m [1;33m\[m [35m\[m   [33m49bbb55[m Merge branch 'main' into Daffa
+[33m|[m [35m|[m[33m\[m [31m\[m [1;33m\[m [35m\[m  
+[33m|[m [35m|[m[33m/[m [31m/[m [1;33m/[m [35m/[m  
+[33m|[m[33m/[m[35m|[m [31m|[m [1;33m|[m [35m|[m   
+* [35m|[m [31m|[m [1;33m|[m [35m|[m   [33m719faf2[m Merge pull request #29 from Gwrzlh/Daffa
+[1;31m|[m[1;32m\[m [35m\[m [31m\[m [1;33m\[m [35m\[m  
+[1;31m|[m [1;32m|[m * [31m|[m [1;33m|[m [35m|[m [33ma080ad4[m menambahkan detail from untuk perusahaan,kaprodi,atasan, dan jabatan lainnya termasuk dengan edit dan delete nya
+[1;31m|[m [1;32m|[m[1;32m/[m [31m/[m [1;33m/[m [35m/[m  
+[1;31m|[m * [31m|[m [1;33m|[m [35m|[m [33m0f87138[m menambahkan field supervisi sebagai jabatan yang bisa di tambahkan pada account alumni
+[1;31m|[m [1;32m|[m * [1;33m|[m [35m|[m [33mb819087[m tampilan table
+[1;31m|[m [1;32m|[m [1;32m|[m * [35m|[m [33mb5d4213[m menambahkan tampilan pengaturan situs
+[1;31m|[m [1;32m|[m [1;32m|[m * [35m|[m   [33m26a4fd9[m Merge branch 'main' into Nazar
+[1;31m|[m [1;32m|[m [1;32m|[m [1;33m|[m[1;31m\[m [35m\[m  
+[1;31m|[m [1;32m|[m[1;31m_[m[1;32m|[m[1;31m_[m[1;33m|[m[1;31m/[m [35m/[m  
+[1;31m|[m[1;31m/[m[1;32m|[m [1;32m|[m [1;33m|[m [35m|[m   
+* [1;32m|[m [1;32m|[m [1;33m|[m [35m|[m   [33m171921f[m[33m ([m[1;32mmain[m[33m)[m update
+[1;35m|[m[1;36m\[m [1;32m\[m [1;32m\[m [1;33m\[m [35m\[m  
+* [1;36m|[m [1;32m|[m [1;32m|[m [1;33m|[m [35m|[m [33m371442e[m nambahin tampilan create.php
+* [1;36m|[m [1;32m|[m [1;32m|[m [1;33m|[m [35m|[m   [33mbe72c70[m Merge branch 'main' of https://github.com/Gwrzlh/TRACER-STUDY
+[31m|[m[32m\[m [1;36m\[m [1;32m\[m [1;32m\[m [1;33m\[m [35m\[m  
+* [32m\[m [1;36m\[m [1;32m\[m [1;32m\[m [1;33m\[m [35m\[m   [33m736e00f[m hm
+[33m|[m[34m\[m [32m\[m [1;36m\[m [1;32m\[m [1;32m\[m [1;33m\[m [35m\[m  
+* [34m|[m [32m|[m [1;36m|[m [1;32m|[m [1;32m|[m [1;33m|[m [35m|[m [33mc99a94d[m update bagian pengguna
+[34m|[m [34m|[m [32m|[m [1;36m|[m [1;32m|[m [1;32m|[m * [35m|[m [33mf6e8bb5[m <?php
+[34m|[m [34m|[m [32m|[m [1;36m|[m [1;32m|[m [1;32m|[m[1;32m/[m [35m/[m  
+[34m|[m [34m|[m [32m|[m [1;36m|[m [1;32m|[m [1;32m|[m * [33meb95e9e[m menambahkan pengaturan situs
+[34m|[m [34m|[m [32m|[m [1;36m|[m [1;32m|[m[1;36m_[m[1;32m|[m[1;36m/[m  
+[34m|[m [34m|[m [32m|[m [1;36m|[m[1;36m/[m[1;32m|[m [1;32m|[m   
+[34m|[m [34m|[m [32m|[m * [1;32m|[m [1;32m|[m [33m622fa49[m secoundary commit
+[34m|[m [34m|[m [32m|[m * [1;32m|[m [1;32m|[m [33m54ff7c1[m fix error in pengguna
+[34m|[m [34m|[m [32m|[m * [1;32m|[m [1;32m|[m   [33m24e6e59[m Merge branch 'main' of https://github.com/Gwrzlh/TRACER-STUDY
+[34m|[m [34m|[m [32m|[m [1;32m|[m[1;32m\[m [1;32m\[m [1;32m\[m  
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;32m|[m[1;32m/[m [1;32m/[m  
+[34m|[m [34m|[m [32m|[m [1;32m|[m[1;32m/[m[1;32m|[m [1;32m/[m   
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;32m|[m[1;32m/[m    
+[34m|[m [34m|[m [32m|[m [1;32m|[m *   [33mae3ffdc[m Merge pull request #27 from Gwrzlh/Rere
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;31m|[m[1;32m\[m  
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;31m|[m * [33mbd86819[m menambahkan fitur kontak
+[34m|[m [34m|[m [32m|[m [1;32m|[m * [1;32m|[m   [33m6103ba0[m Merge pull request #28 from Gwrzlh/daus
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;33m|[m[1;34m\[m [1;32m\[m  
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;33m|[m * [1;32m|[m [33m6a44802[m search bar
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;33m|[m [1;32m|[m[1;32m/[m  
+[34m|[m [34m|[m [32m|[m [1;32m|[m * [1;32m|[m   [33m86b9515[m Merge pull request #26 from Gwrzlh/yadi
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;35m|[m[1;36m\[m [1;32m\[m  
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;35m|[m * [1;32m|[m [33m0d3dd88[m menambahkan informasi account di sidebar pengguna
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;35m|[m [1;32m|[m[1;32m/[m  
+[34m|[m [34m|[m [32m|[m [1;32m|[m * [1;32m|[m   [33mad41a22[m Merge pull request #25 from Gwrzlh/ramdan
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;32m|[m[32m\[m [1;32m\[m  
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;32m|[m [32m|[m[1;32m/[m  
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;32m|[m[1;32m/[m[32m|[m   
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;32m|[m * [33m7df929d[m update form edit tentang
+[34m|[m [34m|[m [32m|[m [1;32m|[m [1;32m|[m[1;32m/[m  
+[34m|[m [34m|[m [32m|[m * [1;32m/[m [33m5b964f4[m menambahkan kuesiner(belumselesai)
+[34m|[m [34m|[m [32m|[m [1;32m|[m[1;32m/[m  
+[34m|[m [34m|[m [32m|[m * [33m56b2c57[m perubahan yang baru sudah disatukan
+[34m|[m [34m|[m [32m|[m *   [33m2c1bc80[m Merge pull request #24 from Gwrzlh/Nazar
+[34m|[m [34m|[m [32m|[m [33m|[m[34m\[m  
+[34m|[m [34m|[m [32m|[m [33m|[m * [33mf76f1b8[m menambahkan tampilan pengguna,satuanorganisasi dan tipe
+[34m|[m [34m|[m [32m|[m * [34m|[m   [33m4286315[m Merge pull request #22 from Gwrzlh/Rere
+[34m|[m [34m|[m [32m|[m [35m|[m[36m\[m [34m\[m  
+[34m|[m [34m|[m [32m|[m [35m|[m * [34m\[m   [33m6e7efaa[m Merge branch 'main' into Rere
+[34m|[m [34m|[m [32m|[m [35m|[m [1;31m|[m[35m\[m [34m\[m  
+[34m|[m [34m|[m [32m|[m [35m|[m [1;31m|[m[35m/[m [34m/[m  
+[34m|[m [34m|[m [32m|[m [35m|[m[35m/[m[1;31m|[m [34m|[m   
+[34m|[m [34m|[m [32m|[m * [1;31m|[m [34m|[m   [33m6d35e38[m Merge pull request #23 from Gwrzlh/ramdan
+[34m|[m [34m|[m [32m|[m [34m|[m[1;34m\[m [1;31m\[m [34m\[m  
+[34m|[m [34m|[m [32m|[m [34m|[m [1;34m|[m[34m_[m[1;31m|[m[34m/[m  
+[34m|[m [34m|[m [32m|[m [34m|[m[34m/[m[1;34m|[m [1;31m|[m   
+[34m|[m [34m|[m [32m|[m [34m|[m * [1;31m|[m [33m839e021[m menambahkan tentang ke form admin serta membuat table, mengedit sidebar dan banyak lagi pokona
+[34m|[m [34m|[m [32m|[m [34m|[m[34m/[m [1;31m/[m  
+[34m|[m [34m|[m [32m|[m * [1;31m|[m   [33mc9d26e5[m Merge pull request #19 from Gwrzlh/Daffa
+[34m|[m [34m|[m [32m|[m [1;35m|[m[1;36m\[m [1;31m\[m  
+[34m|[m [34m|[m [32m|[m [1;35m|[m * [1;31m\[m   [33m97c9bc5[m Merge branch 'main' into Daffa
+[34m|[m [34m|[m [32m|[m [1;35m|[m [31m|[m[1;35m\[m [1;31m\[m  
+[34m|[m [34m|[m [32m|[m [1;35m|[m [31m|[m[1;35m/[m [1;31m/[m  
+[34m|[m [34m|[m [32m|[m [1;35m|[m[1;35m/[m[31m|[m [1;31m|[m   
+[34m|[m [34m|[m [32m|[m * [31m|[m [1;31m|[m   [33ma94a7e9[m Merge pull request #18 from Gwrzlh/Rere
+[34m|[m [34m|[m [32m|[m [33m|[m[34m\[m [31m\[m [1;31m\[m  
+[34m|[m [34m|[m [32m|[m [33m|[m [34m|[m * [1;31m|[m [33m15ba6c9[m penyemburnaan pada bagian edit pengguna dan tipe_organisasi
+[34m|[m [34m|[m [32m|[m [33m|[m [34m|[m * [1;31m|[m [33mb5fd3e2[m menambah edit dan delete di pengguna
+[34m|[m [34m|[m [32m|[m [33m|[m [34m|[m [34m|[m *   [33mbb2e107[m Merge branch 'Rere' of https://github.com/Gwrzlh/TRACER-STUDY into Rere
+[34m|[m [34m|[m [32m|[m [33m|[m [34m|[m [34m|[m [35m|[m[34m\[m  
+[34m|[m [34m|[m [32m|[m [33m|[m [34m|[m [34m|[m[34m_[m[35m|[m[34m/[m  
+[34m|[m [34m|[m [32m|[m [33m|[m [34m|[m[34m/[m[34m|[m [35m|[m   
+[34m|[m [34m|[m [32m|[m [33m|[m * [34m|[m [35m|[m   [33m2b4d0a2[m Merge branch 'main' into Rere
+[34m|[m [34m|[m [32m|[m [33m|[m [1;31m|[m[33m\[m [34m\[m [35m\[m  
+[34m|[m [34m|[m [32m|[m [33m|[m [1;31m|[m[33m/[m [34m/[m [35m/[m  
+[34m|[m [34m|[m [32m|[m [33m|[m[33m/[m[1;31m|[m [34m|[m [35m|[m   
+[34m|[m [34m|[m [32m|[m * [1;31m|[m [34m|[m [35m|[m   [33me6b14d0[m Merge pull request #21 from Gwrzlh/Nazar
+[34m|[m [34m|[m [32m|[m [1;33m|[m[1;34m\[m [1;31m\[m [34m\[m [35m\[m  
+[34m|[m [34m|[m [32m|[m [1;33m|[m * [1;31m\[m [34m\[m [35m\[m   [33mcf257ab[m Merge branch 'main' into Nazar
+[34m|[m [34m|[m [32m|[m [1;33m|[m [1;35m|[m[1;33m\[m [1;31m\[m [34m\[m [35m\[m  
+[34m|[m [34m|[m [32m|[m [1;33m|[m [1;35m|[m[1;33m/[m [1;31m/[m [34m/[m [35m/[m  
+[34m|[m [34m|[m [32m|[m [1;33m|[m[1;33m/[m[1;35m|[m [1;31m|[m [34m|[m [35m|[m   
+[34m|[m [34m|[m [32m|[m * [1;35m|[m [1;31m|[m [34m|[m [35m|[m   [33mcb26772[m Merge pull request #20 from Gwrzlh/ramdan
+[34m|[m [34m|[m [32m|[m [34m|[m[32m\[m [1;35m\[m [1;31m\[m [34m\[m [35m\[m  
+[34m|[m [34m|[m [32m|[m [34m|[m [32m|[m[34m_[m[1;35m|[m[34m_[m[1;31m|[m[34m/[m [35m/[m  
+[34m|[m [34m|[m [32m|[m [34m|[m[34m/[m[32m|[m [1;35m|[m [1;31m|[m [35m|[m   
+[34m|[m [34m|[m [32m|[m [34m|[m * [1;35m|[m [1;31m|[m [35m|[m [33m994c709[m nyoba
+[34m|[m [34m|[m [32m|[m [34m|[m * [1;35m|[m [1;31m|[m [35m|[m [33mbdba148[m nambahin folder
+[34m|[m [34m|[m [32m|[m [34m|[m * [1;35m|[m [1;31m|[m [35m|[m [33mdeec600[m nambahin doang bang
+[34m|[m [34m|[m [32m|[m [34m|[m * [1;35m|[m [1;31m|[m [35m|[m [33me2e1f07[m update foormadmin
+[34m|[m [34m|[m [32m|[m [34m|[m * [1;35m|[m [1;31m|[m [35m|[m [33mf20ff29[m nambahin landing page ke database dan ngubah sidebar sikit
+[34m|[m [34m|[m [32m|[m [34m|[m[34m/[m [1;35m/[m [1;31m/[m [35m/[m  
+[34m|[m [34m|[m [32m|[m [34m|[m * [1;31m|[m [35m|[m [33mee45103[m nambahin  tampilan create
+[34m|[m [34m|[m [32m|[m [34m|[m [32m|[m [1;31m|[m * [33mee7f356[m memperbarui design Login
+[34m|[m [34m|[m [32m|[m [34m|[m [32m|[m [1;31m|[m[1;31m/[m  
+[34m|[m [34m|[m [32m|[m [34m|[m [32m|[m * [33m075f5b6[m menambah di satuanorganisasi
+[34m|[m [34m|[m [32m|[m [34m|[m [32m|[m[34m/[m  
+[34m|[m [34m|[m [32m|[m [34m|[m[34m/[m[32m|[m   
+[34m|[m [34m|[m [32m|[m * [32m|[m [33m01dd7a0[m route
+[34m|[m [34m|[m [32m|[m[32m/[m [32m/[m  
+[34m|[m [34m|[m * [32m|[m [33m21e3ff3[m Merge pull request #17 from Gwrzlh/Nazar
+[34m|[m [34m|[m [33m|[m[32m\[m[32m|[m 
+[34m|[m [34m|[m [33m|[m *   [33ma8a6d5e[m Merge branch 'main' into Nazar
+[34m|[m [34m|[m [33m|[m [35m|[m[33m\[m  
+[34m|[m [34m|[m [33m|[m [35m|[m[33m/[m  
+[34m|[m [34m|[m [33m|[m[33m/[m[35m|[m   
+[34m|[m [34m|[m * [35m|[m [33m0c2104d[m Merge pull request #16 from Gwrzlh/Rere
+[34m|[m [34m|[m[34m/[m[1;32m|[m [35m|[m 
+[34m|[m [34m|[m * [35m|[m   [33mcbec78a[m Merge branch 'main' into Rere
+[34m|[m [34m|[m [1;33m|[m[34m\[m [35m\[m  
+[34m|[m [34m|[m [1;33m|[m[34m/[m [35m/[m  
+[34m|[m [34m|[m[34m/[m[1;33m|[m [35m|[m   
+[34m|[m [34m|[m * [35m|[m [33m5a93bed[m membuat satuan organisasi
+[34m|[m [34m|[m [1;34m|[m * [33me93131a[m merubahyangsudahada
+[34m|[m [34m|[m [1;34m|[m[34m/[m  
+[34m|[m [34m|[m[34m/[m[1;34m|[m   
+[34m|[m * [1;34m|[m   [33m29871f6[m Merge pull request #15 from Gwrzlh/Daffa
+[34m|[m [1;35m|[m[1;36m\[m [1;34m\[m  
+[34m|[m [1;35m|[m * [1;34m\[m   [33mb53b7ae[m Merge branch 'main' into Daffa
+[34m|[m [1;35m|[m [31m|[m[1;35m\[m [1;34m\[m  
+[34m|[m [1;35m|[m [31m|[m[1;35m/[m [1;34m/[m  
+[34m|[m [1;35m|[m[1;35m/[m[31m|[m [1;34m|[m   
+[34m|[m * [31m|[m [1;34m|[m   [33m954903a[m Merge pull request #14 from Gwrzlh/Nazar
+[34m|[m [33m|[m[34m\[m [31m\[m [1;34m\[m  
+[34m|[m [33m|[m * [31m\[m [1;34m\[m   [33m9f8e95d[m Merge branch 'main' into Nazar
+[34m|[m [33m|[m [35m|[m[33m\[m [31m\[m [1;34m\[m  
+[34m|[m [33m|[m [35m|[m[33m/[m [31m/[m [1;34m/[m  
+[34m|[m [33m|[m[33m/[m[35m|[m [31m|[m [1;34m|[m   
+[34m|[m * [35m|[m [31m|[m [1;34m|[m   [33m5cbe712[m Merge pull request #13 from Gwrzlh/ramdan
+[34m|[m [1;34m|[m[1;32m\[m [35m\[m [31m\[m [1;34m\[m  
+[34m|[m [1;34m|[m [1;32m|[m[1;34m_[m[35m|[m[1;34m_[m[31m|[m[1;34m/[m  
+[34m|[m [1;34m|[m[1;34m/[m[1;32m|[m [35m|[m [31m|[m   
+[34m|[m [1;34m|[m * [35m|[m [31m|[m [33ma727323[m Update tampilan sidebar
+[34m|[m [1;34m|[m [1;32m|[m * [31m|[m [33m6a1ea2b[m nambahin doang
+[34m|[m [1;34m|[m [1;32m|[m [1;32m|[m * [33m63ae744[m membuat tambah organisasi
+[34m|[m [1;34m|[m [1;32m|[m[1;34m_[m[1;32m|[m[1;34m/[m  
+[34m|[m [1;34m|[m[1;34m/[m[1;32m|[m [1;32m|[m   
+[34m|[m * [1;32m|[m [1;32m|[m [33m33a506a[m Merge pull request #12 from Gwrzlh/ramdan
+[34m|[m [1;33m|[m[1;32m\[m[1;32m|[m [1;32m|[m 
+[34m|[m [1;33m|[m * [1;32m|[m [33mcae956e[m tambah index
+[34m|[m * [1;34m|[m [1;32m|[m [33mc426747[m Merge pull request #11 from Gwrzlh/ramdan
+[34m|[m[34m/[m[1;34m|[m [1;34m|[m [1;32m|[m 
+[34m|[m [1;34m|[m[1;34m/[m [1;32m/[m  
+[34m|[m * [1;32m|[m   [33m60bba4e[m Selesaikan konflik
+[34m|[m [31m|[m[32m\[m [1;32m\[m  
+[34m|[m [31m|[m * [1;32m|[m [33m8b41bca[m perubahan sementara di sidebar
+[34m|[m [31m|[m[34m/[m [1;32m/[m  
+[34m|[m[34m/[m[31m|[m [1;32m|[m   
+* [31m|[m [1;32m|[m [33m5144d12[m rubah route sesuai jalur
+* [31m|[m [1;32m|[m   [33m0e43e0f[m Merge pull request #10 from Gwrzlh/ramdan
+[33m|[m[34m\[m [31m\[m [1;32m\[m  
+[33m|[m [34m|[m * [1;32m\[m   [33m8809fc7[m Selesaikan konflik setelah pull
+[33m|[m [34m|[m [35m|[m[34m\[m [1;32m\[m  
+[33m|[m [34m|[m [35m|[m[34m/[m [1;32m/[m  
+[33m|[m [34m|[m[34m/[m[35m|[m [1;32m|[m   
+[33m|[m * [35m|[m [1;32m|[m   [33m1539460[m Merge branch 'main' into ramdan
+[33m|[m [1;31m|[m[33m\[m [35m\[m [1;32m\[m  
+[33m|[m [1;31m|[m[33m/[m [35m/[m [1;32m/[m  
+[33m|[m[33m/[m[1;31m|[m [35m|[m [1;32m|[m   
+* [1;31m|[m [35m|[m [1;32m|[m   [33maf4004d[m Merge pull request #9 from Gwrzlh/Daffa
+[1;33m|[m[1;34m\[m [1;31m\[m [35m\[m [1;32m\[m  
+[1;33m|[m * [1;31m\[m [35m\[m [1;32m\[m   [33me945e85[m Merge branch 'main' into Daffa
+[1;33m|[m [1;35m|[m[1;33m\[m [1;31m\[m [35m\[m [1;32m\[m  
+[1;33m|[m [1;35m|[m[1;33m/[m [1;31m/[m [35m/[m [1;32m/[m  
+[1;33m|[m[1;33m/[m[1;35m|[m [1;31m|[m [35m|[m [1;32m|[m   
+* [1;35m|[m [1;31m|[m [35m|[m [1;32m|[m   [33m3fb82ee[m Merge pull request #8 from Gwrzlh/Nazar
+[31m|[m[1;32m\[m [1;35m\[m [1;31m\[m [35m\[m [1;32m\[m  
+[31m|[m [1;32m|[m [1;35m|[m[1;32m_[m[1;31m|[m[1;32m_[m[35m|[m[1;32m/[m  
+[31m|[m [1;32m|[m[1;32m/[m[1;35m|[m [1;31m|[m [35m|[m   
+[31m|[m * [1;35m|[m [1;31m|[m [35m|[m   [33m811bff8[m Selesaikan konflik merge di Routes.php dan gunakan versi final
+[31m|[m [33m|[m[31m\[m [1;35m\[m [1;31m\[m [35m\[m  
+[31m|[m [33m|[m[31m/[m [1;35m/[m [1;31m/[m [35m/[m  
+[31m|[m[31m/[m[33m|[m [1;35m|[m [1;31m|[m [35m|[m   
+[31m|[m * [1;35m|[m [1;31m|[m [35m|[m [33m4dfee33[m Menambahkan halaman tentang & kontak, update routes
+[31m|[m [34m|[m * [1;31m|[m [35m|[m [33m17a3358[m membuat function tambah pengguna admin dan alumni
+[31m|[m [34m|[m [34m|[m [1;31m|[m * [33m9120a74[m nambahin folder
+[31m|[m [34m|[m [34m|[m [1;31m|[m * [33m75e1637[m perubahan sementara di sidebar
+[31m|[m [34m|[m [34m|[m [1;31m|[m[1;31m/[m  
+[31m|[m [34m|[m [34m|[m * [33m354a590[m edit navbar sama update sidebar
+[31m|[m [34m|[m [34m|[m * [33mb536025[m update
+[31m|[m [34m|[m [34m|[m *   [33m2fcfc10[m Merge branch 'main' into ramdan
+[31m|[m [34m|[m [34m|[m [35m|[m[31m\[m  
+[31m|[m [34m|[m[31m_[m[34m|[m[31m_[m[35m|[m[31m/[m  
+[31m|[m[31m/[m[34m|[m [34m|[m [35m|[m   
+* [34m|[m [34m|[m [35m|[m   [33m11b0d10[m Merge pull request #7 from Gwrzlh/Rere
+[1;31m|[m[1;32m\[m [34m\[m [34m\[m [35m\[m  
+[1;31m|[m * [34m|[m [34m|[m [35m|[m [33m480548f[m login yang terbaru
+* [1;32m|[m [34m|[m [34m|[m [35m|[m [33maf6821b[m Merge pull request #6 from Gwrzlh/Rere
+[34m|[m[1;32m\[m[1;32m|[m [34m|[m [34m|[m [35m|[m 
+[34m|[m [1;32m|[m[34m_[m[34m|[m[34m/[m [35m/[m  
+[34m|[m[34m/[m[1;32m|[m [34m|[m [35m|[m   
+[34m|[m * [34m|[m [35m|[m   [33ma2d9d24[m Merge branch 'main' into Rere
+[34m|[m [1;35m|[m[34m\[m [34m\[m [35m\[m  
+[34m|[m [1;35m|[m[34m/[m [34m/[m [35m/[m  
+[34m|[m[34m/[m[1;35m|[m [34m|[m [35m|[m   
+* [1;35m|[m [34m|[m [35m|[m   [33mf2a658d[m Merge pull request #5 from Gwrzlh/Daffa
+[31m|[m[32m\[m [1;35m\[m [34m\[m [35m\[m  
+[31m|[m * [1;35m|[m [34m|[m [35m|[m [33mb19af06[m Menambahkan controller dan model baru
+[31m|[m[31m/[m [1;35m/[m [34m/[m [35m/[m  
+* [1;35m|[m [34m|[m [35m|[m   [33m072d76a[m Merge pull request #4 from Gwrzlh/ramdan
+[33m|[m[34m\[m [1;35m\[m [34m\[m [35m\[m  
+[33m|[m [34m|[m * [34m|[m [35m|[m [33m3bc48e9[m menambah halaman login kedua
+[33m|[m [34m|[m * [34m|[m [35m|[m [33m57ac1d7[m menambah halaman login
+[33m|[m [34m|[m [34m|[m [34m|[m * [33ma76687d[m update hompage
+[33m|[m [34m|[m [34m|[m[34m_[m[34m|[m[34m/[m  
+[33m|[m [34m|[m[34m/[m[34m|[m [34m|[m   
+[33m|[m * [34m|[m [34m|[m [33m23d498b[m Menambahkan Homepage.php dan layout
+[33m|[m[33m/[m [34m/[m [34m/[m  
+* [34m|[m [34m|[m   [33mc81f4bc[m Merge pull request #3 from Gwrzlh/ramdan
+[35m|[m[36m\[m [34m\[m [34m\[m  
+[35m|[m * [34m|[m [34m|[m [33mc592ec3[m Menambahkan file form.php untuk latihan branch ramdan
+[35m|[m [34m|[m[34m/[m [34m/[m  
+* [34m|[m [34m|[m   [33ma8de519[m Merge pull request #1 from Gwrzlh/Nazar
+[1;31m|[m[34m\[m [34m\[m [34m\[m  
+[1;31m|[m [34m|[m [34m|[m[34m/[m  
+[1;31m|[m [34m|[m[34m/[m[34m|[m   
+[1;31m|[m * [34m|[m [33m585ca50[m SECOUND-COMMIT
+[1;31m|[m * [34m|[m [33mfe289fd[m tambah index
+[1;31m|[m [34m|[m[34m/[m  
+* [34m|[m   [33ma3ce96a[m Merge pull request #2 from Gwrzlh/Daffa
+[34m|[m[1;34m\[m [34m\[m  
+[34m|[m [1;34m|[m[34m/[m  
+[34m|[m[34m/[m[1;34m|[m   
+[34m|[m * [33m9ffc1a9[m Tambah tampilan dashboard
+[34m|[m[34m/[m  
+* [33m7a13509[m first commit
