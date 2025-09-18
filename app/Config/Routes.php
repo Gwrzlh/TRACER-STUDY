@@ -379,7 +379,8 @@ $routes->group('alumni', ['filter' => 'alumniAuth'], static function ($routes) {
     $routes->get('questionnaires', 'UserQuestionController::index');
     $routes->get('questionnaires/mulai/(:num)', 'UserQuestionController::mulai/$1');
     $routes->get('questionnaires/lanjutkan/(:num)', 'UserQuestionController::lanjutkan/$1');
-    $routes->get('questionnaires/lihat/(:num)', 'UserQuestionController::lihat/$1');
+    $routes->get('questioner/lihat/(:num)', 'UserQuestionController::lihat/$1');
+
     $routes->post('questionnaires/save-answer', 'UserQuestionController::saveAnswer');
 });
 
@@ -462,16 +463,30 @@ $routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
     $routes->get('dashboard', 'KaprodiController::dashboard');
     $routes->get('supervisi', 'KaprodiController::supervisi');
 
-    // Menu baru
-    $routes->get('questioner', 'KaprodiController::questioner');
-    $routes->get('akreditasi', 'KaprodiController::akreditasi');
-    $routes->get('ami', 'KaprodiController::ami');
-    $routes->get('profil', 'KaprodiController::profil');
+    // MENU QUESTIONER
+    $routes->get('questioner', 'KaprodiController::questioner');          // daftar kuesioner
+    $routes->get('questioner/create', 'KaprodiController::create');      // form tambah kuesioner
+    $routes->post('questioner/store', 'KaprodiController::store');       // proses simpan
+    $routes->get('pertanyaan/(:num)', 'KaprodiController::pertanyaan/$1');
+    $routes->get('questioner/(:num)/download', 'KaprodiController::downloadPertanyaan/$1'); // download PDF
+    $routes->post('questioner/save_flags', 'KaprodiController::saveFlags');
 
-    // Profil Kaprodi
+
+    // MENU AKREDITASI
+    $routes->get('akreditasi', 'KaprodiController::akreditasi');
+    $routes->get('akreditasi/detail/(:any)', 'KaprodiController::detailAkreditasi/$1');
+
+    // MENU AMI
+    $routes->get('ami', 'KaprodiController::ami');
+    $routes->get('ami/detail/(:any)', 'KaprodiController::detailAmi/$1');
+
+
+    // PROFIL KAPRODI
+    $routes->get('profil', 'KaprodiController::profil');
     $routes->get('profil/edit', 'KaprodiController::editProfil');
     $routes->post('profil/update', 'KaprodiController::updateProfil');
 });
+
 
 $routes->group('api', function ($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');

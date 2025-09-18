@@ -95,40 +95,62 @@ class AlumniController extends BaseController
         $alumniModel = new \App\Models\DetailaccountAlumni();
         $idAccount   = $session->get('id_account');
 
-        // ambil data alumni
+        // Ambil data alumni berdasarkan id_account
         $alumni = $alumniModel
-            ->select('detailaccount_alumni.*, prodi.nama_prodi, jurusan.nama_jurusan')
+            ->select('detailaccount_alumni.id,
+                  detailaccount_alumni.nama_lengkap,
+                  detailaccount_alumni.nim,
+                  detailaccount_alumni.foto,
+                  detailaccount_alumni.alamat,
+                  prodi.nama_prodi,
+                  jurusan.nama_jurusan')
             ->join('prodi', 'prodi.id = detailaccount_alumni.id_prodi', 'left')
             ->join('jurusan', 'jurusan.id = detailaccount_alumni.id_jurusan', 'left')
             ->where('detailaccount_alumni.id_account', $idAccount)
             ->first();
 
-        // ambil pekerjaan saat ini
+        if (!$alumni) {
+            // kasih default object supaya view tidak error
+            $alumni = (object) [
+                'id'           => null,
+                'nama_lengkap' => '',
+                'nim'          => '',
+                'foto'         => null,
+                'alamat'       => '',
+                'nama_prodi'   => '',
+                'nama_jurusan' => '',
+            ];
+        } else {
+            $alumni = (object) $alumni;
+        }
+
+        // Ambil pekerjaan saat ini
         $currentJob = $this->riwayatModel
-            ->where('id_alumni', $idAccount)
+            ->where('id_alumni', $alumni->id)
             ->where('is_current', 1)
             ->first();
 
-        // ambil riwayat pekerjaan
+        // Ambil riwayat pekerjaan lama
         $riwayat = $this->riwayatModel
-            ->where('id_alumni', $idAccount)
+            ->where('id_alumni', $alumni->id)
             ->where('is_current', 0)
             ->orderBy('tahun_masuk', 'DESC')
             ->findAll();
 
-        // tentukan layout
+        // Tentukan layout
         $layout = ($role === 'surveyor')
             ? 'layout/sidebar_alumni2'
             : 'layout/sidebar_alumni';
 
         return view('alumni/profil/index', [
-            'alumni'     => $alumni ? (object) $alumni : null,
+            'alumni'     => $alumni,
             'layout'     => $layout,
             'role'       => $role,
-            'currentJob' => $currentJob ? (object) $currentJob : null,   // 🔑 convert ke object
-            'riwayat'    => array_map(fn($r) => (object) $r, $riwayat)   // 🔑 convert semua ke object
+            'currentJob' => $currentJob ? (object) $currentJob : null,
+            'riwayat'    => array_map(fn($r) => (object) $r, $riwayat),
         ]);
     }
+
 
 
 
