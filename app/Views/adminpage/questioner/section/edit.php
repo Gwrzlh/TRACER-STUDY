@@ -115,27 +115,43 @@
 
                 <div id="conditional-container" class="space-y-3">
                     <?php if (!empty($conditionalLogic)): ?>
-                        <?php foreach ($conditionalLogic as $condition): ?>
+                        <?php foreach ($conditionalLogic as $index => $condition): ?>
                             <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border">
-                                <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                <!-- Select untuk Field (Pertanyaan Induk) -->
+                                <select name="condition_field[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                     <option value="">Pilih Pertanyaan</option>
                                     <?php foreach ($questions as $q): ?>
-                                        <option value="<?= $q['id'] ?>" <?= $q['id'] == $condition['field'] ? 'selected' : '' ?>><?= esc($q['question_text']) ?></option>
+                                        <option value="<?= esc($q['id']) ?>" 
+                                                <?= isset($condition['field']) && (string)$q['id'] === (string)$condition['field'] ? 'selected' : '' ?>>
+                                            <?= esc($q['question_text']) ?>
+                                        </option>
                                     <?php endforeach; ?>
+                                    <!-- Debug kalau field tidak ditemukan -->
+                                    <?php if (isset($condition['field']) && !in_array($condition['field'], array_column($questions, 'id'))): ?>
+                                        <option value="" disabled>⚠️ ID <?= esc($condition['field']) ?> tidak ditemukan</option>
+                                    <?php endif; ?>
                                 </select>
+
+                                <!-- Select untuk Operator -->
                                 <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
                                     <?php foreach ($operators as $key => $label): ?>
-                                        <option value="<?= $key ?>" <?= $key == $condition['operator'] ? 'selected' : '' ?>><?= $label ?></option>
+                                        <option value="<?= esc($key) ?>" <?= isset($condition['operator']) && $key == $condition['operator'] ? 'selected' : '' ?>>
+                                            <?= esc($label) ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
+
+                                <!-- Input untuk Value -->
                                 <span class="value-input-container flex-1">
                                     <input type="text" 
-                                           name="condition_value[]" 
-                                           placeholder="Value" 
-                                           class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                           value="<?= esc($condition['value']) ?>" 
-                                           required>
+                                        name="condition_value[]" 
+                                        placeholder="Value" 
+                                        class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                                        value="<?= isset($condition['value']) ? esc($condition['value']) : '' ?>" 
+                                        required>
                                 </span>
+
+                                <!-- Tombol Remove -->
                                 <button type="button" 
                                         class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
                                     Hapus
@@ -143,23 +159,24 @@
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
+                        <!-- Default Row (Kosong) -->
                         <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border" style="display:none;">
-                            <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <select name="condition_field[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                 <option value="">Pilih Pertanyaan</option>
                                 <?php foreach ($questions as $q): ?>
-                                    <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
+                                    <option value="<?= esc($q['id']) ?>"><?= esc($q['question_text']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
                                 <?php foreach ($operators as $key => $label): ?>
-                                    <option value="<?= $key ?>"><?= $label ?></option>
+                                    <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <span class="value-input-container flex-1">
                                 <input type="text" 
-                                       name="condition_value[]" 
-                                       placeholder="Value" 
-                                       class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                    name="condition_value[]" 
+                                    placeholder="Value" 
+                                    class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                             </span>
                             <button type="button" 
                                     class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium" 
@@ -168,6 +185,8 @@
                             </button>
                         </div>
                     <?php endif; ?>
+                    <!-- Tombol Tambah Kondisi -->
+                    <button type="button" id="add-condition" class="btn btn-sm btn-outline-primary mt-2">Tambah Kondisi</button>
                 </div>
                 
                 <button type="button" 

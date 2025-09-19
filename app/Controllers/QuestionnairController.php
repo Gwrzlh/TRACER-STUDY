@@ -1001,5 +1001,138 @@ public function updateQuestion($questionnaire_id, $page_id, $section_id, $questi
     ]);
 }
 
+public function duplicate($questionnaire_id, $page_id, $section_id, $question_id)
+    {
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        try {
+            $questionModel = new QuestionModel();
+            $optionModel = new QuestionOptionModel();
+            $matrixRowModel = new MatrixRowModel();
+            $matrixColumnModel = new MatrixColumnModels();
+
+            // Ambil pertanyaan asli
+            $question = $questionModel
+                ->where('id', $question_id)
+                ->where('questionnaires_id', $questionnaire_id)
+                ->where('page_id', $page_id)
+                ->where('section_id', $section_id)
+                ->first();
+
+            if (!$question) {
+                log_message('error', "Question not found for ID: $question_id");
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
+            }
+
+            // Hitung order_no baru (max + 1)
+            $maxOrder = $questionModel->where([
+                'questionnaires_id' => $questionnaire_id,
+                'page_id' => $page_id,
+                'section_id' => $section_id
+            ])->selectMax('order_no')->first()['order_no'] ?? 0;
+
+            // Siapkan data untuk question baru
+            $newQuestionData = [
+                'questionnaires_id' => $question['questionnaires_id'],
+                'page_id' => $question['page_id'],
+                'section_id' => $question['section_id'],
+                'question_text' => $question['question_text'] . ' (Copy)',
+                'question_type' => $question['question_type'],
+                'is_required' => $question['is_required'],
+                'order_no' => $maxOrder + 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+                'condition_json' => $question['condition_json'], // Copy conditional logic
+            ];
+
+            // Tambah field khusus berdasarkan tipe
+            if ($question['question_type'] === 'scale') {
+                $newQuestionData['scale_min'] = $question['scale_min'];
+                $newQuestionData['scale_max'] = $question['scale_max'];
+                $newQuestionData['scale_step'] = $question['scale_step'];
+                $newQuestionData['scale_min_label'] = $question['scale_min_label'];
+                $newQuestionData['scale_max_label'] = $question['scale_max_label'];
+            } elseif ($question['question_type'] === 'file') {
+                $newQuestionData['allowed_types'] = $question['allowed_types'];
+                $newQuestionData['max_file_size'] = $question['max_file_size'];
+            }
+
+            // Insert question baru
+            $newQuestionId = $questionModel->insert($newQuestionData);
+            log_message('debug', 'New question inserted: ID=' . $newQuestionId);
+
+            // Copy options (radio, checkbox, dropdown)
+            if (in_array($question['question_type'], ['radio', 'checkbox', 'dropdown'])) {
+                $options = $optionModel->where('question_id', $question_id)
+                    ->orderBy('order_number', 'ASC')
+                    ->findAll();
+
+                if (!empty($options)) {
+                    $optionsToInsert = [];
+                    foreach ($options as $opt) {
+                        $optionsToInsert[] = [
+                            'question_id' => $newQuestionId,
+                            'option_text' => $opt['option_text'],
+                            'option_value' => $opt['option_value'],
+                            'next_question_id' => $opt['next_question_id'],
+                            'order_number' => $opt['order_number']
+                        ];
+                    }
+                    $optionModel->insertBatch($optionsToInsert);
+                    log_message('debug', 'Options copied: ' . json_encode($optionsToInsert));
+                }
+            }
+
+            // Copy matrix rows dan columns
+            if ($question['question_type'] === 'matrix') {
+                $rows = $matrixRowModel->where('question_id', $question_id)
+                    ->orderBy('order_no', 'ASC')
+                    ->findAll();
+                $columns = $matrixColumnModel->where('question_id', $question_id)
+                    ->orderBy('order_no', 'ASC')
+                    ->findAll();
+
+                // Insert rows
+                foreach ($rows as $row) {
+                    $matrixRowModel->insert([
+                        'question_id' => $newQuestionId,
+                        'row_text' => $row['row_text'],
+                        'order_no' => $row['order_no']
+                    ]);
+                }
+
+                // Insert columns
+                foreach ($columns as $col) {
+                    $matrixColumnModel->insert([
+                        'question_id' => $newQuestionId,
+                        'column_text' => $col['column_text'],
+                        'order_no' => $col['order_no']
+                    ]);
+                }
+                log_message('debug', 'Matrix rows and columns copied for question ID: ' . $newQuestionId);
+            }
+
+            if ($db->transStatus() === false) {
+                log_message('error', 'Transaction failed during duplicate');
+                $db->transRollback();
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to duplicate question']);
+            }
+
+            $db->transComplete();
+            log_message('debug', 'Question duplicated successfully: ID=' . $newQuestionId);
+
+            // Return ID baru untuk trigger edit modal
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Question duplicated successfully',
+                'new_question_id' => $newQuestionId
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Exception in duplicateSectionQuestion: ' . $e->getMessage());
+            $db->transRollback();
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to duplicate question: ' . $e->getMessage()]);
+        }
+    }   
 
 }
