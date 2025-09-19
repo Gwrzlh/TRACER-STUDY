@@ -1,45 +1,79 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
+<link rel="stylesheet" href="<?= base_url('css/emailtemplate.css') ?>">
 
-<div class="p-6 bg-white rounded-lg shadow">
-    <h2 class="text-2xl font-semibold mb-4">Email Templates</h2>
+<div class="email-template-container">
+    <div class="email-template-header">
+        <h2 class="email-template-title">Email Templates</h2>
+    </div>
 
     <?php if (session()->getFlashdata('success')): ?>
-        <div class="mb-4 p-3 bg-green-200 text-green-800 rounded">
+        <div class="success-message">
             <?= session()->getFlashdata('success') ?>
         </div>
     <?php endif; ?>
 
-    <table class="min-w-full border border-gray-300">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="border px-4 py-2">Status</th>
-                <th class="border px-4 py-2">Judul</th>
-                <th class="border px-4 py-2">Message</th>
-                <th class="border px-4 py-2">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($templates as $template): ?>
-                <tr>
-                    <form action="<?= base_url('admin/emailtemplate/update/' . $template['id']) ?>" method="post">
-                        <td class="border px-4 py-2">
-                            <input type="text" name="status" value="<?= esc($template['status']) ?>" class="w-full border rounded px-2 py-1">
-                        </td>
-                        <td class="border px-4 py-2">
-                            <input type="text" name="subject" value="<?= esc($template['subject']) ?>" class="w-full border rounded px-2 py-1">
-                        </td>
-                        <td class="border px-4 py-2">
-                            <textarea name="message" class="w-full border rounded px-2 py-1" rows="3"><?= esc($template['message']) ?></textarea>
-                        </td>
-                        <td class="border px-4 py-2 text-center">
-                            <button type="submit" class="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Update</button>
-                        </td>
-                    </form>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    <div class="email-template-card">
+        <div class="table-container">
+            <table class="email-template-table">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Judul</th>
+                        <th>Message</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($templates as $template): ?>
+                        <tr>
+                            <form action="<?= base_url('admin/emailtemplate/update/' . $template['id']) ?>" method="post" class="template-form">
+                                <td class="status-cell">
+                                    <input type="text" name="status" value="<?= esc($template['status']) ?>" class="form-input status-input" readonly>
+                                </td>
+                                <td class="subject-cell">
+                                    <input type="text" name="subject" value="<?= esc($template['subject']) ?>" class="form-input subject-input">
+                                </td>
+                                <td class="message-cell">
+                                    <div class="message-wrapper">
+                                        <textarea name="message" class="form-textarea message-input" rows="3"><?= esc($template['message']) ?></textarea>
+                                        <div class="expand-controls">
+                                            <button type="button" class="expand-btn" onclick="toggleExpand(this)">
+                                                <svg class="expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="action-cell">
+                                    <button type="submit" class="update-btn">Update</button>
+                                </td>
+                            </form>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<script>
+function toggleExpand(button) {
+    const messageWrapper = button.closest('.message-wrapper');
+    const textarea = messageWrapper.querySelector('.message-input');
+    const icon = button.querySelector('.expand-icon');
+    
+    if (textarea.classList.contains('expanded')) {
+        textarea.classList.remove('expanded');
+        textarea.rows = 3;
+        icon.style.transform = 'rotate(0deg)';
+    } else {
+        textarea.classList.add('expanded');
+        textarea.rows = 6;
+        icon.style.transform = 'rotate(180deg)';
+    }
+}
+</script>
 
 <?= $this->endSection() ?>
