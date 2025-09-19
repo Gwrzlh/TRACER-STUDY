@@ -1,7 +1,7 @@
 <!-- desain daftar kuesioner -->
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
-<link href="<?= base_url('css/pengguna/index.css') ?>" rel="stylesheet">
+<link href="<?= base_url('css/questioner/index.css') ?>" rel="stylesheet">
 
 <div>
     <!-- Main Content - Match User Page Style -->
@@ -30,7 +30,7 @@
                         <table class="user-table">
                             <thead>
                                 <tr>
-                                    <th>Judul</th>
+                                    <th>Title</th>
                                     <th>Deskripsi</th>
                                     <th>Conditional</th>
                                     <th>Status</th>
