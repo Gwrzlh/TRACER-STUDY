@@ -123,6 +123,15 @@ body {
 }
 
 /* ===== Table ===== */
+.table-container {
+    /* Tambahkan gaya card ke table-container */
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
 .table-wrapper {
     overflow-x: auto;
 }
@@ -409,7 +418,7 @@ body {
         justify-content: flex-start;
     }
     
-    .content-card {
+    .table-container {
         margin: 0 -8px;
     }
     
