@@ -22,26 +22,84 @@ class KaprodiController extends Controller
             return redirect()->to('/login')->with('error', 'Akses ditolak.');
         }
 
-        return view('kaprodi/dashboard');
-    }
+        $idAccount = session()->get('id_account');
 
-    // ================== SUPERVISI ==================
-    public function supervisi()
-    {
-        if (session('role_id') != 6 || !session('id_surveyor')) {
-            return redirect()->to('/login')->with('error', 'Akses ditolak.');
+        // Ambil prodi Kaprodi
+        $builder = $this->db->table('detailaccount_kaprodi dk');
+        $builder->select('dk.*, p.nama_prodi, p.id as id_prodi');
+        $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
+        $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
+
+        if (!$kaprodi) {
+            return redirect()->to('/login')->with('error', 'Data Kaprodi tidak ditemukan.');
         }
 
-        return view('kaprodi/supervisi');
+        $idProdi = $kaprodi['id_prodi'];
+
+        // Jumlah kuesioner aktif untuk prodi Kaprodi
+        $kuesionerCount = $this->db->table('questionnaires')
+            ->where('is_active', 'active')
+            ->where('id_prodi', $idProdi)
+            ->countAllResults();
+
+        // Jumlah alumni prodi Kaprodi
+        $alumniCount = $this->db->table('detailaccount_alumni')
+            ->where('id_prodi', $idProdi)
+            ->countAllResults();
+
+        // Jumlah alumni yang sudah mengisi akreditasi
+        $akreditasiAlumni = $this->db->table('answers a')
+            ->select('COUNT(DISTINCT a.user_id) as total')
+            ->join('questions q', 'a.question_id = q.id', 'left')
+            ->join('detailaccount_alumni al', 'a.user_id = al.id_account', 'left')
+            ->where('q.is_for_accreditation', 1)
+            ->where('al.id_prodi', $idProdi)
+            ->get()
+            ->getRow()
+            ->total;
+
+        // Jumlah alumni yang sudah mengisi AMI
+        $amiAlumni = $this->db->table('answers a')
+            ->select('COUNT(DISTINCT a.user_id) as total')
+            ->join('questions q', 'a.question_id = q.id', 'left')
+            ->join('detailaccount_alumni al', 'a.user_id = al.id_account', 'left')
+            ->where('q.is_for_ami', 1)
+            ->where('al.id_prodi', $idProdi)
+            ->get()
+            ->getRow()
+            ->total;
+
+
+        return view('kaprodi/dashboard', [
+            'kaprodi'          => $kaprodi,
+            'kuesionerCount'   => $kuesionerCount,
+            'alumniCount'      => $alumniCount,
+            'akreditasiAlumni' => $akreditasiAlumni,
+            'amiAlumni'        => $amiAlumni
+        ]);
     }
+
+
+    // // ================== SUPERVISI ==================
+    // public function supervisi()
+    // {
+    //     if (session('role_id') != 6 || !session('id_surveyor')) {
+    //         return redirect()->to('/login')->with('error', 'Akses ditolak.');
+    //     }
+
+    //     return view('kaprodi/supervisi');
+    // }
 
     // ================== PROFIL ==================
     public function profil()
     {
         $idAccount = session()->get('id_account');
 
-        $builder = $this->db->table('detailaccount_kaprodi');
-        $kaprodi = $builder->where('id_account', $idAccount)->get()->getRowArray();
+        $builder = $this->db->table('detailaccount_kaprodi dk');
+        $builder->select('dk.*, p.nama_prodi, j.nama_jurusan');
+        $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
+        $builder->join('jurusan j', 'dk.id_jurusan = j.id', 'left');
+        $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
 
         return view('kaprodi/profil/index', ['kaprodi' => $kaprodi]);
     }
@@ -50,16 +108,34 @@ class KaprodiController extends Controller
     {
         $idAccount = session()->get('id_account');
 
-        $builder = $this->db->table('detailaccount_kaprodi');
-        $kaprodi = $builder->where('id_account', $idAccount)->get()->getRowArray();
+        // Ambil data Kaprodi
+        $builder = $this->db->table('detailaccount_kaprodi dk');
+        $builder->select('dk.*, p.nama_prodi, j.nama_jurusan');
+        $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
+        $builder->join('jurusan j', 'dk.id_jurusan = j.id', 'left');
+        $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
 
-        return view('kaprodi/profil/edit', ['kaprodi' => $kaprodi]);
+        // Ambil list jurusan untuk dropdown
+        $jurusanList = $this->db->table('jurusan')->get()->getResultArray();
+        $prodiList = $this->db->table('prodi')->get()->getResultArray();
+
+
+        return view('kaprodi/profil/edit', [
+            'kaprodi' => $kaprodi,
+            'jurusanList' => $jurusanList,
+            'prodiList' => $prodiList
+        ]);
     }
+
 
     public function updateProfil()
     {
         $idAccount = session()->get('id_account');
         $data = [];
+
+        // // Update nama lengkap dan notlp
+        // $data['nama_lengkap'] = $this->request->getPost('nama_lengkap');
+        // $data['notlp']        = $this->request->getPost('notlp');
 
         // Upload file manual
         $file = $this->request->getFile('foto');
@@ -88,8 +164,9 @@ class KaprodiController extends Controller
             $builder->where('id_account', $idAccount)->update($data);
         }
 
-        return redirect()->to('/kaprodi/profil')->with('success', 'Foto profil berhasil diperbarui.');
+        return redirect()->to('/kaprodi/profil')->with('success', 'Profil berhasil diperbarui.');
     }
+
 
     // ================== KUESIONER ==================
     public function questioner()
