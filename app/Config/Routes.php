@@ -538,3 +538,20 @@ $routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
 $routes->group('api', function ($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
+// Profil Admin
+$routes->group('admin/profil', ['filter' => 'auth'], function($routes) {
+    // halaman utama profil
+    $routes->get('/', 'AdminController::profil');
+
+    // edit & update data profil (nama_lengkap, no_hp)
+    $routes->get('edit/(:num)', 'AdminController::editProfil/$1');
+    $routes->post('update/(:num)', 'AdminController::updateProfil/$1');
+
+    // update foto profil
+    $routes->post('update-foto/(:num)', 'AdminController::updateFoto/$1');
+
+    // ubah password (kalau ada)
+    $routes->get('ubah-password', 'AdminController::ubahPassword');
+    $routes->post('ubah-password', 'AdminController::updatePassword');
+});
+
