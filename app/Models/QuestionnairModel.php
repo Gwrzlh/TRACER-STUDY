@@ -126,9 +126,12 @@ class QuestionnairModel extends Model
         // Filter kuesioner aktif
         $builder->where('is_active', 'active');
 
-        // Jika ada prodi (misal untuk kaprodi/alumni), filter sesuai prodi
+        // Filter prodi: ambil yang sesuai prodi atau prodi NULL (untuk semua)
         if (!empty($user_data['id_prodi'])) {
-            $builder->where('id_prodi', $user_data['id_prodi']);
+            $builder->groupStart()
+                ->where('id_prodi', $user_data['id_prodi'])
+                ->orWhere('id_prodi', null)
+                ->groupEnd();
         }
 
         $all_q = $builder->get()->getResultArray();
@@ -142,9 +145,9 @@ class QuestionnairModel extends Model
             }
 
             // Untuk role lain (misal alumni)
-            // Jika conditional_logic kosong → tetap akses
-            // Jika ada conditional_logic → cek apakah lolos kondisi
-            if (empty($q['conditional_logic']) || $this->checkConditions($q['conditional_logic'], $user_data)) {
+            // Jika conditional_logic kosong atau null → tetap akses
+            $conditional = $q['conditional_logic'] ?? '';
+            if (empty($conditional) || $conditional === '[]' || $this->checkConditions($conditional, $user_data)) {
                 $accessible[] = $q;
             }
         }
@@ -154,6 +157,7 @@ class QuestionnairModel extends Model
 
         return $accessible;
     }
+
 
 
 
