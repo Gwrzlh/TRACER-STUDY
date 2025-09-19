@@ -195,6 +195,20 @@
             </table>
         </div>
     </div>
+
+    <!-- Pagination Manual -->
+    <?php if ($totalPages > 1): ?>
+        <div class="d-flex justify-content-end">
+            <ul class="pagination">
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
+                        <a class="page-link" href="<?= base_url('admin/respon?page=' . $i . '&' . http_build_query($_GET)) ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+
 </div>
 
 <?= $this->endSection() ?>

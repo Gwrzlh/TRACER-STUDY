@@ -24,10 +24,10 @@ class AdminRespon extends BaseController
         $this->prodiModel    = new Prodi();
     }
 
-    // ================== INDEX ==================
     public function index()
     {
         $filters = $this->getFiltersFromRequest();
+        $perPage = 10;
 
         // Ambil semua Prodi beserta Jurusan
         $allProdi = $this->prodiModel
@@ -35,35 +35,64 @@ class AdminRespon extends BaseController
             ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left')
             ->findAll();
 
+        // Ambil current page dari query string
+        $currentPage = $this->request->getVar('page') ? (int)$this->request->getVar('page') : 1;
+
+        // Ambil semua data alumni sesuai filter
+        $allResponses = $this->alumniModel->getWithResponsesBuilder($filters)->get()->getResultArray();
+
+        // Hitung total data & pagination manual
+        $totalData = count($allResponses);
+        $totalPages = ceil($totalData / $perPage);
+        $start = ($currentPage - 1) * $perPage;
+
+        // Slice data untuk halaman saat ini
+        $responses = array_slice($allResponses, $start, $perPage);
+
+        // Hitung summary counter
+        $totalCompleted = count(array_filter($allResponses, fn($r) => $r['status'] === 'completed'));
+        $totalOngoing   = count(array_filter($allResponses, fn($r) => $r['status'] === 'ongoing'));
+        $totalDraft     = count(array_filter($allResponses, fn($r) => $r['status'] === 'draft'));
+        $totalBelum     = count(array_filter($allResponses, fn($r) => empty($r['status'])));
+
         $data = [
-            'filters'             => $filters,
-            'selectedYear'        => $filters['tahun'] ?? '',
-            'selectedStatus'      => $filters['status'] ?? '',
+            'filters'               => $filters,
+            'selectedYear'          => $filters['tahun'] ?? '',
+            'selectedStatus'        => $filters['status'] ?? '',
             'selectedQuestionnaire' => $filters['questionnaire'] ?? '',
-            'selectedNim'         => $filters['nim'] ?? '',
-            'selectedNama'        => $filters['nama'] ?? '',
-            'selectedJurusan'     => $filters['jurusan'] ?? '',
-            'selectedProdi'       => $filters['prodi'] ?? '',
-            'selectedAngkatan'    => $filters['angkatan'] ?? '',
+            'selectedNim'           => $filters['nim'] ?? '',
+            'selectedNama'          => $filters['nama'] ?? '',
+            'selectedJurusan'       => $filters['jurusan'] ?? '',
+            'selectedProdi'         => $filters['prodi'] ?? '',
+            'selectedAngkatan'      => $filters['angkatan'] ?? '',
 
             // Dropdown
-            'allYears'            => $this->alumniModel->getDistinctTahunKelulusan(),
-            'allQuestionnaires'   => $this->responseModel->getAllQuestionnaires(),
-            'allJurusan'          => $this->jurusanModel->findAll(),
-            'allProdi'            => $allProdi,
-            'allAngkatan'         => $this->alumniModel->getDistinctAngkatan(),
+            'allYears'              => $this->alumniModel->getDistinctTahunKelulusan(),
+            'allQuestionnaires'     => $this->responseModel->getAllQuestionnaires(),
+            'allJurusan'            => $this->jurusanModel->findAll(),
+            'allProdi'              => $allProdi,
+            'allAngkatan'           => $this->alumniModel->getDistinctAngkatan(),
 
-            // Data alumni sesuai filter
-            'responses'           => $this->alumniModel->getWithResponses($filters),
+            // Data alumni
+            'responses'             => $responses,
+            'perPage'               => $perPage,
+            'currentPage'           => $currentPage,
+            'totalData'             => $totalData,
+            'totalPages'            => $totalPages,
 
             // Summary counter
-            'totalCompleted'      => $this->responseModel->getTotalCompleted(),
-            'totalDraft'          => $this->responseModel->getTotalDraft(),
-            'totalBelum'          => $this->responseModel->getTotalBelum(),
+            'totalCompleted'        => $totalCompleted,
+            'totalOngoing'          => $totalOngoing,
+            'totalDraft'            => $totalDraft,
+            'totalBelum'            => $totalBelum,
         ];
 
         return view('adminpage/respon/index', $data);
     }
+
+
+
+
 
     // ================== EXPORT EXCEL ==================
     public function exportExcel()
