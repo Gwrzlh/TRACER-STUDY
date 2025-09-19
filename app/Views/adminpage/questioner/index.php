@@ -4,6 +4,23 @@
 <link href="<?= base_url('css/questioner/index.css') ?>" rel="stylesheet">
 
 <div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-light bg-white border-bottom shadow-sm mb-3">
+        <div class="container-fluid px-3">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire') ?>">Daftar Kuesioner</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages') ?>">Halaman Kuesioner</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages/15/sections') ?>">Kuesioner Section</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
     <!-- Main Content - Match User Page Style -->
     <div class="pengguna-page">
         <div class="page-wrapper">

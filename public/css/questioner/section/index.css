@@ -1,5 +1,140 @@
-/* desain index css di sections */
 /* ====== MODERN SECTIONS STYLE (Consistent with page list) ====== */
+
+/* Global */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8fafc;
+    color: #111827;
+    line-height: 1.5;
+}
+
+/* ===== NAVBAR STYLING (KONSISTEN DENGAN HALAMAN PAGE) ===== */
+.navbar {
+    background-color: #ffffff;
+    padding: 16px 30px;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    left: 250px;
+    right: 0;
+}
+
+.navbar .nav {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.navbar .nav-item .nav-link {
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.navbar .nav-item .nav-link:hover,
+.navbar .nav-item .nav-link.active {
+    background-color: #3b82f6;
+    color: white;
+    text-decoration: none;
+}
+
+/* Custom animations untuk navbar */
+.navbar-shadow {
+    box-shadow: 0 2px 20px rgba(59, 130, 246, 0.1);
+    transition: all 0.3s ease;
+}
+
+.nav-title {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+}
+
+.nav-title::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    transition: width 0.3s ease;
+}
+
+.nav-title:hover::after {
+    width: 100%;
+}
+
+/* Subtle background pattern */
+.nav-bg {
+    background: 
+        radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
+}
+
+/* Responsif Navbar */
+@media (max-width: 768px) {
+    .navbar {
+        left: 0;
+        width: 100%;
+        padding: 12px 20px;
+    }
+
+    .navbar .nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .navbar .nav-item .nav-link {
+        padding: 8px 16px;
+        width: 100%;
+        text-align: left;
+    }
+}
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    transition: margin-left 0.3s;
+}
+
+/* Responsif Sidebar */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    .main-content {
+        margin-left: 0;
+    }
+    .navbar {
+        margin-left: 0;
+    }
+}
 
 /* Page Wrapper - untuk konsistensi dengan halaman lain */
 .pengguna-page {
@@ -112,6 +247,7 @@
     text-decoration: none;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    color: white;
 }
 
 /* Table Container - terintegrasi dengan header */
@@ -269,6 +405,7 @@
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(3, 105, 161, 0.3);
+    text-decoration: none;
 }
 
 .btn-delete {
@@ -349,6 +486,18 @@
 
 .text-muted i {
     opacity: 0.7;
+}
+
+/* Container styling untuk konsistensi */
+.container {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 /* Responsive Design */
