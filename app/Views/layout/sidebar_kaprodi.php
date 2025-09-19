@@ -59,7 +59,7 @@ $currentRoute = service('request')->uri->getPath();
 
               <li>
                 <a
-                  href="<?= base_url('kaprodi/questioner/create') ?>"
+                  href="<?= base_url('kaprodi/kuesioner/') ?>"
                   class="block sidebar-sublink <?= str_contains($currentRoute, 'create') ? 'active' : '' ?>">
                   Tambah Kuesioner
                 </a>

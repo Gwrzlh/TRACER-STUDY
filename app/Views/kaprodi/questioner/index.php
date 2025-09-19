@@ -33,7 +33,8 @@
                                 <tr>
                                     <td><?= $no++ ?></td>
                                     <td><strong><?= esc($k['title']) ?></strong></td>
-                                    <td><?= esc($kaprodi['nama_prodi'] ?? '-') ?></td>
+                                    <td><?= esc($k['nama_prodi'] ?? $kaprodi['nama_prodi'] ?? '-') ?></td>
+
                                     <td>
                                         <?php if ($k['is_active'] === 'active'): ?>
                                             <span class="badge bg-success px-3 py-2">Aktif</span>
@@ -42,7 +43,7 @@
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
-                                        <a href="<?= base_url('kaprodi/pertanyaan/' . $k['id']) ?>" class="btn btn-info btn-sm">
+                                        <a href="<?= base_url('kaprodi/questioner/pertanyaan/' . $k['id']) ?>" class="btn btn-info btn-sm">
                                             <i class="bi bi-eye"></i> Lihat Pertanyaan
                                         </a>
                                     </td>

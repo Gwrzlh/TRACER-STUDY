@@ -122,81 +122,80 @@ class KaprodiController extends Controller
 
 
 
-    public function create()
-    {
-        return view('kaprodi/questioner/create');
-    }
-    public function store()
-    {
-        $judul = $this->request->getPost('judul');
-        $status = $this->request->getPost('status');
+    // public function create()
+    // {
+    //     return view('kaprodi/questioner/create');
+    // }
+    // public function store()
+    // {
+    //     $judul = $this->request->getPost('judul');
+    //     $status = $this->request->getPost('status');
 
-        // Ambil data Kaprodi & prodi dari session
-        $idAccount = session()->get('id_account');
-        $builder = $this->db->table('detailaccount_kaprodi dk');
-        $builder->select('dk.*, p.nama_prodi, p.id as id_prodi');
-        $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
-        $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
+    //     // Ambil data Kaprodi & prodi dari session
+    //     $idAccount = session()->get('id_account');
+    //     $builder = $this->db->table('detailaccount_kaprodi dk');
+    //     $builder->select('dk.*, p.nama_prodi, p.id as id_prodi');
+    //     $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
+    //     $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
 
-        if (!$kaprodi) {
-            return redirect()->to('/login')->with('error', 'Data Kaprodi tidak ditemukan.');
-        }
+    //     if (!$kaprodi) {
+    //         return redirect()->to('/login')->with('error', 'Data Kaprodi tidak ditemukan.');
+    //     }
 
-        // Simpan kuesioner baru
-        $questionnaireModel = new \App\Models\QuestionnairModel();
-        $questionnaireModel->insert([
-            'title'             => $judul,
-            'is_active'         => $status === 'aktif' ? 'active' : 'nonactive',
-            'conditional_logic' => null, // Bisa ditambahkan nanti
-            'created_at'        => date('Y-m-d H:i:s'),
-            'updated_at'        => date('Y-m-d H:i:s'),
-            'id_prodi'          => $kaprodi['id_prodi'], // otomatis prodi Kaprodi
-        ]);
+    //     // Simpan kuesioner baru
+    //     $questionnaireModel = new \App\Models\QuestionnairModel();
+    //     $questionnaireModel->insert([
+    //         'title'             => $judul,
+    //         'is_active'         => $status === 'aktif' ? 'active' : 'nonactive',
+    //         'conditional_logic' => null, // Bisa ditambahkan nanti
+    //         'created_at'        => date('Y-m-d H:i:s'),
+    //         'updated_at'        => date('Y-m-d H:i:s'),
+    //         'id_prodi'          => $kaprodi['id_prodi'], // otomatis prodi Kaprodi
+    //     ]);
 
-        // Ambil ID kuesioner terakhir untuk redirect ke halaman page management
-        $questionnaire_id = $questionnaireModel->getInsertID();
+    //     // Ambil ID kuesioner terakhir untuk redirect ke halaman page management
+    //     $questionnaire_id = $questionnaireModel->getInsertID();
 
-        session()->setFlashdata('success', "Kuesioner '$judul' berhasil ditambahkan untuk Prodi '{$kaprodi['nama_prodi']}'.");
+    //     session()->setFlashdata('success', "Kuesioner '$judul' berhasil ditambahkan untuk Prodi '{$kaprodi['nama_prodi']}'.");
 
-        // Redirect ke halaman kelola halaman kuesioner
-        return redirect()->to(base_url("kaprodi/questioner/pages/$questionnaire_id"));
-    }
+    //     // Redirect ke halaman kelola halaman kuesioner
+    //     return redirect()->to(base_url("kaprodi/questioner/pages/$questionnaire_id"));
+    // }
 
-    public function pages($questionnaire_id)
-    {
-        $questionnaireModel = new \App\Models\QuestionnairModel();
-        $questionnaire = $questionnaireModel->find($questionnaire_id);
+    // public function pages($questionnaire_id)
+    // {
+    //     $questionnaireModel = new \App\Models\QuestionnairModel();
+    //     $questionnaire = $questionnaireModel->find($questionnaire_id);
 
-        if (!$questionnaire) {
-            return redirect()->to(base_url('kaprodi/questioner'))->with('error', 'Kuesioner tidak ditemukan.');
-        }
+    //     if (!$questionnaire) {
+    //         return redirect()->to(base_url('kaprodi/questioner'))->with('error', 'Kuesioner tidak ditemukan.');
+    //     }
 
-        // Ambil data Kaprodi beserta prodi
-        $idAccount = session()->get('id_account');
-        $builder = $this->db->table('detailaccount_kaprodi dk');
-        $builder->select('dk.*, p.id AS prodi_id, p.nama_prodi'); // pastikan alias p.id as prodi_id
-        $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
-        $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
+    //     // Ambil data Kaprodi beserta prodi
+    //     $idAccount = session()->get('id_account');
+    //     $builder = $this->db->table('detailaccount_kaprodi dk');
+    //     $builder->select('dk.*, p.id AS prodi_id, p.nama_prodi'); // pastikan alias p.id as prodi_id
+    //     $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
+    //     $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
 
-        if (!$kaprodi || !isset($kaprodi['prodi_id'])) {
-            return redirect()->to(base_url('kaprodi/questioner'))->with('error', 'Data Prodi Kaprodi tidak ditemukan.');
-        }
+    //     if (!$kaprodi || !isset($kaprodi['prodi_id'])) {
+    //         return redirect()->to(base_url('kaprodi/questioner'))->with('error', 'Data Prodi Kaprodi tidak ditemukan.');
+    //     }
 
-        // Cek akses: kuesioner harus milik prodi Kaprodi login
-        if (!isset($questionnaire['id_prodi']) || $questionnaire['id_prodi'] != $kaprodi['prodi_id']) {
-            return redirect()->to(base_url('kaprodi/questioner'))->with('error', 'Akses ditolak untuk kuesioner ini.');
-        }
+    //     // Cek akses: kuesioner harus milik prodi Kaprodi login
+    //     if (!isset($questionnaire['id_prodi']) || $questionnaire['id_prodi'] != $kaprodi['prodi_id']) {
+    //         return redirect()->to(base_url('kaprodi/questioner'))->with('error', 'Akses ditolak untuk kuesioner ini.');
+    //     }
 
-        $pageModel = new \App\Models\QuestionnairePageModel();
-        $pages = $pageModel->where('questionnaire_id', $questionnaire_id)
-            ->orderBy('order_no', 'ASC')->findAll();
+    //     $pageModel = new \App\Models\QuestionnairePageModel();
+    //     $pages = $pageModel->where('questionnaire_id', $questionnaire_id)
+    //         ->orderBy('order_no', 'ASC')->findAll();
 
-        return view('kaprodi/questioner/pages', [
-            'questionnaire' => $questionnaire,
-            'pages'         => $pages
-        ]);
-    }
-
+    //     return view('kaprodi/questioner/pages', [
+    //         'questionnaire' => $questionnaire,
+    //         'pages'         => $pages
+    //     ]);
+    // }
 
 
 
@@ -220,23 +219,26 @@ class KaprodiController extends Controller
 
         $questionnaireModel = new \App\Models\QuestionnairModel();
 
-        // Tampilkan semua pertanyaan untuk Kaprodi
+        // Ambil struktur kuesioner (role 'kaprodi' -> abaikan conditional logic)
         $structure = $questionnaireModel->getQuestionnaireStructure($idKuesioner, $user_data, [], 'kaprodi');
 
-        if (!$structure) {
+        if (empty($structure) || !isset($structure['questionnaire'])) {
             return redirect()->back()->with('error', 'Kuesioner tidak ditemukan atau tidak tersedia');
         }
 
-        // Pastikan setiap page punya key 'questions' & title
+        // Pastikan setiap page punya key 'questions' & 'title'
         $pages = [];
-        foreach ($structure['pages'] as $page) {
-            if (!isset($page['questions']) || !is_array($page['questions'])) {
-                $page['questions'] = [];
+        if (!empty($structure['pages']) && is_array($structure['pages'])) {
+            foreach ($structure['pages'] as $page) {
+                $page['questions'] = $page['questions'] ?? [];
+                $page['title'] = $page['title'] ?? ($page['page_title'] ?? 'Untitled Page');
+                $pages[] = $page;
             }
-            if (empty($page['title']) && !empty($page['page_title'])) {
-                $page['title'] = $page['page_title'];
-            }
-            $pages[] = $page;
+        }
+
+        // Cek akses: kuesioner harus milik prodi Kaprodi login
+        if (($structure['questionnaire']['id_prodi'] ?? null) != $kaprodi['id_prodi']) {
+            return redirect()->to(base_url('kaprodi/questioner'))->with('error', 'Akses ditolak untuk kuesioner ini.');
         }
 
         return view('kaprodi/questioner/pertanyaan', [
@@ -246,6 +248,7 @@ class KaprodiController extends Controller
             'kaprodi'       => $kaprodi,
         ]);
     }
+
 
     public function addToAkreditasi()
     {
