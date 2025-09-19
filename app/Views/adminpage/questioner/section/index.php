@@ -165,7 +165,6 @@
                   <th>Description</th>
                   <th>Conditional Logic</th>
                   <th>Num of Question</th>
-                  <th>Status</th>
                   <th class="text-center">Aksi</th>
                 </tr>
               </thead>
@@ -188,17 +187,16 @@
                       </div>
                     </td>
                     <td>
-                      <span class="status-badge status-inactive">None</span>
-                    </td>
-                    <td>
-                      <span class="status-badge status-active"><?= $section['question_count'] ?? 0 ?></span>
-                    </td>
-                    <td>
-                      <?php if ($section['conditional_status'] == 'Active'): ?>
+                       
+                      <?php if ($section['conditional_logic'] != null ): ?>
                         <span class="status-badge status-active">Active</span>
                       <?php else: ?>
                         <span class="status-badge status-inactive">Inactive</span>
                       <?php endif; ?>
+                    
+                    </td>
+                    <td>
+                      <span class="status-badge status-active"><?= $section['question_count'] ?? 0 ?></span>
                     </td>
                     <td class="action-cell">
                       <div class="action-buttons">

@@ -120,7 +120,7 @@
                                 <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                     <option value="">Pilih Pertanyaan</option>
                                     <?php foreach ($questions as $q): ?>
-                                        <option value="<?= $q['id'] ?>" <?= $q['id'] == $condition['question_id'] ? 'selected' : '' ?>><?= esc($q['question_text']) ?></option>
+                                        <option value="<?= $q['id'] ?>" <?= $q['id'] == $condition['field'] ? 'selected' : '' ?>><?= esc($q['question_text']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                                 <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
