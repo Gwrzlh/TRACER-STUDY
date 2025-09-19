@@ -18,6 +18,7 @@ use App\Models\QuestionnairConditionModel;
 use App\Models\MatrixRowModel;
 use App\Models\MatrixColumnModels;
 use Config\App;
+use App\Models\AnswerModel;
 
 class QuestionnairController extends BaseController
 {
@@ -277,32 +278,63 @@ class QuestionnairController extends BaseController
 
 
 
-    public function delete($id)
+   public function delete($id)
     {
+        // Cek apakah ada answers terkait
+        $questionModel = new QuestionModel();
+        $questions = $questionModel->where('questionnaires_id', $id)->findAll();
+        $hasAnswers = false;
+        $answerModel = new AnswerModel(); // Asumsi model AnswerModel ada di App\Models\AnswerModel
+
+        foreach ($questions as $q) {
+            $answerCount = $answerModel->where('question_id', $q['id'])->countAllResults();
+            if ($answerCount > 0) {
+                $hasAnswers = true;
+                break;
+            }
+        }
+
+        // Konfirmasi kedua via parameter GET 'confirm' (dari JS di view)
+        $confirm = $this->request->getGet('confirm');
+        if ($hasAnswers && !$confirm) {
+            // Redirect dengan parameter untuk konfirmasi
+            return redirect()->to(current_url() . '?confirm=1')->with('warning', 'Questionnaire ini memiliki jawaban terkait. Apakah Anda yakin ingin menghapus? Jawaban akan ikut terhapus.');
+        }
+
+        // Lanjut hapus
         $questionnaireModel = new QuestionnairModel();
         $pageModel = new QuestionnairePageModel();
         $sectionModel = new SectionModel();
         $questionModel = new QuestionModel();
         $optionModel = new QuestionOptionModel();
+        $matrixRowModel = new MatrixRowModel();
+        $matrixColumnModel = new MatrixColumnModels(); // Sesuaikan nama model
 
-        // Ambil semua pertanyaan dari questionnaire ini
-        $questions = $questionModel->where('questionnaires_id', $id)->findAll();
-
-        // Loop hapus option setiap pertanyaan
+        // Loop hapus relasi setiap pertanyaan, termasuk answers
         foreach ($questions as $q) {
+            // Hapus answers untuk question ini (baru ditambah)
+            $answerModel->where('question_id', $q['id'])->delete();
+
+            // Hapus options dari question_options
             $optionModel->where('question_id', $q['id'])->delete();
+
+            // Hapus matrix rows dari matrix_rows
+            $matrixRowModel->where('question_id', $q['id'])->delete();
+
+            // Hapus matrix columns dari matrix_columns
+            $matrixColumnModel->where('question_id', $q['id'])->delete();
         }
 
-        // Hapus pertanyaan
+        // Hapus pertanyaan dari questions
         $questionModel->where('questionnaires_id', $id)->delete();
 
-        // Hapus section
+        // Hapus section dari questionnaire_sections
         $sectionModel->where('questionnaire_id', $id)->delete();
 
-        // Hapus page
+        // Hapus page dari questionnaire_pages
         $pageModel->where('questionnaire_id', $id)->delete();
 
-        // Terakhir hapus questionnaire
+        // Terakhir hapus questionnaire dari questionnaires
         $questionnaireModel->delete($id);
 
         return redirect()->to('admin/questionnaire')->with('success', 'Data dan relasinya berhasil dihapus.');
