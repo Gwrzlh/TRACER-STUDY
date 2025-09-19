@@ -2,7 +2,6 @@
 <?= $this->section('content') ?>
 <link href="<?= base_url('css/respon/index.css') ?>" rel="stylesheet">
 
-
 <div class="respon-container">
     <div class="respon-header">
         <h2 class="respon-title">Data Respon Alumni</h2>
@@ -14,26 +13,19 @@
             <div class="filter-grid">
                 <!-- Row 1 -->
                 <div class="filter-group">
-                    <input type="text" name="nim" class="filter-input" placeholder="NIM"
-                        value="<?= esc($selectedNim) ?>">
+                    <input type="text" name="nim" class="filter-input" placeholder="NIM" value="<?= esc($selectedNim) ?>">
                 </div>
-
                 <div class="filter-group">
-                    <input type="text" name="nama" class="filter-input" placeholder="Nama Alumni"
-                        value="<?= esc($selectedNama) ?>">
+                    <input type="text" name="nama" class="filter-input" placeholder="Nama Alumni" value="<?= esc($selectedNama) ?>">
                 </div>
-
                 <div class="filter-group">
                     <select name="jurusan" class="filter-select">
                         <option value="">-- Semua Jurusan --</option>
                         <?php foreach ($allJurusan as $j): ?>
-                            <option value="<?= $j['id'] ?>" <?= $selectedJurusan == $j['id'] ? 'selected' : '' ?>>
-                                <?= esc($j['nama_jurusan']) ?>
-                            </option>
+                            <option value="<?= $j['id'] ?>" <?= $selectedJurusan == $j['id'] ? 'selected' : '' ?>><?= esc($j['nama_jurusan']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-
                 <div class="filter-group">
                     <select name="prodi" class="filter-select">
                         <option value="">-- Semua Prodi --</option>
@@ -50,24 +42,18 @@
                     <select name="angkatan" class="filter-select">
                         <option value="">-- Semua Angkatan --</option>
                         <?php foreach ($allAngkatan as $a): ?>
-                            <option value="<?= $a['angkatan'] ?>" <?= $selectedAngkatan == $a['angkatan'] ? 'selected' : '' ?>>
-                                <?= esc($a['angkatan']) ?>
-                            </option>
+                            <option value="<?= $a['angkatan'] ?>" <?= $selectedAngkatan == $a['angkatan'] ? 'selected' : '' ?>><?= esc($a['angkatan']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-
                 <div class="filter-group">
                     <select name="year" class="filter-select">
                         <option value="">-- Semua Tahun Kelulusan --</option>
                         <?php foreach ($allYears as $y): ?>
-                            <option value="<?= $y['tahun_kelulusan'] ?>" <?= $selectedYear == $y['tahun_kelulusan'] ? 'selected' : '' ?>>
-                                <?= esc($y['tahun_kelulusan']) ?>
-                            </option>
+                            <option value="<?= $y['tahun_kelulusan'] ?>" <?= $selectedYear == $y['tahun_kelulusan'] ? 'selected' : '' ?>><?= esc($y['tahun_kelulusan']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-
                 <div class="filter-group">
                     <select name="status" class="filter-select">
                         <option value="">-- Semua Status --</option>
@@ -76,14 +62,11 @@
                         <option value="Belum" <?= $selectedStatus == 'Belum' ? 'selected' : '' ?>>Belum Mengisi</option>
                     </select>
                 </div>
-
                 <div class="filter-group">
                     <select name="questionnaire_id" class="filter-select">
                         <option value="">-- Semua Kuesioner --</option>
                         <?php foreach ($allQuestionnaires as $q): ?>
-                            <option value="<?= $q['id'] ?>" <?= $selectedQuestionnaire == $q['id'] ? 'selected' : '' ?>>
-                                <?= esc($q['title']) ?>
-                            </option>
+                            <option value="<?= $q['id'] ?>" <?= $selectedQuestionnaire == $q['id'] ? 'selected' : '' ?>><?= esc($q['title']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -99,7 +82,6 @@
                         <option value="status" <?= ($filters['sort_by'] ?? '') == 'status' ? 'selected' : '' ?>>Status</option>
                     </select>
                 </div>
-
                 <div class="filter-group">
                     <select name="sort_order" class="filter-select">
                         <option value="asc" <?= ($filters['sort_order'] ?? '') == 'asc' ? 'selected' : '' ?>>Ascending (A–Z / 0–9)</option>
@@ -112,9 +94,7 @@
                 <button type="submit" class="btn-primary">Search</button>
                 <a href="<?= base_url('admin/respon') ?>" class="btn-secondary">Clear</a>
                 <a href="<?= base_url('admin/respon/grafik') ?>" class="btn-info">Grafik</a>
-                <a href="<?= base_url('admin/respon/export?' . http_build_query($_GET)) ?>" class="btn-success">
-                    Export Excel
-                </a>
+                <a href="<?= base_url('admin/respon/export?' . http_build_query($_GET)) ?>" class="btn-success">Export Excel</a>
             </div>
         </form>
     </div>
@@ -156,8 +136,8 @@
                 </thead>
                 <tbody>
                     <?php if (!empty($responses)): ?>
-                        <?php $no = 1;
-                        foreach ($responses as $res): ?>
+                        <?php $no = ($currentPage - 1) * $perPage + 1; ?>
+                        <?php foreach ($responses as $res): ?>
                             <tr>
                                 <td class="text-center"><?= $no++ ?></td>
                                 <td class="nim-cell"><?= esc($res['nim'] ?? '-') ?></td>
@@ -168,18 +148,18 @@
                                 <td class="text-center"><?= esc($res['tahun_kelulusan'] ?? '-') ?></td>
                                 <td class="kuesioner-cell"><?= esc($res['judul_kuesioner'] ?? '-') ?></td>
                                 <td class="status-cell">
-                                    <?php if ($res['status'] == 'completed'): ?>
+                                    <?php if (($res['status'] ?? '') === 'completed'): ?>
                                         <span class="status-badge status-success">Sudah</span>
-                                    <?php elseif ($res['status'] == 'ongoing'): ?>
+                                    <?php elseif (($res['status'] ?? '') === 'ongoing'): ?>
                                         <span class="status-badge status-primary">Ongoing</span>
+                                    <?php else: ?>
                                         <span class="status-badge status-danger">Belum Mengisi</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="date-cell"><?= esc($res['submitted_at'] ?? '-') ?></td>
                                 <td class="action-cell">
                                     <?php if (!empty($res['response_id'])): ?>
-                                        <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>"
-                                            class="action-btn">Jawaban</a>
+                                        <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>" class="action-btn">Jawaban</a>
                                     <?php else: ?>
                                         <span class="no-action">-</span>
                                     <?php endif; ?>
@@ -196,15 +176,30 @@
         </div>
     </div>
 
-    <!-- Pagination Manual -->
+    <!-- Pagination -->
     <?php if ($totalPages > 1): ?>
-        <div class="d-flex justify-content-end">
+        <?php
+        $queryParams = $_GET;
+        unset($queryParams['page']); // hapus page lama
+        ?>
+        <div class="d-flex justify-content-end mt-3">
             <ul class="pagination">
+                <!-- Previous -->
+                <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
+                    <a class="page-link" href="<?= $currentPage > 1 ? base_url('admin/respon?page=' . ($currentPage - 1) . '&' . http_build_query($queryParams)) : '#' ?>">Previous</a>
+                </li>
+
+                <!-- Page numbers -->
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                     <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
-                        <a class="page-link" href="<?= base_url('admin/respon?page=' . $i . '&' . http_build_query($_GET)) ?>"><?= $i ?></a>
+                        <a class="page-link" href="<?= base_url('admin/respon?page=' . $i . '&' . http_build_query($queryParams)) ?>"><?= $i ?></a>
                     </li>
                 <?php endfor; ?>
+
+                <!-- Next -->
+                <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
+                    <a class="page-link" href="<?= $currentPage < $totalPages ? base_url('admin/respon?page=' . ($currentPage + 1) . '&' . http_build_query($queryParams)) : '#' ?>">Next</a>
+                </li>
             </ul>
         </div>
     <?php endif; ?>

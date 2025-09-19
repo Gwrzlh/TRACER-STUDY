@@ -31,36 +31,37 @@
                                         <div class="empty-state-description">Menampilkan <?= count($data ?? []) ?> kuesioner yang sesuai dengan profil Anda.</div>
                                     </td>
                                 </tr>
-                            <?php else: foreach ($data as $row): ?>
-                                <tr>
-                                    <td class="text-center"><?= $no++ ?></td>
-                                    <td><?= esc($row['judul']) ?></td>
-                                    <td class="text-center">
-                                        <?php if ($row['statusIsi'] == 'Belum Mengisi'): ?>
-                                            <span class="status-badge belum-mengisi">Belum Mengisi</span>
-                                        <?php elseif ($row['statusIsi'] == 'On Going'): ?>
-                                            <span class="status-badge on-going">On Going
-                                                <?php if (isset($row['progress']) && $row['progress'] > 0): ?>
-                                                    (<?= round($row['progress'], 1) ?>%)
-                                                <?php endif; ?>
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="status-badge finish">Finish</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="action-cell">
-                                        <div class="action-buttons">
+                                <?php else: foreach ($data as $row): ?>
+                                    <tr>
+                                        <td class="text-center"><?= $no++ ?></td>
+                                        <td><?= esc($row['judul']) ?></td>
+                                        <td class="text-center">
                                             <?php if ($row['statusIsi'] == 'Belum Mengisi'): ?>
-                                                <a href="<?= base_url('alumni/questionnaires/mulai/' . $row['id']) ?>" class="btn-action btn-mulai">▶</a>
+                                                <span class="status-badge belum-mengisi">Belum Mengisi</span>
                                             <?php elseif ($row['statusIsi'] == 'On Going'): ?>
-                                                <a href="<?= base_url('alumni/questionnaires/lanjutkan/' . $row['id']) ?>" class="btn-action btn-lanjutkan">⏵</a>
+                                                <span class="status-badge on-going">On Going
+                                                    <?php if (isset($row['progress']) && $row['progress'] > 0): ?>
+                                                        (<?= round($row['progress'], 1) ?>%)
+                                                    <?php endif; ?>
+                                                </span>
                                             <?php else: ?>
-                                                <a href="<?= base_url('alumni/questionnaires/lihat/' . $row['id']) ?>" class="btn-action btn-lihat">👁️</a>
+                                                <span class="status-badge finish">Finish</span>
                                             <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; endif; ?>
+                                        </td>
+                                        <td class="action-cell">
+                                            <div class="action-buttons">
+                                                <?php if ($row['statusIsi'] == 'Belum Mengisi'): ?>
+                                                    <a href="<?= base_url('alumni/questionnaires/mulai/' . $row['id']) ?>" class="btn-action btn-mulai">▶</a>
+                                                <?php elseif ($row['statusIsi'] == 'On Going'): ?>
+                                                    <a href="<?= base_url('alumni/questionnaires/lanjutkan/' . $row['id']) ?>" class="btn-action btn-lanjutkan">⏵</a>
+                                                <?php else: ?>
+                                                    <a href="<?= base_url('alumni/questioner/lihat/' . $row['id']) ?>" class="btn-action btn-lihat">👁️</a>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                            <?php endforeach;
+                            endif; ?>
                         </tbody>
                     </table>
                 </div>
