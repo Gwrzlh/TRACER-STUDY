@@ -198,7 +198,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->get('(:num)/edit', 'QuestionnairePageController::edit/$1/$2');
         $routes->post('(:num)/update', 'QuestionnairePageController::update/$1/$2');
         // $routes->get('getQuestionOptions','QuestionnairePageController::getQuestionOptions');
-        $routes->post('(:num)/delete', 'QuestionnairePageController::delete/$1/$2');
+        $routes->get('(:num)/delete', 'QuestionnairePageController::delete/$1/$2');
         // $routes->get('')
     });
 

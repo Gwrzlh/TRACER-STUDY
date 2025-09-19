@@ -1,0 +1,435 @@
+/* Grafik Respon Alumni Styles */
+.grafik-container {
+    padding: 24px;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+.grafik-header {
+    margin-bottom: 24px;
+}
+
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.grafik-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+/* Button Styles */
+.btn-back, .btn-export, .btn-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-back {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-back:hover {
+    background: #4b5563;
+    transform: translateY(-1px);
+    text-decoration: none;
+    color: white;
+}
+
+.btn-export {
+    background: #10b981;
+    color: white;
+}
+
+.btn-export:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.btn-filter {
+    background: #3b82f6;
+    color: white;
+    width: 100%;
+    justify-content: center;
+}
+
+.btn-filter:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+/* Icon Styles */
+.back-icon, .export-icon, .filter-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* Filter Card Styles */
+.filter-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.filter-form {
+    width: 100%;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-select {
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #374151;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filter-select option {
+    padding: 8px;
+}
+
+/* Chart Card Styles */
+.chart-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.chart-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.legend-success {
+    background-color: rgba(16, 185, 129, 0.8);
+}
+
+.legend-warning {
+    background-color: rgba(245, 158, 11, 0.8);
+}
+
+.legend-danger {
+    background-color: rgba(239, 68, 68, 0.8);
+}
+
+.legend-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.chart-wrapper {
+    padding: 24px;
+    height: 400px;
+    position: relative;
+    background: white;
+}
+
+#responChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Focus States for Accessibility */
+.btn-back:focus, .btn-export:focus, .btn-filter:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+.filter-select:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Loading State */
+.filter-select:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .grafik-container {
+        padding: 16px;
+    }
+    
+    .filter-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+    }
+    
+    .chart-legend {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .grafik-container {
+        padding: 12px;
+    }
+    
+    .grafik-title {
+        font-size: 24px;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .btn-back, .btn-export {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .filter-card {
+        padding: 16px;
+    }
+    
+    .filter-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .chart-header {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .chart-legend {
+        width: 100%;
+        justify-content: center;
+        gap: 12px;
+    }
+    
+    .chart-wrapper {
+        padding: 16px;
+        height: 300px;
+    }
+    
+    .chart-title {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-grid {
+        gap: 10px;
+    }
+    
+    .legend-item {
+        gap: 6px;
+    }
+    
+    .legend-label {
+        font-size: 12px;
+    }
+    
+    .chart-wrapper {
+        padding: 12px;
+        height: 280px;
+    }
+    
+    .btn-back, .btn-export, .btn-filter {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+}
+
+/* Smooth Animations */
+.filter-card,
+.chart-card,
+.btn-back,
+.btn-export,
+.btn-filter {
+    transition: all 0.15s ease;
+}
+
+/* Hover Effects */
+.chart-card:hover {
+    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.filter-card:hover {
+    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Print Styles */
+@media print {
+    .filter-card,
+    .header-actions {
+        display: none;
+    }
+    
+    .grafik-container {
+        padding: 0;
+        background: white;
+    }
+    
+    .chart-card {
+        box-shadow: none;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .chart-wrapper {
+        height: 500px;
+    }
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+    .filter-card,
+    .chart-card {
+        background: white !important;
+        border-color: #e5e7eb;
+    }
+    
+    .chart-title,
+    .grafik-title {
+        color: #1f2937;
+    }
+    
+    .filter-select {
+        background-color: white;
+        border-color: #d1d5db;
+        color: #374151;
+    }
+    
+    .legend-label {
+        color: #6b7280;
+    }
+    
+    .chart-header {
+        background: white;
+        border-bottom-color: #e5e7eb;
+    }
+    
+    .chart-wrapper {
+        background: white;
+    }
+}
+
+/* Custom Scrollbar for Chart Area */
+.chart-wrapper::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.chart-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.chart-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.chart-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Animation for Chart Loading */
+@keyframes chartFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chart-wrapper {
+    animation: chartFadeIn 0.5s ease-out;
+}
+
+/* Improved Button Focus for Accessibility */
+.btn-back:focus-visible,
+.btn-export:focus-visible,
+.btn-filter:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}

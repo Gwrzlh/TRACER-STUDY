@@ -1,149 +1,199 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
+<link href="<?= base_url('css/respon/index.css') ?>" rel="stylesheet">
 
-<div class="container mt-4">
-    <h2>Data Respon Alumni</h2>
+
+<div class="respon-container">
+    <div class="respon-header">
+        <h2 class="respon-title">Data Respon Alumni</h2>
+    </div>
 
     <!-- Filter Form -->
-    <form method="get" action="<?= base_url('admin/respon') ?>" class="mb-3 d-flex gap-2 flex-wrap align-items-end">
-        <input type="text" name="nim" class="form-control w-auto" placeholder="NIM" value="<?= esc($selectedNim ?? '') ?>">
-        <input type="text" name="nama" class="form-control w-auto" placeholder="Nama Alumni" value="<?= esc($selectedNama ?? '') ?>">
+    <div class="filter-card">
+        <form method="get" action="<?= base_url('admin/respon') ?>" class="filter-form">
+            <div class="filter-grid">
+                <!-- Row 1 -->
+                <div class="filter-group">
+                    <input type="text" name="nim" class="filter-input" placeholder="NIM"
+                        value="<?= esc($selectedNim) ?>">
+                </div>
 
-        <select name="jurusan" class="form-select w-auto">
-            <option value="">-- Semua Jurusan --</option>
-            <?php foreach ($allJurusan as $j): ?>
-                <option value="<?= $j['id'] ?>" <?= ($selectedJurusan == $j['id']) ? 'selected' : '' ?>><?= esc($j['nama_jurusan']) ?></option>
-            <?php endforeach; ?>
-        </select>
+                <div class="filter-group">
+                    <input type="text" name="nama" class="filter-input" placeholder="Nama Alumni"
+                        value="<?= esc($selectedNama) ?>">
+                </div>
 
-        <select name="prodi" class="form-select w-auto">
-            <option value="">-- Semua Prodi --</option>
-            <?php foreach ($allProdi as $p): ?>
-                <option value="<?= $p['id'] ?>" <?= ($selectedProdi == $p['id']) ? 'selected' : '' ?>>
-                    <?= esc($p['nama_prodi']) ?> (<?= esc($p['nama_jurusan'] ?? '-') ?>)
-                </option>
-            <?php endforeach; ?>
-        </select>
+                <div class="filter-group">
+                    <select name="jurusan" class="filter-select">
+                        <option value="">-- Semua Jurusan --</option>
+                        <?php foreach ($allJurusan as $j): ?>
+                            <option value="<?= $j['id'] ?>" <?= $selectedJurusan == $j['id'] ? 'selected' : '' ?>>
+                                <?= esc($j['nama_jurusan']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-        <select name="angkatan" class="form-select w-auto">
-            <option value="">-- Semua Angkatan --</option>
-            <?php foreach ($allAngkatan as $a): ?>
-                <option value="<?= $a['angkatan'] ?>" <?= ($selectedAngkatan == $a['angkatan']) ? 'selected' : '' ?>><?= esc($a['angkatan']) ?></option>
-            <?php endforeach; ?>
-        </select>
+                <div class="filter-group">
+                    <select name="prodi" class="filter-select">
+                        <option value="">-- Semua Prodi --</option>
+                        <?php foreach ($allProdi as $p): ?>
+                            <option value="<?= $p['id'] ?>" <?= $selectedProdi == $p['id'] ? 'selected' : '' ?>>
+                                <?= esc($p['nama_prodi']) ?> (<?= esc($p['nama_jurusan'] ?? '-') ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-        <select name="tahun" class="form-select w-auto">
-            <option value="">-- Semua Tahun Kelulusan --</option>
-            <?php foreach ($allYears as $y): ?>
-                <option value="<?= $y['tahun_kelulusan'] ?>" <?= ($selectedYear == $y['tahun_kelulusan']) ? 'selected' : '' ?>><?= esc($y['tahun_kelulusan']) ?></option>
-            <?php endforeach; ?>
-        </select>
+                <!-- Row 2 -->
+                <div class="filter-group">
+                    <select name="angkatan" class="filter-select">
+                        <option value="">-- Semua Angkatan --</option>
+                        <?php foreach ($allAngkatan as $a): ?>
+                            <option value="<?= $a['angkatan'] ?>" <?= $selectedAngkatan == $a['angkatan'] ? 'selected' : '' ?>>
+                                <?= esc($a['angkatan']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-        <select name="status" class="form-select w-auto">
-            <option value="">-- Semua Status --</option>
-            <option value="completed" <?= ($selectedStatus == 'completed') ? 'selected' : '' ?>>Sudah</option>
-            <option value="ongoing" <?= ($selectedStatus == 'ongoing') ? 'selected' : '' ?>>Ongoing</option>
-            <option value="Belum" <?= ($selectedStatus == 'Belum') ? 'selected' : '' ?>>Belum Mengisi</option>
-        </select>
+                <div class="filter-group">
+                    <select name="year" class="filter-select">
+                        <option value="">-- Semua Tahun Kelulusan --</option>
+                        <?php foreach ($allYears as $y): ?>
+                            <option value="<?= $y['tahun_kelulusan'] ?>" <?= $selectedYear == $y['tahun_kelulusan'] ? 'selected' : '' ?>>
+                                <?= esc($y['tahun_kelulusan']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-        <select name="questionnaire" class="form-select w-auto">
-            <option value="">-- Semua Kuesioner --</option>
-            <?php foreach ($allQuestionnaires as $q): ?>
-                <option value="<?= $q['id'] ?>" <?= ($selectedQuestionnaire == $q['id']) ? 'selected' : '' ?>><?= esc($q['title']) ?></option>
-            <?php endforeach; ?>
-        </select>
+                <div class="filter-group">
+                    <select name="status" class="filter-select">
+                        <option value="">-- Semua Status --</option>
+                        <option value="completed" <?= $selectedStatus == 'completed' ? 'selected' : '' ?>>Sudah</option>
+                        <option value="ongoing" <?= $selectedStatus == 'ongoing' ? 'selected' : '' ?>>Ongoing</option>
+                        <option value="Belum" <?= $selectedStatus == 'Belum' ? 'selected' : '' ?>>Belum Mengisi</option>
+                    </select>
+                </div>
 
-        <select name="sort_by" class="form-select w-auto">
-            <option value="">-- Urutkan Berdasarkan --</option>
-            <?php
-            $sortFields = ['nim' => 'NIM', 'nama_lengkap' => 'Nama', 'angkatan' => 'Angkatan', 'tahun_kelulusan' => 'Tahun Lulusan', 'status' => 'Status'];
-            foreach ($sortFields as $key => $label): ?>
-                <option value="<?= $key ?>" <?= (($filters['sort_by'] ?? '') == $key) ? 'selected' : '' ?>><?= $label ?></option>
-            <?php endforeach; ?>
-        </select>
+                <div class="filter-group">
+                    <select name="questionnaire_id" class="filter-select">
+                        <option value="">-- Semua Kuesioner --</option>
+                        <?php foreach ($allQuestionnaires as $q): ?>
+                            <option value="<?= $q['id'] ?>" <?= $selectedQuestionnaire == $q['id'] ? 'selected' : '' ?>>
+                                <?= esc($q['title']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-        <select name="sort_order" class="form-select w-auto">
-            <option value="asc" <?= (($filters['sort_order'] ?? '') == 'asc') ? 'selected' : '' ?>>Urutkan A–Z/0-9</option>
-            <option value="desc" <?= (($filters['sort_order'] ?? '') == 'desc') ? 'selected' : '' ?>>Urutkan Z–A/9-0</option>
-        </select>
+                <!-- Row 3 -->
+                <div class="filter-group">
+                    <select name="sort_by" class="filter-select">
+                        <option value="">-- Urutkan Berdasarkan --</option>
+                        <option value="nim" <?= ($filters['sort_by'] ?? '') == 'nim' ? 'selected' : '' ?>>NIM</option>
+                        <option value="nama_lengkap" <?= ($filters['sort_by'] ?? '') == 'nama_lengkap' ? 'selected' : '' ?>>Nama</option>
+                        <option value="angkatan" <?= ($filters['sort_by'] ?? '') == 'angkatan' ? 'selected' : '' ?>>Angkatan</option>
+                        <option value="tahun_kelulusan" <?= ($filters['sort_by'] ?? '') == 'tahun_kelulusan' ? 'selected' : '' ?>>Tahun Kelulusan</option>
+                        <option value="status" <?= ($filters['sort_by'] ?? '') == 'status' ? 'selected' : '' ?>>Status</option>
+                    </select>
+                </div>
 
+                <div class="filter-group">
+                    <select name="sort_order" class="filter-select">
+                        <option value="asc" <?= ($filters['sort_order'] ?? '') == 'asc' ? 'selected' : '' ?>>Ascending (A–Z / 0–9)</option>
+                        <option value="desc" <?= ($filters['sort_order'] ?? '') == 'desc' ? 'selected' : '' ?>>Descending (Z–A / 9–0)</option>
+                    </select>
+                </div>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Filter</button>
-        <a href="<?= base_url('admin/respon') ?>" class="btn btn-secondary">Clear</a>
-        <a href="<?= base_url('admin/respon/grafik') ?>" class="btn btn-info text-white">Grafik</a>
-        <a href="<?= base_url('admin/respon/export?' . http_build_query($_GET)) ?>" class="btn btn-success">Export Excel</a>
-    </form>
+            <div class="filter-actions">
+                <button type="submit" class="btn-primary">Search</button>
+                <a href="<?= base_url('admin/respon') ?>" class="btn-secondary">Clear</a>
+                <a href="<?= base_url('admin/respon/grafik') ?>" class="btn-info">Grafik</a>
+                <a href="<?= base_url('admin/respon/export?' . http_build_query($_GET)) ?>" class="btn-success">
+                    Export Excel
+                </a>
+            </div>
+        </form>
+    </div>
 
-    <!-- Summary -->
-    <div class="mb-3 d-flex gap-3 flex-wrap">
-        <span class="badge bg-success p-2">Sudah: <?= $totalCompleted ?? 0 ?></span>
-        <span class="badge bg-primary p-2">Ongoing: <?= $totalOngoing ?? 0 ?></span>
-        <span class="badge bg-danger p-2">Belum Mengisi: <?= $totalBelum ?? 0 ?></span>
+    <!-- Summary Counter -->
+    <div class="summary-counter">
+        <div class="counter-item counter-success">
+            <span class="counter-label">Sudah</span>
+            <span class="counter-value"><?= $totalCompleted ?? 0 ?></span>
+        </div>
+        <div class="counter-item counter-primary">
+            <span class="counter-label">Ongoing</span>
+            <span class="counter-value"><?= $totalOngoing ?? 0 ?></span>
+        </div>
+        <div class="counter-item counter-danger">
+            <span class="counter-label">Belum Mengisi</span>
+            <span class="counter-value"><?= $totalBelum ?? 0 ?></span>
+        </div>
     </div>
 
     <!-- Table -->
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead class="table-light">
-                <tr>
-                    <th>No</th>
-                    <th>NIM</th>
-                    <th>Nama Alumni</th>
-                    <th>Jurusan</th>
-                    <th>Prodi</th>
-                    <th>Angkatan</th>
-                    <th>Tahun Lulusan</th>
-                    <th>Judul Kuesioner</th>
-                    <th>Status</th>
-                    <th>Tanggal Submit</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($responses)): ?>
-                    <?php $no = ($currentPage - 1) * $perPage + 1; ?>
-                    <?php foreach ($responses as $res): ?>
-                        <tr>
-                            <td><?= $no++ ?></td>
-                            <td><?= esc($res['nim'] ?? '-') ?></td>
-                            <td><?= esc($res['nama_lengkap'] ?? '-') ?></td>
-                            <td><?= esc($res['nama_jurusan'] ?? '-') ?></td>
-                            <td><?= esc($res['nama_prodi'] ?? '-') ?></td>
-                            <td><?= esc($res['angkatan'] ?? '-') ?></td>
-                            <td><?= esc($res['tahun_kelulusan'] ?? '-') ?></td>
-                            <td><?= esc($res['judul_kuesioner'] ?? '-') ?></td>
-                            <td>
-                                <?php
-                                $status = $res['status'] ?? '';
-                                switch ($status) {
-                                    case 'completed':
-                                        echo '<span class="badge bg-success">Sudah</span>';
-                                        break;
-                                    case 'ongoing':
-                                        echo '<span class="badge bg-primary">Ongoing</span>';
-                                        break;
-                                    default:
-                                        echo '<span class="badge bg-danger">Belum Mengisi</span>';
-                                }
-                                ?>
-                            </td>
-                            <td><?= esc($res['submitted_at'] ?? '-') ?></td>
-                            <td>
-                                <?php if (!empty($res['response_id'])): ?>
-                                    <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>" class="btn btn-sm btn-primary">Jawaban</a>
-                                <?php else: ?>
-                                    <span class="text-muted">-</span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
+    <div class="respon-table-card">
+        <div class="table-container">
+            <table class="respon-table">
+                <thead>
                     <tr>
-                        <td colspan="11" class="text-center">Tidak ada data</td>
+                        <th>No</th>
+                        <th>NIM</th>
+                        <th>Nama Alumni</th>
+                        <th>Jurusan</th>
+                        <th>Prodi</th>
+                        <th>Angkatan</th>
+                        <th>Tahun Lulusan</th>
+                        <th>Judul Kuesioner</th>
+                        <th>Status</th>
+                        <th>Tanggal Submit</th>
+                        <th>Aksi</th>
                     </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php if (!empty($responses)): ?>
+                        <?php $no = 1;
+                        foreach ($responses as $res): ?>
+                            <tr>
+                                <td class="text-center"><?= $no++ ?></td>
+                                <td class="nim-cell"><?= esc($res['nim'] ?? '-') ?></td>
+                                <td class="nama-cell"><?= esc($res['nama_lengkap'] ?? '-') ?></td>
+                                <td><?= esc($res['nama_jurusan'] ?? '-') ?></td>
+                                <td><?= esc($res['nama_prodi'] ?? '-') ?></td>
+                                <td class="text-center"><?= esc($res['angkatan'] ?? '-') ?></td>
+                                <td class="text-center"><?= esc($res['tahun_kelulusan'] ?? '-') ?></td>
+                                <td class="kuesioner-cell"><?= esc($res['judul_kuesioner'] ?? '-') ?></td>
+                                <td class="status-cell">
+                                    <?php if ($res['status'] == 'completed'): ?>
+                                        <span class="status-badge status-success">Sudah</span>
+                                    <?php elseif ($res['status'] == 'ongoing'): ?>
+                                        <span class="status-badge status-primary">Ongoing</span>
+                                        <span class="status-badge status-danger">Belum Mengisi</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="date-cell"><?= esc($res['submitted_at'] ?? '-') ?></td>
+                                <td class="action-cell">
+                                    <?php if (!empty($res['response_id'])): ?>
+                                        <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>"
+                                            class="action-btn">Jawaban</a>
+                                    <?php else: ?>
+                                        <span class="no-action">-</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="11" class="no-data">Tidak ada data</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Pagination Manual -->

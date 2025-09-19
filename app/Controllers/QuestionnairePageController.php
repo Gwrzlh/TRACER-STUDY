@@ -9,6 +9,8 @@ use App\Models\QuestionnairModel;
 use App\Models\QuestionModel; // Tambahkan model pertanyaan
 use App\Models\QuestionOptionModel; 
 use App\Models\SectionModel;
+use App\Models\MatrixColumnModels;
+use App\Models\MatrixRowModel;
 
 class QuestionnairePageController extends BaseController
 {
@@ -186,27 +188,40 @@ class QuestionnairePageController extends BaseController
         
     public function delete($questionnaire_id, $page_id)
     {
+        $pageModel       = new QuestionnairePageModel();
+        $sectionModel    = new SectionModel();
+        $questionModel   = new QuestionModel();
+        $optionModel     = new QuestionOptionModel();
+        $matrixRowModel  = new MatrixRowModel();
+        $matrixColModel  = new MatrixColumnModels();
 
-        // $questionnaireModel = new QuestionnairModel();
-        $pageModel = new QuestionnairePageModel();
-        $sectionModel = new SectionModel();
-        $questionModel = new QuestionModel();
-        $optionModel = new QuestionOptionModel();
+        // cari semua pertanyaan di halaman ini
+        $questions = $questionModel->where('page_id', $page_id)->findAll();
 
-       $questionOp = $questionModel->where('page_id', $page_id)->findAll();
-        foreach ($questionOp as $q) {
+        foreach ($questions as $q) {
+            // hapus semua opsi terkait pertanyaan
             $optionModel->where('question_id', $q['id'])->delete();
+
+            // hapus matrix rows terkait pertanyaan
+            $matrixRowModel->where('question_id', $q['id'])->delete();
+
+            // hapus matrix columns terkait pertanyaan
+            $matrixColModel->where('question_id', $q['id'])->delete();
         }
 
+        // hapus semua pertanyaan di halaman
         $questionModel->where('page_id', $page_id)->delete();
-        
+
+        // hapus semua section di halaman
         $sectionModel->where('page_id', $page_id)->delete();
 
+        // terakhir hapus page
         $pageModel->delete($page_id);
 
         return redirect()->to("/admin/questionnaire/{$questionnaire_id}/pages")
-                         ->with('success', 'Halaman berhasil dihapus.');
+                        ->with('success', 'Halaman berhasil dihapus.');
     }
+
 
     // Fungsi AJAX untuk mengambil opsi jawaban pertanyaan
     public function getQuestionOptions()

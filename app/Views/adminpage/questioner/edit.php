@@ -11,7 +11,7 @@
         </div>
     </div>
 
-    <form action="<?= base_url('/admin/questionnaire/' .  $questionnaire['id'] . '/update/') ?>" method="post" class="space-y-5">
+    <form action="<?= base_url('/admin/questionnaire/' . $questionnaire['id'] . '/update/') ?>" method="post" class="space-y-5">
         
         <!-- Judul Kuesioner -->
         <div>
@@ -202,7 +202,7 @@ $(document).ready(function() {
         const valueContainer = fieldSelector.closest('.condition-row').find('.value-input-container');
 
         if (!selectedField) {
-            valueContainer.html('<input type="text" name="value[]" placeholder="Value" value="' + currentValue + '">');
+            valueContainer.html('<input type="text" name="value[]" placeholder="Value" value="' + currentValue + '" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">');
             return;
         }
 
@@ -216,21 +216,21 @@ $(document).ready(function() {
             success: function(response) {
                 let inputHtml = '';
                 if (response.type === 'select' && response.options && response.options.length > 0) {
-                    inputHtml = '<select name="value[]">';
+                    inputHtml = '<select name="value[]" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">';
                     $.each(response.options, function(index, option) {
                         // Set selected jika option.id sesuai dengan currentValue
                         const isSelected = option.id == currentValue ? 'selected' : '';
-                        inputHtml += <option value="${option.id}" ${isSelected}>${option.name}</option>;
+                        inputHtml += `<option value="${option.id}" ${isSelected}>${option.name}</option>`;
                     });
                     inputHtml += '</select>';
                 } else {
-                    inputHtml = '<input type="text" name="value[]" placeholder="Value" value="' + currentValue + '">';
+                    inputHtml = '<input type="text" name="value[]" placeholder="Value" value="' + currentValue + '" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">';
                 }
                 valueContainer.html(inputHtml);
             },
             error: function(xhr, status, error) {
                 console.error('AJAX Error: ' + status + ' - ' + error);
-                valueContainer.html('<input type="text" name="value[]" placeholder="Error loading data" value="' + currentValue + '">');
+                valueContainer.html('<input type="text" name="value[]" placeholder="Error loading data" value="' + currentValue + '" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">');
             }
         });
     }
@@ -261,7 +261,7 @@ $(document).ready(function() {
 
         // Reset nilai-nilai di baris baru
         newRow.find('select').val(firstRow.find('.field-selector').val());
-        newRow.find('.value-input-container').html('<input type="text" name="value[]" placeholder="Value">');
+        newRow.find('.value-input-container').html('<input type="text" name="value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">');
 
         // Tampilkan tombol "Hapus" pada baris baru
         newRow.find('.remove-condition-btn').show();
