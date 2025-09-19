@@ -12,7 +12,7 @@ class QuestionnairModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['title', 'deskripsi', 'is_active', 'conditional_logic', 'created_at', 'updated_at'];
+    protected $allowedFields    = ['title', 'deskripsi', 'is_active', 'conditional_logic', 'created_at', 'updated_at', 'id_prodi'];
 
     protected bool $allowEmptyInserts = false;
 
@@ -119,28 +119,41 @@ class QuestionnairModel extends Model
         return true;
     }
 
-    public function getAccessibleQuestionnaires($user_data)
+    public function getAccessibleQuestionnaires($user_data, $role = null)
     {
-        // Ambil semua kuesioner yang aktif
-        $all_q = $this->where('is_active', 'active')->findAll();
+        $builder = $this->db->table($this->table);
 
+        // Filter kuesioner aktif
+        $builder->where('is_active', 'active');
+
+        // Jika ada prodi (misal untuk kaprodi/alumni), filter sesuai prodi
+        if (!empty($user_data['id_prodi'])) {
+            $builder->where('id_prodi', $user_data['id_prodi']);
+        }
+
+        $all_q = $builder->get()->getResultArray();
         $accessible = [];
+
         foreach ($all_q as $q) {
-            // Skip jika tidak ada conditional logic
-            if (empty($q['conditional_logic'])) {
+            // Jika role kaprodi, abaikan conditional logic
+            if ($role === 'kaprodi') {
+                $accessible[] = $q;
                 continue;
             }
 
-            // Cek kondisi
-            if ($this->checkConditions($q['conditional_logic'], $user_data)) {
+            // Untuk role lain (misal alumni)
+            // Jika conditional_logic kosong → tetap akses
+            // Jika ada conditional_logic → cek apakah lolos kondisi
+            if (empty($q['conditional_logic']) || $this->checkConditions($q['conditional_logic'], $user_data)) {
                 $accessible[] = $q;
             }
         }
 
-        log_message('debug', '[getAccessibleQuestionnaires] Accessible: ' . count($accessible));
+        log_message('debug', '[DEBUG] Accessible Questionnaires for role=' . ($role ?? 'alumni') . ': ' . print_r($accessible, true));
+        log_message('debug', '[getAccessibleQuestionnaires] Accessible count: ' . count($accessible));
+
         return $accessible;
     }
-
 
 
 

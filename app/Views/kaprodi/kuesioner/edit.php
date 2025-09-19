@@ -1,5 +1,5 @@
 <!-- desain edit kuesioner -->
-<?= $this->extend('layout/sidebar') ?>
+<?= $this->extend('layout/sidebar_kaprodi') ?>
 <?= $this->section('content') ?>
 
 <div class="bg-white rounded-xl shadow-md p-8 w-full mx-auto">
