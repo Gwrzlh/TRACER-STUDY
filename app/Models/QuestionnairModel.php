@@ -16,6 +16,7 @@ class QuestionnairModel extends Model
 
     protected bool $allowEmptyInserts = false;
 
+    // Di QuestionnairModel.php, replace method checkConditions()
     public function checkConditions($conditions, $user_data, $previous_answers = [])
     {
         if (empty($conditions) || $conditions === null || $conditions === '') {
@@ -29,45 +30,62 @@ class QuestionnairModel extends Model
         }
 
         $user_fields = [
-            'email',
-            'username',
-            'group_id',
-            'nama_lengkap',
-            'nim',
-            'id_jurusan',
-            'id_prodi',
-            'angkatan',
-            'ipk',
-            'alamat',
-            'alamat2',
-            'id_cities',
-            'kodepos',
-            'tahun_kelulusan',
-            'jeniskelamin',
-            'notlp'
+            'email', 'username', 'group_id', 'nama_lengkap', 'nim', 'id_jurusan', 'id_prodi',
+            'angkatan', 'ipk', 'alamat', 'alamat2', 'id_cities', 'kodepos', 'tahun_kelulusan',
+            'jeniskelamin', 'notlp'
         ];
         $all_fields = array_merge($user_fields, array_keys($previous_answers));
 
         foreach ($conditions as $condition) {
-            $field = trim($condition['field'] ?? '');
+            $field = trim($condition['field'] ?? $condition['question_id'] ?? '');
             $operator = $condition['operator'] ?? '';
             $value = trim($condition['value'] ?? '');
 
-            if (empty($field) || !in_array($field, $all_fields)) {
-                log_message('debug', "[checkConditions] Invalid or missing field: $field, skip");
+            if (empty($field) || empty($operator) || empty($value)) {
+                log_message('debug', "[checkConditions] Invalid/missing field/operator/value in condition, skip");
                 continue;
             }
 
-            $data_value = $user_data[$field] ?? $previous_answers[$field] ?? null;
+            // FIX: Handle field tanpa prefix 'q_' untuk question ID
+            $data_value = null;
+            if (preg_match('/^\d+$/', $field)) { // Jika field adalah numeric (question ID)
+                $q_field = 'q_' . $field;
+                $data_value = $user_data[$q_field] ?? $previous_answers[$q_field] ?? null;
+                log_message('debug', "[checkConditions] Assumed question field: $field → $q_field");
+            } else {
+                // Field biasa (user_data atau previous)
+                $data_value = $user_data[$field] ?? $previous_answers[$field] ?? null;
+            }
+
             if ($data_value === null) {
-                log_message('debug', "[checkConditions] Field $field not found in user_data or answers, return false");
+                log_message('debug', "[checkConditions] Field $field (or q_$field) not found/answered, return false");
                 return false;
             }
 
-            $userValue = trim($data_value);
-            log_message('debug', "[checkConditions] Comparing field=$field, userValue=$userValue, value=$value, operator=$operator");
-            if ($operator === 'is' && $userValue !== $value) return false;
-            if ($operator === 'is_not' && $userValue === $value) return false;
+            $userValue = trim(is_array($data_value) ? implode(',', $data_value) : $data_value); // Handle array (checkbox)
+            log_message('debug', "[checkConditions] Comparing field=$field, userValue='$userValue', value='$value', operator=$operator");
+            
+            $match = false;
+            switch ($operator) {
+                case 'is':
+                    $match = ($userValue === $value);
+                    break;
+                case 'is_not':
+                    $match = ($userValue !== $value);
+                    break;
+                case 'contains': // Bonus: Tambah operator jika perlu
+                    $match = (strpos($userValue, $value) !== false);
+                    break;
+                // Tambah operator lain jika ada di DB (e.g., 'greater_than')
+                default:
+                    log_message('debug', "[checkConditions] Unknown operator $operator, assume false");
+                    $match = false;
+            }
+            
+            if (!$match) {
+                log_message('debug', "[checkConditions] Condition failed for $field, return false");
+                return false;
+            }
         }
         log_message('debug', '[checkConditions] All conditions passed, return true');
         return true;
@@ -86,7 +104,7 @@ class QuestionnairModel extends Model
         return $accessible;
     }
 
-    public function getQuestionnaireStructure($q_id, $user_data, $previous_answers = [])
+   public function getQuestionnaireStructure($q_id, $user_data, $previous_answers = [])
     {
         $q = $this->find($q_id);
         if (!$q) {
@@ -109,30 +127,33 @@ class QuestionnairModel extends Model
 
         $filtered_pages = [];
         foreach ($pages as $page) {
-            if (!$this->checkConditions($page['conditional_logic'] ?? '', $user_data, $previous_answers)) {
-                log_message('debug', "[getQuestionnaireStructure] Page {$page['id']} filtered out");
-                continue;
-            }
+            // FIX: Disable filter untuk page conditional (biar JS handle), atau keep kalau mau strict access
+            // if (!$this->checkConditions($page['conditional_logic'] ?? '', $user_data, $previous_answers)) {
+            //     log_message('debug', "[getQuestionnaireStructure] Page {$page['id']} filtered out");
+            //     continue;
+            // }
 
             $sections = $section_model->where('page_id', $page['id'])->orderBy('order_no', 'ASC')->findAll();
             log_message('debug', "[getQuestionnaireStructure] Sections for page {$page['id']}: " . count($sections));
 
             $filtered_sections = [];
             foreach ($sections as $section) {
-                if (!$this->checkConditions($section['conditional_logic'] ?? '', $user_data, $previous_answers)) {
-                    log_message('debug', "[getQuestionnaireStructure] Section {$section['id']} filtered out");
-                    continue;
-                }
+                // FIX: Disable filter untuk section conditional (render semua, JS hide initial)
+                // if (!$this->checkConditions($section['conditional_logic'] ?? '', $user_data, $previous_answers)) {
+                //     log_message('debug', "[getQuestionnaireStructure] Section {$section['id']} filtered out");
+                //     continue;
+                // }
 
                 $questions = $question_model->where('section_id', $section['id'])->orderBy('order_no', 'ASC')->findAll();
                 log_message('debug', "[getQuestionnaireStructure] Questions for section {$section['id']}: " . count($questions));
 
                 $filtered_questions = [];
                 foreach ($questions as $question) {
-                    if (!$this->checkConditions($question['condition_json'] ?? '', $user_data, $previous_answers)) {
-                        log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} filtered out");
-                        continue;
-                    }
+                    // FIX: Disable filter untuk question conditional
+                    // if (!$this->checkConditions($question['condition_json'] ?? '', $user_data, $previous_answers)) {
+                    //     log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} filtered out");
+                    //     continue;
+                    // }
                     // Ambil opsi untuk dropdown/radio/checkbox
                     if (in_array(strtolower($question['question_type']), ['dropdown', 'select', 'radio', 'checkbox'])) {
                         $options = $option_model->where('question_id', $question['id'])->orderBy('order_number', 'ASC')->findAll();
@@ -144,9 +165,9 @@ class QuestionnairModel extends Model
                     if (strtolower($question['question_type']) === 'matrix') {
                         $question['matrix_rows'] = $matrix_row_model->where('question_id', $question['id'])->orderBy('order_no', 'ASC')->findAll();
                         $question['matrix_columns'] = $matrix_column_model->where('question_id', $question['id'])->orderBy('order_no', 'ASC')->findAll();
-                        log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} ({$question['question_text']}) matrix rows: " . count($question['matrix_rows']) . ", columns: " . count($question['matrix_columns']));
+                        log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} matrix rows: " . count($question['matrix_rows']) . ", columns: " . count($question['matrix_columns']));
                     }
-                    log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} ({$question['question_text']}) options: " . print_r($question['options'], true));
+                    log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} options: " . print_r($question['options'], true));
                     $filtered_questions[] = $question;
                 }
                 if (!empty($filtered_questions)) {
