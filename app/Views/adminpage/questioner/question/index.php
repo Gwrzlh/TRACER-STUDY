@@ -248,6 +248,9 @@
                                                     <button type="button" class="btn btn-sm delete-question" data-question-id="<?= $q['id'] ?>" style="background-color: #ef4444; color: white; border: none; border-radius: 0.375rem; padding: 0.5rem 1rem; font-size: 0.875rem; transition: all 0.2s ease;" onmouseover="this.style.backgroundColor='#dc2626'" onmouseout="this.style.backgroundColor='#ef4444'">
                                                         <i class="fas fa-trash"></i> delete
                                                     </button>
+                                                    <button type="button" class="btn btn-sm duplicate-question" data-question-id="<?= $q['id'] ?>" style="background-color: #f59e0b; color: white; border: none; border-radius: 0.375rem; padding: 0.5rem 1rem; font-size: 0.875rem; margin-right: 0.5rem; transition: all 0.2s ease;" onmouseover="this.style.backgroundColor='#d97706'" onmouseout="this.style.backgroundColor='#f59e0b'">
+                                                         <i class="fas fa-copy"></i> duplicate
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -898,6 +901,43 @@
                     showNotification('An error occurred during fetch', 'error');
                 });
         });
+
+      document.addEventListener("click", function(e) {
+        if (e.target.closest(".duplicate-question")) {
+            e.preventDefault();
+            const questionId = e.target.closest(".duplicate-question").dataset.questionId;
+            if (confirm("Are you sure you want to duplicate this question?")) {
+                console.log("Duplicating question ID:", questionId);
+                console.log("Questionnaire ID:", '<?= $questionnaire_id ?>');
+                console.log("Page ID:", '<?= $page_id ?>');
+                console.log("Section ID:", '<?= $section_id ?>');
+                console.log("CSRF Token:", document.querySelector('[name="csrf_test_name"]')?.value);
+              const duplicateUrl = `<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions") ?>/${questionId}/duplicate`;
+                console.log("Duplicate URL:", duplicateUrl);
+
+                fetch(duplicateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('[name="csrf_test_name"]')?.value || ''
+                    }
+                })
+                .then(response => {
+                    console.log("Response status:", response.status);
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Duplicate response:", data);
+                    showNotification('Question duplicated successfully', 'success');
+                })
+                .catch(error => {
+                    console.error('Error duplicating question:', error);
+                    showNotification('An error occurred while duplicating question: ' + error.message, 'error');
+                });
+            }
+        }
+    });
 
         // Add option in edit modal
         document.getElementById('add_edit_option').addEventListener('click', function() {

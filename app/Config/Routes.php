@@ -238,6 +238,8 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->get('(:num)/questions/get/(:num)', 'QuestionnairController::getQuestion/$1/$2/$3/$4');
         $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
         $routes->post('(:num)/questions/(:num)/update', 'QuestionnairController::updateQuestion/$1/$2/$3/$4');
+        $routes->post('(:num)/questions/(:num)/duplicate', 'QuestionnairController::duplicate/$1/$2/$3/$4');
+ 
         // $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
     });
 
@@ -307,6 +309,7 @@ $routes->group('satuanorganisasi', ['filter' => 'adminAuth'], ['namespace' => 'A
         $routes->post('delete/(:num)', 'ProdiController::delete/$1');
     });
 });
+
 
 //alumni surveyor
 $routes->get('alumni/supervisi', 'AlumniController::supervisi');
