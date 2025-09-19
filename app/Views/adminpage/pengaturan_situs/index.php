@@ -5,9 +5,11 @@
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+
 <div class="container mt-4">
 
-    <?php if(session()->getFlashdata('success')): ?>
+    <?php if (session()->getFlashdata('success')): ?>
         <script>
             Swal.fire({
                 icon: 'success',
@@ -29,18 +31,29 @@
                 <div class="mb-3">
                     <label for="pengguna_button_text" class="form-label">Teks Tombol Pengguna</label>
                     <input type="text" name="pengguna_button_text" id="pengguna_button_text"
-                           value="<?= esc($settings['pengguna_button_text']) ?>" class="form-control">
+                        value="<?= esc($settings['pengguna_button_text']) ?>" class="form-control">
                 </div>
 
                 <div class="mb-3">
                     <label for="pengguna_button_color" class="form-label">Warna Tombol</label>
                     <div class="d-flex gap-2">
                         <input type="color" name="pengguna_button_color" id="pengguna_button_color"
-                               value="<?= esc($settings['pengguna_button_color']) ?>" 
-                               class="form-control form-control-color">
+                            value="<?= esc($settings['pengguna_button_color']) ?>"
+                            class="form-control form-control-color">
                         <button type="button" class="btn-reset" id="resetPengguna">Reset</button>
                     </div>
                 </div>
+
+                <label for="pengguna_button_color" class="form-label">Warna Tombol</label>
+                <div class="d-flex gap-2">
+                    <input type="color"
+                        name="pengguna_button_color"
+                        id="pengguna_button_color"
+                        value="<?= esc($settings['pengguna_button_color']) ?>"
+                        class="form-control form-control-color">
+                    <button type="button" class="btn-reset" id="resetPenggunaColor">
+                        Reset
+
 
                 <div class="mb-3">
                     <label for="pengguna_button_text_color" class="form-label">Warna Teks Tombol</label>
@@ -63,21 +76,11 @@
                             style="background-color: <?= esc($settings['pengguna_button_color']) ?>;
                                    color: <?= esc($settings['pengguna_button_text_color']) ?>;">
                         <?= esc($settings['pengguna_button_text']) ?>
+
                     </button>
                 </div>
-
-                <div class="text-end">
-                    <button type="submit" class="btn btn-success">💾 Simpan Pengaturan</button>
-                </div>
-            </form>
         </div>
-    </div>
 
-    <!-- ================= Import ================= -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5>Pengaturan Tombol Import Akun</h5>
-        </div>
         <div class="card-body p-4">
             <form action="<?= base_url('pengaturan-situs/save') ?>" method="post">
                 <div class="mb-3">
@@ -111,28 +114,21 @@
                            class="form-control form-control-color">
                 </div>
 
-                <!-- Preview -->
-                <div class="mb-3">
-                    <label class="form-label">Preview Tombol Import Akun</label><br>
-                    <button type="button" id="importPreview"
-                            style="background-color: <?= esc($settings['import_button_color'] ?? '#22c55e') ?>;
-                                   color: <?= esc($settings['import_button_text_color'] ?? '#ffffff') ?>;">
-                        <?= esc($settings['import_button_text'] ?? 'Import Akun') ?>
-                    </button>
-                </div>
 
-                <div class="text-end">
-                    <button type="submit" class="btn btn-success">💾 Simpan Tombol Import</button>
-                </div>
-            </form>
+        <div class="mb-3">
+            <label for="pengguna_button_text_color" class="form-label">Warna Teks Tombol</label>
+            <input type="color" name="pengguna_button_text_color" id="pengguna_button_text_color"
+                value="<?= esc($settings['pengguna_button_text_color']) ?>"
+                class="form-control form-control-color">
         </div>
-    </div>
 
-    <!-- ================= Organisasi ================= -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5>Pengaturan Tombol Satuan Organisasi</h5>
+        <div class="mb-3">
+            <label for="pengguna_button_hover_color" class="form-label">Warna Hover Tombol</label>
+            <input type="color" name="pengguna_button_hover_color" id="pengguna_button_hover_color"
+                value="<?= esc($settings['pengguna_button_hover_color']) ?>"
+                class="form-control form-control-color">
         </div>
+
         <div class="card-body p-4">
             <form action="<?= base_url('pengaturan-situs/save') ?>" method="post">
                 <div class="mb-3">
@@ -150,40 +146,25 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="org_button_text_color" class="form-label">Warna Teks Tombol</label>
-                    <input type="color" name="org_button_text_color" id="org_button_text_color"
-                           value="<?= esc($settings['org_button_text_color']) ?>" class="form-control form-control-color">
-                </div>
 
-                <div class="mb-3">
-                    <label for="org_button_hover_color" class="form-label">Warna Hover Tombol</label>
-                    <input type="color" name="org_button_hover_color" id="org_button_hover_color"
-                           value="<?= esc($settings['org_button_hover_color']) ?>" class="form-control form-control-color">
-                </div>
-
-                <!-- Preview -->
-                <div class="mb-3">
-                    <label class="form-label">Preview Tombol Satuan Organisasi</label><br>
-                    <button type="button" id="orgPreview"
-                            style="background-color: <?= esc($settings['org_button_color']) ?>;
-                                   color: <?= esc($settings['org_button_text_color']) ?>;">
-                        <?= esc($settings['org_button_text']) ?>
-                    </button>
-                </div>
-
-                <div class="text-end">
-                    <button type="submit" class="btn btn-success">💾 Simpan Pengaturan</button>
-                </div>
-            </form>
+        <!-- Preview -->
+        <div class="mb-3">
+            <label class="form-label">Preview Tombol</label><br>
+            <button type="button" id="previewButton"
+                style="background-color: <?= esc($settings['pengguna_button_color']) ?>;
+                                   color: <?= esc($settings['pengguna_button_text_color']) ?>;">
+                <?= esc($settings['pengguna_button_text']) ?>
+            </button>
         </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-success">💾 Simpan Pengaturan</button>
+        </div>
+
+        </form>
     </div>
+</div>
 
-    <!-- ================= Login ================= -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5>Pengaturan Tombol Login</h5>
-        </div>
         <div class="card-body p-4">
             <form action="<?= base_url('pengaturan-situs/save') ?>" method="post">
                 <div class="mb-3">
@@ -201,34 +182,160 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="login_button_text_color" class="form-label">Warna Teks Tombol</label>
-                    <input type="color" name="login_button_text_color" id="login_button_text_color"
-                           value="<?= esc($settings['login_button_text_color']) ?>" class="form-control form-control-color">
-                </div>
 
-                <div class="mb-3">
-                    <label for="login_button_hover_color" class="form-label">Warna Hover Tombol</label>
-                    <input type="color" name="login_button_hover_color" id="login_button_hover_color"
-                           value="<?= esc($settings['login_button_hover_color']) ?>" class="form-control form-control-color">
-                </div>
-
-                <!-- Preview -->
-                <div class="mb-3">
-                    <label class="form-label">Preview Tombol Login</label><br>
-                    <button type="button" id="loginPreview"
-                            style="background-color: <?= esc($settings['login_button_color']) ?>;
-                                   color: <?= esc($settings['login_button_text_color']) ?>;">
-                        <?= esc($settings['login_button_text']) ?>
-                    </button>
-                </div>
-
-                <div class="text-end">
-                    <button type="submit" class="btn btn-success">💾 Simpan Tombol Login</button>
-                </div>
-            </form>
-        </div>
+<!-- ================= Import ================= -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5>Pengaturan Tombol Import Akun</h5>
     </div>
+    <div class="card-body p-4">
+        <form action="<?= base_url('pengaturan-situs/save') ?>" method="post">
+
+            <div class="mb-3">
+                <label for="import_button_text" class="form-label">Teks Tombol</label>
+                <input type="text" name="import_button_text" id="import_button_text"
+                    value="<?= esc($settings['import_button_text'] ?? 'Import Akun') ?>"
+                    class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label for="import_button_color" class="form-label">Warna Tombol</label>
+                <div class="d-flex gap-2">
+                    <input type="color" name="import_button_color" id="import_button_color"
+                        value="<?= esc($settings['import_button_color'] ?? '#22c55e') ?>"
+                        class="form-control form-control-color">
+                    <button type="button" class="btn-reset" id="resetImport">Reset</button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="import_button_text_color" class="form-label">Warna Teks Tombol</label>
+                <input type="color" name="import_button_text_color" id="import_button_text_color"
+                    value="<?= esc($settings['import_button_text_color'] ?? '#ffffff') ?>"
+                    class="form-control form-control-color">
+            </div>
+
+            <div class="mb-3">
+                <label for="import_button_hover_color" class="form-label">Warna Hover Tombol</label>
+                <input type="color" name="import_button_hover_color" id="import_button_hover_color"
+                    value="<?= esc($settings['import_button_hover_color'] ?? '#16a34a') ?>"
+                    class="form-control form-control-color">
+            </div>
+
+            <!-- Preview -->
+            <div class="mb-3">
+                <label class="form-label">Preview Tombol Import Akun</label><br>
+                <button type="button" id="importPreview"
+                    style="background-color: <?= esc($settings['import_button_color'] ?? '#22c55e') ?>;
+                                   color: <?= esc($settings['import_button_text_color'] ?? '#ffffff') ?>;">
+                    <?= esc($settings['import_button_text'] ?? 'Import Akun') ?>
+                </button>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">💾 Simpan Tombol Import</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ================= Organisasi ================= -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5>Pengaturan Tombol Satuan Organisasi</h5>
+    </div>
+    <div class="card-body p-4">
+        <form action="<?= base_url('pengaturan-situs/save') ?>" method="post">
+            <div class="mb-3">
+                <label for="org_button_text" class="form-label">Teks Tombol</label>
+                <input type="text" name="org_button_text" id="org_button_text"
+                    value="<?= esc($settings['org_button_text']) ?>" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label for="org_button_color" class="form-label">Warna Tombol</label>
+                <input type="color" name="org_button_color" id="org_button_color"
+                    value="<?= esc($settings['org_button_color']) ?>" class="form-control form-control-color">
+            </div>
+
+            <div class="mb-3">
+                <label for="org_button_text_color" class="form-label">Warna Teks Tombol</label>
+                <input type="color" name="org_button_text_color" id="org_button_text_color"
+                    value="<?= esc($settings['org_button_text_color']) ?>" class="form-control form-control-color">
+            </div>
+
+            <div class="mb-3">
+                <label for="org_button_hover_color" class="form-label">Warna Hover Tombol</label>
+                <input type="color" name="org_button_hover_color" id="org_button_hover_color"
+                    value="<?= esc($settings['org_button_hover_color']) ?>" class="form-control form-control-color">
+            </div>
+
+            <!-- Preview -->
+            <div class="mb-3">
+                <label class="form-label">Preview Tombol Satuan Organisasi</label><br>
+                <button type="button" id="orgPreview"
+                    style="background-color: <?= esc($settings['org_button_color']) ?>;
+                                   color: <?= esc($settings['org_button_text_color']) ?>;">
+                    <?= esc($settings['org_button_text']) ?>
+                </button>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">💾 Simpan Pengaturan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ================= Login ================= -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5>Pengaturan Tombol Login</h5>
+    </div>
+    <div class="card-body p-4">
+        <form action="<?= base_url('pengaturan-situs/save') ?>" method="post">
+            <div class="mb-3">
+                <label for="login_button_text" class="form-label">Teks Tombol Login</label>
+                <input type="text" name="login_button_text" id="login_button_text"
+                    value="<?= esc($settings['login_button_text']) ?>" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label for="login_button_color" class="form-label">Warna Tombol</label>
+                <input type="color" name="login_button_color" id="login_button_color"
+                    value="<?= esc($settings['login_button_color']) ?>" class="form-control form-control-color">
+            </div>
+
+            <div class="mb-3">
+                <label for="login_button_text_color" class="form-label">Warna Teks Tombol</label>
+                <input type="color" name="login_button_text_color" id="login_button_text_color"
+                    value="<?= esc($settings['login_button_text_color']) ?>" class="form-control form-control-color">
+            </div>
+
+            <div class="mb-3">
+                <label for="login_button_hover_color" class="form-label">Warna Hover Tombol</label>
+                <input type="color" name="login_button_hover_color" id="login_button_hover_color"
+                    value="<?= esc($settings['login_button_hover_color']) ?>" class="form-control form-control-color">
+            </div>
+
+            <!-- Preview -->
+            <div class="mb-3">
+                <label class="form-label">Preview Tombol Login</label><br>
+                <button type="button" id="loginPreview"
+                    style="background-color: <?= esc($settings['login_button_color']) ?>;
+                                   color: <?= esc($settings['login_button_text_color']) ?>;">
+                    <?= esc($settings['login_button_text']) ?>
+                </button>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">💾 Simpan Tombol Login</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 
     <!-- ================= Logout ================= -->
     <div class="card mt-4">
@@ -269,18 +376,20 @@
                     <label class="form-label">Preview Tombol Logout</label><br>
                     <button type="button" id="logoutPreview"
                             style="background-color: <?= esc($settings['logout_button_color']) ?>;
-                                   color: <?= esc($settings['logout_button_text_color']) ?>;">
-                        <?= esc($settings['logout_button_text']) ?>
-                    </button>
-                </div>
 
-                <div class="text-end">
-                    <button type="submit" class="btn btn-success">💾 Simpan Tombol Logout</button>
-                </div>
-            </form>
-        </div>
+                                   color: <?= esc($settings['logout_button_text_color']) ?>;">
+                    <?= esc($settings['logout_button_text']) ?>
+                </button>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">💾 Simpan Tombol Logout</button>
+            </div>
+        </form>
     </div>
 </div>
+
+
 
 <script>
     // ====== Helper Alert ======
@@ -292,6 +401,7 @@
             timer: 2000,
             showConfirmButton: false
         });
+
     }
 
     document.addEventListener("DOMContentLoaded", function() {
@@ -425,6 +535,7 @@
             showResetAlert("Logout");
         });
     });
+
 </script>
 
 <?= $this->endSection() ?>
