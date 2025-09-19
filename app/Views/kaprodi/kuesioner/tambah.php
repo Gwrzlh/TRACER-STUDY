@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <?= $this->extend('layout/sidebar') ?>
+    <?= $this->extend('layout/sidebar_kaprodi') ?>
     <?= $this->section('content') ?>
     <link rel="stylesheet" href="<?= base_url('css/questioner/tambah.css') ?>">
 
@@ -19,7 +19,7 @@
             <h2 class="text-xl font-semibold">Buat Kuesioner Baru</h2>
         </div>
         <hr class="mb-6 border-gray-300">
-        <form action="<?= base_url('/admin/questionnaire/store') ?>" method="post" class="space-y-5">
+        <form action="<?= base_url('/kaprodi/kuesioner/store') ?>" method="post" class="space-y-5">
 
             <!-- Judul -->
             <div>
@@ -44,6 +44,13 @@
                     <option value="draft">Draft</option>
                     <option value="inactive">Tidak Aktif</option>
                 </select>
+            </div>
+            <!-- Prodi (readonly sesuai kaprodi) -->
+            <div>
+                <label class="block font-medium text-gray-700 mb-1">Prodi</label>
+                <input type="text" name="prodi_name" value="<?= $kaprodi['nama_prodi'] ?>" readonly
+                    class="w-full border rounded-lg p-2 bg-gray-100 cursor-not-allowed">
+                <input type="hidden" name="id_prodi" value="<?= $kaprodi['id_prodi'] ?>">
             </div>
 
             <!-- Conditional Logic -->
@@ -89,7 +96,7 @@
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                     Simpan
                 </button>
-                <a href="<?= base_url('/admin/questionnaire') ?>"
+                <a href="<?= base_url('/kaprodi/kuesioner') ?>"
                     class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
                     Batal
                 </a>
