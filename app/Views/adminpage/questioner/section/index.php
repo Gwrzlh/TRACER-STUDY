@@ -3,101 +3,22 @@
 <link rel="stylesheet" href="/css/questioner/section/index.css">
 <div class="container mt-4">
   
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Detail</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Link ke CSS eksternal -->
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        /* Custom navbar animations - sama dengan navbar sebelumnya */
-        .navbar-shadow {
-            box-shadow: 0 2px 20px rgba(59, 130, 246, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .nav-title {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
-        }
-        
-        .nav-title::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            transition: width 0.3s ease;
-        }
-        
-        .nav-title:hover::after {
-            width: 100%;
-        }
-
-        /* Link navigasi dengan hover effect yang sama */
-        .nav-link {
-            background: linear-gradient(135deg, #374151 0%, #6b7280 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            transition: width 0.3s ease;
-        }
-        
-        .nav-link:hover::after {
-            width: 100%;
-        }
-        
-        /* Subtle background pattern */
-        .nav-bg {
-            background: 
-                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
-        }
-
-        /* Separator untuk visual clarity */
-        .nav-separator {
-            width: 1px;
-            height: 24px;
-            background: linear-gradient(to bottom, transparent, rgba(156, 163, 175, 0.5), transparent);
-            margin: 0 8px;
-        }
-
-        /* Breadcrumb arrow styling */
-        .nav-arrow {
-            color: #9ca3af;
-            font-size: 14px;
-            margin: 0 8px;
-        }
-    </style>
-</head>
-<body class="bg-gray-50">
+<!-- Navbar -->
+    <nav class="navbar navbar-light bg-white border-bottom shadow-sm mb-3">
+        <div class="container-fluid px-3">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire') ?>">Daftar Kuesioner</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages') ?>">Halaman Kuesioner</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages/15/sections') ?>">Kuesioner Section</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
    <!-- Header Section -->
 <div class="pengguna-page">
