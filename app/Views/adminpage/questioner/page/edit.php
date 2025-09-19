@@ -85,7 +85,7 @@
                                         class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                     <option value="">Pilih Pertanyaan</option>
                                     <?php foreach ($questions as $q): ?>
-                                        <option value="<?= $q['id'] ?>" <?= $q['id'] == $condition['question_id'] ? 'selected' : '' ?>><?= esc($q['question_text']) ?></option>
+                                        <option value="<?= $q['id'] ?>" <?= $q['id'] == $condition[''] ? 'selected' : '' ?>><?= esc($q['question_text']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                                 <select name="operator[]" 
@@ -101,7 +101,7 @@
                                            placeholder="Value" 
                                            class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
                                            value="<?= esc($condition['value']) ?>" 
-                                           required>
+                                           >
                                 </span>
                                 <button type="button" 
                                         class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
@@ -130,7 +130,7 @@
                                        name="condition_value[]" 
                                        placeholder="Value" 
                                        class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                       required>
+                                       >
                             </span>
                             <button type="button" 
                                     class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium" 
