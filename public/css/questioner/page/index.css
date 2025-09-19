@@ -1,29 +1,53 @@
-/* desain css di page */
-/* ===== STYLE HALAMAN KUESIONER (KONSISTEN MODERN) ===== */
+/* ===== STYLE HALAMAN KUESIONER (KONSISTEN DENGAN DAFTAR KUESIONER) ===== */
 
 /* Global */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #f8fafc;
     color: #111827;
     line-height: 1.5;
 }
 
-/* Container */
+/* Container (dari halaman kuesioner, diselaraskan dengan page-wrapper daftar) */
 .container {
     background: #fff;
-    padding: 32px; /* sama dengan card alumni */
+    padding: 32px;
     border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04); /* shadow lembut alumni */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     border: 1px solid #e5e7eb;
     width: 100%;
-    max-width: 100%; /* biar full seperti alumni */
+    max-width: 100%;
     margin: 0 auto;
 }
 
-/* Judul */
+/* Page Layout (dari daftar kuesioner untuk konsistensi) */
+.pengguna-page {
+    width: 100%;
+}
+
+.page-wrapper {
+    padding: 24px;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+.page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Page Title (dari daftar kuesioner) */
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 32px;
+    letter-spacing: -0.5px;
+}
+
+/* Judul dalam container (dari halaman kuesioner) */
 .container h2 {
-    font-size: 24px; /* sesuai alumni card-title */
+    font-size: 24px;
     font-weight: 600;
     color: #111827;
     margin-bottom: 8px;
@@ -35,22 +59,41 @@ body {
     color: #6b7280;
 }
 
-/* Tabel */
-.table thead th {
-    padding: 16px 32px; /* sama dengan questionnaire-table */
-    font-size: 13px;
-    font-weight: 600;
-    color: #6b7280;
-    text-transform: uppercase;
-    border-bottom: 1px solid #e5e7eb;
+/* Top Controls (dari daftar kuesioner) */
+.top-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 20px;
 }
 
-.table tbody td {
-    padding: 20px 32px; /* sama dengan questionnaire-table */
+.button-container .btn-add {
+    padding: 12px 20px;
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
     font-size: 14px;
-    border-bottom: 1px solid #f3f4f6;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
 }
-/* Button Tambah Halaman */
+
+.button-container .btn-add:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+/* Button Tambah Halaman (dari halaman kuesioner, diselaraskan) */
 .btn-primary {
     background: #3b82f6;
     border: none;
@@ -61,60 +104,199 @@ body {
     transition: all 0.2s ease;
     color: #fff;
 }
+
 .btn-primary:hover {
     background: #2563eb;
     transform: translateY(-1px);
 }
 
-/* Alert box */
+/* Alert box (dari halaman kuesioner) */
 .alert {
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 14px;
     margin-bottom: 16px;
 }
+
 .alert-success {
     background: #ecfdf5;
     border: 1px solid #a7f3d0;
     color: #059669;
 }
+
 .alert-warning {
     background: #fffbeb;
     border: 1px solid #fcd34d;
     color: #b45309;
 }
 
-/* Tabel */
-.table {
+/* Table Container (dari daftar kuesioner) */
+.table-container {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+/* Table Styles (dari daftar kuesioner) */
+.user-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 15px;
+    background-color: white;
     font-size: 14px;
 }
 
-.table thead {
-    background: #f9fafb;
-}
-.table thead th {
-    padding: 14px 20px;
-    font-weight: 600;
-    text-align: left;
-    font-size: 13px;
-    color: #6b7280;
-    text-transform: uppercase;
+/* Table Header (dari daftar kuesioner) */
+.user-table thead {
+    background-color: #f9fafb;
     border-bottom: 1px solid #e5e7eb;
+    display: table-header-group;
 }
 
-.table tbody td {
-    padding: 14px 20px;
-    vertical-align: middle;
+.user-table th {
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.user-table th:first-child,
+.user-table td:first-child {
+    display: table-cell;
+}
+
+.user-table th:last-child {
+    width: 120px;
+    text-align: center;
+}
+
+/* Table Body (dari daftar kuesioner) */
+.user-table tbody tr {
     border-bottom: 1px solid #f3f4f6;
-}
-.table tbody tr:hover {
-    background: #f9fafb;
+    transition: background-color 0.2s ease;
 }
 
-/* Tombol Aksi */
+.user-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.user-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.user-table td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    color: #374151;
+}
+
+/* Questionnaire Info (dari daftar kuesioner) */
+.questionnaire-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.questionnaire-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.questionnaire-description {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* Status Badges (dari daftar kuesioner) */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-badge.status-active {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.status-badge.status-inactive {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.status-badge[style*="fef3c7"] {
+    background-color: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fed7aa;
+}
+
+/* Action Buttons (dari daftar kuesioner, diselaraskan dengan btn-sm halaman kuesioner) */
+.action-cell {
+    text-align: center;
+}
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.btn-edit {
+    background-color: #f0f9ff;
+    color: #0369a1;
+}
+
+.btn-edit:hover {
+    background-color: #0369a1;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-delete {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+    background-color: #dc2626;
+    color: white;
+}
+
+/* Tombol Aksi (dari halaman kuesioner, diselaraskan) */
 .btn-sm {
     padding: 7px 14px;
     border-radius: 8px;
@@ -133,6 +315,7 @@ body {
     background: #10b981;
     color: #fff;
 }
+
 .btn-info:hover {
     background: #059669;
 }
@@ -142,6 +325,7 @@ body {
     background: #f59e0b;
     color: #fff;
 }
+
 .btn-warning:hover {
     background: #d97706;
 }
@@ -151,81 +335,265 @@ body {
     background: #ef4444;
     color: #fff;
 }
+
 .btn-danger:hover {
     background: #dc2626;
 }
- /* Custom navbar animations - sama dengan navbar sebelumnya */
-        .navbar-shadow {
-            box-shadow: 0 2px 20px rgba(59, 130, 246, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .nav-title {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
-        }
-        
-        .nav-title::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            transition: width 0.3s ease;
-        }
-        
-        .nav-title:hover::after {
-            width: 100%;
-        }
 
-        /* Link navigasi dengan hover effect yang sama */
-        .nav-link {
-            background: linear-gradient(135deg, #374151 0%, #6b7280 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
-            transition: all 0.3s ease;
-        }
+/* Empty State (dari daftar kuesioner) */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
-        .nav-link:hover {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+.empty-state-icon {
+    font-size: 48px;
+    color: #9ca3af;
+    margin-bottom: 20px;
+    opacity: 1;
+}
 
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            transition: width 0.3s ease;
-        }
-        
-        .nav-link:hover::after {
-            width: 100%;
-        }
-        
-        /* Subtle background pattern */
-        .nav-bg {
-            background: 
-                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
-        }
+.empty-state-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
 
-        /* Separator untuk visual clarity */
-        .nav-separator {
-            width: 1px;
-            height: 24px;
-            background: linear-gradient(to bottom, transparent, rgba(156, 163, 175, 0.5), transparent);
-            margin: 0 8px;
-        }
+.empty-state-description {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+/* Responsive Design (dari daftar kuesioner) */
+@media (max-width: 768px) {
+    .page-wrapper {
+        padding: 16px;
+    }
+    
+    .page-title {
+        font-size: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .top-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+    
+    .controls-container {
+        order: 2;
+    }
+    
+    .button-container {
+        order: 1;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .user-table {
+        font-size: 13px;
+    }
+    
+    .user-table th,
+    .user-table td {
+        padding: 12px 16px;
+    }
+    
+    .questionnaire-title {
+        font-size: 13px;
+    }
+    
+    .questionnaire-description {
+        font-size: 12px;
+    }
+    
+    .action-buttons {
+        gap: 2px;
+    }
+    
+    .btn-action {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 576px) {
+    .table-container {
+        margin: 0 -8px;
+    }
+    
+    .user-table th,
+    .user-table td {
+        padding: 10px 12px;
+    }
+    
+    .user-table th:nth-child(3),
+    .user-table td:nth-child(3) {
+        display: none;
+    }
+    
+    .empty-state {
+        padding: 40px 16px;
+        margin: 0;
+    }
+    
+    .empty-state-icon {
+        font-size: 36px;
+    }
+}
+
+/* Scrollbar Styling (dari daftar kuesioner) */
+.questionnaire-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.questionnaire-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.questionnaire-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.questionnaire-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Custom animations (dari daftar kuesioner) */
+.navbar-shadow {
+    box-shadow: 0 2px 20px rgba(59, 130, 246, 0.1);
+    transition: all 0.3s ease;
+}
+
+.nav-title {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+}
+
+.nav-title::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    transition: width 0.3s ease;
+}
+
+.nav-title:hover::after {
+    width: 100%;
+}
+
+/* Subtle background pattern */
+.nav-bg {
+    background: 
+        radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
+}
+
+/* Navbar Styling (dari daftar kuesioner) */
+.navbar {
+    background-color: #ffffff;
+    padding: 16px 30px;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    left: 250px;
+    right: 0;
+}
+
+.navbar .nav {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.navbar .nav-item .nav-link {
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.navbar .nav-item .nav-link:hover,
+.navbar .nav-item .nav-link.active {
+    background-color: #3b82f6;
+    color: white;
+    text-decoration: none;
+}
+
+/* Responsif Navbar (dari daftar kuesioner) */
+@media (max-width: 768px) {
+    .navbar {
+        left: 0;
+        width: 100%;
+        padding: 12px 20px;
+    }
+
+    .navbar .nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .navbar .nav-item .nav-link {
+        padding: 8px 16px;
+        width: 100%;
+        text-align: left;
+    }
+}
+
+/* Sidebar Styling (dari daftar kuesioner) */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    transition: margin-left 0.3s;
+}
+
+/* Responsif Sidebar (dari daftar kuesioner) */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    .main-content {
+        margin-left: 0;
+    }
+    .navbar {
+        margin-left: 0;
+    }
+}
