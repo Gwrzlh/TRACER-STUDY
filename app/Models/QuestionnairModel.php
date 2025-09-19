@@ -20,7 +20,7 @@ class QuestionnairModel extends Model
     public function checkConditions($conditions, $user_data, $previous_answers = [], $forRole = 'alumni')
 
     // Di QuestionnairModel.php, replace method checkConditions()
- 
+
     {
         if (empty($conditions) || $conditions === null || $conditions === '') {
             log_message('debug', '[checkConditions] No conditions provided or empty, return true');
@@ -34,9 +34,22 @@ class QuestionnairModel extends Model
         }
 
         $user_fields = [
-            'email', 'username', 'group_id', 'nama_lengkap', 'nim', 'id_jurusan', 'id_prodi',
-            'angkatan', 'ipk', 'alamat', 'alamat2', 'id_cities', 'kodepos', 'tahun_kelulusan',
-            'jeniskelamin', 'notlp'
+            'email',
+            'username',
+            'group_id',
+            'nama_lengkap',
+            'nim',
+            'id_jurusan',
+            'id_prodi',
+            'angkatan',
+            'ipk',
+            'alamat',
+            'alamat2',
+            'id_cities',
+            'kodepos',
+            'tahun_kelulusan',
+            'jeniskelamin',
+            'notlp'
         ];
 
         $all_fields = array_merge($user_fields, array_keys($previous_answers));
@@ -78,7 +91,7 @@ class QuestionnairModel extends Model
 
             $userValue = trim(is_array($data_value) ? implode(',', $data_value) : $data_value); // Handle array (checkbox)
             log_message('debug', "[checkConditions] Comparing field=$field, userValue='$userValue', value='$value', operator=$operator");
-            
+
             $match = false;
             switch ($operator) {
                 case 'is':
@@ -95,7 +108,7 @@ class QuestionnairModel extends Model
                     log_message('debug', "[checkConditions] Unknown operator $operator, assume false");
                     $match = false;
             }
-            
+
             if (!$match) {
                 log_message('debug', "[checkConditions] Condition failed for $field, return false");
                 return false;
@@ -132,7 +145,6 @@ class QuestionnairModel extends Model
 
 
     public function getQuestionnaireStructure($q_id, $user_data, $previous_answers = [], $forRole = null)
-
     {
         $q = $this->find($q_id);
         if (!$q) {
@@ -161,7 +173,6 @@ class QuestionnairModel extends Model
                 continue;
             }
 
-
             $sections = $section_model->where('page_id', $page['id'])
                 ->orderBy('order_no', 'ASC')
                 ->findAll();
@@ -178,13 +189,6 @@ class QuestionnairModel extends Model
                     continue;
                 }
 
-                // FIX: Disable filter untuk section conditional (render semua, JS hide initial)
-                // if (!$this->checkConditions($section['conditional_logic'] ?? '', $user_data, $previous_answers)) {
-                //     log_message('debug', "[getQuestionnaireStructure] Section {$section['id']} filtered out");
-                //     continue;
-                // }
-
-
                 $questions = $question_model->where('section_id', $section['id'])
                     ->orderBy('order_no', 'ASC')
                     ->findAll();
@@ -199,15 +203,7 @@ class QuestionnairModel extends Model
                         continue;
                     }
 
-                    // Opsi dropdown/radio/checkbox
-
-                    // FIX: Disable filter untuk question conditional
-                    // if (!$this->checkConditions($question['condition_json'] ?? '', $user_data, $previous_answers)) {
-                    //     log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} filtered out");
-                    //     continue;
-                    // }
                     // Ambil opsi untuk dropdown/radio/checkbox
-
                     if (in_array(strtolower($question['question_type']), ['dropdown', 'select', 'radio', 'checkbox'])) {
                         $options = $option_model->where('question_id', $question['id'])
                             ->orderBy('order_number', 'ASC')->findAll();
@@ -216,21 +212,19 @@ class QuestionnairModel extends Model
                         $question['options'] = [];
                     }
 
-                    // Matrix
+                    // Ambil matrix rows & columns jika tipe matrix
                     if (strtolower($question['question_type']) === 'matrix') {
-
-                        $question['matrix_rows']    = $matrix_row_model->where('question_id', $question['id'])
+                        $question['matrix_rows'] = $matrix_row_model->where('question_id', $question['id'])
                             ->orderBy('order_no', 'ASC')->findAll();
                         $question['matrix_columns'] = $matrix_column_model->where('question_id', $question['id'])
                             ->orderBy('order_no', 'ASC')->findAll();
+                    } else {
+                        $question['matrix_rows'] = [];
+                        $question['matrix_columns'] = [];
                     }
 
-
-//                         $question['matrix_rows'] = $matrix_row_model->where('question_id', $question['id'])->orderBy('order_no', 'ASC')->findAll();
-//                         $question['matrix_columns'] = $matrix_column_model->where('question_id', $question['id'])->orderBy('order_no', 'ASC')->findAll();
-                        log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} matrix rows: " . count($question['matrix_rows']) . ", columns: " . count($question['matrix_columns']));
-                    }
                     log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} options: " . print_r($question['options'], true));
+                    log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} matrix rows: " . count($question['matrix_rows']) . ", columns: " . count($question['matrix_columns']));
 
                     $filtered_questions[] = $question;
                 }
