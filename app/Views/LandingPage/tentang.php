@@ -1,107 +1,155 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title><?= esc($tentang['judul']) ?></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title><?= esc($tentang['judul']) ?></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-    }
+  <!-- Font Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <style>
     body {
-        display: flex;
-        flex-direction: column;
-        font-family: 'Inter', 'Segoe UI', sans-serif;
-        background-color: #deddddff;
-        color: #1f2937;
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+      color: #1f2937;
     }
 
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      color: #fff;
+      padding: 100px 20px 70px;
+      text-align: center;
+      border-radius: 0 0 40px 40px;
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: #e5e7eb;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Dropdown Section */
+    .dropdown-section {
+      margin-top: 40px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    /* Konten */
     main {
-        flex: 1;
-        padding: 50px 20px;
+      padding: 60px 20px;
     }
 
-    .content {
-        width: 100%;
-        max-width: 100%;
-        margin-left: 0;
-        margin-right: auto;
-        background-color: #ffffff;
-        padding: 50px 60px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    .card-content {
+      background: #fff;
+      border-left: 6px solid #2563eb;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+      padding: 35px 40px;
+      margin-bottom: 30px;
+      transition: all 0.3s ease;
     }
 
-    h2 {
-        font-weight: 700;
-        font-size: 2.25rem;
-        margin-bottom: 25px;
-        color: #111827;
-        border-bottom: 2px solid #e5e7eb;
-        padding-bottom: 10px;
+    .card-content:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
     }
 
-    p {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        margin-bottom: 20px;
-        color: #374151;
+    .card-content h4 {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #2563eb;
     }
 
-    ul {
-        padding-left: 1.5rem;
-        margin-bottom: 20px;
+    .card-content p,
+    .card-content ul {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: #374151;
     }
 
-    ul li {
-        font-size: 1.05rem;
-        margin-bottom: 10px;
-        line-height: 1.6;
-        color: #4b5563;
+    .card-content ul {
+      padding-left: 1.5rem;
+      margin-bottom: 0;
     }
 
-    @media (max-width: 767px) {
-        .content {
-            padding: 20px;
-        }
-
-        h2 {
-            font-size: 1.75rem;
-        }
-
-        p, ul li {
-            font-size: 1rem;
-        }
+    .card-content ul li {
+      margin-bottom: 10px;
     }
-    </style>
 
-    <!-- Optional: Google Font Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+      .card-content {
+        padding: 25px 20px;
+      }
+      .card-content h4 {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
 <!-- Navbar -->
 <?= view('layout/navbar') ?>
 
-<!-- Konten utama -->
+<!-- Hero -->
+<section class="hero animate__animated animate__fadeIn">
+  <h1 class="animate__animated animate__fadeInDown"><?= esc($tentang['judul']) ?></h1>
+  <p class="animate__animated animate__fadeInUp animate__delay-1s">Kenali lebih dalam tentang kami</p>
+</section>
+
+<!-- Dropdown -->
+<div class="dropdown-section animate__animated animate__fadeInUp animate__delay-1s">
+  <div class="dropdown d-inline-block">
+    <button class="btn btn-primary dropdown-toggle px-4 py-2 rounded-pill shadow-sm" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+      Pilih Menu
+    </button>
+    <ul class="dropdown-menu shadow" aria-labelledby="dropdownMenuButton">
+      <li><a class="dropdown-item <?= service('uri')->getSegment(1) === 'tentang' ? 'active' : '' ?>" href="<?= base_url('tentang') ?>">Tentang</a></li>
+      <li><a class="dropdown-item <?= service('uri')->getSegment(1) === 'sop' ? 'active' : '' ?>" href="<?= base_url('sop') ?>">SOP</a></li>
+      <li><a class="dropdown-item <?= service('uri')->getSegment(1) === 'event' ? 'active' : '' ?>" href="<?= base_url('event') ?>">Event</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Konten -->
 <main>
-   <div class="content">
-        <h2><?= esc($tentang['judul']) ?></h2>
+  <div class="container">
+    <div class="card-content animate__animated animate__fadeInUp animate__delay-1s">
+      <h4>Tentang Kami</h4>
+      <div class="animate__animated animate__fadeIn animate__delay-2s">
         <?= $tentang['isi'] ?>
-   </div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <!-- Footer -->
 <?= view('layout/footer') ?>
 
-<!-- Bootstrap Bundle -->
+<!-- Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
