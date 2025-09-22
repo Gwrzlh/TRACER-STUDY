@@ -99,11 +99,14 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('delete/(:num)', 'TipeOrganisasiController::delete/$1');
     });
 
-    // --- Tentang ---
-    $routes->get('tentang', 'Tentang::index');
-    $routes->get('tentang', 'Tentang::index');
-    $routes->get('admin/tentang/edit', 'Tentang::edit');
-    $routes->post('admin/tentang/update', 'Tentang::update');
+   // --- Tentang (Landing Page) ---
+$routes->get('tentang', 'Tentang::index');
+$routes->get('event', 'Tentang::event');
+
+// --- Tentang (Admin) ---
+$routes->get('admin/tentang/edit', 'Tentang::edit');
+$routes->post('admin/tentang/update', 'Tentang::update');
+
 
     // Tipe Organisasi
     $routes->group('tipeorganisasi', function ($routes) {
@@ -141,6 +144,8 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     });
 
 
+// --- Perusahaan ---
+$routes->get('perusahaan/dashboard', 'PerusahaanController::dashboard');
 
 
 
@@ -149,14 +154,18 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('tentang/edit', 'Tentang::edit');
     $routes->post('tentang/update', 'Tentang::update');
 
-    // Laporan
-    $routes->group('laporan', function ($routes) {
-        $routes->get('', 'AdminLaporan::index');
-        $routes->get('create', 'AdminLaporan::create');
-        $routes->post('save', 'AdminLaporan::save');
-        $routes->get('edit/(:num)', 'AdminLaporan::edit/$1');
-        $routes->post('update/(:num)', 'AdminLaporan::update/$1');
-    });
+   // Laporan
+$routes->group('laporan', function ($routes) {
+    $routes->get('', 'AdminLaporan::index');
+    $routes->get('create', 'AdminLaporan::create');
+    $routes->post('save', 'AdminLaporan::save');
+    $routes->get('edit/(:num)', 'AdminLaporan::edit/$1');
+    $routes->post('update/(:num)', 'AdminLaporan::update/$1');
+
+    // Tambahkan route DELETE (dipanggil via POST dari frontend)
+    $routes->post('delete/(:num)', 'AdminLaporan::delete/$1');
+});
+
 
     // $routes->group('respon', function ($routes) {
     //     $routes->get('', 'AdminRespon::index');
