@@ -15,7 +15,7 @@
     </div>
 
         <!-- Table -->
-<div class="table-wrapper">
+<div class="table-container">
     <table class="data-table">
         <thead>
             <tr>

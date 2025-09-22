@@ -18,6 +18,7 @@ use App\Models\QuestionnairConditionModel;
 use App\Models\MatrixRowModel;
 use App\Models\MatrixColumnModels;
 use Config\App;
+use App\Models\AnswerModel;
 
 class QuestionnairController extends BaseController
 {
@@ -277,32 +278,63 @@ class QuestionnairController extends BaseController
 
 
 
-    public function delete($id)
+   public function delete($id)
     {
+        // Cek apakah ada answers terkait
+        $questionModel = new QuestionModel();
+        $questions = $questionModel->where('questionnaires_id', $id)->findAll();
+        $hasAnswers = false;
+        $answerModel = new AnswerModel(); // Asumsi model AnswerModel ada di App\Models\AnswerModel
+
+        foreach ($questions as $q) {
+            $answerCount = $answerModel->where('question_id', $q['id'])->countAllResults();
+            if ($answerCount > 0) {
+                $hasAnswers = true;
+                break;
+            }
+        }
+
+        // Konfirmasi kedua via parameter GET 'confirm' (dari JS di view)
+        $confirm = $this->request->getGet('confirm');
+        if ($hasAnswers && !$confirm) {
+            // Redirect dengan parameter untuk konfirmasi
+            return redirect()->to(current_url() . '?confirm=1')->with('warning', 'Questionnaire ini memiliki jawaban terkait. Apakah Anda yakin ingin menghapus? Jawaban akan ikut terhapus.');
+        }
+
+        // Lanjut hapus
         $questionnaireModel = new QuestionnairModel();
         $pageModel = new QuestionnairePageModel();
         $sectionModel = new SectionModel();
         $questionModel = new QuestionModel();
         $optionModel = new QuestionOptionModel();
+        $matrixRowModel = new MatrixRowModel();
+        $matrixColumnModel = new MatrixColumnModels(); // Sesuaikan nama model
 
-        // Ambil semua pertanyaan dari questionnaire ini
-        $questions = $questionModel->where('questionnaires_id', $id)->findAll();
-
-        // Loop hapus option setiap pertanyaan
+        // Loop hapus relasi setiap pertanyaan, termasuk answers
         foreach ($questions as $q) {
+            // Hapus answers untuk question ini (baru ditambah)
+            $answerModel->where('question_id', $q['id'])->delete();
+
+            // Hapus options dari question_options
             $optionModel->where('question_id', $q['id'])->delete();
+
+            // Hapus matrix rows dari matrix_rows
+            $matrixRowModel->where('question_id', $q['id'])->delete();
+
+            // Hapus matrix columns dari matrix_columns
+            $matrixColumnModel->where('question_id', $q['id'])->delete();
         }
 
-        // Hapus pertanyaan
+        // Hapus pertanyaan dari questions
         $questionModel->where('questionnaires_id', $id)->delete();
 
-        // Hapus section
+        // Hapus section dari questionnaire_sections
         $sectionModel->where('questionnaire_id', $id)->delete();
 
-        // Hapus page
+        // Hapus page dari questionnaire_pages
         $pageModel->where('questionnaire_id', $id)->delete();
 
-        // Terakhir hapus questionnaire
+        // Terakhir hapus questionnaire dari questionnaires
         $questionnaireModel->delete($id);
 
         return redirect()->to('admin/questionnaire')->with('success', 'Data dan relasinya berhasil dihapus.');
@@ -969,5 +1001,138 @@ public function updateQuestion($questionnaire_id, $page_id, $section_id, $questi
     ]);
 }
 
+public function duplicate($questionnaire_id, $page_id, $section_id, $question_id)
+    {
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        try {
+            $questionModel = new QuestionModel();
+            $optionModel = new QuestionOptionModel();
+            $matrixRowModel = new MatrixRowModel();
+            $matrixColumnModel = new MatrixColumnModels();
+
+            // Ambil pertanyaan asli
+            $question = $questionModel
+                ->where('id', $question_id)
+                ->where('questionnaires_id', $questionnaire_id)
+                ->where('page_id', $page_id)
+                ->where('section_id', $section_id)
+                ->first();
+
+            if (!$question) {
+                log_message('error', "Question not found for ID: $question_id");
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
+            }
+
+            // Hitung order_no baru (max + 1)
+            $maxOrder = $questionModel->where([
+                'questionnaires_id' => $questionnaire_id,
+                'page_id' => $page_id,
+                'section_id' => $section_id
+            ])->selectMax('order_no')->first()['order_no'] ?? 0;
+
+            // Siapkan data untuk question baru
+            $newQuestionData = [
+                'questionnaires_id' => $question['questionnaires_id'],
+                'page_id' => $question['page_id'],
+                'section_id' => $question['section_id'],
+                'question_text' => $question['question_text'] . ' (Copy)',
+                'question_type' => $question['question_type'],
+                'is_required' => $question['is_required'],
+                'order_no' => $maxOrder + 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+                'condition_json' => $question['condition_json'], // Copy conditional logic
+            ];
+
+            // Tambah field khusus berdasarkan tipe
+            if ($question['question_type'] === 'scale') {
+                $newQuestionData['scale_min'] = $question['scale_min'];
+                $newQuestionData['scale_max'] = $question['scale_max'];
+                $newQuestionData['scale_step'] = $question['scale_step'];
+                $newQuestionData['scale_min_label'] = $question['scale_min_label'];
+                $newQuestionData['scale_max_label'] = $question['scale_max_label'];
+            } elseif ($question['question_type'] === 'file') {
+                $newQuestionData['allowed_types'] = $question['allowed_types'];
+                $newQuestionData['max_file_size'] = $question['max_file_size'];
+            }
+
+            // Insert question baru
+            $newQuestionId = $questionModel->insert($newQuestionData);
+            log_message('debug', 'New question inserted: ID=' . $newQuestionId);
+
+            // Copy options (radio, checkbox, dropdown)
+            if (in_array($question['question_type'], ['radio', 'checkbox', 'dropdown'])) {
+                $options = $optionModel->where('question_id', $question_id)
+                    ->orderBy('order_number', 'ASC')
+                    ->findAll();
+
+                if (!empty($options)) {
+                    $optionsToInsert = [];
+                    foreach ($options as $opt) {
+                        $optionsToInsert[] = [
+                            'question_id' => $newQuestionId,
+                            'option_text' => $opt['option_text'],
+                            'option_value' => $opt['option_value'],
+                            'next_question_id' => $opt['next_question_id'],
+                            'order_number' => $opt['order_number']
+                        ];
+                    }
+                    $optionModel->insertBatch($optionsToInsert);
+                    log_message('debug', 'Options copied: ' . json_encode($optionsToInsert));
+                }
+            }
+
+            // Copy matrix rows dan columns
+            if ($question['question_type'] === 'matrix') {
+                $rows = $matrixRowModel->where('question_id', $question_id)
+                    ->orderBy('order_no', 'ASC')
+                    ->findAll();
+                $columns = $matrixColumnModel->where('question_id', $question_id)
+                    ->orderBy('order_no', 'ASC')
+                    ->findAll();
+
+                // Insert rows
+                foreach ($rows as $row) {
+                    $matrixRowModel->insert([
+                        'question_id' => $newQuestionId,
+                        'row_text' => $row['row_text'],
+                        'order_no' => $row['order_no']
+                    ]);
+                }
+
+                // Insert columns
+                foreach ($columns as $col) {
+                    $matrixColumnModel->insert([
+                        'question_id' => $newQuestionId,
+                        'column_text' => $col['column_text'],
+                        'order_no' => $col['order_no']
+                    ]);
+                }
+                log_message('debug', 'Matrix rows and columns copied for question ID: ' . $newQuestionId);
+            }
+
+            if ($db->transStatus() === false) {
+                log_message('error', 'Transaction failed during duplicate');
+                $db->transRollback();
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to duplicate question']);
+            }
+
+            $db->transComplete();
+            log_message('debug', 'Question duplicated successfully: ID=' . $newQuestionId);
+
+            // Return ID baru untuk trigger edit modal
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Question duplicated successfully',
+                'new_question_id' => $newQuestionId
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Exception in duplicateSectionQuestion: ' . $e->getMessage());
+            $db->transRollback();
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to duplicate question: ' . $e->getMessage()]);
+        }
+    }   
 
 }

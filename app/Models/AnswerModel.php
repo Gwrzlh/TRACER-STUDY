@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use CodeIgniter\I18n\Time;
 
 class AnswerModel extends Model
 {
@@ -12,7 +13,7 @@ class AnswerModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['questionnaire_id', 'user_id', 'question_id', 'answer_text', 'created_at'];
+    protected $allowedFields    = ['questionnaire_id', 'user_id', 'question_id', 'answer_text', 'created_at', 'status'];
 
     protected bool $allowEmptyInserts = false;
 
@@ -63,21 +64,77 @@ class AnswerModel extends Model
 
     public function saveAnswer($user_id, $questionnaire_id, $question_id, $answer)
     {
+        // Simpan jawaban
+        $now = Time::now('Asia/Jakarta')->toDateTimeString();
+
         $data = [
+            'user_id'          => $user_id,
+            'questionnaire_id' => $questionnaire_id,
+            'question_id'      => $question_id,
+            'answer_text'      => is_array($answer) ? json_encode($answer) : $answer,
+            'status'           => 'draft', // default sementara
+            'created_at'       => $now,
+        ];
+
+        // Cek jawaban existing
+        $existing = $this->where([
             'user_id' => $user_id,
             'questionnaire_id' => $questionnaire_id,
-            'question_id' => $question_id,
-            'answer_text' => is_array($answer) ? json_encode($answer) : $answer,
-            'created_at' => date('Y-m-d H:i:s'),
-            'STATUS' => 'draft'
-        ];
-        $existing = $this->where(['user_id' => $user_id, 'questionnaire_id' => $questionnaire_id, 'question_id' => $question_id])->first();
+            'question_id' => $question_id
+        ])->first();
+
         if ($existing) {
             $this->update($existing['id'], $data);
         } else {
             $this->insert($data);
         }
+
+        // Cek apakah kuesioner sudah selesai
+        $questionModel = new \App\Models\QuestionModel();
+        $totalQuestions = $questionModel->where('questionnaires_id', $questionnaire_id)->countAllResults();
+        $answered = $this->where(['user_id' => $user_id, 'questionnaire_id' => $questionnaire_id])->countAllResults();
+
+        if ($answered >= $totalQuestions && $totalQuestions > 0) {
+
+            // Update semua jawaban menjadi completed
+            $toUpdate = $this->where(['user_id' => $user_id, 'questionnaire_id' => $questionnaire_id])->findAll();
+            foreach ($toUpdate as $ans) {
+                if (!empty($ans['id'])) {
+                    $this->update($ans['id'], ['status' => 'completed']);
+                }
+            }
+
+            // Ambil waktu jawaban terakhir sebagai submitted_at
+            $lastAnswer = $this->where(['user_id' => $user_id, 'questionnaire_id' => $questionnaire_id])
+                ->orderBy('created_at', 'DESC')
+                ->first();
+
+            $submittedAt = $lastAnswer['created_at'] ?? $now;
+
+            // Insert/update record di responses
+            $responseModel = new \App\Models\ResponseModel();
+            $existingResponse = $responseModel->where('account_id', $user_id)
+                ->where('questionnaire_id', $questionnaire_id)
+                ->first();
+
+            $responseData = [
+                'account_id'       => $user_id,
+                'questionnaire_id' => $questionnaire_id,
+                'submitted_at'     => $submittedAt,
+                'status'           => 'completed',
+                'ip_address'       => \Config\Services::request()->getIPAddress()
+            ];
+
+            if ($existingResponse) {
+                $responseModel->update($existingResponse['id'], $responseData);
+            } else {
+                $responseModel->insert($responseData);
+            }
+        }
     }
+
+
+
 
     // Dates
     protected $useTimestamps = false;

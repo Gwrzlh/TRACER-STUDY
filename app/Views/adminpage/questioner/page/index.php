@@ -1,7 +1,24 @@
 <!-- desain index.php page -->
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
-<link href="<?= base_url('css/pengguna/index.css') ?>" rel="stylesheet">
+<link href="<?= base_url('css/questioner/page/index.css') ?>" rel="stylesheet">
+
+<!-- Navbar -->
+    <nav class="navbar navbar-light bg-white border-bottom shadow-sm mb-3">
+        <div class="container-fluid px-3">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire') ?>">Daftar Kuesioner</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages') ?>">Halaman Kuesioner</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages/15/sections') ?>">Kuesioner Section</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
 <div class="pengguna-page">
     <div class="page-wrapper">
@@ -21,62 +38,63 @@
                 </div>
             </div>
 
-            <!-- Table Container -->
-            <div class="table-container">
-                <div class="table-wrapper">
-                    <?php if (empty($pages)): ?>
-                        <div class="alert alert-warning">Belum ada halaman kuesioner.</div>
-                    <?php else: ?>
-                        <table class="user-table">
-                            <thead>
-                                <tr>
-                                    <th>Urutan</th>
-                                    <th>Judul Halaman</th>
-                                    <th>Deskripsi</th>
-                                    <th class="text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($pages as $page): ?>
-                                    <tr>
-                                        <td>
-                                            <span class="status-badge status-inactive">
-                                                <?= esc($page['order_no']) ?>
-                                            </span>
-                                        </td>
-                                        <td class="questionnaire-info">
-                                            <div class="questionnaire-title"><?= esc($page['page_title']) ?></div>
-                                        </td>
-                                        <td class="questionnaire-info">
-                                            <div class="questionnaire-description"><?= esc($page['page_description']) ?></div>
-                                        </td>
-                                        <td class="action-cell">
-                                            <div class="action-buttons">
-                                                <!-- Atur Pertanyaan -->
-                                                <a href="<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages/{$page['id']}/sections") ?>"
-                                                    class="btn-action btn-edit" title="Atur Pertanyaan">
-                                                    <i class="fas fa-file-alt"></i>
-                                                </a>
-                                                <!-- Edit -->
-                                                <a href="<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages/{$page['id']}/edit") ?>"
-                                                    class="btn-action btn-edit" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <!-- Hapus -->
-                                                <button class="btn-action btn-delete delete-page"
-                                                    data-id="<?= $page['id'] ?>" title="Hapus">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
+           <!-- Bagian Tabel yang diperbaiki -->
+<div class="table-container">
+    <div class="table-wrapper">
+        <?php if (empty($pages)): ?>
+            <div class="alert alert-warning">Belum ada halaman kuesioner.</div>
+        <?php else: ?>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Urutan</th>
+                        <th>Judul Halaman</th>
+                        <th>Deskripsi</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($pages as $page): ?>
+                        <tr>
+                            <td>
+                                <span class="status-badge status-inactive">
+                                    <?= esc($page['order_no']) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="questionnaire-info">
+                                    <div class="questionnaire-title"><?= esc($page['page_title']) ?></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="questionnaire-info">
+                                    <div class="questionnaire-description"><?= esc($page['page_description']) ?></div>
+                                </div>
+                            </td>
+                            <td class="action-cell">
+                                <div class="action-buttons">
+                                    <!-- Atur Pertanyaan -->
+                                    <a href="<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages/{$page['id']}/sections") ?>"
+                                        class="btn-action btn-edit" title="Atur Pertanyaan">
+                                        <i class="fas fa-file-alt"></i>
+                                    </a>
+                                    <!-- Edit -->
+                                    <a href="<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages/{$page['id']}/edit") ?>"
+                                        class="btn-action btn-edit" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <!-- Hapus -->
+                                    <button class="btn-action btn-delete delete-page"
+                                        data-id="<?= $page['id'] ?>" title="Hapus">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
     </div>
 </div>
 

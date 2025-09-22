@@ -62,8 +62,8 @@ class Auth extends Controller
             ];
 
             if ($detail) {
-                $sessionData['nama_lengkap'] = $detail['nama_lengkap'] ?? $user['username'];
-                $sessionData['foto']         = $detail['foto'] ?? 'default.png';
+    $sessionData['nama_lengkap'] = $detail['nama_lengkap'] ?? $user['username'];
+    $sessionData['foto']         = $detail['foto'] ?? $user['foto'] ?? 'default.png';
                 $fields = [
                     'id_jurusan',
                     'id_prodi',
@@ -80,10 +80,10 @@ class Auth extends Controller
                 foreach ($fields as $field) {
                     $sessionData[$field] = $detail[$field] ?? null;
                 }
-            } else {
-                $sessionData['nama_lengkap'] = $user['username'];
-                $sessionData['foto']         = 'default.png';
-            }
+           } else {
+    $sessionData['nama_lengkap'] = $user['username'];
+    $sessionData['foto']         = $user['foto'] ?? 'default.png';
+}
 
             session()->set($sessionData);
             log_message('debug', '[AuthController] Session set: ' . json_encode($session->get()));
