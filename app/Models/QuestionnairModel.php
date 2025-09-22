@@ -118,45 +118,56 @@ class QuestionnairModel extends Model
         log_message('debug', '[checkConditions] All conditions passed, return true');
         return true;
     }
-
     public function getAccessibleQuestionnaires($user_data, $role = null)
     {
         $builder = $this->db->table($this->table);
 
-        // Filter kuesioner aktif
+        // ✅ ambil hanya kuesioner aktif
         $builder->where('is_active', 'active');
-
-        // Filter prodi: ambil yang sesuai prodi atau prodi NULL (untuk semua)
-        if (!empty($user_data['id_prodi'])) {
-            $builder->groupStart()
-                ->where('id_prodi', $user_data['id_prodi'])
-                ->orWhere('id_prodi', null)
-                ->groupEnd();
-        }
 
         $all_q = $builder->get()->getResultArray();
         $accessible = [];
 
         foreach ($all_q as $q) {
-            // Jika role kaprodi, abaikan conditional logic
+            // === Role Kaprodi ===
             if ($role === 'kaprodi') {
+                // Kasus 1: Kuesioner khusus prodi
+                if (!empty($q['id_prodi']) && $q['id_prodi'] == $user_data['id_prodi']) {
+                    $accessible[] = $q;
+                    continue;
+                }
+
+                // Kasus 2: Kuesioner admin (id_prodi null + cek conditional)
+                if (empty($q['id_prodi'])) {
+                    $conditional = $q['conditional_logic'] ?? '';
+                    if (!empty($conditional) && $this->checkConditions($conditional, $user_data, [], $role)) {
+                        $accessible[] = $q;
+                    }
+                }
+
+                continue; // lanjut ke kuesioner berikutnya
+            }
+
+            // === Role Lain (misal Alumni) ===
+            $conditional = $q['conditional_logic'] ?? '';
+
+            // Jika conditional kosong → bisa diakses semua
+            if (empty($conditional) || $conditional === '[]') {
                 $accessible[] = $q;
                 continue;
             }
 
-            // Untuk role lain (misal alumni)
-            // Jika conditional_logic kosong atau null → tetap akses
-            $conditional = $q['conditional_logic'] ?? '';
-            if (empty($conditional) || $conditional === '[]' || $this->checkConditions($conditional, $user_data)) {
+            // Jika conditional cocok
+            if ($this->checkConditions($conditional, $user_data, [], $role)) {
                 $accessible[] = $q;
             }
         }
 
-        log_message('debug', '[DEBUG] Accessible Questionnaires for role=' . ($role ?? 'alumni') . ': ' . print_r($accessible, true));
-        log_message('debug', '[getAccessibleQuestionnaires] Accessible count: ' . count($accessible));
-
         return $accessible;
     }
+
+
+
 
 
 
