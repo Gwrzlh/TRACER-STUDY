@@ -9,7 +9,8 @@ class WelcomePageModel extends Model
     protected $primaryKey = 'id';
     protected $allowedFields = [
         'title_1', 'desc_1', 'title_2', 'desc_2',
-        'image_path', 'youtube_url', 'updated_at'
+        'title_3', 'desc_3',
+        'image_path', 'youtube_url', 'updated_at', 'image_path_2'
     ];
     protected $useTimestamps = false;
 }
