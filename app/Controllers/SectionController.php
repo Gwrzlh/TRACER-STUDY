@@ -100,14 +100,22 @@ class SectionController extends BaseController
             $conditionQuestionIds = $this->request->getPost('condition_question_id') ?? [];
             $operators = $this->request->getPost('operator') ?? [];
             $conditionValues = $this->request->getPost('condition_value') ?? [];
+            $optionModel = new QuestionOptionModel(); // Untuk ambil option_text
 
             $conditions = [];
             for ($i = 0; $i < count($conditionQuestionIds); $i++) {
                 if (!empty($conditionQuestionIds[$i]) && !empty($operators[$i]) && isset($conditionValues[$i])) {
+                    $value = $conditionValues[$i];
+                    // Jika value adalah option ID (numeric), translate ke option_text
+                    if (preg_match('/^\d+$/', $value)) {
+                        $option = $optionModel->where(['question_id' => $conditionQuestionIds[$i], 'id' => $value])->first();
+                        $value = $option ? $option['option_text'] : $value; // Fallback ke ID kalau gagal
+                        log_message('debug', "[SectionController::store] Translated option ID $conditionValues[$i] to text: $value");
+                    }
                     $conditions[] = [
-                        'question_id' => $conditionQuestionIds[$i],
+                        'field' => $conditionQuestionIds[$i], // Ganti question_id jadi field
                         'operator' => $operators[$i],
-                        'value' => $conditionValues[$i]
+                        'value' => $value
                     ];
                 }
             }
@@ -196,14 +204,22 @@ class SectionController extends BaseController
             $conditionQuestionIds = $this->request->getPost('condition_question_id') ?? [];
             $operators = $this->request->getPost('operator') ?? [];
             $conditionValues = $this->request->getPost('condition_value') ?? [];
+            $optionModel = new QuestionOptionModel();
 
             $conditions = [];
             for ($i = 0; $i < count($conditionQuestionIds); $i++) {
                 if (!empty($conditionQuestionIds[$i]) && !empty($operators[$i]) && isset($conditionValues[$i])) {
+                    $value = $conditionValues[$i];
+                    // Translate option ID ke option_text
+                    if (preg_match('/^\d+$/', $value)) {
+                        $option = $optionModel->where(['question_id' => $conditionQuestionIds[$i], 'id' => $value])->first();
+                        $value = $option ? $option['option_text'] : $value;
+                        log_message('debug', "[SectionController::update] Translated option ID $conditionValues[$i] to text: $value");
+                    }
                     $conditions[] = [
-                        'question_id' => $conditionQuestionIds[$i],
+                        'field' => $conditionQuestionIds[$i], // Ganti question_id jadi field
                         'operator' => $operators[$i],
-                        'value' => $conditionValues[$i]
+                        'value' => $value
                     ];
                 }
             }

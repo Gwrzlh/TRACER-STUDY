@@ -32,12 +32,43 @@ $currentRoute = service('request')->uri->getPath();
             <span>Dashboard</span>
           </a>
 
-           <!-- Kuesioner -->
-          <a href="<?= base_url('kaprodi/questioner') ?>"
-            class="sidebar-link <?= str_contains($currentRoute, 'kuesioner') ? 'active' : '' ?>">
-            <i class="fa fa-file-alt w-5"></i>
-            <span>Kuesioner</span>
-          </a>
+          <!-- Kuesioner (dropdown) -->
+          <div class="sidebar-dropdown">
+            <button
+              class="sidebar-link w-full flex items-center justify-between 
+    <?= (str_contains($currentRoute, 'questioner') || str_contains($currentRoute, 'kuesioner')) ? 'active' : '' ?>"
+              onclick="this.nextElementSibling.classList.toggle('hidden')">
+              <div class="flex items-center gap-2">
+                <i class="fa fa-file-alt w-5"></i>
+                <span>Kuesioner</span>
+              </div>
+              <i class="fa fa-chevron-down text-xs"></i>
+            </button>
+
+            <!-- Submenu -->
+            <ol class="ml-8 mt-1 space-y-1 
+      <?= (str_contains($currentRoute, 'questioner') || str_contains($currentRoute, 'kuesioner')) ? '' : 'hidden' ?>">
+
+              <li>
+                <a
+                  href="<?= base_url('kaprodi/questioner') ?>"
+                  class="block sidebar-sublink <?= str_contains($currentRoute, 'questioner') ? 'active' : '' ?>">
+                  Daftar Kuesioner
+                </a>
+              </li>
+
+              <li>
+                <a
+                  href="<?= base_url('kaprodi/kuesioner/') ?>"
+                  class="block sidebar-sublink <?= str_contains($currentRoute, 'create') ? 'active' : '' ?>">
+                  Tambah Kuesioner
+                </a>
+              </li>
+
+            </ol>
+          </div>
+
+
 
           <!-- Akreditasi -->
           <a href="<?= base_url('kaprodi/akreditasi') ?>"
@@ -66,7 +97,7 @@ $currentRoute = service('request')->uri->getPath();
       <div class="mt-6 px-4 space-y-2">
         <div class="flex items-center gap-4">
           <div class="relative">
-            <?php 
+            <?php
             $foto = session()->get('foto') ?? 'default.png';
             $fotoUrl = base_url('uploads/kaprodi/' . $foto);
             ?>
@@ -93,4 +124,5 @@ $currentRoute = service('request')->uri->getPath();
     </main>
   </div>
 </body>
+
 </html>

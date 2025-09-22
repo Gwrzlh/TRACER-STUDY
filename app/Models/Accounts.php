@@ -12,7 +12,7 @@ class Accounts extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','username','email','password','status','id_role','id_surveyor'];
+    protected $allowedFields    = ['id','username','email','password','status','id_role','id_surveyor', 'foto' ];
 
     protected bool $allowEmptyInserts = false;
     public function getroleid(){

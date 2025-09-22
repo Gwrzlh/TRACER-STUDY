@@ -12,16 +12,21 @@ class QuestionnairModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['title', 'deskripsi', 'is_active', 'conditional_logic', 'created_at', 'updated_at'];
+    protected $allowedFields    = ['title', 'deskripsi', 'is_active', 'conditional_logic', 'created_at', 'updated_at', 'id_prodi'];
 
     protected bool $allowEmptyInserts = false;
 
-    public function checkConditions($conditions, $user_data, $previous_answers = [])
+
+    public function checkConditions($conditions, $user_data, $previous_answers = [], $forRole = 'alumni')
+
+    // Di QuestionnairModel.php, replace method checkConditions()
+
     {
         if (empty($conditions) || $conditions === null || $conditions === '') {
             log_message('debug', '[checkConditions] No conditions provided or empty, return true');
             return true;
         }
+
         $conditions = is_string($conditions) ? json_decode($conditions, true) : $conditions;
         if (!$conditions || !is_array($conditions)) {
             log_message('debug', '[checkConditions] Invalid JSON conditions or empty array, return true');
@@ -46,47 +51,128 @@ class QuestionnairModel extends Model
             'jeniskelamin',
             'notlp'
         ];
+
         $all_fields = array_merge($user_fields, array_keys($previous_answers));
 
         foreach ($conditions as $condition) {
-            $field = trim($condition['field'] ?? '');
+            $field = trim($condition['field'] ?? $condition['question_id'] ?? '');
             $operator = $condition['operator'] ?? '';
             $value = trim($condition['value'] ?? '');
 
-            if (empty($field) || !in_array($field, $all_fields)) {
-                log_message('debug', "[checkConditions] Invalid or missing field: $field, skip");
+
+            // Untuk Kaprodi → skip kondisi id_prodi karena otomatis
+            if ($forRole === 'kaprodi' && $field === 'id_prodi') {
+                log_message('debug', "[checkConditions] Skipping id_prodi check for Kaprodi");
                 continue;
             }
 
-            $data_value = $user_data[$field] ?? $previous_answers[$field] ?? null;
+            if (empty($field) || !in_array($field, $all_fields)) {
+                log_message('debug', "[checkConditions] Invalid or missing field: $field, skip");
+
+
+                continue;
+            }
+
+            // FIX: Handle field tanpa prefix 'q_' untuk question ID
+            $data_value = null;
+            if (preg_match('/^\d+$/', $field)) { // Jika field adalah numeric (question ID)
+                $q_field = 'q_' . $field;
+                $data_value = $user_data[$q_field] ?? $previous_answers[$q_field] ?? null;
+                log_message('debug', "[checkConditions] Assumed question field: $field → $q_field");
+            } else {
+                // Field biasa (user_data atau previous)
+                $data_value = $user_data[$field] ?? $previous_answers[$field] ?? null;
+            }
+
             if ($data_value === null) {
-                log_message('debug', "[checkConditions] Field $field not found in user_data or answers, return false");
+                log_message('debug', "[checkConditions] Field $field (or q_$field) not found/answered, return false");
                 return false;
             }
 
-            $userValue = trim($data_value);
-            log_message('debug', "[checkConditions] Comparing field=$field, userValue=$userValue, value=$value, operator=$operator");
-            if ($operator === 'is' && $userValue !== $value) return false;
-            if ($operator === 'is_not' && $userValue === $value) return false;
+            $userValue = trim(is_array($data_value) ? implode(',', $data_value) : $data_value); // Handle array (checkbox)
+            log_message('debug', "[checkConditions] Comparing field=$field, userValue='$userValue', value='$value', operator=$operator");
+
+            $match = false;
+            switch ($operator) {
+                case 'is':
+                    $match = ($userValue === $value);
+                    break;
+                case 'is_not':
+                    $match = ($userValue !== $value);
+                    break;
+                case 'contains': // Bonus: Tambah operator jika perlu
+                    $match = (strpos($userValue, $value) !== false);
+                    break;
+                // Tambah operator lain jika ada di DB (e.g., 'greater_than')
+                default:
+                    log_message('debug', "[checkConditions] Unknown operator $operator, assume false");
+                    $match = false;
+            }
+
+            if (!$match) {
+                log_message('debug', "[checkConditions] Condition failed for $field, return false");
+                return false;
+            }
         }
+
         log_message('debug', '[checkConditions] All conditions passed, return true');
         return true;
     }
-
-    public function getAccessibleQuestionnaires($user_data)
+    public function getAccessibleQuestionnaires($user_data, $role = null)
     {
-        $all_q = $this->where('is_active', 'active')->findAll();
+        $builder = $this->db->table($this->table);
+
+        // ✅ ambil hanya kuesioner aktif
+        $builder->where('is_active', 'active');
+
+        $all_q = $builder->get()->getResultArray();
         $accessible = [];
+
         foreach ($all_q as $q) {
-            if ($this->checkConditions($q['conditional_logic'], $user_data)) {
+            // === Role Kaprodi ===
+            if ($role === 'kaprodi') {
+                // Kasus 1: Kuesioner khusus prodi
+                if (!empty($q['id_prodi']) && $q['id_prodi'] == $user_data['id_prodi']) {
+                    $accessible[] = $q;
+                    continue;
+                }
+
+                // Kasus 2: Kuesioner admin (id_prodi null + cek conditional)
+                if (empty($q['id_prodi'])) {
+                    $conditional = $q['conditional_logic'] ?? '';
+                    if (!empty($conditional) && $this->checkConditions($conditional, $user_data, [], $role)) {
+                        $accessible[] = $q;
+                    }
+                }
+
+                continue; // lanjut ke kuesioner berikutnya
+            }
+
+            // === Role Lain (misal Alumni) ===
+            $conditional = $q['conditional_logic'] ?? '';
+
+            // Jika conditional kosong → bisa diakses semua
+            if (empty($conditional) || $conditional === '[]') {
+                $accessible[] = $q;
+                continue;
+            }
+
+            // Jika conditional cocok
+            if ($this->checkConditions($conditional, $user_data, [], $role)) {
                 $accessible[] = $q;
             }
         }
-        log_message('debug', '[getAccessibleQuestionnaires] Accessible: ' . count($accessible));
+
         return $accessible;
     }
 
-    public function getQuestionnaireStructure($q_id, $user_data, $previous_answers = [])
+
+
+
+
+
+
+    public function getQuestionnaireStructure($q_id, $user_data, $previous_answers = [], $forRole = null)
     {
         $q = $this->find($q_id);
         if (!$q) {
@@ -94,75 +180,108 @@ class QuestionnairModel extends Model
             return null;
         }
 
-        log_message('debug', '[getQuestionnaireStructure] User data: ' . print_r($user_data, true));
-        log_message('debug', '[getQuestionnaireStructure] Previous answers: ' . print_r($previous_answers, true));
-
-        $page_model = new QuestionnairePageModel();
-        $section_model = new SectionModel();
-        $question_model = new QuestionModel();
-        $option_model = new QuestionOptionModel();
-        $matrix_row_model = new MatrixRowModel();
+        $page_model          = new QuestionnairePageModel();
+        $section_model       = new SectionModel();
+        $question_model      = new QuestionModel();
+        $option_model        = new QuestionOptionModel();
+        $matrix_row_model    = new MatrixRowModel();
         $matrix_column_model = new MatrixColumnModels();
 
-        $pages = $page_model->where('questionnaire_id', $q_id)->orderBy('order_no', 'ASC')->findAll();
-        log_message('debug', '[getQuestionnaireStructure] Pages found: ' . count($pages));
+        $pages = $page_model->where('questionnaire_id', $q_id)
+            ->orderBy('order_no', 'ASC')
+            ->findAll();
 
         $filtered_pages = [];
         foreach ($pages as $page) {
-            if (!$this->checkConditions($page['conditional_logic'] ?? '', $user_data, $previous_answers)) {
-                log_message('debug', "[getQuestionnaireStructure] Page {$page['id']} filtered out");
+
+            if (
+                !$this->checkConditions($page['conditional_logic'] ?? '', $user_data, $previous_answers)
+                && $forRole !== 'kaprodi'
+            ) {
                 continue;
             }
 
-            $sections = $section_model->where('page_id', $page['id'])->orderBy('order_no', 'ASC')->findAll();
-            log_message('debug', "[getQuestionnaireStructure] Sections for page {$page['id']}: " . count($sections));
+            $sections = $section_model->where('page_id', $page['id'])
+                ->orderBy('order_no', 'ASC')
+                ->findAll();
 
             $filtered_sections = [];
+            $all_questions     = [];
+
             foreach ($sections as $section) {
-                if (!$this->checkConditions($section['conditional_logic'] ?? '', $user_data, $previous_answers)) {
-                    log_message('debug', "[getQuestionnaireStructure] Section {$section['id']} filtered out");
+
+                if (
+                    !$this->checkConditions($section['conditional_logic'] ?? '', $user_data, $previous_answers)
+                    && $forRole !== 'kaprodi'
+                ) {
                     continue;
                 }
 
-                $questions = $question_model->where('section_id', $section['id'])->orderBy('order_no', 'ASC')->findAll();
-                log_message('debug', "[getQuestionnaireStructure] Questions for section {$section['id']}: " . count($questions));
+                $questions = $question_model->where('section_id', $section['id'])
+                    ->orderBy('order_no', 'ASC')
+                    ->findAll();
 
                 $filtered_questions = [];
                 foreach ($questions as $question) {
-                    if (!$this->checkConditions($question['condition_json'] ?? '', $user_data, $previous_answers)) {
-                        log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} filtered out");
+
+                    if (
+                        !$this->checkConditions($question['condition_json'] ?? '', $user_data, $previous_answers)
+                        && $forRole !== 'kaprodi'
+                    ) {
                         continue;
                     }
+
                     // Ambil opsi untuk dropdown/radio/checkbox
                     if (in_array(strtolower($question['question_type']), ['dropdown', 'select', 'radio', 'checkbox'])) {
-                        $options = $option_model->where('question_id', $question['id'])->orderBy('order_number', 'ASC')->findAll();
+                        $options = $option_model->where('question_id', $question['id'])
+                            ->orderBy('order_number', 'ASC')->findAll();
                         $question['options'] = array_column($options, 'option_text');
                     } else {
                         $question['options'] = [];
                     }
-                    // Ambil rows dan columns untuk matrix
+
+                    // Ambil matrix rows & columns jika tipe matrix
                     if (strtolower($question['question_type']) === 'matrix') {
-                        $question['matrix_rows'] = $matrix_row_model->where('question_id', $question['id'])->orderBy('order_no', 'ASC')->findAll();
-                        $question['matrix_columns'] = $matrix_column_model->where('question_id', $question['id'])->orderBy('order_no', 'ASC')->findAll();
-                        log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} ({$question['question_text']}) matrix rows: " . count($question['matrix_rows']) . ", columns: " . count($question['matrix_columns']));
+                        $question['matrix_rows'] = $matrix_row_model->where('question_id', $question['id'])
+                            ->orderBy('order_no', 'ASC')->findAll();
+                        $question['matrix_columns'] = $matrix_column_model->where('question_id', $question['id'])
+                            ->orderBy('order_no', 'ASC')->findAll();
+                    } else {
+                        $question['matrix_rows'] = [];
+                        $question['matrix_columns'] = [];
                     }
-                    log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} ({$question['question_text']}) options: " . print_r($question['options'], true));
+
+                    log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} options: " . print_r($question['options'], true));
+                    log_message('debug', "[getQuestionnaireStructure] Question {$question['id']} matrix rows: " . count($question['matrix_rows']) . ", columns: " . count($question['matrix_columns']));
+
                     $filtered_questions[] = $question;
                 }
+
                 if (!empty($filtered_questions)) {
                     $section['questions'] = $filtered_questions;
-                    $filtered_sections[] = $section;
+                    $filtered_sections[]  = $section;
+                    $all_questions = array_merge($all_questions, $filtered_questions);
                 }
             }
+
             if (!empty($filtered_sections)) {
-                $page['sections'] = $filtered_sections;
+                $page['sections']    = $filtered_sections;
+                $page['questions']   = $all_questions;
+                $page['title']       = !empty($page['page_title']) ? $page['page_title'] : 'Halaman ' . $page['order_no'];
+                $page['description'] = $page['page_description'] ?? '';
                 $filtered_pages[] = $page;
             }
         }
 
-        log_message('debug', '[getQuestionnaireStructure] Filtered pages: ' . count($filtered_pages));
-        return ['questionnaire' => $q, 'pages' => $filtered_pages];
+        return [
+            'questionnaire' => $q,
+            'pages'         => $filtered_pages,
+        ];
     }
+
+
+
+
     // Dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';

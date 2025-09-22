@@ -8,6 +8,7 @@ use App\Models\Prodi;
 use App\Models\AlumniModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use CodeIgniter\I18n\Time;
 
 class AdminRespon extends BaseController
 {
@@ -26,8 +27,11 @@ class AdminRespon extends BaseController
 
     public function index()
     {
+        // Ambil filter dari request
         $filters = $this->getFiltersFromRequest();
         $perPage = 10;
+        $currentPage = (int) ($this->request->getVar('page') ?? 1);
+        if ($currentPage < 1) $currentPage = 1;
 
         // Ambil semua Prodi beserta Jurusan
         $allProdi = $this->prodiModel
@@ -35,25 +39,42 @@ class AdminRespon extends BaseController
             ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left')
             ->findAll();
 
-        // Ambil current page dari query string
-        $currentPage = $this->request->getVar('page') ? (int)$this->request->getVar('page') : 1;
+        // Gunakan Builder untuk pagination
+        $builder = $this->alumniModel->getWithResponsesBuilder($filters);
 
-        // Ambil semua data alumni sesuai filter
-        $allResponses = $this->alumniModel->getWithResponsesBuilder($filters)->get()->getResultArray();
+        // Hitung total data
+        $totalData = $builder->countAllResults(false);
 
-        // Hitung total data & pagination manual
-        $totalData = count($allResponses);
-        $totalPages = ceil($totalData / $perPage);
-        $start = ($currentPage - 1) * $perPage;
-
-        // Slice data untuk halaman saat ini
-        $responses = array_slice($allResponses, $start, $perPage);
+        // Ambil semua data dulu untuk summary counter
+        $allResponses = $builder->get()->getResultArray();
 
         // Hitung summary counter
-        $totalCompleted = count(array_filter($allResponses, fn($r) => $r['status'] === 'completed'));
-        $totalOngoing   = count(array_filter($allResponses, fn($r) => $r['status'] === 'ongoing'));
-        $totalDraft     = count(array_filter($allResponses, fn($r) => $r['status'] === 'draft'));
+        $totalCompleted = count(array_filter($allResponses, fn($r) => ($r['status'] ?? '') === 'completed'));
+        $totalOngoing   = count(array_filter($allResponses, fn($r) => ($r['status'] ?? '') === 'ongoing'));
+        $totalDraft     = count(array_filter($allResponses, fn($r) => ($r['status'] ?? '') === 'draft'));
         $totalBelum     = count(array_filter($allResponses, fn($r) => empty($r['status'])));
+
+        // Ambil data untuk halaman sekarang
+        $offset = ($currentPage - 1) * $perPage;
+        $responses = $this->alumniModel->getWithResponsesBuilder($filters)
+            ->limit($perPage, $offset)
+            ->get()
+            ->getResultArray();
+
+        // Format tanggal submit ke timezone Jakarta
+        foreach ($responses as &$res) {
+            if (!empty($res['submitted_at'])) {
+                $res['submitted_at'] = Time::parse($res['submitted_at'], 'Asia/Jakarta')->toDateTimeString();
+            } else {
+                $res['submitted_at'] = '-';
+            }
+        }
+
+        // Hitung total halaman
+        $totalPages = ceil($totalData / $perPage);
+        if ($currentPage > $totalPages && $totalPages > 0) {
+            $currentPage = $totalPages;
+        }
 
         $data = [
             'filters'               => $filters,
@@ -66,21 +87,18 @@ class AdminRespon extends BaseController
             'selectedProdi'         => $filters['prodi'] ?? '',
             'selectedAngkatan'      => $filters['angkatan'] ?? '',
 
-            // Dropdown
             'allYears'              => $this->alumniModel->getDistinctTahunKelulusan(),
             'allQuestionnaires'     => $this->responseModel->getAllQuestionnaires(),
             'allJurusan'            => $this->jurusanModel->findAll(),
             'allProdi'              => $allProdi,
             'allAngkatan'           => $this->alumniModel->getDistinctAngkatan(),
 
-            // Data alumni
             'responses'             => $responses,
             'perPage'               => $perPage,
             'currentPage'           => $currentPage,
             'totalData'             => $totalData,
             'totalPages'            => $totalPages,
 
-            // Summary counter
             'totalCompleted'        => $totalCompleted,
             'totalOngoing'          => $totalOngoing,
             'totalDraft'            => $totalDraft,
@@ -89,6 +107,7 @@ class AdminRespon extends BaseController
 
         return view('adminpage/respon/index', $data);
     }
+
 
 
 

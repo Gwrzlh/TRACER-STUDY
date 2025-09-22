@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Kelola Laporan</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,6 +16,7 @@
 
 <!-- Konten -->
 <div class="flex-1 py-10 px-6 overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-blue-100">
+
   <div class="max-w-7xl mx-auto">
     <!-- Logo -->
     <img src="/images/logo.png" alt="Logo POLBAN" class="logo-img mb-8 w-28" />
@@ -29,7 +31,9 @@
       <button 
         type="button" 
         id="add-laporan"
+
         class="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl shadow hover:scale-105 transition"
+
       >
         + Tambah Laporan
       </button>
@@ -41,13 +45,16 @@
       <?php if (session()->getFlashdata('success')): ?>
           <div class="mb-6 p-4 bg-green-100 text-green-700 border border-green-300 rounded-lg font-medium shadow">
               ✅ <?= session()->getFlashdata('success') ?>
+
           </div>
       <?php endif; ?>
 
       <!-- Notifikasi error -->
       <?php if (session()->getFlashdata('error')): ?>
+
           <div class="mb-6 p-4 bg-red-100 text-red-700 border border-red-300 rounded-lg font-medium shadow">
               ⚠️ <?= session()->getFlashdata('error') ?>
+
           </div>
       <?php endif; ?>
 
@@ -55,7 +62,9 @@
       <form action="<?= base_url('admin/laporan/save') ?>" method="post" enctype="multipart/form-data" class="space-y-8" id="laporan-form">
         <?= csrf_field() ?>
 
+
         <div id="laporan-container" class="space-y-8">
+
           <?php for ($i = 1; $i <= 7; $i++): ?>
             <?php 
               $lap = $laporan[$i-1] ?? [];
@@ -63,13 +72,16 @@
                 continue;
               }
             ?>
+
             <div class="relative border-l-4 border-blue-600 rounded-2xl p-8 bg-gradient-to-br from-white to-blue-50 hover:shadow-lg transition laporan-item">
               <!-- Hidden id -->
               <input type="hidden" name="id[]" value="<?= $lap['id'] ?? '' ?>">
+
               <input type="hidden" name="urutan[]" value="<?= $i ?>">
 
               <!-- Tombol Delete -->
               <?php if(!empty($lap['id'])): ?>
+
               <button type="button" class="absolute top-4 right-4 px-4 py-1.5 bg-red-600 text-white text-sm font-semibold rounded-full hover:bg-red-700 transition delete-btn" 
                       data-id="<?= $lap['id'] ?>">
                 Hapus
@@ -133,6 +145,7 @@
                      src="<?= !empty($lap['file_gambar']) ? base_url('uploads/gambar/'.$lap['file_gambar']) : '' ?>" 
                      class="mt-3 w-36 h-36 object-cover rounded-xl border shadow <?= empty($lap['file_gambar']) ? 'hidden' : '' ?>">
               </div>
+
             </div>
           <?php endfor; ?>
         </div>
@@ -141,6 +154,7 @@
         <div class="text-right">
           <button 
             type="submit" 
+
             class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-xl shadow hover:scale-105 transition"
           >
             💾 Simpan Perubahan
@@ -186,6 +200,7 @@
 
 <!-- Script Tambah & Hapus Slot -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
   const addBtn = document.getElementById('add-laporan');
   const container = document.getElementById('laporan-container');
@@ -195,7 +210,9 @@
     const clone = document.importNode(template, true);
     container.appendChild(clone);
 
+
     tinymce.remove('textarea.isi-editor');
+
     tinymce.init({
       selector: 'textarea.isi-editor',
       height: 250,
@@ -206,15 +223,24 @@
     });
   });
 
+
+
   container.addEventListener('click', function(e) {
     if (e.target.classList.contains('remove-laporan')) {
       e.target.closest('.laporan-item').remove();
     }
+
+  });
+
+  // Event delegation untuk tombol delete
+ container.addEventListener('click', function(e) {
+
     if (e.target.classList.contains('delete-btn')) {
       const laporanItem = e.target.closest('.laporan-item');
       const id = e.target.getAttribute('data-id');
 
       Swal.fire({
+
         title: 'Yakin ingin menghapus laporan ini?',
         text: "Data yang dihapus tidak bisa dikembalikan!",
         icon: 'warning',
@@ -264,6 +290,7 @@
       });
     }
   });
+
 </script>
 
 <!-- TinyMCE Self-hosted -->
@@ -279,5 +306,7 @@ tinymce.init({
     license_key: 'gpl'
 });
 </script>
+
 </body>
 </html>
+
