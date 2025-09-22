@@ -8,7 +8,7 @@
     <div class="pengguna-page">
         <div class="page-wrapper">
             <div class="page-container">
-                <h2 class="page-title"> 📋 Daftar Kuesioner</h2>
+                <h2 class="page-title"> Daftar Kuesioner Kaprodi <?= esc($kaprodi['nama_prodi']) ?> </h2>
 
                 <!-- Top Controls -->
                 <div class="top-controls">

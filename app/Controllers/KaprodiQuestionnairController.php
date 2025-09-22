@@ -24,12 +24,31 @@ class KaprodiQuestionnairController extends BaseController
 {
     public function index()
     {
-        $model = new QuestionnairModel();
-        $data = [
-            'questionnaires' => $model->findAll()
+        $questionnaireModel = new QuestionnairModel();
+        $prodiModel = new Prodi();
+
+        // Ambil id_prodi dari session (saat kaprodi login)
+        $id_prodi = session()->get('id_prodi');
+
+        // Ambil data prodi berdasarkan id_prodi
+        $kaprodi = $prodiModel->find($id_prodi);
+
+        if (!$kaprodi) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data prodi tidak ditemukan.');
+        }
+
+        // Gunakan langsung dari session, bukan dari array $kaprodi
+        $user_data = [
+            'id_prodi' => $id_prodi,
         ];
 
-        return view('kaprodi/kuesioner/index', $data);
+        // khusus kaprodi → filter prodi dan wajib ada conditional_logic
+        $kuesioner = $questionnaireModel->getAccessibleQuestionnaires($user_data, 'kaprodi');
+
+        return view('kaprodi/kuesioner/index', [
+            'kaprodi'        => $kaprodi,
+            'questionnaires' => $kuesioner
+        ]);
     }
 
     public function create()
