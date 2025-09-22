@@ -239,7 +239,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
         $routes->post('(:num)/questions/(:num)/update', 'QuestionnairController::updateQuestion/$1/$2/$3/$4');
         $routes->post('(:num)/questions/(:num)/duplicate', 'QuestionnairController::duplicate/$1/$2/$3/$4');
- 
+
         // $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
     });
 
@@ -431,7 +431,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], ['namespace' => 'App\Controll
 // Landing Page (Public)
 // ===============================
 $routes->get('laporan', 'AdminLaporan::showAll');              // default → tahun terbaru (2024)
-$routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan per tahun
+$routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan   tahun
 
 
 // ===============================
@@ -539,7 +539,7 @@ $routes->group('api', function ($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
 // Profil Admin
-$routes->group('admin/profil', ['filter' => 'auth'], function($routes) {
+$routes->group('admin/profil', ['filter' => 'auth'], function ($routes) {
     // halaman utama profil
     $routes->get('/', 'AdminController::profil');
 
@@ -555,3 +555,7 @@ $routes->group('admin/profil', ['filter' => 'auth'], function($routes) {
     $routes->post('ubah-password', 'AdminController::updatePassword');
 });
 
+$routes->group('perusahaan', ['filter' => 'perusahaanAuth'], function ($routes) {
+    // Dashboard perusahaan
+    $routes->get('dashboard', 'PerusahaanController::dashboard');
+});
