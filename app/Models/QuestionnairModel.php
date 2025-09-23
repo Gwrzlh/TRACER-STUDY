@@ -18,11 +18,8 @@ class QuestionnairModel extends Model
 
 
     public function checkConditions($conditions, $user_data, $previous_answers = [], $forRole = 'alumni')
-
-    // Di QuestionnairModel.php, replace method checkConditions()
-
     {
-        if (empty($conditions) || $conditions === null || $conditions === '') {
+        if (empty($conditions) || $conditions === null || $conditions === '' || $conditions === '[]') {
             log_message('debug', '[checkConditions] No conditions provided or empty, return true');
             return true;
         }
@@ -33,34 +30,20 @@ class QuestionnairModel extends Model
             return true;
         }
 
+        log_message('debug', '[checkConditions] Evaluating conditions count: ' . count($conditions));
+
         $user_fields = [
-            'email',
-            'username',
-            'group_id',
-            'nama_lengkap',
-            'nim',
-            'id_jurusan',
-            'id_prodi',
-            'angkatan',
-            'ipk',
-            'alamat',
-            'alamat2',
-            'id_cities',
-            'kodepos',
-            'tahun_kelulusan',
-            'jeniskelamin',
-            'notlp'
+            'email', 'username', 'group_id', 'nama_lengkap', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'ipk',
+            'alamat', 'alamat2', 'id_cities', 'kodepos', 'tahun_kelulusan', 'jeniskelamin', 'notlp'
         ];
 
-        $all_fields = array_merge($user_fields, array_keys($previous_answers));
+        $all_fields = array_merge($user_fields, array_keys($previous_answers ?? []));
 
         foreach ($conditions as $condition) {
-            $field = trim($condition['field'] ?? $condition['question_id'] ?? '');
+            $field = trim($condition['field'] ?? '');
             $operator = $condition['operator'] ?? '';
             $value = trim($condition['value'] ?? '');
 
-
-            // Untuk Kaprodi → skip kondisi id_prodi karena otomatis
             if ($forRole === 'kaprodi' && $field === 'id_prodi') {
                 log_message('debug', "[checkConditions] Skipping id_prodi check for Kaprodi");
                 continue;
@@ -68,19 +51,15 @@ class QuestionnairModel extends Model
 
             if (empty($field) || !in_array($field, $all_fields)) {
                 log_message('debug', "[checkConditions] Invalid or missing field: $field, skip");
-
-
                 continue;
             }
 
-            // FIX: Handle field tanpa prefix 'q_' untuk question ID
             $data_value = null;
-            if (preg_match('/^\d+$/', $field)) { // Jika field adalah numeric (question ID)
+            if (preg_match('/^\d+$/', $field)) {
                 $q_field = 'q_' . $field;
                 $data_value = $user_data[$q_field] ?? $previous_answers[$q_field] ?? null;
                 log_message('debug', "[checkConditions] Assumed question field: $field → $q_field");
             } else {
-                // Field biasa (user_data atau previous)
                 $data_value = $user_data[$field] ?? $previous_answers[$field] ?? null;
             }
 
@@ -89,7 +68,7 @@ class QuestionnairModel extends Model
                 return false;
             }
 
-            $userValue = trim(is_array($data_value) ? implode(',', $data_value) : $data_value); // Handle array (checkbox)
+            $userValue = trim(is_array($data_value) ? implode(',', $data_value) : $data_value);
             log_message('debug', "[checkConditions] Comparing field=$field, userValue='$userValue', value='$value', operator=$operator");
 
             $match = false;
@@ -100,13 +79,20 @@ class QuestionnairModel extends Model
                 case 'is_not':
                     $match = ($userValue !== $value);
                     break;
-                case 'contains': // Bonus: Tambah operator jika perlu
+                case 'contains':
                     $match = (strpos($userValue, $value) !== false);
                     break;
-                // Tambah operator lain jika ada di DB (e.g., 'greater_than')
+                case 'not_contains':
+                    $match = (strpos($userValue, $value) === false);
+                    break;
+                case 'greater':
+                    $match = (floatval($userValue) > floatval($value));
+                    break;
+                case 'less':
+                    $match = (floatval($userValue) < floatval($value));
+                    break;
                 default:
                     log_message('debug', "[checkConditions] Unknown operator $operator, assume false");
-                    $match = false;
             }
 
             if (!$match) {
