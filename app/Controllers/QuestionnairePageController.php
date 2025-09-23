@@ -20,19 +20,27 @@ class QuestionnairePageController extends BaseController
     {
         $pageModel = new QuestionnairePageModel();
 
-        // Ambil halaman sesuai questionnaire_id
-        $pages = $pageModel->where('questionnaire_id', $questionnaire_id)
+        // Ambil halaman sesuai questionnaire_id, urutkan berdasarkan order_no
+        $pages = $pageModel
+            ->where('questionnaire_id', $questionnaire_id)
             ->orderBy('order_no', 'ASC')
-            ->findAll(); // tanpa filter created_by, karena kuesioner baru pasti belum punya halaman
+            ->findAll();
+
+        // Jika kuesioner baru dan belum ada halaman sama sekali, tetap tampilkan array kosong
+        if (!$pages) {
+            $pages = [];
+        }
 
         $questionnaireModel = new QuestionnairModel();
         $questionnaire = $questionnaireModel->find($questionnaire_id);
 
         return view('adminpage/questioner/page/index', [
-            'pages' => $pages, // Jika kuesioner baru, $pages = []
+            'pages' => $pages, // Sekarang akan kosong jika belum ada halaman sama sekali
             'questionnaire' => $questionnaire
         ]);
     }
+
+
 
 
 
@@ -103,6 +111,7 @@ class QuestionnairePageController extends BaseController
             'page_description' => $this->request->getPost('description'),
             'order_no' => $this->request->getPost('order_no'),
             'conditional_logic' => $conditionalLogic,
+            'created_by' => session()->get('id'), // Tambahkan ini
             'created_at' => date('Y-m-d H:i:s')
         ]);
 
