@@ -24,13 +24,38 @@ class KaprodiQuestionnairController extends BaseController
 {
     public function index()
     {
-        $model = new QuestionnairModel();
-        $data = [
-            'questionnaires' => $model->findAll()
+        $questionnaireModel = new QuestionnairModel();
+        $prodiModel = new Prodi();
+
+        // Ambil id_prodi dari session (waktu kaprodi login)
+        $id_prodi = session()->get('id_prodi');
+
+        if (!$id_prodi) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Prodi tidak ditemukan di session.');
+        }
+
+        // Ambil data prodi berdasarkan id_prodi
+        $kaprodi = $prodiModel->find($id_prodi);
+
+        if (!$kaprodi) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data prodi tidak ditemukan.');
+        }
+
+        // Data user untuk filter kuesioner
+        $user_data = [
+            'id_prodi' => $id_prodi
         ];
 
-        return view('kaprodi/kuesioner/index', $data);
+        // Ambil kuesioner sesuai alur kaprodi
+        $kuesioner = $questionnaireModel->getAccessibleQuestionnaires($user_data, 'kaprodi');
+
+        return view('kaprodi/kuesioner/index', [
+            'kaprodi'        => $kaprodi,
+            'questionnaires' => $kuesioner,
+        ]);
     }
+
+
 
     public function create()
     {
@@ -542,50 +567,73 @@ class KaprodiQuestionnairController extends BaseController
             'all_questions'    => $all_questions
         ]);
     }
-    public function getQuestionOptions($questionnaire_id, $page_id, $section_id, $questionId)
+    public function getQuestionOptions($questionnaire_id = null, $page_id = null, $section_id = null, $questionId = null)
     {
         try {
-            log_message('debug', "Mengambil opsi untuk questionId: $questionId, questionnaire: $questionnaire_id, page: $page_id, section: $section_id");
+            // Bisa ambil dari parameter atau dari query string ?question_id=123
+            if ($questionId === null) {
+                $questionId = $this->request->getGet('question_id');
+            }
+
+            if (!$questionId) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Question ID tidak ditemukan',
+                    'type'    => 'text',
+                    'options' => []
+                ]);
+            }
 
             $questionModel = new QuestionModel();
-            $optionModel = new QuestionOptionModel();
-            log_message('debug', 'Models initialized successfully');
+            $optionModel   = new QuestionOptionModel();
 
-            $question = $questionModel->where('id', $questionId)
-                ->where('questionnaires_id', $questionnaire_id)
-                ->where('page_id', $page_id)
-                ->where('section_id', $section_id)
-                ->first();
-            log_message('debug', 'Question query executed: ' . ($question ? json_encode($question) : 'No question found'));
+            $question = $questionModel->find($questionId);
 
             if (!$question) {
-                log_message('error', "Question not found for ID: $questionId");
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Question not found',
+                    'type'    => 'text',
+                    'options' => []
+                ]);
             }
 
             $options = [];
+            $type    = 'text'; // default
+
+            // Kalau tipe pertanyaan pilihan (radio, checkbox, dropdown)
             if (in_array($question['question_type'], ['radio', 'checkbox', 'dropdown'])) {
+                $type    = 'select';
                 $options = $optionModel->where('question_id', $questionId)
-                    ->select('option_text, option_value, order_number') // Gunakan order_number
-                    ->orderBy('order_number', 'ASC') // Konsisten dengan order_number
+                    ->orderBy('order_number', 'ASC')
                     ->findAll();
-                log_message('debug', "Options fetched: " . json_encode($options));
-            } else {
-                log_message('debug', "Question type {$question['question_type']} does not support options");
+
+                // Mapping hasil biar lebih bersih
+                $options = array_map(function ($opt) {
+                    return [
+                        'id'           => $opt['id'],
+                        'option_text'  => $opt['option_text'],
+                        'option_value' => $opt['option_value'] ?? $opt['id'],
+                    ];
+                }, $options);
             }
+
             return $this->response->setJSON([
-                'status' => 'success',
-                'question_type' => $question['question_type'],
+                'status'  => 'success',
+                'type'    => $type,              // <-- konsisten dengan JS: 'select' atau 'text'
                 'options' => $options
             ]);
         } catch (\Exception $e) {
-            log_message('error', 'Error in getQuestionOptions: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+            log_message('error', 'Error in getQuestionOptions: ' . $e->getMessage());
             return $this->response->setStatusCode(500)->setJSON([
-                'status' => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage()
+                'status'  => 'error',
+                'message' => 'Internal server error: ' . $e->getMessage(),
+                'type'    => 'text',
+                'options' => []
             ]);
         }
     }
+
     public function getOptions($questionId)
     {
         $questionModel = new QuestionModel();

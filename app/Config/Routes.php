@@ -99,11 +99,14 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('delete/(:num)', 'TipeOrganisasiController::delete/$1');
     });
 
-    // --- Tentang ---
-    $routes->get('tentang', 'Tentang::index');
-    $routes->get('tentang', 'Tentang::index');
-    $routes->get('admin/tentang/edit', 'Tentang::edit');
-    $routes->post('admin/tentang/update', 'Tentang::update');
+   // --- Tentang (Landing Page) ---
+$routes->get('tentang', 'Tentang::index');
+$routes->get('event', 'Tentang::event');
+
+// --- Tentang (Admin) ---
+$routes->get('admin/tentang/edit', 'Tentang::edit');
+$routes->post('admin/tentang/update', 'Tentang::update');
+
 
     // Tipe Organisasi
     $routes->group('tipeorganisasi', function ($routes) {
@@ -141,6 +144,8 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     });
 
 
+// --- Perusahaan ---
+$routes->get('perusahaan/dashboard', 'PerusahaanController::dashboard');
 
 
 
@@ -149,14 +154,18 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('tentang/edit', 'Tentang::edit');
     $routes->post('tentang/update', 'Tentang::update');
 
-    // Laporan
-    $routes->group('laporan', function ($routes) {
-        $routes->get('', 'AdminLaporan::index');
-        $routes->get('create', 'AdminLaporan::create');
-        $routes->post('save', 'AdminLaporan::save');
-        $routes->get('edit/(:num)', 'AdminLaporan::edit/$1');
-        $routes->post('update/(:num)', 'AdminLaporan::update/$1');
-    });
+   // Laporan
+$routes->group('laporan', function ($routes) {
+    $routes->get('', 'AdminLaporan::index');
+    $routes->get('create', 'AdminLaporan::create');
+    $routes->post('save', 'AdminLaporan::save');
+    $routes->get('edit/(:num)', 'AdminLaporan::edit/$1');
+    $routes->post('update/(:num)', 'AdminLaporan::update/$1');
+
+    // Tambahkan route DELETE (dipanggil via POST dari frontend)
+    $routes->post('delete/(:num)', 'AdminLaporan::delete/$1');
+});
+
 
     // $routes->group('respon', function ($routes) {
     //     $routes->get('', 'AdminRespon::index');
@@ -239,7 +248,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
         $routes->post('(:num)/questions/(:num)/update', 'QuestionnairController::updateQuestion/$1/$2/$3/$4');
         $routes->post('(:num)/questions/(:num)/duplicate', 'QuestionnairController::duplicate/$1/$2/$3/$4');
- 
+
         // $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
     });
 
@@ -383,7 +392,6 @@ $routes->group('alumni', ['filter' => 'alumniAuth'], static function ($routes) {
     $routes->get('questionnaires/mulai/(:num)', 'UserQuestionController::mulai/$1');
     $routes->get('questionnaires/lanjutkan/(:num)', 'UserQuestionController::lanjutkan/$1');
     $routes->get('questioner/lihat/(:num)', 'UserQuestionController::lihat/$1');
-
     $routes->post('questionnaires/save-answer', 'UserQuestionController::saveAnswer');
 });
 
@@ -431,7 +439,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], ['namespace' => 'App\Controll
 // Landing Page (Public)
 // ===============================
 $routes->get('laporan', 'AdminLaporan::showAll');              // default → tahun terbaru (2024)
-$routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan per tahun
+$routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan   tahun
 
 
 // ===============================
@@ -479,6 +487,9 @@ $routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
     $routes->post('questioner/save_flags', 'KaprodiController::saveFlags');
     $routes->post('questioner/addToAkreditasi', 'KaprodiController::addToAkreditasi');
     $routes->post('questioner/addToAmi', 'KaprodiController::addToAmi');
+
+    // Shortcut: GET options via query string
+    $routes->get('kuesioner/pages/getQuestionOptions', 'KaprodiQuestionnairController::getQuestionOptions');
 
     // QUESTIONNAIRE CRUD (via KaprodiQuestionnairController)
     $routes->group('kuesioner', function ($routes) {
@@ -539,7 +550,7 @@ $routes->group('api', function ($routes) {
     $routes->get('cities/province/(:num)', 'penggunaController::getCitiesByProvince/$1');
 });
 // Profil Admin
-$routes->group('admin/profil', ['filter' => 'auth'], function($routes) {
+$routes->group('admin/profil', ['filter' => 'auth'], function ($routes) {
     // halaman utama profil
     $routes->get('/', 'AdminController::profil');
 
@@ -555,3 +566,7 @@ $routes->group('admin/profil', ['filter' => 'auth'], function($routes) {
     $routes->post('ubah-password', 'AdminController::updatePassword');
 });
 
+$routes->group('perusahaan', ['filter' => 'perusahaanAuth'], function ($routes) {
+    // Dashboard perusahaan
+    $routes->get('dashboard', 'PerusahaanController::dashboard');
+});

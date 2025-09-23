@@ -11,93 +11,205 @@
     <!-- Sidebar -->
     <?= view('layout/sidebar') ?>
 
-    <!-- Konten -->
-    <div class="flex-1 pt-5 pr-6 pb-6 pl-0 overflow-y-auto">
-        <div class="w-full bg-white shadow rounded-lg p-5 ml-0">
-        
-        <!-- Notifikasi -->
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-6 shadow">
-                <?= session()->getFlashdata('success') ?>
-            </div>
-        <?php endif; ?>
-
-        
-
-        <!-- Form -->
-        <form action="<?= base_url('/admin/welcome-page/update') ?>" method="post" enctype="multipart/form-data" class="bg-white rounded-lg shadow p-8 space-y-6 w-full max-w-6xl">
-            <input type="hidden" name="id" value="<?= esc($welcome['id']) ?>"><!-- Judul -->
-        <h2 class="text-3xl font-semibold mb-8 text-gray-800">Edit Welcome Page</h2>
-
-            <!-- Judul 1 -->
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Judul 1</label>
-                <input type="text" name="title_1" value="<?= esc($welcome['title_1']) ?>" required
-                    class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400">
-            </div>
-
-           <!-- Deskripsi 1 -->
-<div>
-    <label class="block font-medium text-gray-700 mb-1">Deskripsi 1</label>
-    <textarea id="desc_1_editor" name="desc_1" rows="4" required
-        class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"><?= esc($welcome['desc_1']) ?></textarea>
+<!-- Konten -->
+<div class="flex-1 py-10 px-6 overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-blue-100">
+  <div class="max-w-6xl mx-auto">
+<img src="/images/logo.png" alt="Logo POLBAN" class="logo-img" />
+   <!-- Hero Section -->
+<div class="text-left mb-12">
+  <h1 class="text-4xl font-extrabold text-gray-900">Edit Landing Page</h1>
 </div>
 
-            <!-- Judul 2 -->
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Judul 2</label>
-                <input type="text" name="title_2" value="<?= esc($welcome['title_2']) ?>" required
-                    class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400">
-            </div>
-<!-- Deskripsi 2 -->
-<div>
-    <label class="block font-medium text-gray-700 mb-1">Deskripsi 2</label>
-    <textarea id="desc_2_editor" name="desc_2" rows="4" required
-        class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"><?= esc($welcome['desc_2']) ?></textarea>
-</div>
+    <!-- Notifikasi -->
+    <?php if (session()->getFlashdata('success')): ?>
+      <div class="bg-blue-100 border-2 border-blue-500 text-blue-800 px-6 py-4 rounded-xl font-semibold mb-8">
+        ✅ <?= session()->getFlashdata('success') ?>
+      </div>
+    <?php endif; ?>
 
-            <!-- Gambar Saat Ini -->
-            <div>
-                <label class="block font-medium text-gray-700 mb-2">Gambar Saat Ini</label>
-                <img src="<?= esc($welcome['image_path']) ?>" alt="Preview" class="w-48 rounded shadow mb-2">
-            </div>
+    <!-- Form -->
+    <form action="<?= base_url('/admin/welcome-page/update') ?>" method="post" enctype="multipart/form-data" class="space-y-12 relative">
+      <input type="hidden" name="id" value="<?= esc($welcome['id']) ?>">
 
-            <!-- Ganti Gambar -->
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Ganti Gambar (Opsional)</label>
-                <input type="file" name="image"
-                    class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
-            </div>
+           <!-- Section Judul 1 -->
+      <div class="bg-white border-l-4 border-blue-600 rounded-2xl p-8 shadow-lg">
+        <h2 class="text-2xl font-bold text-blue-700 mb-6">Judul & Deskripsi Pertama</h2>
 
-            <!-- Link YouTube -->
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Link YouTube (Embed URL)</label>
-                <input type="text" name="youtube_url" value="<?= esc($welcome['youtube_url']) ?>" required
-                    class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400">
-            </div>
+        <label class="block font-semibold text-gray-800">Judul 1</label>
+        <input type="text" name="title_1" value="<?= esc($welcome['title_1']) ?>" required
+          class="w-full mt-2 border border-blue-300 rounded-xl px-5 py-3 text-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
 
-            <!-- Tombol Submit -->
-            <div class="pt-4">
-                <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow">
-                    Simpan Perubahan
-                </button>
-            </div>
-        </form>
+        <label class="block font-semibold text-gray-800 mt-6">Deskripsi 1</label>
+        <textarea id="desc_1_editor" name="desc_1" rows="4" required
+          class="w-full mt-2 border border-blue-300 rounded-xl px-5 py-3 text-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500"><?= esc($welcome['desc_1']) ?></textarea>
+      </div>
+
+      <!-- Section Judul 2 -->
+      <div class="bg-white border-l-4 border-blue-500 rounded-2xl p-8 shadow-lg">
+        <h2 class="text-2xl font-bold text-blue-700 mb-6">Judul & Deskripsi Kedua</h2>
+
+        <label class="block font-semibold text-gray-800">Judul 2</label>
+        <input type="text" name="title_2" value="<?= esc($welcome['title_2']) ?>" required
+          class="w-full mt-2 border border-blue-300 rounded-xl px-5 py-3 text-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+
+        <label class="block font-semibold text-gray-800 mt-6">Deskripsi 2</label>
+        <textarea id="desc_2_editor" name="desc_2" rows="4" required
+          class="w-full mt-2 border border-blue-300 rounded-xl px-5 py-3 text-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500"><?= esc($welcome['desc_2']) ?></textarea>
+      </div>
+
+  <!-- Section Media -->
+<div class="bg-white border-l-4 border-blue-400 rounded-2xl p-8 shadow-lg">
+  <h2 class="text-2xl font-bold text-blue-700 mb-6">Media</h2>
+
+  <!-- Grid untuk 2 gambar sejajar -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Gambar Pertama -->
+    <div>
+      <label class="block font-semibold text-gray-800 mb-2">Gambar Kesatu</label>
+      <div class="bg-gray-100 p-4 rounded-xl border border-dashed border-blue-300 flex justify-center">
+        <img id="preview_image" src="<?= esc($welcome['image_path']) ?>" alt="Preview"
+             class="w-64 rounded-lg shadow hover:scale-105 transition-transform duration-300">
+      </div>
+      <input type="file" name="image" id="image_input"
+        class="mt-4 block w-full text-sm text-gray-600 border border-blue-300 rounded-lg px-4 py-3 cursor-pointer
+               file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+               file:bg-blue-600 file:text-white hover:file:bg-blue-700">
+      <button type="button" id="reset_image"
+        class="mt-2 text-xs text-red-600 hover:text-red-800 underline">Reset Gambar</button>
     </div>
 
-<!-- TinyMCE -->
-<script src="https://cdn.tiny.cloud/1/mulx329q2otm5e08yjpc5fw54t0uqsvqy2zd1fcj2545xggl/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <!-- Gambar Kedua -->
+    <div>
+      <label class="block font-semibold text-gray-800 mb-2">Gambar Kedua</label>
+      <div class="bg-gray-100 p-4 rounded-xl border border-dashed border-blue-300 flex justify-center">
+        <img id="preview_image_2" 
+             src="<?= !empty($welcome['image_path_2']) ? esc($welcome['image_path_2']) : '/images/placeholder.png' ?>" 
+             alt="Preview"
+             class="w-64 rounded-lg shadow hover:scale-105 transition-transform duration-300">
+      </div>
+      <input type="file" name="image_2" id="image_input_2"
+        class="mt-4 block w-full text-sm text-gray-600 border border-blue-300 rounded-lg px-4 py-3 cursor-pointer
+               file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+               file:bg-blue-600 file:text-white hover:file:bg-blue-700">
+      <button type="button" id="reset_image_2"
+        class="mt-2 text-xs text-red-600 hover:text-red-800 underline">Reset Gambar</button>
+    </div>
+  </div>
+
+   <!-- YouTube di bawah -->
+  <div class="mt-8">
+    <label class="block font-semibold text-gray-800 mb-2">Link YouTube</label>
+    <input type="text" id="youtube_url" name="youtube_url" value="<?= esc($welcome['youtube_url']) ?>" required
+      class="w-full border border-blue-300 rounded-xl px-5 py-3 text-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+    <p class="text-sm text-gray-500 mt-2">Bisa pakai link biasa atau embed (contoh: https://www.youtube.com/watch?v=xxxx atau https://www.youtube.com/embed/xxxx)</p>
+
+    <!-- Preview YouTube -->
+    <div id="youtube_preview_container" class="mt-4 <?= empty($welcome['youtube_url']) ? 'hidden' : '' ?>">
+      <iframe id="youtube_preview" 
+              src="<?= esc($welcome['youtube_url']) ?>" 
+              class="w-full h-64 rounded-xl shadow-md border border-blue-300" 
+              frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- Preview + Reset Script -->
 <script>
-tinymce.init({
-    selector: '#desc_1_editor, #desc_2_editor',
-    height: 300,
-    menubar: false, // hilangkan menu bar
-    plugins: 'lists link image table code fullscreen', 
-    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist', 
-    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+function previewImage(inputId, previewId, resetId, defaultSrc) {
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
+  const resetBtn = document.getElementById(resetId);
+
+  // preview otomatis
+  input.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        preview.src = event.target.result;
+      }
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // reset ke default
+  resetBtn.addEventListener('click', function() {
+    input.value = "";
+    preview.src = defaultSrc;
+  });
+}
+
+previewImage('image_input', 'preview_image', 'reset_image', "<?= esc($welcome['image_path']) ?>");
+previewImage('image_input_2', 'preview_image_2', 'reset_image_2', "<?= !empty($welcome['image_path_2']) ? esc($welcome['image_path_2']) : '/images/placeholder.png' ?>");
+
+// === YouTube Preview ===
+const youtubeInput = document.getElementById('youtube_url');
+const youtubePreview = document.getElementById('youtube_preview');
+const youtubeContainer = document.getElementById('youtube_preview_container');
+
+// fungsi ubah watch?v=xxxx -> embed/xxxx
+function convertToEmbed(url) {
+  const watchPattern = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/;
+  const shortPattern = /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]+)/;
+  if (watchPattern.test(url)) {
+    return url.replace(watchPattern, "https://www.youtube.com/embed/$1");
+  } else if (shortPattern.test(url)) {
+    return url.replace(shortPattern, "https://www.youtube.com/embed/$1");
+  }
+  return url;
+}
+
+// update preview saat input berubah
+youtubeInput.addEventListener('input', function() {
+  let url = youtubeInput.value.trim();
+  url = convertToEmbed(url);
+  youtubeInput.value = url; // simpan versi embed ke field agar tersimpan ke DB
+  if (url.includes("youtube.com/embed/")) {
+    youtubePreview.src = url;
+    youtubeContainer.classList.remove('hidden');
+  } else {
+    youtubeContainer.classList.add('hidden');
+    youtubePreview.src = "";
+  }
+});
+
+// === Pastikan saat halaman load juga langsung pakai embed ===
+window.addEventListener('DOMContentLoaded', function() {
+  let url = youtubeInput.value.trim();
+  url = convertToEmbed(url);
+  youtubeInput.value = url; // pastikan yang tampil & tersimpan adalah embed
+  if (url.includes("youtube.com/embed/")) {
+    youtubePreview.src = url;
+    youtubeContainer.classList.remove('hidden');
+  } else {
+    youtubeContainer.classList.add('hidden');
+    youtubePreview.src = "";
+  }
 });
 </script>
 
-</body>
-</html>
+
+      <!-- Tombol Floating -->
+      <div class="sticky bottom-6 flex justify-end">
+        <button type="submit"
+          class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-extrabold px-10 py-4 rounded-full shadow-xl hover:scale-105 transition">
+          Simpan Perubahan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TinyMCE Self-hosted -->
+<script src="<?= base_url('tinymce/tinymce.min.js'); ?>"></script>
+<script>
+tinymce.init({
+    selector: '#desc_1_editor, #desc_2_editor , #desc_3_editor',
+    license_key: 'gpl',
+    height: 250,
+    menubar: false,
+    plugins: 'lists link image table code fullscreen',
+    toolbar: 'undo redo | bold italic underline | bullist numlist | alignleft aligncenter alignright | fullscreen code',
+    content_style: 'body { font-family:"Figtree", sans-serif; font-size:16px; line-height:1.6 }'
+});
+</script>

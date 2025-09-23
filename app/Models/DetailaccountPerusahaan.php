@@ -6,20 +6,21 @@ use CodeIgniter\Model;
 
 class DetailaccountPerusahaan extends Model
 {
-    protected $table = 'detailaccount_perusahaan';
+    protected $table = 'detailaccoount_perusahaan';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','nama_perusahaan','alamat1','alamat2','id_provinsi','id_kota','noTlp','id_account','kodepos'];
+    protected $allowedFields    = ['id', 'nama_perusahaan', 'alamat1', 'alamat2', 'id_provinsi', 'id_kota', 'noTlp', 'id_account', 'kodepos'];
 
     protected bool $allowEmptyInserts = false;
 
-    public function getaccountidPerusahaan(){
+    public function getaccountidPerusahaan()
+    {
         return $this->select('detailaccount_perusahaan.*, account.*')
-                    ->join('account', 'account.id = detailaccount_perusahaan.id_account')
-                    ->findAll();
+            ->join('account', 'account.id = detailaccount_perusahaan.id_account')
+            ->findAll();
     }
 
     // Dates

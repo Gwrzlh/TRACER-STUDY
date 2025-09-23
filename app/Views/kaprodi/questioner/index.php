@@ -33,7 +33,8 @@
                                 <tr>
                                     <td><?= $no++ ?></td>
                                     <td><strong><?= esc($k['title']) ?></strong></td>
-                                    <td><?= esc($k['nama_prodi'] ?? $kaprodi['nama_prodi'] ?? '-') ?></td>
+                                    <td><?= esc($k['nama_prodi'] ?? '-') ?></td>
+
 
                                     <td>
                                         <?php if ($k['is_active'] === 'active'): ?>
