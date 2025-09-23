@@ -24,36 +24,38 @@ class KaprodiQuestionnairController extends BaseController
 {
     public function index()
     {
-        $questionnaireModel = new QuestionnairModel();
-        $prodiModel = new Prodi();
+        $questionnaireModel = new \App\Models\QuestionnairModel();
+        $prodiModel = new \App\Models\Prodi();
 
         // Ambil id_prodi dari session (waktu kaprodi login)
         $id_prodi = session()->get('id_prodi');
-
         if (!$id_prodi) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Prodi tidak ditemukan di session.');
         }
 
         // Ambil data prodi berdasarkan id_prodi
         $kaprodi = $prodiModel->find($id_prodi);
-
         if (!$kaprodi) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Data prodi tidak ditemukan.');
         }
 
-        // Data user untuk filter kuesioner
-        $user_data = [
-            'id_prodi' => $id_prodi
-        ];
-
         // Ambil kuesioner sesuai alur kaprodi
+        $user_data = ['id_prodi' => $id_prodi];
         $kuesioner = $questionnaireModel->getAccessibleQuestionnaires($user_data, 'kaprodi');
+
+        // Tandai kuesioner admin → hanya bisa kelola halaman
+        foreach ($kuesioner as &$q) {
+            $q['is_admin_created'] = ($q['id_prodi'] != $id_prodi);
+            // jika id_prodi kuesioner tidak sama dengan kaprodi → admin yang buat
+        }
+        unset($q); // lepas referensi
 
         return view('kaprodi/kuesioner/index', [
             'kaprodi'        => $kaprodi,
             'questionnaires' => $kuesioner,
         ]);
     }
+
 
 
 
