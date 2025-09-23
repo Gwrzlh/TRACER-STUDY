@@ -383,7 +383,6 @@ $routes->group('alumni', ['filter' => 'alumniAuth'], static function ($routes) {
     $routes->get('questionnaires/mulai/(:num)', 'UserQuestionController::mulai/$1');
     $routes->get('questionnaires/lanjutkan/(:num)', 'UserQuestionController::lanjutkan/$1');
     $routes->get('questioner/lihat/(:num)', 'UserQuestionController::lihat/$1');
-
     $routes->post('questionnaires/save-answer', 'UserQuestionController::saveAnswer');
 });
 
@@ -479,6 +478,9 @@ $routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
     $routes->post('questioner/save_flags', 'KaprodiController::saveFlags');
     $routes->post('questioner/addToAkreditasi', 'KaprodiController::addToAkreditasi');
     $routes->post('questioner/addToAmi', 'KaprodiController::addToAmi');
+
+    // Shortcut: GET options via query string
+    $routes->get('kuesioner/pages/getQuestionOptions', 'KaprodiQuestionnairController::getQuestionOptions');
 
     // QUESTIONNAIRE CRUD (via KaprodiQuestionnairController)
     $routes->group('kuesioner', function ($routes) {
