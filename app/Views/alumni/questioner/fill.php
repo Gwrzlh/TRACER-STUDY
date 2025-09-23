@@ -6,6 +6,25 @@
     <title>Isi Kuesioner</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* Cegah scroll body ke page hidden */
+        }
+        .container {
+            height: 100vh;
+            overflow-y: auto; /* Scroll hanya dalam container jika konten halaman panjang */
+            padding-bottom: 50px; /* Ruang untuk tombol */
+        }
+        .page-step {
+            display: none; /* Semua page hidden secara default */
+            min-height: 100%; /* Isi penuh container */
+        }
+        .page-step.active {
+            display: block; /* Hanya active yang tampil */
+        }
+    </style>
 </head>
 
 <body>
@@ -23,10 +42,9 @@
 
             <?php $pageIndex = 0; ?>
             <?php foreach ($structure['pages'] as $page): ?>
-                <div class="card mb-3 page-step"
+                <div class="card mb-3 page-step <?= $pageIndex === 0 ? 'active' : '' ?>"
                     data-step="<?= $pageIndex ?>"
-                    data-conditions="<?= htmlspecialchars($page['conditional_logic'] ?? '[]') ?>"
-                    style="<?= $pageIndex > 0 ? 'display:none;' : '' ?>">
+                    data-conditions="<?= htmlspecialchars($page['conditional_logic'] ?? '[]') ?>">
                     <div class="card-header">
                         <h5><?= esc($page['page_title']) ?></h5>
                     </div>
@@ -158,161 +176,473 @@
         </div>
     </div>
 
-    <script>
-        let currentStep = 0;
-        const steps = $(".page-step");
+   <script>
+   // Enhanced questionnaire navigation with dynamic submit detection and proper validation
 
-        // Fungsi evaluate kondisi
-        function evaluateConditions(element) {
-            const $el = $(element);
-            const conditionsJson = $el.data('conditions');
-            const elementType = $el.hasClass('section-container') ? 'section' : $el.hasClass('question-container') ? 'question' : 'page';
+let currentStep = 0;
+const steps = $(".page-step");
 
-            if (!conditionsJson || conditionsJson === '[]') {
-                $el.show();
-                $el.find('.section-container, .question-container').each(function() {
-                    evaluateConditions(this);
-                });
-                return true;
+// Utility function to check if a page has any visible required fields
+function hasVisibleRequiredFields(pageElement) {
+    const visibleRequired = $(pageElement).find("input[required], select[required], textarea[required]").filter(":visible");
+    return visibleRequired.length > 0;
+}
+
+// Function to check if there are any valid next pages from current position
+function hasValidNextPages(fromIndex) {
+    for (let i = fromIndex + 1; i < steps.length; i++) {
+        // Temporarily evaluate the page to see if it would be valid
+        const testPage = steps.eq(i);
+        if (wouldPageBeValid(testPage[0])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Function to test if a page would be valid without showing it
+function wouldPageBeValid(element) {
+    const $el = $(element);
+    const conditionsJson = $el.data('conditions');
+    
+    if (!conditionsJson || conditionsJson === '[]' || conditionsJson === '') {
+        return true; // No conditions = always valid
+    }
+    
+    try {
+        const conditions = (typeof conditionsJson === 'string') ? JSON.parse(conditionsJson) : conditionsJson;
+        
+        if (!Array.isArray(conditions) || conditions.length === 0) {
+            return true;
+        }
+        
+        // Check if any condition would pass (OR logic)
+        for (let cond of conditions) {
+            const field = (cond.field || '').trim();
+            const operator = cond.operator;
+            const value = (cond.value || '').toString().trim();
+            
+            if (!field || !operator) continue;
+            
+            const inputs = $(`input[name^="answer[${field}]"], select[name^="answer[${field}]"], textarea[name^="answer[${field}]"]`);
+            let formValue = [];
+            
+            inputs.each(function() {
+                if ($(this).is(':checkbox,:radio')) {
+                    if ($(this).is(':checked')) formValue.push($(this).val().trim());
+                } else if ($(this).val()) {
+                    formValue.push($(this).val().trim());
+                }
+            });
+            
+            if (formValue.length === 0) continue;
+            
+            let match = false;
+            const expected = value.toLowerCase();
+            const formValuesLower = formValue.map(v => v.toLowerCase());
+            
+            switch (operator) {
+                case 'is':
+                    match = formValuesLower.some(v => v === expected);
+                    break;
+                case 'is_not':
+                    match = formValuesLower.every(v => v !== expected);
+                    break;
+                case 'contains':
+                    match = formValuesLower.some(v => v.includes(expected));
+                    break;
+                case 'not_contains':
+                    match = formValuesLower.every(v => !v.includes(expected));
+                    break;
+                case 'greater':
+                    match = formValue.some(v => parseFloat(v) > parseFloat(value));
+                    break;
+                case 'less':
+                    match = formValue.some(v => parseFloat(v) < parseFloat(value));
+                    break;
             }
+            
+            if (match) return true; // At least one condition passed
+        }
+        
+        return false; // No conditions passed
+        
+    } catch (e) {
+        console.error('Error evaluating page conditions:', e);
+        return false;
+    }
+}
 
-            let allPass = true;
+// Enhanced function to update navigation buttons
+function updateNavigationButtons() {
+    const currentPage = steps.eq(currentStep);
+    const buttonsContainer = currentPage.find('.d-flex.justify-content-between');
+    
+    // Clear existing buttons
+    buttonsContainer.empty();
+    
+    // Add Previous button if not on first step
+    if (currentStep > 0) {
+        buttonsContainer.append('<button type="button" class="btn btn-secondary prev-btn">Sebelumnya</button>');
+    }
+    
+    // Determine if we should show Next or Submit
+    const hasNextValidPages = hasValidNextPages(currentStep);
+    const isActualLastPage = currentStep === steps.length - 1;
+    
+    if (hasNextValidPages && !isActualLastPage) {
+        // Show Next button - there are valid pages ahead
+        buttonsContainer.append('<button type="button" class="btn btn-primary next-btn">Selanjutnya</button>');
+        console.log(`[DEBUG] Showing Next button - valid pages exist after index ${currentStep}`);
+    } else {
+        // Show Submit button - this is a logical endpoint
+        buttonsContainer.append('<button type="submit" class="btn btn-success submit-btn">Simpan Jawaban</button>');
+        console.log(`[DEBUG] Showing Submit button - no valid next pages after index ${currentStep}`);
+    }
+}
 
-            try {
-                const conditions = (typeof conditionsJson === 'string') ? JSON.parse(conditionsJson) : conditionsJson;
+// Function to evaluate conditions (OR logic: show if ANY condition is met)
+function evaluateConditions(element) {
+    const $el = $(element);
+    const conditionsJson = $el.data('conditions');
+    const elementType = $el.hasClass('section-container') ? 'section' : $el.hasClass('question-container') ? 'question' : 'page';
 
-                for (let cond of conditions) {
-                    const field = (cond.field || cond.question_id || '').trim();
-                    const operator = cond.operator;
-                    const value = (cond.value || '').toString().trim();
+    console.log(`[DEBUG] Evaluating ${elementType} with raw conditions:`, conditionsJson);
 
-                    if (!field || !operator) continue;
+    if (!conditionsJson || conditionsJson === '[]' || conditionsJson === '') {
+        console.log(`[DEBUG] ${elementType} has no conditions, showing by default`);
+        $el.show();
+        $el.find('.section-container, .question-container').each(function() {
+            evaluateConditions(this);
+        });
+        return true;
+    }
 
-                    let formValue = null;
+    let anyPass = false;
 
-                    if (/^\d+$/.test(field)) {
-                        // question_id numeric
-                        const qId = field;
-                        const inputs = $(`input[name^="answer[${qId}]"], select[name^="answer[${qId}]"], textarea[name^="answer[${qId}]"]`);
-                        let values = [];
-                        inputs.each(function() {
-                            if ($(this).is(':checkbox,:radio')) {
-                                if ($(this).is(':checked')) values.push($(this).val().trim());
-                            } else if ($(this).val()) {
-                                values.push($(this).val().trim());
-                            }
-                        });
-                        formValue = values; // array
-                    } else {
-                        formValue = [$(`input[name="user_${field}"]`).val()?.trim() || ''];
+    try {
+        const conditions = (typeof conditionsJson === 'string') ? JSON.parse(conditionsJson) : conditionsJson;
+        console.log(`[DEBUG] Parsed conditions for ${elementType}:`, conditions);
+
+        if (!Array.isArray(conditions) || conditions.length === 0) {
+            console.warn(`[DEBUG] Invalid or empty conditions for ${elementType}, showing by default`);
+            anyPass = true;
+        } else {
+            for (let cond of conditions) {
+                const field = (cond.field || '').trim();
+                const operator = cond.operator;
+                const value = (cond.value || '').toString().trim();
+
+                if (!field || !operator) {
+                    console.warn(`[DEBUG] Skipping invalid condition in ${elementType}: field=${field}, operator=${operator}`);
+                    continue;
+                }
+
+                const inputs = $(`input[name^="answer[${field}]"], select[name^="answer[${field}]"], textarea[name^="answer[${field}]"]`);
+                let formValue = [];
+                inputs.each(function() {
+                    if ($(this).is(':checkbox,:radio')) {
+                        if ($(this).is(':checked')) formValue.push($(this).val().trim());
+                    } else if ($(this).val()) {
+                        formValue.push($(this).val().trim());
                     }
+                });
 
-                    // Bandingkan
-                    let match = false;
-                    const expected = value.toLowerCase();
+                if (formValue.length === 0) {
+                    console.warn(`[DEBUG] No answer found for field ${field} in ${elementType}, condition failed`);
+                    continue;
+                }
 
-                    switch (operator) {
-                        case 'is':
-                            match = formValue.some(v => v.toLowerCase() === expected);
-                            break;
-                        case 'is_not':
-                            match = formValue.every(v => v.toLowerCase() !== expected);
-                            break;
-                        case 'contains':
-                            match = formValue.some(v => v.toLowerCase().includes(expected));
-                            break;
-                    }
+                console.log(`[DEBUG] Field ${field} answers:`, formValue);
 
-                    if (!match) {
-                        allPass = false;
+                let match = false;
+                const expected = value.toLowerCase();
+                const formValuesLower = formValue.map(v => v.toLowerCase());
+
+                switch (operator) {
+                    case 'is':
+                        match = formValuesLower.some(v => v === expected);
                         break;
-                    }
+                    case 'is_not':
+                        match = formValuesLower.every(v => v !== expected);
+                        break;
+                    case 'contains':
+                        match = formValuesLower.some(v => v.includes(expected));
+                        break;
+                    case 'not_contains':
+                        match = formValuesLower.every(v => !v.includes(expected));
+                        break;
+                    case 'greater':
+                        match = formValue.some(v => parseFloat(v) > parseFloat(value));
+                        break;
+                    case 'less':
+                        match = formValue.some(v => parseFloat(v) < parseFloat(value));
+                        break;
+                    default:
+                        console.warn(`[DEBUG] Unknown operator ${operator} for field ${field} in ${elementType}`);
                 }
-            } catch (e) {
-                console.error(`[DEBUG] JSON parse error in ${elementType}:`, e, 'Raw:', conditionsJson);
-                allPass = false;
-            }
 
-            if (allPass) {
-                $el.show();
-                $el.find('.section-container, .question-container').each(function() {
-                    evaluateConditions(this);
-                });
-            } else {
-                $el.hide();
-                $el.find('.section-container, .question-container').hide();
-            }
+                console.log(`[DEBUG] Condition result for field ${field}: operator=${operator}, expected=${value}, match=${match}`);
 
-            return allPass;
-        }
-
-        // Show step
-        function showStep(index) {
-            steps.hide();
-            const step = steps.eq(index);
-            evaluateConditions(step);
-            step.show();
-
-            const progress = ((index + 1) / steps.length) * 100;
-            $("#progress-bar").css("width", progress + "%").attr("aria-valuenow", progress).text(Math.round(progress) + "%");
-        }
-
-        // Event change untuk semua input answer
-        $(document).on('change click input keyup', 'input[name^="answer["], select[name^="answer["], input[data-qid], select[data-qid]', function() {
-            steps.each(function() {
-                evaluateConditions(this);
-            });
-        });
-
-        // Navigation next/prev
-        $(document).on("click", ".next-btn", function() {
-            let isValid = true;
-            const currentInputs = $(steps[currentStep]).find("input[required], select[required]").filter(":visible");
-            currentInputs.each(function() {
-                if (!this.checkValidity()) {
-                    isValid = false;
-                    $(this).addClass("is-invalid");
-                } else {
-                    $(this).removeClass("is-invalid");
+                if (match) {
+                    anyPass = true;
+                    console.log(`[DEBUG] At least one condition matched in ${elementType}, breaking for OR`);
+                    break;
                 }
-            });
-
-            if (!isValid) {
-                alert("Harap lengkapi semua pertanyaan wajib");
-                return;
-            }
-
-            if (currentStep < steps.length - 1) {
-                currentStep++;
-                showStep(currentStep);
-            }
-        });
-
-        $(document).on("click", ".prev-btn", function() {
-            if (currentStep > 0) {
-                currentStep--;
-                showStep(currentStep);
-            }
-        });
-
-        // Initial
-        $(document).ready(function() {
-            steps.each(function() {
-                evaluateConditions(this);
-            });
-            showStep(currentStep);
-        });
-
-        // Scale
-        function updateScaleValue(qId) {
-            const slider = document.getElementById('scale-' + qId);
-            const badge = document.getElementById('scale-value-' + qId);
-            if (slider && badge) {
-                badge.textContent = slider.value;
-                badge.className = 'badge bg-primary';
             }
         }
-    </script>
+    } catch (e) {
+        console.error(`[ERROR] JSON parse failed for ${elementType} conditions:`, e, 'Raw JSON:', conditionsJson);
+        anyPass = false;
+    }
+
+    if (anyPass) {
+        console.log(`[DEBUG] ${elementType} passed (OR logic), showing`);
+        $el.show();
+        $el.find('.section-container, .question-container').each(function() {
+            evaluateConditions(this);
+        });
+    } else {
+        console.log(`[DEBUG] ${elementType} failed (no conditions met), hiding`);
+        $el.hide();
+        $el.find('.section-container, .question-container').hide();
+    }
+
+    return anyPass;
+}
+
+// Enhanced function to show step (page) with dynamic button updates
+function showStep(index) {
+    steps.removeClass('active').hide(); // Hide all pages
+    const step = steps.eq(index);
+    const passed = evaluateConditions(step[0]); // Evaluate page conditions
+
+    if (passed) {
+        step.addClass('active').show();
+        console.log(`[DEBUG] Showing valid page at index ${index}`);
+        
+        // Update navigation buttons based on current state
+        updateNavigationButtons();
+    } else {
+        console.warn(`[DEBUG] Page at index ${index} failed conditions, not showing`);
+        return false;
+    }
+
+    const progress = ((index + 1) / steps.length) * 100;
+    $("#progress-bar").css("width", progress + "%").attr("aria-valuenow", progress).text(Math.round(progress) + "%");
+
+    $('.container').scrollTop(0); // Reset scroll to top
+    return true;
+}
+
+// Enhanced form validation that ignores hidden required fields
+function validateCurrentPage() {
+    let isValid = true;
+    const currentPage = steps.eq(currentStep);
+    
+    // Only validate VISIBLE required fields
+    const visibleRequiredInputs = currentPage.find("input[required], select[required], textarea[required]").filter(":visible");
+    
+    console.log(`[DEBUG] Validating ${visibleRequiredInputs.length} visible required fields on current page`);
+    
+    visibleRequiredInputs.each(function() {
+        const $input = $(this);
+        let fieldValid = true;
+        
+        // Custom validation logic based on input type
+        if ($input.is('[type="radio"]')) {
+            // For radio buttons, check if any in the group is selected
+            const name = $input.attr('name');
+            const radioGroup = currentPage.find(`input[name="${name}"]:visible`);
+            fieldValid = radioGroup.is(':checked');
+        } else if ($input.is('[type="checkbox"]') && $input.attr('name').endsWith('[]')) {
+            // For checkbox groups, check if at least one is selected
+            const baseName = $input.attr('name').replace('[]', '');
+            const checkboxGroup = currentPage.find(`input[name="${baseName}[]"]:visible`);
+            fieldValid = checkboxGroup.is(':checked');
+        } else {
+            // For other inputs, check if they have a value
+            fieldValid = $input.val() && $input.val().trim() !== '';
+        }
+        
+        if (!fieldValid) {
+            isValid = false;
+            $input.addClass("is-invalid");
+            console.log(`[DEBUG] Field validation failed:`, $input.attr('name'));
+        } else {
+            $input.removeClass("is-invalid");
+        }
+    });
+    
+    return isValid;
+}
+
+// Event handler for answer changes - re-evaluate current page and update buttons
+$(document).on('change input keyup click', 'input[name^="answer["], select[name^="answer["], textarea[name^="answer["]', function() {
+    console.log('[DEBUG] Answer changed, re-evaluating current page elements and buttons');
+    steps.hide(); // Hide all other pages
+    const currentPage = steps.eq(currentStep);
+    evaluateConditions(currentPage[0]); // Re-evaluate current page only
+    updateNavigationButtons(); // Update buttons based on new state
+});
+
+// Navigation: Next button click
+$(document).on("click", ".next-btn", function() {
+    if (!validateCurrentPage()) {
+        alert("Harap lengkapi semua pertanyaan wajib yang terlihat");
+        return;
+    }
+
+    let nextIndex = currentStep + 1;
+    while (nextIndex < steps.length) {
+        if (showStep(nextIndex)) {
+            currentStep = nextIndex;
+            return;
+        }
+        console.warn(`[DEBUG] Skipping invalid next page at ${nextIndex}`);
+        nextIndex++;
+    }
+
+    console.log('[DEBUG] No more valid pages found');
+    alert("Tidak ada halaman selanjutnya yang valid. Sistem akan menampilkan tombol simpan.");
+    updateNavigationButtons(); // Force button update
+});
+
+// Navigation: Previous button click
+$(document).on("click", ".prev-btn", function() {
+    let prevIndex = currentStep - 1;
+    while (prevIndex >= 0) {
+        if (showStep(prevIndex)) {
+            currentStep = prevIndex;
+            return;
+        }
+        console.warn(`[DEBUG] Skipping invalid previous page at ${prevIndex}`);
+        prevIndex--;
+    }
+    
+    console.log('[DEBUG] No valid previous pages found');
+});
+
+// Enhanced form submission handler
+function isLogicallyComplete(currentPageIndex) {
+    // Cek apakah tidak ada halaman valid setelah halaman saat ini
+    for (let i = currentPageIndex + 1; i < steps.length; i++) {
+        if (wouldPageBeValid(steps[i])) {
+            return false; // Masih ada halaman valid
+        }
+    }
+    return true; // Tidak ada halaman valid lagi = logically complete
+}
+
+// Enhanced submit handler dengan logical completion
+$(document).on("click", ".submit-btn", function(e) {
+    e.preventDefault();
+    
+    console.log('[DEBUG] Submit button clicked, performing final validation');
+    
+    if (!validateCurrentPage()) {
+        alert("Harap lengkapi semua pertanyaan wajib sebelum menyimpan");
+        return;
+    }
+    
+    // Tentukan apakah ini logical completion
+    const isComplete = isLogicallyComplete(currentStep);
+    console.log(`[DEBUG] Logical completion status: ${isComplete}`);
+    
+    // Tambahkan hidden input untuk memberitahu backend tentang completion status
+    const completionInput = $('<input>').attr({
+        type: 'hidden',
+        name: 'is_logically_complete',
+        value: isComplete ? '1' : '0'
+    });
+    
+    const currentPageInput = $('<input>').attr({
+        type: 'hidden', 
+        name: 'logical_end_page',
+        value: currentStep
+    });
+    
+    $("#questionnaire-form").append(completionInput).append(currentPageInput);
+    
+    // Remove required attribute from hidden fields
+    const hiddenRequired = $("input[required], select[required], textarea[required]").filter(":hidden");
+    hiddenRequired.each(function() {
+        $(this).removeAttr('required').attr('data-was-required', 'true');
+    });
+    
+    console.log('[DEBUG] Submitting questionnaire with logical completion data');
+    $("#questionnaire-form")[0].submit();
+});
+
+// Handle regular form submission (fallback)
+$(document).on('submit', '#questionnaire-form', function(e) {
+    console.log('[DEBUG] Form submit triggered');
+    
+    let isValid = true;
+    const visibleRequired = $(this).find('input[required], select[required]').filter(':visible');
+    visibleRequired.each(function() {
+        if (!this.checkValidity()) {
+            isValid = false;
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+
+    if (!isValid) {
+        e.preventDefault();
+        alert('Harap lengkapi semua pertanyaan wajib yang terlihat');
+        return false;
+    }
+
+    // Ignore hidden required for browser validation
+    const hiddenRequired = $(this).find('input[required], select[required]').filter(':hidden');
+    hiddenRequired.removeAttr('required');
+
+    console.log('[DEBUG] Form valid, submitting to server');
+    // Form will submit normally
+});
+
+$(document).on('change', '[data-conditions]', function() {
+    const allRequired = $('#questionnaire-form').find('input[data-was-required], select[data-was-required]');
+    allRequired.each(function() {
+        if ($(this).is(':visible')) {
+            $(this).attr('required', 'required').removeAttr('data-was-required');
+        }
+    });
+});
+
+// Initial page load
+$(document).ready(function() {
+    console.log('[DEBUG] Document ready, initializing questionnaire');
+    steps.removeClass('active').hide();
+    
+    let startIndex = 0;
+    while (startIndex < steps.length) {
+        if (showStep(startIndex)) {
+            currentStep = startIndex;
+            console.log(`[DEBUG] Started questionnaire at page index ${startIndex}`);
+            break;
+        }
+        startIndex++;
+    }
+    
+    if (startIndex === steps.length) {
+        alert("Tidak ada halaman yang memenuhi kondisi awal. Silakan kembali ke daftar kuesioner.");
+        console.error('[ERROR] No valid initial pages found');
+    }
+});
+
+// Scale value update function (unchanged)
+function updateScaleValue(qId) {
+    const slider = document.getElementById('scale-' + qId);
+    const badge = document.getElementById('scale-value-' + qId);
+    if (slider && badge) {
+        badge.textContent = slider.value;
+        badge.className = 'badge bg-primary';
+    }
+}
+</script>
 </body>
 
 </html>
