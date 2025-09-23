@@ -18,66 +18,70 @@ class KaprodiController extends Controller
     // ================== DASHBOARD ==================
     public function dashboard()
     {
-        if (session('role_id') != 6 || session('id_surveyor')) {
+        if (session('role_id') != 6 || !session()->get('id_account')) {
             return redirect()->to('/login')->with('error', 'Akses ditolak.');
         }
 
-        $idAccount = session()->get('id_account');
+        $idProdi = session()->get('id_prodi');
 
-        // Ambil prodi Kaprodi
-        $builder = $this->db->table('detailaccount_kaprodi dk');
-        $builder->select('dk.*, p.nama_prodi, p.id as id_prodi');
-        $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
-        $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
+        // 🔹 Ambil data prodi kaprodi
+        $prodiModel = new \App\Models\Prodi();
+        $kaprodi = $prodiModel->find($idProdi);
 
-        if (!$kaprodi) {
-            return redirect()->to('/login')->with('error', 'Data Kaprodi tidak ditemukan.');
-        }
-
-        $idProdi = $kaprodi['id_prodi'];
-
-        // Jumlah kuesioner aktif untuk prodi Kaprodi
-        $kuesionerCount = $this->db->table('questionnaires')
-            ->where('is_active', 'active')
+        // 🔹 Jumlah alumni di prodi ini
+        $totalAlumni = $this->db->table('detailaccount_alumni')
             ->where('id_prodi', $idProdi)
             ->countAllResults();
 
-        // Jumlah alumni prodi Kaprodi
-        $alumniCount = $this->db->table('detailaccount_alumni')
-            ->where('id_prodi', $idProdi)
-            ->countAllResults();
+        // 🔹 Jumlah alumni yang sudah mengisi kuesioner
+        $alumniIsiRow = $this->db->table('answers a')
+            ->select('COUNT(DISTINCT a.user_id) as total')
+            ->join('detailaccount_alumni al', 'a.user_id = al.id_account', 'left')
+            ->where('al.id_prodi', $idProdi)
+            ->get()
+            ->getRow();
+        $alumniMengisi = $alumniIsiRow ? $alumniIsiRow->total : 0;
 
-        // Jumlah alumni yang sudah mengisi akreditasi
-        $akreditasiAlumni = $this->db->table('answers a')
+        // 🔹 Jumlah alumni untuk akreditasi
+        $akreditasiRow = $this->db->table('answers a')
             ->select('COUNT(DISTINCT a.user_id) as total')
             ->join('questions q', 'a.question_id = q.id', 'left')
             ->join('detailaccount_alumni al', 'a.user_id = al.id_account', 'left')
             ->where('q.is_for_accreditation', 1)
             ->where('al.id_prodi', $idProdi)
             ->get()
-            ->getRow()
-            ->total;
+            ->getRow();
+        $akreditasiAlumni = $akreditasiRow ? $akreditasiRow->total : 0;
 
-        // Jumlah alumni yang sudah mengisi AMI
-        $amiAlumni = $this->db->table('answers a')
+        // 🔹 Jumlah alumni untuk AMI
+        $amiRow = $this->db->table('answers a')
             ->select('COUNT(DISTINCT a.user_id) as total')
             ->join('questions q', 'a.question_id = q.id', 'left')
             ->join('detailaccount_alumni al', 'a.user_id = al.id_account', 'left')
             ->where('q.is_for_ami', 1)
             ->where('al.id_prodi', $idProdi)
             ->get()
-            ->getRow()
-            ->total;
+            ->getRow();
+        $amiAlumni = $amiRow ? $amiRow->total : 0;
 
+        // 🔹 Jumlah kuesioner aktif (pakai method bawaan biar sama dengan index)
+        $questionnaireModel = new \App\Models\QuestionnairModel();
+        $user_data = ['id_prodi' => $idProdi];
+        $accessible = $questionnaireModel->getAccessibleQuestionnaires($user_data, 'kaprodi');
+        $kuesionerCount = count($accessible);
 
         return view('kaprodi/dashboard', [
             'kaprodi'          => $kaprodi,
             'kuesionerCount'   => $kuesionerCount,
-            'alumniCount'      => $alumniCount,
+            'alumniCount'      => $totalAlumni,
+            'alumniMengisi'    => $alumniMengisi,
             'akreditasiAlumni' => $akreditasiAlumni,
-            'amiAlumni'        => $amiAlumni
+            'amiAlumni'        => $amiAlumni,
         ]);
     }
+
+
+
 
 
     // // ================== SUPERVISI ==================
@@ -297,7 +301,12 @@ class KaprodiController extends Controller
         $questionnaireModel = new \App\Models\QuestionnairModel();
 
         // Ambil struktur kuesioner (role 'kaprodi' -> abaikan conditional logic)
-        $structure = $questionnaireModel->getQuestionnaireStructure($idKuesioner, $user_data, [], 'kaprodi');
+        $structure = $questionnaireModel->getQuestionnaireStructure(
+            $idKuesioner,
+            $user_data,
+            [],
+            'kaprodi'
+        );
 
         if (empty($structure) || !isset($structure['questionnaire'])) {
             return redirect()->back()->with('error', 'Kuesioner tidak ditemukan atau tidak tersedia');
@@ -313,9 +322,13 @@ class KaprodiController extends Controller
             }
         }
 
-        // Cek akses: kuesioner harus milik prodi Kaprodi login
-        if (($structure['questionnaire']['id_prodi'] ?? null) != $kaprodi['id_prodi']) {
-            return redirect()->to(base_url('kaprodi/questioner'))->with('error', 'Akses ditolak untuk kuesioner ini.');
+        // Validasi akses: 
+        // - Jika kuesioner punya id_prodi → harus sama dengan prodi kaprodi login
+        // - Jika id_prodi null → dianggap kuesioner umum (admin), tetap boleh diakses
+        $idProdiKuesioner = $structure['questionnaire']['id_prodi'] ?? null;
+        if (!empty($idProdiKuesioner) && $idProdiKuesioner != $kaprodi['id_prodi']) {
+            return redirect()->to(base_url('kaprodi/questioner'))
+                ->with('error', 'Akses ditolak untuk kuesioner ini.');
         }
 
         return view('kaprodi/questioner/pertanyaan', [
@@ -325,6 +338,7 @@ class KaprodiController extends Controller
             'kaprodi'       => $kaprodi,
         ]);
     }
+
 
 
     public function addToAkreditasi()

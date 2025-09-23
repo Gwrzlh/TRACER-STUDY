@@ -104,45 +104,80 @@ class QuestionnairModel extends Model
         log_message('debug', '[checkConditions] All conditions passed, return true');
         return true;
     }
+    private function getNamaProdi($id_prodi)
+    {
+        if (empty($id_prodi)) return '-';
+
+        $prodi = $this->db->table('prodi')
+            ->select('nama_prodi')
+            ->where('id', $id_prodi)
+            ->get()
+            ->getRowArray();
+
+        return $prodi['nama_prodi'] ?? '-';
+    }
 
     public function getAccessibleQuestionnaires($user_data, $role = null)
     {
         $builder = $this->db->table($this->table);
-
-        // Filter kuesioner aktif
         $builder->where('is_active', 'active');
-
-        // Filter prodi: ambil yang sesuai prodi atau prodi NULL (untuk semua)
-        if (!empty($user_data['id_prodi'])) {
-            $builder->groupStart()
-                ->where('id_prodi', $user_data['id_prodi'])
-                ->orWhere('id_prodi', null)
-                ->groupEnd();
-        }
-
         $all_q = $builder->get()->getResultArray();
         $accessible = [];
 
         foreach ($all_q as $q) {
-            // Jika role kaprodi, abaikan conditional logic
             if ($role === 'kaprodi') {
-                $accessible[] = $q;
+                $id_prodi_user = $user_data['id_prodi'] ?? null;
+
+                // 1️⃣ Kuesioner khusus prodi kaprodi
+                if (!empty($q['id_prodi']) && $q['id_prodi'] == $id_prodi_user) {
+                    $q['nama_prodi'] = $this->getNamaProdi($q['id_prodi']);
+                    $accessible[] = $q;
+                    continue;
+                }
+
+                // 2️⃣ Kuesioner admin (id_prodi NULL) dengan conditional logic sesuai prodi kaprodi
+                if (empty($q['id_prodi'])) {
+                    $conditional = $q['conditional_logic'] ?? '';
+
+                    if (!empty($conditional) && $this->checkConditions($conditional, $user_data, [], $role)) {
+                        $cond = json_decode($conditional, true);
+                        $id_prodi_cond = $cond[0]['value'] ?? null;
+
+                        // Pastikan prodi cond sesuai kaprodi
+                        if ($id_prodi_cond == $id_prodi_user) {
+                            $q['nama_prodi'] = $this->getNamaProdi($id_prodi_cond);
+                            $accessible[] = $q;
+                        }
+                    }
+                }
+
                 continue;
             }
 
-            // Untuk role lain (misal alumni)
-            // Jika conditional_logic kosong atau null → tetap akses
+            // Role lain (alumni, admin, dsb)
             $conditional = $q['conditional_logic'] ?? '';
-            if (empty($conditional) || $conditional === '[]' || $this->checkConditions($conditional, $user_data)) {
+            if (empty($conditional) || $conditional === '[]') {
+                $q['nama_prodi'] = $this->getNamaProdi($q['id_prodi']);
+                $accessible[] = $q;
+            } elseif ($this->checkConditions($conditional, $user_data, [], $role)) {
+                $cond = json_decode($conditional, true);
+                $id_prodi_cond = $cond[0]['value'] ?? null;
+                $q['nama_prodi'] = $this->getNamaProdi($id_prodi_cond);
                 $accessible[] = $q;
             }
         }
 
-        log_message('debug', '[DEBUG] Accessible Questionnaires for role=' . ($role ?? 'alumni') . ': ' . print_r($accessible, true));
-        log_message('debug', '[getAccessibleQuestionnaires] Accessible count: ' . count($accessible));
-
         return $accessible;
     }
+
+
+
+
+
+
+
+
+
 
 
 
