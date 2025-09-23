@@ -181,7 +181,7 @@ class SectionController extends BaseController
         ]);
     }
 
-    public function update($questionnaire_id, $page_id, $section_id)
+   public function update($questionnaire_id, $page_id, $section_id)
     {
         $validation = \Config\Services::validation();
         
@@ -193,7 +193,20 @@ class SectionController extends BaseController
             'order_no' => 'required|integer'
         ]);
 
+        // Tambahkan validasi kondisional jika logika diaktifkan
+        if ($this->request->getPost('conditional_logic')) {
+            $validation->setRules([
+                'condition_question_id.*' => 'required|integer',  // Validasi setiap ID pertanyaan
+                'operator.*' => 'required|in_list[is,is_not,contains,not_contains,greater,less]',
+                'condition_value.*' => 'required'
+            ]);
+        }
+
+        // Logging untuk debug POST data
+        log_message('debug', '[SectionController::update] Received POST data: ' . json_encode($this->request->getPost()));
+
         if (!$validation->withRequest($this->request)->run()) {
+            log_message('error', '[SectionController::update] Validation errors: ' . json_encode($validation->getErrors()));
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
@@ -210,14 +223,14 @@ class SectionController extends BaseController
             for ($i = 0; $i < count($conditionQuestionIds); $i++) {
                 if (!empty($conditionQuestionIds[$i]) && !empty($operators[$i]) && isset($conditionValues[$i])) {
                     $value = $conditionValues[$i];
-                    // Translate option ID ke option_text
+                    // Terjemahkan ID opsi ke teks jika numerik
                     if (preg_match('/^\d+$/', $value)) {
                         $option = $optionModel->where(['question_id' => $conditionQuestionIds[$i], 'id' => $value])->first();
                         $value = $option ? $option['option_text'] : $value;
-                        log_message('debug', "[SectionController::update] Translated option ID $conditionValues[$i] to text: $value");
+                        log_message('debug', "[SectionController::update] Translated option ID {$conditionValues[$i]} to text: $value");
                     }
                     $conditions[] = [
-                        'field' => $conditionQuestionIds[$i], // Ganti question_id jadi field
+                        'field' => $conditionQuestionIds[$i],  // Standardisasi ke 'field' dalam JSON
                         'operator' => $operators[$i],
                         'value' => $value
                     ];
@@ -230,17 +243,27 @@ class SectionController extends BaseController
         }
 
         $sectionModel = new SectionModel();
-        $sectionModel->update($section_id, [
-            'section_title' => $this->request->getPost('section_title'),
-            'section_description' => $this->request->getPost('section_description'),
-            'show_section_title' => $this->request->getPost('show_section_title') ? 1 : 0,
-            'show_section_description' => $this->request->getPost('show_section_description') ? 1 : 0,
-            'order_no' => $this->request->getPost('order_no'),
-            'conditional_logic' => $conditionalLogic
-        ]);
+        $db = \Config\Database::connect();
+        $db->transStart();  // Mulai transaksi untuk keamanan
 
-        return redirect()->to("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections")
-                        ->with('success', 'Section berhasil diperbarui.');
+        try {
+            $sectionModel->update($section_id, [
+                'section_title' => $this->request->getPost('section_title'),
+                'section_description' => $this->request->getPost('section_description'),
+                'show_section_title' => $this->request->getPost('show_section_title') ? 1 : 0,
+                'show_section_description' => $this->request->getPost('show_section_description') ? 1 : 0,
+                'order_no' => $this->request->getPost('order_no'),
+                'conditional_logic' => $conditionalLogic
+            ]);
+            $db->transComplete();
+            log_message('info', "[SectionController::update] Section {$section_id} updated successfully.");
+            return redirect()->to("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections")
+                            ->with('success', 'Section berhasil diperbarui.');
+        } catch (\Exception $e) {
+            $db->transRollback();
+            log_message('error', "[SectionController::update] Error updating section {$section_id}: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memperbarui section: ' . $e->getMessage());
+        }
     }
 
     public function delete($questionnaire_id, $page_id, $section_id)
