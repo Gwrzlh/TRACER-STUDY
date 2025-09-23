@@ -5,9 +5,13 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\SectionModel;
 use App\Models\QuestionnairePageModel;
-use App\Models\QuestionnairModel;   
+use App\Models\QuestionnairModel;
 use App\Models\QuestionModel;
 use App\Models\QuestionOptionModel;
+use App\Models\MatrixRowModel;
+use App\Models\MatrixColumnModels;
+use App\Models\AnswerModel;
+use App\Models\ResponseModel;
 
 class SectionController extends BaseController
 {
@@ -52,7 +56,7 @@ class SectionController extends BaseController
 
         if (!$questionnaire || !$page) {
             return redirect()->to("admin/questionnaire/{$questionnaire_id}/pages")
-                           ->with('error', 'Data tidak ditemukan.');
+                ->with('error', 'Data tidak ditemukan.');
         }
 
         $nextOrder = $sectionModel->getNextOrderNo($page_id);
@@ -80,7 +84,7 @@ class SectionController extends BaseController
     public function store($questionnaire_id, $page_id)
     {
         $validation = \Config\Services::validation();
-        
+
         $validation->setRules([
             'section_title' => 'required|min_length[3]|max_length[255]',
             'section_description' => 'permit_empty|max_length[1000]',
@@ -138,7 +142,7 @@ class SectionController extends BaseController
         ]);
 
         return redirect()->to("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections")
-                        ->with('success', 'Section berhasil ditambahkan.');
+            ->with('success', 'Section berhasil ditambahkan.');
     }
 
     public function edit($questionnaire_id, $page_id, $section_id)
@@ -154,7 +158,7 @@ class SectionController extends BaseController
 
         if (!$section || !$page || !$questionnaire) {
             return redirect()->to("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections")
-                           ->with('error', 'Data tidak ditemukan.');
+                ->with('error', 'Data tidak ditemukan.');
         }
 
         $conditionalLogic = $section['conditional_logic'] ? json_decode($section['conditional_logic'], true) : [];
@@ -184,7 +188,7 @@ class SectionController extends BaseController
     public function update($questionnaire_id, $page_id, $section_id)
     {
         $validation = \Config\Services::validation();
-        
+
         $validation->setRules([
             'section_title' => 'required|min_length[3]|max_length[255]',
             'section_description' => 'permit_empty|max_length[1000]',
@@ -240,28 +244,43 @@ class SectionController extends BaseController
         ]);
 
         return redirect()->to("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections")
-                        ->with('success', 'Section berhasil diperbarui.');
+            ->with('success', 'Section berhasil diperbarui.');
     }
 
     public function delete($questionnaire_id, $page_id, $section_id)
     {
-        $sectionModel = new SectionModel();
-        $questionModel = new QuestionModel();
-        $optionModel = new QuestionOptionModel();
+        $sectionModel      = new SectionModel();
+        $questionModel     = new QuestionModel();
+        $optionModel       = new QuestionOptionModel();
+        $matrixRowModel    = new MatrixRowModel();
+        $matrixColumnModel = new MatrixColumnModels();
+        $answerModel       = new AnswerModel();
+        $responseModel     = new ResponseModel(); // Hapus responses terkait questionnaire
 
+        // Hapus semua responses terkait questionnaire
+        $responseModel->where('questionnaire_id', $questionnaire_id)->delete();
+
+        // Ambil semua pertanyaan di section
         $questions = $questionModel->where('section_id', $section_id)->findAll();
 
         foreach ($questions as $q) {
+            $answerModel->where('question_id', $q['id'])->delete();
             $optionModel->where('question_id', $q['id'])->delete();
+            $matrixRowModel->where('question_id', $q['id'])->delete();
+            $matrixColumnModel->where('question_id', $q['id'])->delete();
         }
 
+        // Hapus pertanyaan di section
         $questionModel->where('section_id', $section_id)->delete();
 
+        // Hapus section
         $sectionModel->delete($section_id);
 
-        return redirect()->to("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections")
-                        ->with('success', 'Section berhasil dihapus.');
+        return redirect()->to("/admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections")
+            ->with('success', 'Section beserta semua relasinya berhasil dihapus.');
     }
+
+
 
     // Tambah method baru untuk duplicate
     public function duplicate($questionnaire_id, $page_id, $section_id)
@@ -297,8 +316,8 @@ class SectionController extends BaseController
 
             if ($section['order_no'] > 1) {
                 $prevSection = $sectionModel->where('page_id', $page_id)
-                                        ->where('order_no', $section['order_no'] - 1)
-                                        ->first();
+                    ->where('order_no', $section['order_no'] - 1)
+                    ->first();
                 if ($prevSection) {
                     $sectionModel->update($section_id, ['order_no' => $section['order_no'] - 1]);
                     $sectionModel->update($prevSection['id'], ['order_no' => $prevSection['order_no'] + 1]);
@@ -327,8 +346,8 @@ class SectionController extends BaseController
 
             if ($section['order_no'] < $maxOrder) {
                 $nextSection = $sectionModel->where('page_id', $page_id)
-                                        ->where('order_no', $section['order_no'] + 1)
-                                        ->first();
+                    ->where('order_no', $section['order_no'] + 1)
+                    ->first();
                 if ($nextSection) {
                     $sectionModel->update($section_id, ['order_no' => $section['order_no'] + 1]);
                     $sectionModel->update($nextSection['id'], ['order_no' => $nextSection['order_no'] - 1]);
