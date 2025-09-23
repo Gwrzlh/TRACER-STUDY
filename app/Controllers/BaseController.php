@@ -1,20 +1,19 @@
 <?php
-
 namespace App\Controllers;
 
-use App\Models\AccountModel;
-use CodeIgniter\Controller;
-use CodeIgniter\HTTP\CLIRequest;
-use CodeIgniter\HTTP\IncomingRequest;
+use App\Models\User\AccountModel;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
-abstract class BaseController extends Controller
+abstract class BaseController extends \CodeIgniter\Controller
 {
     protected $request;
-    protected $helpers = ['cookie']; // tambahkan helper cookie agar bisa pakai get_cookie()
+    protected $helpers = ['cookie']; // Helper untuk get_cookie()
 
+    /**
+     * Inisialisasi controller, memeriksa session dan cookie untuk otentikasi
+     */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         parent::initController($request, $response, $logger);
@@ -22,12 +21,12 @@ abstract class BaseController extends Controller
         // Ambil instance session
         $session = session();
 
-        // Cek apakah belum login dan ada cookie remember_token
+        // Cek apakah user belum login dan ada cookie remember_token
         if (!$session->get('logged_in')) {
-            $rememberToken = get_cookie('remember_token'); // helper bawaan CI
+            $rememberToken = get_cookie('remember_token');
 
             if ($rememberToken) {
-                $username = base64_decode($rememberToken); // decode dari cookie
+                $username = base64_decode($rememberToken);
 
                 $model = new AccountModel();
                 $user = $model->where('username', $username)->first();

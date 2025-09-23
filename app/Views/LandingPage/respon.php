@@ -243,25 +243,102 @@ $data = $allData[$selectedYear];
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+    <meta charset="UTF-8">
     <title>Respon Tracer Study <?= $selectedYear ?></title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        h1, h2, h3 { font-weight: 700; }
+
+        /* Hero persis seperti tentang.php / kontak.php */
+        .hero {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: #fff;
+            padding: 100px 20px 70px;
+            text-align: center;
+            border-radius: 0 0 40px 40px;
+            margin-bottom: 40px;
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: #e5e7eb;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .card-custom {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        table {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+        th {
+            background: #1e40af;
+            color: #fff;
+            text-align: center;
+        }
+        td {
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
 <!-- Navbar -->
 <?= view('layout/navbar') ?>
 
-<div class="container mt-4">
-    <h2>Progress Pengisian Tracer Study Lulusan Tahun <?= $selectedYear ?></h2>
-    <p><?php echo date("d F Y"); ?></p>
+<!-- Hero Section -->
+<section class="hero animate__animated animate__fadeIn">
+  <h1 class="animate__animated animate__fadeInDown">Respon Tracer Study <?= $selectedYear ?></h1>
+  <p class="animate__animated animate__fadeInUp animate__delay-1s">Update per <?= date("d F Y"); ?></p>
+</section>
+
+<div class="container">
 
     <!-- Dropdown Tahun -->
-    <form method="get" class="mb-3">
-        <label for="tahun" class="form-label">Pilih Tahun:</label>
-        <select id="tahun" name="tahun" class="form-select" onchange="this.form.submit()">
+    <form method="get" class="mb-4 animate__animated animate__fadeInDown animate__delay-1s">
+        <label for="tahun" class="form-label fw-semibold">Pilih Tahun:</label>
+        <select id="tahun" name="tahun" class="form-select shadow-sm" onchange="this.form.submit()">
             <?php foreach(array_keys($allData) as $tahun): ?>
                 <option value="<?= $tahun ?>" <?= ($tahun==$selectedYear)?'selected':''; ?>>
                     <?= $tahun ?>
@@ -270,76 +347,72 @@ $data = $allData[$selectedYear];
         </select>
     </form>
 
-   <!-- Chart -->
-   <!-- Chart -->
-<canvas id="myChart" style="max-height: 400px;"></canvas>
+    <!-- Chart -->
+    <div class="card-custom animate__animated animate__fadeInUp animate__delay-2s">
+        <h3 class="mb-3">Grafik Respon</h3>
+        <canvas id="myChart" style="max-height: 400px;"></canvas>
+    </div>
 
-<script>
-const data = <?php echo json_encode($data); ?>;
+    <script>
+    const data = <?php echo json_encode($data); ?>;
 
-const labels = data.map(d => d.prodi);
-const finish = data.map(d => d.finish);
-const ongoing = data.map(d => d.ongoing);
-const belum = data.map(d => d.belum);
+    const labels = data.map(d => d.prodi);
+    const finish = data.map(d => d.finish);
+    const ongoing = data.map(d => d.ongoing);
+    const belum = data.map(d => d.belum);
 
-new Chart(document.getElementById('myChart'), {
-    type: 'bar',
-    data: {
-        labels: labels,
-        datasets: [
-            { label: 'Jumlah Finish', data: finish, backgroundColor: 'green' },
-            { label: 'Jumlah Ongoing', data: ongoing, backgroundColor: 'gold' },
-            { label: 'Jumlah Belum Memulai', data: belum, backgroundColor: 'red' }
-        ]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,   // biar tinggi canvas ikut max-height
-        plugins: {
-            legend: { position: 'top' }
+    new Chart(document.getElementById('myChart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'Finish', data: finish, backgroundColor: '#16a34a' },
+                { label: 'Ongoing', data: ongoing, backgroundColor: '#facc15' },
+                { label: 'Belum', data: belum, backgroundColor: '#dc2626' }
+            ]
         },
-        scales: {
-            x: {
-                stacked: true,
-                ticks: { maxRotation: 45, minRotation: 45 } 
-            },
-            y: {
-                stacked: true,
-                beginAtZero: true
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                x: { stacked: true, ticks: { maxRotation: 45, minRotation: 45 }},
+                y: { stacked: true, beginAtZero: true }
             }
         }
-    }
-});
-</script>
-
+    });
     </script>
 
     <!-- Tabel -->
-    <h3 class="mt-4">Detail Progress Per Prodi</h3>
-    <table class="table table-bordered table-striped">
-        <thead class="table-light">
-            <tr>
-                <th>PRODI</th>
-                <th>FINISH</th>
-                <th>ONGOING</th>
-                <th>BELUM</th>
-                <th>JUMLAH</th>
-                <th>PERSENTASE</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php foreach($data as $d): ?>
-            <tr>
-                <td><?= $d['prodi']; ?></td>
-                <td><?= $d['finish']; ?></td>
-                <td><?= $d['ongoing']; ?></td>
-                <td><?= $d['belum']; ?></td>
-                <td><?= $d['jumlah']; ?></td>
-                <td><?= $d['persentase']; ?>%</td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
+    <div class="card-custom animate__animated animate__fadeInUp animate__delay-3s">
+        <h3 class="mb-3">Detail Progress Per Prodi</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>PRODI</th>
+                        <th>FINISH</th>
+                        <th>ONGOING</th>
+                        <th>BELUM</th>
+                        <th>JUMLAH</th>
+                        <th>PERSENTASE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach($data as $d): ?>
+                    <tr>
+                        <td><?= $d['prodi']; ?></td>
+                        <td><?= $d['finish']; ?></td>
+                        <td><?= $d['ongoing']; ?></td>
+                        <td><?= $d['belum']; ?></td>
+                        <td><?= $d['jumlah']; ?></td>
+                        <td><?= $d['persentase']; ?>%</td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <!-- Footer -->

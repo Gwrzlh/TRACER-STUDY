@@ -1,6 +1,6 @@
 <?php
+use App\Models\LandingPage\SiteSettingModel;
 
-use App\Models\SiteSettingModel;
 
 if (!function_exists('get_setting')) {
     function get_setting($key, $default = null)

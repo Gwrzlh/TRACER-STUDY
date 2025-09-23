@@ -116,7 +116,8 @@
             <h5>Edit Menu Pengguna </h5>
         </div>
         <div class="card-body p-4">
-            <form action="<?= base_url('pengaturan-situs/save') ?>" method="post">
+            <form method="post" action="<?= base_url('admin/pengaturan-situs/save') ?>">
+
 
                 <div class="mb-3">
                     <label for="pengguna_button_text" class="form-label">Teks Tombol Pengguna</label>

@@ -1,5 +1,5 @@
 <?php
-use App\Models\WelcomePageModel;
+use App\Models\LandingPage\WelcomePageModel;
 $model = new WelcomePageModel();
 $data = $model->first();
 $loginText = get_setting('login_button_text', 'Login');

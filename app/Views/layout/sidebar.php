@@ -10,6 +10,7 @@ $currentRoute = service('request')->uri->getPath();
   <link rel="stylesheet" href="<?= base_url('css/sidebar.css') ?>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <?= $this->renderSection('styles') ?>
 </head>
 
 <body class="bg-[#cfd8dc] font-sans">
@@ -115,57 +116,120 @@ $currentRoute = service('request')->uri->getPath();
 
             class="sidebar-link <?= str_contains($currentRoute, 'admin/laporan') ? 'active' : '' ?>">
             <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6.586a2 2 0 0 0 1.414-.586l6.414-6.414A2 2 0 0 0 21 13.586V4a2 2 0 0 0-2-2H6zM8 6h8v2H8V6zm0 4h5v2H8v-2zm0 4h3v2H8v-2z"/>
-              <path d="M18.414 12 13 17.414V20h2.586L21 14.586 18.414 12z"/>
+              <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6.586a2 2 0 0 0 1.414-.586l6.414-6.414A2 2 0 0 0 21 13.586V4a2 2 0 0 0-2-2H6zM8 6h8v2H8V6zm0 4h5v2H8v-2zm0 4h3v2H8v-2z" />
+              <path d="M18.414 12 13 17.414V20h2.586L21 14.586 18.414 12z" />
             </svg>
             <span>Laporan</span>
           </a>
-          
-          <!-- Email Template -->
-          <a href="<?= base_url('admin/emailtemplate') ?>"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
-   hover:bg-gray-200 
-   <?= str_contains($currentRoute, 'admin/emailtemplate') ? 'bg-blue-600 text-white' : 'text-gray-700' ?>">
 
-            <svg class="w-5 h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24" fill="currentColor">
+          <!-- Email Template -->
+          <a href="<?= base_url('admin/emailtemplate') ?>" class="sidebar-link <?= str_contains($currentRoute, 'admin/emailtemplate') ? 'active' : '' ?>">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
               <path d="M2 4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4zm2 0v16h16V4H4zm2 2h12v2H6V6zm0 4h12v2H6v-2zm0 4h8v2H6v-2z" />
             </svg>
+            <span>Email</span>
+          </a>
 
-            <span class="font-medium">Email</span>
+          <!-- log -->
+          <a href="<?= base_url('admin/log_activities') ?>"
+            class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities') ? 'active' : '' ?>">
+            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
+            </svg>
+            <span>aktivitas Pengguna</span>
+          </a>
+
+          <a href="<?= base_url('admin/respon') ?>" class="sidebar-link <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">
+            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
+            </svg>
+            <span>Respon</span>
+          </a>
+
+
+
+
+          <!-- Profil -->
+          <a href="<?= base_url('admin/profil') ?>"
+            class="sidebar-link <?= str_contains($currentRoute, 'admin/profil') ? 'active' : '' ?>">
+            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M5.121 17.804A9 9 0 1112 21a9 9 0 01-6.879-3.196zM12 12a3 3 0 100-6 3 3 0 000 6z" />
+            </svg>
+            <span>Profil</span>
           </a>
 
         </nav>
       </div>
 
+      <?php
+      $session = session();
+      $foto = $session->get('foto');
+      $fotoPath = FCPATH . 'uploads/foto_admin/' . ($foto ?? '');
+      $fotoUrl = ($foto && file_exists($fotoPath))
+        ? base_url('uploads/foto_admin/' . $foto)
+        : base_url('uploads/default.png');
+      ?>
+
       <!-- Profile + Logout -->
       <div class="mt-6 px-4 space-y-2">
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition" id="profileSidebarBtn">
           <div class="relative">
-            <img src="/img/idk.jpeg" class="profile-img">
+            <img id="sidebarFoto" src="<?= $fotoUrl ?>" class="w-12 h-12 rounded-full shadow-md border object-cover">
             <span class="status-indicator"></span>
           </div>
           <div>
-            <p class="font-semibold text-gray-800 text-sm"><?= session()->get('username') ?></p>
-            <p class="text-gray-500 text-xs"><?= session()->get('email') ?></p>
+            <p class="font-semibold text-gray-800 text-sm"><?= $session->get('username') ?></p>
+            <p class="text-gray-500 text-xs"><?= $session->get('email') ?></p>
           </div>
         </div>
 
-     <form action="/logout" method="get">
-  <button type="submit"
-    style="background-color: <?= get_setting('logout_button_color', '#dc3545') ?>;
-           color: <?= get_setting('logout_button_text_color', '#ffffff') ?>;
-           padding: 10px 20px;
-           font-weight: 600;
-           border-radius: 8px;
-           width: 100%; text-align:center;"
-    onmouseover="this.style.backgroundColor='<?= get_setting('logout_button_hover_color', '#a71d2a') ?>';"
-    onmouseout="this.style.backgroundColor='<?= get_setting('logout_button_color', '#dc3545') ?>';">
-    <?= esc(get_setting('logout_button_text', 'Logout')) ?>
-  </button>
-</form>
-
+        <form action="/logout" method="get">
+          <button type="submit"
+            style="background-color: <?= get_setting('logout_button_color', '#dc3545') ?>;
+             color: <?= get_setting('logout_button_text_color', '#ffffff') ?>;
+             padding: 10px 20px;
+             font-weight: 600;
+             border-radius: 8px;
+             width: 100%; text-align:center;"
+            onmouseover="this.style.backgroundColor='<?= get_setting('logout_button_hover_color', '#a71d2a') ?>';"
+            onmouseout="this.style.backgroundColor='<?= get_setting('logout_button_color', '#dc3545') ?>';">
+            <?= esc(get_setting('logout_button_text', 'Logout')) ?>
+          </button>
+        </form>
       </div>
+
+      <!-- Modal Foto -->
+      <div id="profileModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+        <div class="modal-content relative bg-white rounded-xl shadow-xl p-4">
+          <span id="closeModal" class="absolute top-2 right-3 text-gray-700 text-xl cursor-pointer">&times;</span>
+          <img id="modalFoto" src="<?= $fotoUrl ?>" class="w-80 h-80 object-cover rounded-xl">
+        </div>
+      </div>
+
+      <script>
+        const profileSidebarBtn = document.getElementById('profileSidebarBtn');
+        const profileModal = document.getElementById('profileModal');
+        const closeModal = document.getElementById('closeModal');
+
+        profileSidebarBtn?.addEventListener('click', () => {
+          profileModal.classList.remove('hidden');
+          setTimeout(() => profileModal.classList.add('show'), 10);
+        });
+
+        closeModal?.addEventListener('click', () => {
+          profileModal.classList.remove('show');
+          setTimeout(() => profileModal.classList.add('hidden'), 300);
+        });
+
+        profileModal?.addEventListener('click', (e) => {
+          if (e.target === profileModal) {
+            profileModal.classList.remove('show');
+            setTimeout(() => profileModal.classList.add('hidden'), 300);
+          }
+        });
+      </script>
+
     </aside>
 
     <!-- Main Content -->
@@ -174,4 +238,5 @@ $currentRoute = service('request')->uri->getPath();
     </main>
   </div>
 </body>
+
 </html>
