@@ -92,14 +92,14 @@
         </div>
 
         <!-- Conditional Logic -->
-        <div>
+       <div>
             <label class="flex items-center">
                 <input type="checkbox" 
-                       name="conditional_logic" 
-                       id="conditional_logic" 
-                       value="1" 
-                       <?= !empty($conditionalLogic) ? 'checked' : '' ?>
-                       class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    name="conditional_logic" 
+                    id="conditional_logic" 
+                    value="1" 
+                    <?= !empty($conditionalLogic) ? 'checked' : '' ?>
+                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                 <span class="ml-2 text-sm font-medium text-gray-700">Aktifkan Conditional Logic</span>
             </label>
 
@@ -117,8 +117,7 @@
                     <?php if (!empty($conditionalLogic)): ?>
                         <?php foreach ($conditionalLogic as $index => $condition): ?>
                             <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border">
-                                <!-- Select untuk Field (Pertanyaan Induk) -->
-                                <select name="condition_field[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                     <option value="">Pilih Pertanyaan</option>
                                     <?php foreach ($questions as $q): ?>
                                         <option value="<?= esc($q['id']) ?>" 
@@ -126,13 +125,8 @@
                                             <?= esc($q['question_text']) ?>
                                         </option>
                                     <?php endforeach; ?>
-                                    <!-- Debug kalau field tidak ditemukan -->
-                                    <?php if (isset($condition['field']) && !in_array($condition['field'], array_column($questions, 'id'))): ?>
-                                        <option value="" disabled>⚠️ ID <?= esc($condition['field']) ?> tidak ditemukan</option>
-                                    <?php endif; ?>
                                 </select>
 
-                                <!-- Select untuk Operator -->
                                 <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
                                     <?php foreach ($operators as $key => $label): ?>
                                         <option value="<?= esc($key) ?>" <?= isset($condition['operator']) && $key == $condition['operator'] ? 'selected' : '' ?>>
@@ -141,7 +135,6 @@
                                     <?php endforeach; ?>
                                 </select>
 
-                                <!-- Input untuk Value -->
                                 <span class="value-input-container flex-1">
                                     <input type="text" 
                                         name="condition_value[]" 
@@ -151,7 +144,6 @@
                                         required>
                                 </span>
 
-                                <!-- Tombol Remove -->
                                 <button type="button" 
                                         class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
                                     Hapus
@@ -159,9 +151,9 @@
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <!-- Default Row (Kosong) -->
+                        <!-- Template baris kosong default -->
                         <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border" style="display:none;">
-                            <select name="condition_field[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                 <option value="">Pilih Pertanyaan</option>
                                 <?php foreach ($questions as $q): ?>
                                     <option value="<?= esc($q['id']) ?>"><?= esc($q['question_text']) ?></option>
@@ -185,15 +177,9 @@
                             </button>
                         </div>
                     <?php endif; ?>
-                    <!-- Tombol Tambah Kondisi -->
-                    <button type="button" id="add-condition" class="btn btn-sm btn-outline-primary mt-2">Tambah Kondisi</button>
                 </div>
                 
-                <button type="button" 
-                        id="add-condition-btn" 
-                        style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>; background-color: #3b82f6; color: #fff; padding: 0.625rem 1.5rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; margin-top: 0.75rem;"
-                        onmouseover="this.style.backgroundColor='#2563eb'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.25)'"
-                        onmouseout="this.style.backgroundColor='#3b82f6'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                <button type="button" id="add-condition-btn" class="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                     Tambah Kondisi
                 </button>
             </div>
@@ -246,7 +232,8 @@
         </div>
     </form>
 </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Script JS di akhir view (pastikan ini ada) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
         function loadConditionalValueInput(questionSelector, initialValue = null) {
@@ -254,7 +241,7 @@
             const valueContainer = questionSelector.closest('.condition-row').find('.value-input-container');
 
             if (!questionId) {
-                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
+                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
                 return;
             }
 
@@ -267,20 +254,20 @@
                     console.log('AJAX Success:', response);
                     let inputHtml = '';
                     if (response.type === 'select' && response.options && response.options.length > 0) {
-                        inputHtml = `<select name="condition_value[]" class="form-control" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
+                        inputHtml = `<select name="condition_value[]" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
                         response.options.forEach(function(option) {
                             const isSelected = initialValue !== null && String(initialValue) === String(option.id) ? 'selected' : '';
                             inputHtml += `<option value="${option.id}" ${isSelected}>${option.option_text}</option>`;
                         });
                         inputHtml += '</select>';
                     } else {
-                        inputHtml = `<input type="text" name="condition_value[]" placeholder="Value" class="form-control" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
+                        inputHtml = `<input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
                     }
                     valueContainer.html(inputHtml);
                 },
                 error: function(xhr, status, error) {
                     console.error('AJAX Error:', status, error, xhr.responseText);
-                    valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="form-control" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
+                    valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
                 }
             });
         }
@@ -293,7 +280,7 @@
                     $('.condition-row').each(function() {
                         $(this).find('.remove-condition-btn').show();
                     });
-                    // Add required attribute to condition inputs
+                    // Tambahkan required ke input kondisi
                     $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', true);
                     $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', true);
                     $('.condition-row').find('select[name="operator[]"]').prop('required', true);
@@ -303,7 +290,7 @@
                     $('.condition-row:not(:first)').remove();
                     $('.condition-row').first().hide();
                     $('#add-condition-btn').hide();
-                    // Remove required attribute from condition inputs
+                    // Hapus required dari input kondisi
                     $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', false);
                     $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', false);
                     $('.condition-row').find('select[name="operator[]"]').prop('required', false);
@@ -313,22 +300,24 @@
 
         $('#add-condition-btn').on('click', function() {
             const templateRow = `
-                <div class="condition-row d-flex align-items-center gap-2 mb-2">
-                    <select name="condition_question_id[]" class="question-selector form-control" required>
+                <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border">
+                    <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
                         <option value="">Pilih Pertanyaan</option>
                         <?php foreach ($questions as $q): ?>
                             <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <select name="operator[]" class="form-control" style="width: auto;" required>
+                    <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;" required>
                         <?php foreach ($operators as $key => $label): ?>
                             <option value="<?= $key ?>"><?= $label ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <span class="value-input-container w-100">
-                        <input type="text" name="condition_value[]" placeholder="Value" class="form-control" required>
+                    <span class="value-input-container flex-1">
+                        <input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
                     </span>
-                    <button type="button" class="remove-condition-btn btn btn-danger btn-sm">Hapus</button>
+                    <button type="button" class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
+                        Hapus
+                    </button>
                 </div>
             `;
             $('#conditional-container').append(templateRow);
@@ -342,7 +331,7 @@
                 const row = $(this).closest('.condition-row');
                 row.find('.question-selector').val('');
                 row.find('select[name="operator[]"]').val('is');
-                row.find('.value-input-container').html(`<input type="text" name="condition_value[]" placeholder="Value" class="form-control" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
+                row.find('.value-input-container').html(`<input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
                 row.find('.remove-condition-btn').hide();
             }
         });
@@ -352,20 +341,18 @@
             loadConditionalValueInput($(this), initialValue);
         });
 
-        // Handle pre-populated conditions
-        <?php if (!empty($conditionalLogic)): ?>
-            $('.condition-row').each(function(index) {
-                const condition = <?= json_encode($conditionalLogic) ?>[index];
-                if (condition) {
-                    $(this).find('.question-selector').val(condition.question_id);
-                    $(this).find('select[name="operator[]"]').val(condition.operator);
-                    loadConditionalValueInput($(this).find('.question-selector'), condition.value);
-                    $(this).find('.remove-condition-btn').show();
-                }
-            });
-        <?php endif; ?>
+        // Tangani pre-populated conditions pada load
+        $('.condition-row').each(function(index) {
+            const condition = <?= json_encode($conditionalLogic) ?>[index];
+            if (condition) {
+                $(this).find('.question-selector').val(condition.field);  // Gunakan 'field' dari JSON
+                $(this).find('select[name="operator[]"]').val(condition.operator);
+                loadConditionalValueInput($(this).find('.question-selector'), condition.value);
+                $(this).find('.remove-condition-btn').show();
+            }
+        });
 
-        // Prevent form submission issues with hidden required fields
+        // Cegah masalah submit dengan field required yang tersembunyi
         $('form').on('submit', function(e) {
             if (!$('#conditional_logic').is(':checked')) {
                 $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', false);
@@ -374,6 +361,7 @@
             }
         });
 
+        // Fungsi deleteSection dan duplicateSection (tetap dari asli, jika ada)
         function deleteSection() {
             if (confirm('Yakin ingin menghapus section ini? Semua pertanyaan di dalam section ini juga akan terhapus!')) {
                 const form = document.createElement('form');
