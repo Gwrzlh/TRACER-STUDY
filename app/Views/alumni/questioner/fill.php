@@ -75,6 +75,9 @@
                                         <?php elseif (strtolower($q['question_type']) === 'email'): ?>
                                             <input type="email" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
                                                 value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
+                                        <?php elseif (strtolower($q['question_type']) === 'number'): ?>
+                                            <input type="number" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
                                         <?php elseif (in_array(strtolower($q['question_type']), ['dropdown', 'select'])): ?>
                                             <select class="form-select" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
                                                 <option value="">Pilih...</option>
@@ -101,6 +104,54 @@
                                                     <label class="form-check-label" for="check-<?= $q['id'] ?>-<?= md5($opt) ?>"><?= esc($opt) ?></label>
                                                 </div>
                                             <?php endforeach; ?>
+                                        <?php elseif ($q['question_type'] === 'user_field'): ?>
+                                       <?php
+                                            $fieldName = $q['user_field_name'] ?? '';
+                                            $friendlyLabel = isset($field_friendly_names[$fieldName]) ? $field_friendly_names[$fieldName] : ucwords(str_replace('_', ' ', $fieldName));
+                                            $fieldType = $field_types[$fieldName] ?? 'text';
+                                            $preValue = isset($user_profile[$fieldName]) ? $user_profile[$fieldName] : '';
+                                            $displayValue = isset($user_profile_display[$fieldName . '_name']) ? $user_profile_display[$fieldName . '_name'] : $preValue;
+                                            ?>
+                                           
+                                            <?php if (strpos($fieldType, 'foreign_key') === 0): ?>
+                                                <?php
+                                                // Map foreign key table to options and keys
+                                                $fkTable = explode(':', $fieldType)[1] ?? '';
+                                                $fkConfig = [
+                                                    'jurusan' => ['options' => $jurusan_options, 'key' => isset($jurusan_options[0]['id_jurusan']) ? 'id_jurusan' : 'id', 'label' => 'nama_jurusan'],
+                                                    'cities' => ['options' => $cities_options, 'key' => isset($cities_options[0]['id_cities']) ? 'id_cities' : 'id', 'label' => 'name'],
+                                                    'prodi' => ['options' => $prodi_options, 'key' => isset($prodi_options[0]['id_prodi']) ? 'id_prodi' : 'id', 'label' => 'nama_prodi'],
+                                                    'provinces' => ['options' => $provinsi_options, 'key' => isset($provinces_options[0]['id_provinsi']) ? 'id_provinsi' : 'id', 'label' => 'name'],
+                                                ];
+                                                $options = $fkConfig[$fkTable]['options'] ?? [];
+                                                $optionKey = $fkConfig[$fkTable]['key'] ?? 'id';
+                                                $optionLabel = $fkConfig[$fkTable]['label'] ?? 'name';
+                                                ?>
+                                                <?php if (!empty($options)): ?>
+                                                    <select class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
+                                                        <option value="">-- Pilih <?= esc($friendlyLabel) ?> --</option>
+                                                        <?php foreach ($options as $option): ?>
+                                                            <option value="<?= esc($option[$optionKey]) ?>" <?= $option[$optionKey] == $preValue ? 'selected' : '' ?>>
+                                                                <?= esc($option[$optionLabel]) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                    <?php if (!$preValue && $fieldName): ?>
+                                                        <small class="form-text text-muted">Pilih <?= esc($friendlyLabel) ?>.</small>
+                                                    <?php endif; ?>
+                                                <?php else: ?>
+                                                    <input type="text" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                        value="<?= esc($displayValue) ?>" <?= $q['is_required'] ? 'required' : '' ?>
+                                                        placeholder="No options available for <?= esc($friendlyLabel) ?>">
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <input type="text" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                    value="<?= esc($displayValue) ?>" <?= $q['is_required'] ? 'required' : '' ?>
+                                                    placeholder="<?= $displayValue ? '' : 'Enter your ' . esc($friendlyLabel) ?>">
+                                                <?php if (!$preValue && $fieldName): ?>
+                                                    <small class="form-text text-muted">No data found for <?= esc($friendlyLabel) ?>. Please enter it.</small>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
                                         <?php elseif (in_array(strtolower($q['question_type']), ['scale', 'matrix_scale'])): ?>
                                             <div class="row">
                                                 <div class="col-md-10">
@@ -144,6 +195,7 @@
                                                     <?php endforeach; ?>
                                                 </tbody>
                                             </table>
+                                        
                                         <?php elseif (strtolower($q['question_type']) === 'file'): ?>
                                             <input type="file" class="form-control" name="answer_<?= $q['id'] ?>" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
                                             <?php if ($existing_answer): ?>
