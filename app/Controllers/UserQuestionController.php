@@ -4,11 +4,18 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\AnswerModel;
+use App\Models\DetailaccountAlumni;
 use App\Models\QuestionnairModel;
 use App\Models\QuestionModel;
 use App\Models\QuestionnairePageModel;
 use App\Models\QuestionnairConditionModel;
 use App\models\LogActivityModel;
+use App\Models\AccountModel;
+use App\Models\Jurusan;
+use App\Models\Prodi;
+use App\Models\Provincies;
+use App\Models\Cities;
+
 
 class UserQuestionController extends BaseController
 {
@@ -36,6 +43,10 @@ class UserQuestionController extends BaseController
 
         $userId   = session()->get('id');
         $userData = session()->get();
+
+        $userId = session()->get('id_account'); // Assume logged in user
+        $detailModel = new DetailaccountAlumni();
+        $userProfile = $detailModel->where('id_account', $userId)->first() ?? [];
 
         log_message('debug', '[index] User Data for conditional check: ' . print_r($userData, true));
 
@@ -65,6 +76,7 @@ class UserQuestionController extends BaseController
                 'progress'    => $progress,
                 'is_active'   => $q['is_active'],
                 'conditional' => $q['conditional_logic'] ?? '-',
+                'user_profile' => $userProfile,
             ];
         }
 
@@ -126,12 +138,77 @@ class UserQuestionController extends BaseController
             return redirect()->to('/login');
         }
 
+        $userId = session()->get('id_account'); // Assume logged in user
+        $detailModel = new DetailaccountAlumni();
+        $jurusanModel = new Jurusan();
+        $prodiModel = new Prodi();
+        $provinciesModel = new Provincies();
+        $citiesModel = new Cities();
+
+        $userProfile = $detailModel->where('id_account', $userId)->first() ?? [];
+
+        $userProfileDisplay = $userProfile;
+        if (!empty($userProfile['id_jurusan'])) {
+            $jurusan = $jurusanModel->find($userProfile['id_jurusan']);
+            $userProfileDisplay['id_jurusan_name'] = $jurusan['nama_jurusan'] ?? 'Unknown';
+        }
+        if (!empty($userProfile['id_cities'])) {
+            $city = $citiesModel->find($userProfile['id_cities']);
+            $userProfileDisplay['id_cities_name'] = $city['name'] ?? 'Unknown';
+        }
+        if (!empty($userProfile['id_prodi'])) {
+            $prodi = $prodiModel->find($userProfile['id_prodi']);
+            $userProfileDisplay['id_prodi_name'] = $prodi['nama_prodi'] ?? 'Unknown';
+        }
+        if (!empty($userProfile['id_provinsi'])) {
+            $provinsi = $provinciesModel->find($userProfile['id_provinsi']);
+            $userProfileDisplay['id_provinsi_name'] = $provinsi['name'] ?? 'Unknown';
+        }
+
+        $jurusanOptions = $jurusanModel->findAll();
+        $citiesOptions = $citiesModel->findAll();
+        $prodiOptions = $prodiModel->findAll();
+        $provinsiOptions = $provinciesModel->findAll();
+
         $userId   = session()->get('id');
         $userData = session()->get();
         $q_id     = (int)$q_id;
 
         log_message('debug', '[mulai] Starting questionnaire ' . $q_id . ' for user ' . $userId);
         log_message('debug', '[mulai] UserData: ' . print_r($userData, true));
+
+        $fieldFriendlyNames = [
+        'nama_lengkap' => 'Nama Lengkap',
+        'nim' => 'NIM',
+        'id_jurusan' => 'ID Jurusan',
+        'id_prodi' => 'ID Prodi',
+        'angkatan' => 'Angkatan',
+        'tahun_kelulusan' => 'Tahun Kelulusan',
+        'ipk' => 'IPK',
+        'alamat' => 'Alamat',
+        'alamat2' => 'Alamat 2',
+        'kodepos' => 'Kode Pos',
+        'jenisKelamin' => 'Jenis Kelamin',
+        'notlp' => 'No. Telepon',
+        'id_provinsi' => 'ID Provinsi',
+        'id_cities' => 'ID Kota',
+    ];
+    $fieldTypes = [
+        'nama_lengkap' => 'text',
+        'id_jurusan' => 'foreign_key:jurusan',
+        'id_cities' => 'foreign_key:cities',
+        'jenisKelamin' => 'text',
+        'id_prodi' => 'foreign_key:prodi',
+        'id_provinsi' => 'foreign_key:provincies',
+        'angkatan' => 'number',
+        'tahun_kelulusan' => 'number',
+        'ipk' => 'decimal',
+        'alamat' => 'text',
+        'alamat2' => 'text',
+        'kodepos' => 'number',
+        'notlp' => 'text',
+        'nim' => 'number',
+    ];
 
         $questionnaire = $this->questionnaireModel->find($q_id);
         if (!$questionnaire) {
@@ -180,7 +257,15 @@ class UserQuestionController extends BaseController
             'user_id'          => $userId,
             'q_id'             => $q_id,
             'progress'         => $progress,
-            'previous_answers' => $previous_answers
+            'previous_answers' => $previous_answers,
+            'user_profile'     => $userProfile,
+            'field_friendly_names' => $fieldFriendlyNames,
+            'field_types' => $fieldTypes,
+            'jurusan_options' => $jurusanOptions,
+            'cities_options' => $citiesOptions,
+            'prodi_options' => $prodiOptions,
+            'provinsi_options' => $provinsiOptions,
+            'user_profile_display' => $userProfileDisplay,
         ]);
     }
 
