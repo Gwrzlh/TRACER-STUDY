@@ -810,8 +810,6 @@ public function updateQuestion($questionnaire_id, $page_id, $section_id, $questi
         } elseif ($type === 'file') {
             $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
             $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
-        } elseif ($type === 'user_field') {
-            $data['user_field_name'] = $this->request->getPost('user_field_name');
         }
 
             $questionModel->update($question_id, $data);
