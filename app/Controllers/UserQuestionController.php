@@ -138,6 +138,8 @@ class UserQuestionController extends BaseController
             return redirect()->to('/login');
         }
 
+        
+
         $userId = session()->get('id_account'); // Assume logged in user
         $detailModel = new DetailaccountAlumni();
         $jurusanModel = new Jurusan();
@@ -414,24 +416,28 @@ class UserQuestionController extends BaseController
     /**
      * Helper untuk evaluasi kondisi halaman
      */
-    private function evaluatePageConditionsForUser($page, $answers)
+   private function evaluatePageConditionsForUser($page, $answers)
     {
-        $conditions = json_decode($page['conditional_logic'] ?? '[]', true);
-        
+        $decoded = json_decode($page['conditional_logic'] ?? '{}', true);
+        $conditions = $decoded['conditions'] ?? [];
+        $logic_type = $decoded['logic_type'] ?? 'any';
+
         if (empty($conditions)) {
             return true;
         }
-        
+
+        $pass = ($logic_type === 'all') ? true : false;
+
         foreach ($conditions as $condition) {
             $field = $condition['field'] ?? '';
             $operator = $condition['operator'] ?? '';
             $value = $condition['value'] ?? '';
-            
+
             if (!$field || !$operator) continue;
-            
+
             $userAnswer = $answers['q_' . $field] ?? '';
             $userAnswerArray = is_array(json_decode($userAnswer, true)) ? json_decode($userAnswer, true) : [$userAnswer];
-            
+
             $match = false;
             switch ($operator) {
                 case 'is':
@@ -465,13 +471,21 @@ class UserQuestionController extends BaseController
                     $match = !empty($match);
                     break;
             }
-            
-            if ($match) {
-                return true;
+
+            if ($logic_type === 'all') {
+                if (!$match) {
+                    $pass = false;
+                    break;
+                }
+            } else {
+                if ($match) {
+                    $pass = true;
+                    break;
+                }
             }
         }
-        
-        return false;
+
+        return $pass;
     }
 
     /**

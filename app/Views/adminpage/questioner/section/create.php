@@ -55,14 +55,14 @@
                 </label>
             </div>
 
-            <div id="conditional-form" style="display: none;">
+           <div id="conditional-form" style="display: none;">
                 <div class="flex items-center mb-2 text-sm text-gray-700">
                     <span class="mr-2">Show this section if</span>
                     <select name="logic_type" 
                             class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
                             style="width: auto;">
                         <option value="any">Any</option>
-                        <option value="all" selected>All</option>
+                        <option value="all">All</option>
                     </select>
                     <span class="ml-2">of this/these following match:</span>
                 </div>

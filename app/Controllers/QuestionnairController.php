@@ -130,7 +130,8 @@ class QuestionnairController extends BaseController
 
         $title       = $this->request->getPost('title');
         $description = $this->request->getPost('deskripsi');
-        $is_active   = $this->request->getPost('is_active'); // langsung enum string
+        $is_active   = $this->request->getPost('is_active');
+        $announcement = $this->request->getPost('announcement');
         $conditionalLogic = null;
 
         // Handle conditional logic
@@ -159,6 +160,7 @@ class QuestionnairController extends BaseController
             'deskripsi'         => $description,
             'is_active'         => $is_active, // enum langsung
             'conditional_logic' => $conditionalLogic,
+            'announcement'      => $announcement,
             'created_at'        => date('Y-m-d H:i:s'),
             'updated_at'        => date('Y-m-d H:i:s')
         ]);
@@ -234,8 +236,12 @@ class QuestionnairController extends BaseController
         $validation->setRules([
             'title'      => 'required|min_length[3]|max_length[255]',
             'deskripsi'  => 'permit_empty|max_length[1000]',
-            'is_active'  => 'required|in_list[active,draft,inactive]', // langsung enum
+            'is_active'  => 'required|in_list[active,draft,inactive]',
+            'announcement' => 'required|max_length[1000]'
         ]);
+
+            $announcement = $this->request->getPost('announcement');
+
 
         if (!$validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
@@ -269,6 +275,7 @@ class QuestionnairController extends BaseController
             'deskripsi' => $this->request->getPost('deskripsi'),
             'is_active' => $this->request->getPost('is_active'),
             'conditional_logic' => $conditionalLogic,
+            'announcement' => $announcement,
             'updated_at' => date('Y-m-d H:i:s')
         ]);
 
