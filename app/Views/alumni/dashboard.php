@@ -42,24 +42,6 @@
             </a>
         </div>
 
-        <!-- Card Lowongan (tanpa button) -->
-        <div class="card card-orange">
-            <div class="card-icon">
-                <i class="fa-solid fa-briefcase"></i>
-            </div>
-            <h2 class="card-title">Lowongan Kerja</h2>
-            <p class="card-text">Akses informasi lowongan kerja terbaru dari mitra kampus.</p>
-        </div>
-
-        <!-- Card Berita (tanpa button) -->
-        <div class="card card-purple">
-            <div class="card-icon">
-                <i class="fa-solid fa-newspaper"></i>
-            </div>
-            <h2 class="card-title">Berita & Event</h2>
-            <p class="card-text">Ikuti berita, seminar, & kegiatan alumni terbaru dari kampus.</p>
-        </div>
-
         <!-- Card Statistik (tanpa button) -->
         <div class="card card-teal">
             <div class="card-icon">

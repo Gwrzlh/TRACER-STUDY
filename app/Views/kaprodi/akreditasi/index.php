@@ -1,71 +1,95 @@
 <?= $this->extend('layout/sidebar_kaprodi') ?>
 <?= $this->section('content') ?>
 
-<link href="<?= base_url('css/kaprodi/akreditasi.css') ?>" rel="stylesheet">
+<link href="<?= base_url('css/kaprodi/akreditasi/index.css') ?>" rel="stylesheet">
 
-<div class="container mt-5">
-    <div class="card shadow-lg border-0 rounded-3">
-        <div class="card-header bg-success text-dark">
-            <h4 class="mb-0">Hasil Akreditasi</h4>
-        </div>
-        <div class="card-body">
+<div class="questionnaire-container">
+    <div class="page-wrapper">
+        <div class="page-container">
+            <h2 class="page-title">Hasil Akreditasi</h2>
+            
             <?php if (!empty($pertanyaan)): ?>
                 <?php $colors = ['#4CAF50', '#FFC107', '#2196F3', '#FF5722', '#9C27B0', '#00BCD4', '#8BC34A', '#FF9800']; ?>
 
                 <?php foreach ($pertanyaan as $p): ?>
-                    <h5 class="fw-bold mb-4"><?= esc($p['teks'] ?? '-') ?></h5>
-                    <hr>
-
-                    <div class="row">
-                        <div class="col-lg-7 mb-4 mb-lg-0">
-                            <table class="table table-bordered align-middle text-center shadow-sm">
-                                <thead class="table-success">
-                                    <tr>
-                                        <th style="width:5%;">#</th>
-                                        <th>Jawaban</th>
-                                        <th style="width:15%;">Jumlah</th>
-                                        <th style="width:15%;">Detail</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $no = 1; ?>
-                                    <?php if (!empty($p['jawaban'])): ?>
-                                        <?php foreach ($p['jawaban'] as $i => $j): ?>
-                                            <tr>
-                                                <?php $color = $colors[$i % count($colors)]; ?>
-                                                <td><?= $no++ ?></td>
-                                                <td class="text-start">
-                                                    <span class="legend-box me-2" style="background-color: <?= $color ?>"></span>
-                                                    <?= esc($j['opsi'] ?? '-') ?>
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-primary"><?= $j['jumlah'] ?? 0 ?></span>
-                                                </td>
-                                                <td>
-                                                    <a href="<?= base_url('kaprodi/akreditasi/detail/' . urlencode($j['opsi'] ?? '')) ?>"
-                                                        class="btn btn-sm btn-detail">Detail</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="4" class="text-center">Belum ada jawaban untuk pertanyaan ini.</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                    <div class="content-card mb-5">
+                        <div class="card-header-custom">
+                            <h5 class="question-title"><?= esc($p['teks'] ?? '-') ?></h5>
                         </div>
+                        <div class="card-body-custom">
+                            <div class="row">
+                                <div class="col-lg-7 mb-4 mb-lg-0">
+                                    <div class="table-container">
+                                        <div class="table-wrapper">
+                                            <table class="data-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:5%;">#</th>
+                                                        <th>Jawaban</th>
+                                                        <th style="width:15%;">Jumlah</th>
+                                                        <th style="width:15%;">Detail</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php $no = 1; ?>
+                                                    <?php if (!empty($p['jawaban'])): ?>
+                                                        <?php foreach ($p['jawaban'] as $i => $j): ?>
+                                                            <tr>
+                                                                <?php $color = $colors[$i % count($colors)]; ?>
+                                                                <td>
+                                                                    <span class="row-number"><?= $no++ ?></span>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="answer-content">
+                                                                        <span class="legend-box" style="background-color: <?= $color ?>"></span>
+                                                                        <span class="answer-text"><?= esc($j['opsi'] ?? '-') ?></span>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <span class="count-badge"><?= $j['jumlah'] ?? 0 ?></span>
+                                                                </td>
+                                                                <td class="action-cell">
+                                                                    <a href="<?= base_url('kaprodi/akreditasi/detail/' . urlencode($j['opsi'] ?? '')) ?>"
+                                                                        class="action-btn view-btn">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        <tr>
+                                                            <td colspan="4" class="empty-row">
+                                                                <div class="empty-content">
+                                                                    <i class="fas fa-inbox"></i>
+                                                                    <p>Belum ada jawaban untuk pertanyaan ini.</p>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <div class="col-lg-5 d-flex justify-content-center align-items-center">
-                            <div style="max-width:350px; width:100%;">
-                                <canvas id="akreditasiChart<?= $p['id'] ?>"></canvas>
+                                <div class="col-lg-5 d-flex justify-content-center align-items-center">
+                                    <div class="chart-container">
+                                        <canvas id="akreditasiChart<?= $p['id'] ?>"></canvas>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
 
             <?php else: ?>
-                <div class="alert alert-warning text-center">Belum ada pertanyaan untuk Akreditasi.</div>
+                <div class="empty-state">
+                    <div class="empty-content">
+                        <i class="fas fa-clipboard-list empty-state-icon"></i>
+                        <h3 class="empty-state-title">Belum Ada Pertanyaan</h3>
+                        <p class="empty-state-description">Belum ada pertanyaan untuk Akreditasi.</p>
+                    </div>
+                </div>
             <?php endif; ?>
         </div>
     </div>
