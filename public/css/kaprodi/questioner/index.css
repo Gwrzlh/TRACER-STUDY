@@ -1,0 +1,520 @@
+/* ====== MODERN DAFTAR KUESIONER KAPRODI STYLE ====== */
+
+/* Container */
+.questionnaire-container {
+    background: #f8fafc;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Page Layout */
+.pengguna-page {
+    width: 100%;
+}
+
+.page-wrapper {
+    padding: 24px;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+/* Page container untuk konten */
+.page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Page Title */
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 32px;
+    letter-spacing: -0.5px;
+}
+
+/* Alert Styles */
+.alert {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+    padding: 16px 20px;
+}
+
+.alert-success {
+    background-color: #dcfce7;
+    color: #166534;
+    border-left: 4px solid #22c55e;
+}
+
+/* Top Controls */
+.top-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 20px;
+}
+
+.button-container .btn-add {
+    padding: 12px 20px;
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.button-container .btn-add:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+/* Search Container */
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box i {
+    position: absolute;
+    left: 12px;
+    color: #6b7280;
+    font-size: 14px;
+    z-index: 2;
+}
+
+.search-input {
+    width: 300px;
+    padding: 10px 12px 10px 36px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #f9fafb;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-btn {
+    padding: 10px 20px;
+    background-color: #374151;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.search-btn:hover {
+    background-color: #1f2937;
+    transform: translateY(-1px);
+}
+
+/* Table Container */
+.table-container, .content-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+/* Table Styles */
+.user-table, .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    font-size: 14px;
+}
+
+/* Table Header */
+.user-table thead, .data-table thead {
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    display: table-header-group;
+}
+
+.user-table th, .data-table th {
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.user-table th:first-child, .data-table th:first-child,
+.user-table td:first-child, .data-table td:first-child {
+    display: table-cell;
+}
+
+.user-table th:last-child, .data-table th:last-child {
+    width: 120px;
+    text-align: center;
+}
+
+/* Table Body */
+.user-table tbody tr, .data-table tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s ease;
+}
+
+.user-table tbody tr:hover, .data-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.user-table tbody tr:last-child, .data-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.user-table td, .data-table td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    color: #374151;
+}
+
+/* Questionnaire Info */
+.questionnaire-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.questionnaire-title, .title-text {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.questionnaire-description {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* Title Cell styling untuk konsistensi */
+.title-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title-icon {
+    width: 32px;
+    height: 32px;
+    background-color: #f0f9ff;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0369a1;
+    font-size: 14px;
+}
+
+.title-content .title-text {
+    color: #1e293b;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Row Number */
+.row-number {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    background-color: #f3f4f6;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #374151;
+    font-size: 12px;
+}
+
+/* Prodi Text */
+.prodi-text {
+    color: #374151;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-badge.status-active, .status-active {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.status-badge.status-inactive, .status-inactive {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* Action Buttons */
+.action-cell {
+    text-align: center;
+}
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.btn-action, .action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.btn-edit, .view-btn {
+    background-color: #f0f9ff;
+    color: #0369a1;
+}
+
+.btn-edit:hover, .view-btn:hover {
+    background-color: #0369a1;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.btn-delete, .delete-btn {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+.btn-delete:hover, .delete-btn:hover {
+    background-color: #dc2626;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.empty-state-icon, .empty-content i {
+    font-size: 48px;
+    color: #9ca3af;
+    margin-bottom: 20px;
+    opacity: 1;
+    display: block;
+}
+
+.empty-state-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.empty-state-description, .empty-content p {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 24px;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-wrapper {
+        padding: 16px;
+    }
+    
+    .page-title {
+        font-size: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .top-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+    
+    .controls-container {
+        order: 2;
+    }
+    
+    .button-container {
+        order: 1;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-input {
+        width: 100%;
+    }
+    
+    .search-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .user-table, .data-table {
+        font-size: 13px;
+    }
+    
+    .user-table th, .data-table th,
+    .user-table td, .data-table td {
+        padding: 12px 16px;
+    }
+    
+    .questionnaire-title, .title-text {
+        font-size: 13px;
+    }
+    
+    .questionnaire-description {
+        font-size: 12px;
+    }
+    
+    .action-buttons {
+        gap: 2px;
+        flex-direction: column;
+    }
+    
+    .btn-action, .action-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+    
+    .title-cell {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .title-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .table-container, .content-card {
+        margin: 0 -8px;
+    }
+    
+    .user-table th, .data-table th,
+    .user-table td, .data-table td {
+        padding: 10px 12px;
+    }
+    
+    .user-table th:nth-child(3), .data-table th:nth-child(3),
+    .user-table td:nth-child(3), .data-table td:nth-child(3) {
+        display: none;
+    }
+    
+    .empty-state {
+        padding: 40px 16px;
+        margin: 0;
+    }
+    
+    .empty-state-icon, .empty-content i {
+        font-size: 36px;
+    }
+}
+
+/* Scrollbar Styling */
+.questionnaire-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.questionnaire-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.questionnaire-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.questionnaire-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Loading Animation - konsisten dengan admin */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.table-container, .content-card {
+    animation: fadeInUp 0.6s ease forwards;
+}
