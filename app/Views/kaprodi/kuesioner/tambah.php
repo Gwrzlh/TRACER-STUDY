@@ -53,44 +53,6 @@
                 <input type="hidden" name="id_prodi" value="<?= $kaprodi['id_prodi'] ?>">
             </div>
 
-            <!-- Conditional Logic -->
-            <div>
-                <label for="conditional_logic" class="block font-medium text-gray-700">
-                    <input type="checkbox" name="conditional_logic" id="conditional_logic" value="1" class="mr-2">
-                    Conditional Logic
-                </label>
-
-                <div id="conditional-container" class="mt-3 space-y-3">
-                    <div class="condition-row hidden flex items-center gap-3">
-                        <select name="field_name[]" class="field-selector border rounded-lg p-2">
-                            <?php foreach ($fields as $f): ?>
-                                <option value="<?= $f ?>"><?= ucwords(str_replace('_', ' ', $f)) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-
-                        <select name="operator[]" class="border rounded-lg p-2">
-                            <?php foreach ($operators as $key => $label): ?>
-                                <option value="<?= $key ?>"><?= $label ?></option>
-                            <?php endforeach; ?>
-                        </select>
-
-                        <span class="value-input-container">
-                            <input type="text" name="value[]" placeholder="Value"
-                                class="border rounded-lg p-2">
-                        </span>
-
-                        <button type="button" class="remove-condition-btn hidden bg-red-500 text-white px-3 py-1 rounded-lg text-sm">
-                            Hapus
-                        </button>
-                    </div>
-                </div>
-
-                <button type="button" id="add-condition-btn"
-                    class="hidden mt-2 bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm">
-                    Tambah Kondisi
-                </button>
-            </div>
-
             <!-- Tombol -->
             <div class="flex gap-3 pt-4">
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
