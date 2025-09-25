@@ -8,7 +8,6 @@ use App\Models\QuestionnairModel;
 use App\Models\QuestionModel;
 use App\Models\QuestionnairePageModel;
 use App\Models\QuestionnairConditionModel;
-use App\Models\SectionModel;
 use App\models\LogActivityModel;
 
 class UserQuestionController extends BaseController
@@ -27,7 +26,7 @@ class UserQuestionController extends BaseController
     }
 
     /**
-     * Daftar semua kuesioner yang bisa diakses user
+     * FIXED: Daftar semua kuesioner yang bisa diakses user
      */
     public function index()
     {
@@ -38,18 +37,26 @@ class UserQuestionController extends BaseController
         $userId   = session()->get('id');
         $userData = session()->get();
 
+        log_message('debug', '[index] User Data for conditional check: ' . print_r($userData, true));
+
         $questionnaires = $this->questionnaireModel->getAccessibleQuestionnaires($userData);
+        log_message('debug', '[index] Accessible questionnaires count: ' . count($questionnaires));
 
         $data = [];
         foreach ($questionnaires as $q) {
             if ($q['is_active'] === 'inactive') {
-                continue; // skip kalau tidak aktif
+                log_message('debug', '[index] Skipping inactive questionnaire ID: ' . $q['id']);
+                continue;
             }
 
-            $statusPengisian = $this->answerModel->getStatus($q['id'], $userId) ?: 'Belum Mengisi';
-            $progress        = ($statusPengisian === 'On Going')
-                ? $this->answerModel->getProgress($q['id'], $userId)
-                : 0;
+            // FIXED: Map internal status to expected view status
+            $internalStatus = $this->answerModel->getStatus($q['id'], $userId) ?: 'draft';
+            $statusPengisian = $this->mapStatusForView($internalStatus, $q['id'], $userId);
+            
+            // FIXED: Calculate progress based on status and logical completion
+            $progress = $this->calculateProgressForView($statusPengisian, $q['id'], $userId, $userData);
+
+            log_message('debug', '[index] Questionnaire ' . $q['id'] . ' - Internal Status: ' . $internalStatus . ', View Status: ' . $statusPengisian . ', Progress: ' . $progress);
 
             $data[] = [
                 'id'          => $q['id'],
@@ -61,11 +68,57 @@ class UserQuestionController extends BaseController
             ];
         }
 
+        log_message('debug', '[index] Final data for view: ' . print_r($data, true));
+
         return view('alumni/questioner/index', ['data' => $data]);
     }
 
     /**
-     * Mulai isi kuesioner
+     * NEW: Map internal status values to view-expected status values
+     */
+    private function mapStatusForView($internalStatus, $questionnaireId, $userId)
+    {
+        switch ($internalStatus) {
+            case 'completed':
+                return 'Finish';
+            case 'draft':
+                // Check if user has any answers - if yes, it's "On Going"
+                $hasAnswers = $this->answerModel->where([
+                    'questionnaire_id' => $questionnaireId,
+                    'user_id' => $userId
+                ])->countAllResults() > 0;
+                
+                return $hasAnswers ? 'On Going' : 'Belum Mengisi';
+            default:
+                return 'Belum Mengisi';
+        }
+    }
+
+    /**
+     * NEW: Calculate progress appropriate for the view status
+     */
+    private function calculateProgressForView($viewStatus, $questionnaireId, $userId, $userData)
+    {
+        if ($viewStatus === 'Finish') {
+            return 100;
+        } elseif ($viewStatus === 'On Going') {
+            // Use enhanced logical progress calculation
+            $previousAnswers = $this->answerModel->getUserAnswers($questionnaireId, $userId);
+            $structure = $this->questionnaireModel->getQuestionnaireStructure($questionnaireId, $userData, $previousAnswers);
+            
+            if (!empty($structure)) {
+                return $this->calculateLogicalProgressForUser($structure, $previousAnswers);
+            }
+            
+            // Fallback to simple progress
+            return $this->answerModel->getProgress($questionnaireId, $userId);
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * ENHANCED: Mulai isi kuesioner dengan better debugging
      */
     public function mulai($q_id)
     {
@@ -77,6 +130,7 @@ class UserQuestionController extends BaseController
         $userData = session()->get();
         $q_id     = (int)$q_id;
 
+        log_message('debug', '[mulai] Starting questionnaire ' . $q_id . ' for user ' . $userId);
         log_message('debug', '[mulai] UserData: ' . print_r($userData, true));
 
         $questionnaire = $this->questionnaireModel->find($q_id);
@@ -85,31 +139,39 @@ class UserQuestionController extends BaseController
             return redirect()->back()->with('error', 'Kuesioner tidak ditemukan.');
         }
 
-        // cek syarat akses
-        if (!$this->questionnaireModel->checkConditions($questionnaire['conditional_logic'] ?? '', $userData)) {
+        // Enhanced access check with debugging
+        $hasAccess = $this->questionnaireModel->checkConditions($questionnaire['conditional_logic'] ?? '', $userData);
+        log_message('debug', '[mulai] Access check result: ' . ($hasAccess ? 'GRANTED' : 'DENIED'));
+        
+        if (!$hasAccess) {
+            log_message('warning', '[mulai] Access denied for questionnaire ' . $q_id . ' user ' . $userId);
             return redirect()->back()->with('error', 'Anda tidak memiliki akses ke kuesioner ini.');
         }
 
-        // cek status
-        $status = $this->answerModel->getStatus($q_id, $userId);
-        if ($status === 'Finish') {
+        // Check status with proper mapping
+        $internalStatus = $this->answerModel->getStatus($q_id, $userId);
+        $viewStatus = $this->mapStatusForView($internalStatus, $q_id, $userId);
+        
+        log_message('debug', '[mulai] Status check - Internal: ' . $internalStatus . ', View: ' . $viewStatus);
+        
+        if ($viewStatus === 'Finish') {
             return redirect()->to("/alumni/questioner/lihat/$q_id");
         }
 
-        // ambil jawaban sebelumnya
+        // Get previous answers and structure
         $previous_answers = $this->answerModel->getUserAnswers($q_id, $userId);
-        log_message('debug', '[mulai] Previous answers: ' . print_r($previous_answers, true));
+        log_message('debug', '[mulai] Previous answers count: ' . count($previous_answers));
 
-        // ambil struktur pertanyaan
         $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $userData, $previous_answers);
-        log_message('debug', '[mulai] Structure: ' . print_r($structure, true));
+        log_message('debug', '[mulai] Structure pages count: ' . count($structure['pages'] ?? []));
 
         if (empty($structure['pages'])) {
+            log_message('warning', '[mulai] No pages available for questionnaire ' . $q_id);
             return view('alumni/questioner/error', ['message' => 'Tidak ada pertanyaan yang tersedia untuk Anda.']);
         }
 
-        $progress = $this->answerModel->getProgress($q_id, $userId);
-        log_message('debug', '[mulai] Progress: ' . $progress);
+        $progress = $this->calculateLogicalProgressForUser($structure, $previous_answers);
+        log_message('debug', '[mulai] Calculated progress: ' . $progress . '%');
 
         session()->set("current_q_id", $q_id);
 
@@ -156,63 +218,202 @@ class UserQuestionController extends BaseController
     }
 
     /**
-     * Simpan jawaban kuesioner
+     * KEEP: Your enhanced saveAnswer method (this was working correctly)
      */
     public function saveAnswer()
     {
-        $db      = \Config\Database::connect();
-        $user_id = session()->get('id');
-        $q_id    = $this->request->getPost('q_id');
-        $answers = $this->request->getPost('answer');
-        $files   = $this->request->getFiles();
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login');
+        }
+
+        $q_id = $this->request->getPost('q_id');
+        $answers = $this->request->getPost('answer') ?? [];
+        $files = $this->request->getFiles() ?? [];
+        $isLogicallyComplete = $this->request->getPost('is_logically_complete') === '1';
+        $userId = session()->get('id');
+
+        log_message('debug', '[saveAnswer] Received request. Q_ID: ' . $q_id . ', User ID: ' . $userId);
+        log_message('debug', '[saveAnswer] Is Logically Complete: ' . ($isLogicallyComplete ? 'true' : 'false'));
 
         if (empty($answers) && empty($files)) {
-            return redirect()->to("/alumni/questionnaires/mulai/$q_id")
-                ->with('error', 'Tidak ada jawaban yang disimpan.');
+            log_message('error', '[saveAnswer] No answers or files provided');
+            return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Tidak ada jawaban yang disimpan.');
         }
 
-        // proses jawaban
-        if ($answers) {
-            foreach ($answers as $question_id => $answer) {
-                if (empty($answer) && !is_array($answer)) {
-                    continue; // skip kosong
-                }
+        try {
+            $saveSuccess = false;
 
-                // handle file upload
-                if (!is_array($answer) && strpos($answer, 'uploaded_file:') === 0) {
-                    $file = $files['answer_' . $question_id] ?? null;
-                    if ($file && $file->isValid()) {
-                        $upload_path = WRITEPATH . 'uploads/answers/';
-                        if (!is_dir($upload_path)) mkdir($upload_path, 0777, true);
-                        $new_name = $file->getRandomName();
-                        $file->move($upload_path, $new_name);
-                        $file_path = 'uploaded_file:' . $upload_path . $new_name;
-                        $this->answerModel->saveAnswer($user_id, $q_id, $question_id, $file_path);
+            // Process answers
+            if ($answers) {
+                foreach ($answers as $question_id => $answer) {
+                    if (empty($answer) && !is_array($answer)) continue;
+                    
+                    $processedAnswer = is_array($answer) ? json_encode($answer) : $answer;
+                    $this->answerModel->saveAnswer($userId, $q_id, $question_id, $processedAnswer);
+                    log_message('debug', '[saveAnswer] Saved answer for question ' . $question_id);
+                    $saveSuccess = true;
+                }
+            }
+
+            // Process files
+            foreach ($files as $key => $file) {
+                if (preg_match('/answer_(\d+)/', $key, $matches)) {
+                    $question_id = $matches[1];
+                    if ($file && $file->isValid() && !$file->hasMoved()) {
+                        $uploadPath = WRITEPATH . 'uploads/answers/';
+                        if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
+                        
+                        $newName = $file->getRandomName();
+                        $file->move($uploadPath, $newName);
+                        
+                        $filePath = 'uploaded_file:' . $uploadPath . $newName;
+                        $this->answerModel->saveAnswer($userId, $q_id, $question_id, $filePath);
+                        log_message('debug', '[saveAnswer] Saved file for question ' . $question_id);
+                        $saveSuccess = true;
                     }
-                } else {
-                    // non-file answer
-                    $this->answerModel->saveAnswer($user_id, $q_id, $question_id, $answer);
                 }
             }
-        }
 
-        // handle file upload standalone
-        foreach ($files as $key => $file) {
-            if (preg_match('/answer_(\d+)/', $key, $matches)) {
-                $question_id = $matches[1];
-                if ($file && $file->isValid()) {
-                    $upload_path = WRITEPATH . 'uploads/answers/';
-                    if (!is_dir($upload_path)) mkdir($upload_path, 0777, true);
-                    $new_name = $file->getRandomName();
-                    $file->move($upload_path, $new_name);
-                    $file_path = 'uploaded_file:' . $upload_path . $new_name;
-                    $this->answerModel->saveAnswer($user_id, $q_id, $question_id, $file_path);
+            // ENHANCED: Set proper completion status
+            if ($saveSuccess && $isLogicallyComplete) {
+                $this->answerModel->setStatus($q_id, $userId, 'completed');
+                log_message('info', '[saveAnswer] Set questionnaire as completed due to logical completion');
+            }
+
+            // Log activity
+            try {
+                $this->logActivityModel->logAction('submit_questionnaire', 'User ' . $userId . ' submitted questionnaire ID ' . $q_id);
+            } catch (\Exception $logException) {
+                log_message('warning', '[saveAnswer] Failed to log activity: ' . $logException->getMessage());
+            }
+
+            log_message('info', '[saveAnswer] Process completed successfully');
+            return redirect()->to("/alumni/questionnaires")->with('success', 'Jawaban berhasil disimpan!');
+
+        } catch (\Exception $e) {
+            log_message('error', '[saveAnswer] Error during process: ' . $e->getMessage());
+            return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Gagal menyimpan jawaban: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Method untuk menghitung logical progress
+     */
+    private function calculateLogicalProgressForUser($structure, $previousAnswers)
+    {
+        if (empty($structure['pages'])) {
+            return 0;
+        }
+        
+        $totalRelevantPages = 0;
+        $completedRelevantPages = 0;
+        
+        foreach ($structure['pages'] as $pageIndex => $page) {
+            $isPageRelevant = $this->evaluatePageConditionsForUser($page, $previousAnswers);
+            
+            if ($isPageRelevant) {
+                $totalRelevantPages++;
+                
+                $hasAnswers = $this->pageHasAnswersForUser($page, $previousAnswers);
+                if ($hasAnswers) {
+                    $completedRelevantPages++;
                 }
             }
         }
-        $this->logActivityModel->logAction('submit_questionnaire', 'User ' . $user_id . ' submitted questionnaire ID ' . $q_id);
-        return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('success', 'Jawaban berhasil disimpan.');
+        
+        log_message('debug', '[calculateLogicalProgress] Total relevant: ' . $totalRelevantPages . ', Completed: ' . $completedRelevantPages);
+        
+        return $totalRelevantPages > 0 ? ($completedRelevantPages / $totalRelevantPages) * 100 : 0;
     }
+
+    /**
+     * Helper untuk evaluasi kondisi halaman
+     */
+    private function evaluatePageConditionsForUser($page, $answers)
+    {
+        $conditions = json_decode($page['conditional_logic'] ?? '[]', true);
+        
+        if (empty($conditions)) {
+            return true;
+        }
+        
+        foreach ($conditions as $condition) {
+            $field = $condition['field'] ?? '';
+            $operator = $condition['operator'] ?? '';
+            $value = $condition['value'] ?? '';
+            
+            if (!$field || !$operator) continue;
+            
+            $userAnswer = $answers['q_' . $field] ?? '';
+            $userAnswerArray = is_array(json_decode($userAnswer, true)) ? json_decode($userAnswer, true) : [$userAnswer];
+            
+            $match = false;
+            switch ($operator) {
+                case 'is':
+                    $match = in_array($value, $userAnswerArray);
+                    break;
+                case 'is_not':
+                    $match = !in_array($value, $userAnswerArray);
+                    break;
+                case 'contains':
+                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                        return strpos(strtolower($ans), strtolower($value)) !== false;
+                    });
+                    $match = !empty($match);
+                    break;
+                case 'not_contains':
+                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                        return strpos(strtolower($ans), strtolower($value)) === false;
+                    });
+                    $match = !empty($match);
+                    break;
+                case 'greater':
+                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                        return is_numeric($ans) && is_numeric($value) && floatval($ans) > floatval($value);
+                    });
+                    $match = !empty($match);
+                    break;
+                case 'less':
+                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                        return is_numeric($ans) && is_numeric($value) && floatval($ans) < floatval($value);
+                    });
+                    $match = !empty($match);
+                    break;
+            }
+            
+            if ($match) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Helper untuk cek apakah halaman sudah dijawab
+     */
+    private function pageHasAnswersForUser($page, $answers)
+    {
+        foreach ($page['sections'] as $section) {
+            foreach ($section['questions'] as $question) {
+                $questionAnswer = $answers['q_' . $question['id']] ?? '';
+                if (!empty($questionAnswer)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Helper method untuk menghitung total halaman
+     */
+    private function getTotalPages($questionnaireId)
+    {
+        $pageModel = new QuestionnairePageModel();
+        return $pageModel->where('questionnaire_id', $questionnaireId)->countAllResults();
+    }
+
     public function responseLanding()
     {
         $responseModel = new \App\Models\ResponseModel();
@@ -220,13 +421,12 @@ class UserQuestionController extends BaseController
         $yearsRaw = $responseModel->getAvailableYears() ?? [];
         $allYears = array_column($yearsRaw, 'tahun');
 
-        // ambil tahun terpilih (atau default tahun terbaru)
         $selectedYear = $this->request->getGet('tahun');
         if (!$selectedYear && !empty($allYears)) {
-            $selectedYear = $allYears[0]; // default tahun terbaru
+            $selectedYear = $allYears[0];
         }
         if (!$selectedYear) {
-            $selectedYear = date('Y'); // fallback kalau kosong semua
+            $selectedYear = date('Y');
         }
 
         $data = [

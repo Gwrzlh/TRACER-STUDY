@@ -13,16 +13,31 @@ class AnswerModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['questionnaire_id', 'user_id', 'question_id', 'answer_text', 'created_at', 'status'];
+    protected $allowedFields    = ['questionnaire_id', 'user_id', 'question_id', 'answer_text', 'created_at', 'STATUS'];
 
     protected bool $allowEmptyInserts = false;
 
-    public function getStatus($questionnaire_id, $user_id)
+    // Di App/Models/AnswerModel.php
+    public function getStatus($questionnaireId, $userId)
     {
-        $answers = $this->where(['questionnaire_id' => $questionnaire_id, 'user_id' => $user_id])->findAll();
-        if (empty($answers)) return 'Belum Mengisi';
-        $totalQuestions = (new QuestionModel())->where('questionnaires_id', $questionnaire_id)->countAllResults();
-        return count($answers) < $totalQuestions ? 'On Going' : 'Finish';
+        $builder = $this->db->table($this->table);
+        $builder->select('STATUS');
+        $builder->where(['questionnaire_id' => $questionnaireId, 'user_id' => $userId]);
+        $builder->limit(1);
+        $query = $builder->get();
+        $result = $query->getRowArray();
+
+        $status = $result['STATUS'] ?? 'draft';
+        log_message('debug', '[AnswerModel] getStatus for Q_ID: ' . $questionnaireId . ', User ID: ' . $userId . ' returned: ' . $status);
+        return $status;
+    }
+
+    public function setStatus($questionnaireId, $userId, $status)
+    {
+        $data = ['STATUS' => $status];
+        $updated = $this->where(['questionnaire_id' => $questionnaireId, 'user_id' => $userId])->set($data)->update();
+        log_message('debug', '[AnswerModel] Set STATUS for Q_ID: ' . $questionnaireId . ', User ID: ' . $userId . ' to ' . $status . ' (updated rows: ' . $updated . ')');
+        return $this->getStatus($questionnaireId, $userId);
     }
 
     public function getProgress($questionnaire_id, $user_id)
@@ -31,6 +46,7 @@ class AnswerModel extends Model
         $totalQuestions = (new QuestionModel())->where('questionnaires_id', $questionnaire_id)->countAllResults();
         return $totalQuestions > 0 ? ($answered / $totalQuestions) * 100 : 0;
     }
+
     public function getUserAnswers($questionnaire_id, $user_id, bool $forAdmin = false): array
     {
         $answers = $this->select('question_id, answer_text')
@@ -43,10 +59,8 @@ class AnswerModel extends Model
         $result = [];
         foreach ($answers as $ans) {
             if ($forAdmin) {
-                // Untuk admin → simpan dengan key ID asli pertanyaan
                 $result[$ans['question_id']] = $ans['answer_text'];
             } else {
-                // Untuk alumni → tetap pakai prefix q_
                 $result['q_' . $ans['question_id']] = $ans['answer_text'];
             }
         }
@@ -60,23 +74,19 @@ class AnswerModel extends Model
         return $result;
     }
 
-
-
     public function saveAnswer($user_id, $questionnaire_id, $question_id, $answer)
     {
-        // Simpan jawaban
-        $now = Time::now('Asia/Jakarta')->toDateTimeString();
+        $now = Time::now('Asia/Jakarta', 'id_ID')->toDateTimeString();
 
         $data = [
             'user_id'          => $user_id,
             'questionnaire_id' => $questionnaire_id,
             'question_id'      => $question_id,
             'answer_text'      => is_array($answer) ? json_encode($answer) : $answer,
-            'status'           => 'draft', // default sementara
+            'STATUS'           => 'draft',
             'created_at'       => $now,
         ];
 
-        // Cek jawaban existing
         $existing = $this->where([
             'user_id' => $user_id,
             'questionnaire_id' => $questionnaire_id,
@@ -89,29 +99,24 @@ class AnswerModel extends Model
             $this->insert($data);
         }
 
-        // Cek apakah kuesioner sudah selesai
         $questionModel = new \App\Models\QuestionModel();
         $totalQuestions = $questionModel->where('questionnaires_id', $questionnaire_id)->countAllResults();
         $answered = $this->where(['user_id' => $user_id, 'questionnaire_id' => $questionnaire_id])->countAllResults();
 
         if ($answered >= $totalQuestions && $totalQuestions > 0) {
-
-            // Update semua jawaban menjadi completed
             $toUpdate = $this->where(['user_id' => $user_id, 'questionnaire_id' => $questionnaire_id])->findAll();
             foreach ($toUpdate as $ans) {
                 if (!empty($ans['id'])) {
-                    $this->update($ans['id'], ['status' => 'completed']);
+                    $this->update($ans['id'], ['STATUS' => 'completed']);
                 }
             }
 
-            // Ambil waktu jawaban terakhir sebagai submitted_at
             $lastAnswer = $this->where(['user_id' => $user_id, 'questionnaire_id' => $questionnaire_id])
                 ->orderBy('created_at', 'DESC')
                 ->first();
 
             $submittedAt = $lastAnswer['created_at'] ?? $now;
 
-            // Insert/update record di responses
             $responseModel = new \App\Models\ResponseModel();
             $existingResponse = $responseModel->where('account_id', $user_id)
                 ->where('questionnaire_id', $questionnaire_id)

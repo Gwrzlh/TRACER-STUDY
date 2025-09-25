@@ -66,33 +66,40 @@
             </label>
 
             <div id="conditional-form" style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>;" class="mt-4">
-                <div class="flex items-center mb-3 text-sm text-gray-700">
+                <!-- <div class="flex items-center mb-3 text-sm text-gray-700">
                     <span class="mr-2">Show this page if</span>
-                    <select name="logic_type"
-                        class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm mr-2"
-                        style="width: auto;">
+                    <select name="logic_type" 
+                            class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm mr-2" 
+                            style="width: auto;">
                         <option value="any" <?= isset($conditionalLogic['logic_type']) && $conditionalLogic['logic_type'] === 'any' ? 'selected' : '' ?>>Any</option>
-                        <option value="all" <?= isset($conditionalLogic['logic_type']) && $conditionalLogic['logic_type'] === 'all' ? 'selected' : '' ?>>All</option>
+                        <option value="all" <?= !isset($conditionalLogic['logic_type']) || $conditionalLogic['logic_type'] === 'all' ? 'selected' : '' ?>>All</option>
                     </select>
                     <span>of this/these following match:</span>
-                </div>
+                </div> -->
 
                 <div id="conditional-container" class="mb-4">
                     <?php if (!empty($conditionalLogic)): ?>
-                        <?php foreach ($conditionalLogic as $condition): ?>
+                        <?php foreach ($conditionalLogic as $index => $condition): ?>
                             <div class="condition-row flex items-center gap-2 mb-3 p-3 bg-gray-50 rounded-md border">
                                 <select name="condition_question_id[]"
-                                    class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                    class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                    <?= !empty($conditionalLogic) ? 'required' : '' ?>>
                                     <option value="">Pilih Pertanyaan</option>
                                     <?php foreach ($questions as $q): ?>
-                                        <option value="<?= $q['id'] ?>" <?= $q['id'] == $condition['question_id'] ? 'selected' : '' ?>><?= esc($q['question_text']) ?></option>
+                                        <option value="<?= esc($q['id']) ?>"
+                                            <?= isset($condition['field']) && (string)$q['id'] === (string)$condition['field'] ? 'selected' : '' ?>>
+                                            <?= esc($q['question_text']) ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                                 <select name="operator[]"
                                     class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                    style="width: auto;">
+                                    style="width: auto;"
+                                    <?= !empty($conditionalLogic) ? 'required' : '' ?>>
                                     <?php foreach ($operators as $key => $label): ?>
-                                        <option value="<?= $key ?>" <?= $key == $condition['operator'] ? 'selected' : '' ?>><?= $label ?></option>
+                                        <option value="<?= esc($key) ?>" <?= isset($condition['operator']) && $key == $condition['operator'] ? 'selected' : '' ?>>
+                                            <?= esc($label) ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                                 <span class="value-input-container flex-1">
@@ -100,8 +107,8 @@
                                         name="condition_value[]"
                                         placeholder="Value"
                                         class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                        value="<?= esc($condition['value']) ?>"
-                                        required>
+                                        value="<?= isset($condition['value']) ? esc($condition['value']) : '' ?>"
+                                        <?= !empty($conditionalLogic) ? 'required' : '' ?>>
                                 </span>
                                 <button type="button"
                                     class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
@@ -115,22 +122,21 @@
                                 class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                 <option value="">Pilih Pertanyaan</option>
                                 <?php foreach ($questions as $q): ?>
-                                    <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
+                                    <option value="<?= esc($q['id']) ?>"><?= esc($q['question_text']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <select name="operator[]"
                                 class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                                 style="width: auto;">
                                 <?php foreach ($operators as $key => $label): ?>
-                                    <option value="<?= $key ?>"><?= $label ?></option>
+                                    <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <span class="value-input-container flex-1">
                                 <input type="text"
                                     name="condition_value[]"
                                     placeholder="Value"
-                                    class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                    required>
+                                    class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                             </span>
                             <button type="button"
                                 class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium"
@@ -149,11 +155,12 @@
                     Tambah Kondisi
                 </button>
             </div>
+                    
         </div>
 
         <!-- Tombol Aksi -->
         <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
-            <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages") ?>"
+            <a href="<?= base_url("kaprodi/kuesioner/{$questionnaire_id}/pages") ?>"
                 style="background-color: #fbbf24; color: #fff; padding: 0.625rem 1.5rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; text-decoration: none; display: inline-block; cursor: pointer; transition: all 0.2s ease;"
                 onmouseover="this.style.backgroundColor='#f59e0b'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(251, 191, 36, 0.25)'"
                 onmouseout="this.style.backgroundColor='#fbbf24'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
@@ -183,7 +190,7 @@
             }
 
             $.ajax({
-                url: "<?= base_url('admin/questionnaire/pages/getQuestionOptions') ?>",
+                url: "<?= base_url('kaprodi/kuesioner/pages/getQuestionOptions') ?>",
                 type: 'GET',
                 data: {
                     question_id: questionId
