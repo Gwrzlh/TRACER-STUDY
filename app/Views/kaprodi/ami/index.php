@@ -1,73 +1,96 @@
 <?= $this->extend('layout/sidebar_kaprodi') ?>
 <?= $this->section('content') ?>
+<link href="<?= base_url('css/kaprodi/ami/index.css') ?>" rel="stylesheet">
 
-<link href="<?= base_url('css/kaprodi/akreditasi.css') ?>" rel="stylesheet">
+<div class="questionnaire-container">
+    <div class="page-wrapper">
+        <div class="page-container">
+            <h2 class="page-title">Hasil AMI</h2>
 
-<div class="container mt-5">
-    <div class="card shadow-lg border-0 rounded-3">
-        <div class="card-header bg-warning text-dark">
-            <h4 class="mb-0">Hasil AMI</h4>
-        </div>
-        <div class="card-body">
-            <?php if (!empty($pertanyaan)): ?>
-                <?php $colors = ['#4CAF50', '#FFC107', '#2196F3', '#FF5722', '#9C27B0', '#00BCD4', '#8BC34A', '#FF9800']; ?>
+        <?php if (!empty($pertanyaan)): ?>
+            <?php $colors = ['#4CAF50', '#FFC107', '#2196F3', '#FF5722', '#9C27B0', '#00BCD4', '#8BC34A', '#FF9800']; ?>
 
-                <?php foreach ($pertanyaan as $p): ?>
-                    <h5 class="fw-bold mb-4"><?= esc($p['teks'] ?? '-') ?></h5>
-                    <hr>
+            <?php foreach ($pertanyaan as $p): ?>
+                <div class="content-card mb-5">
+                    <div class="card-header-custom">
+                        <h5 class="question-title"><?= esc($p['teks'] ?? '-') ?></h5>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row">
+                            <div class="col-lg-7 mb-4 mb-lg-0">
+                                <div class="table-container">
+                                    <div class="table-wrapper">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:5%;">#</th>
+                                                    <th>Jawaban</th>
+                                                    <th style="width:15%;">Jumlah</th>
+                                                    <th style="width:15%;">Detail</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php $no = 1; ?>
+                                                <?php if (!empty($p['jawaban'])): ?>
+                                                    <?php foreach ($p['jawaban'] as $i => $j): ?>
+                                                        <tr>
+                                                            <?php $color = $colors[$i % count($colors)]; ?>
+                                                            <td>
+                                                                <span class="row-number"><?= $no++ ?></span>
+                                                            </td>
+                                                            <td>
+                                                                <div class="answer-content">
+                                                                    <span class="legend-box" style="background-color: <?= $color ?>"></span>
+                                                                    <span class="answer-text"><?= esc($j['opsi'] ?? '-') ?></span>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <span class="count-badge"><?= $j['jumlah'] ?? 0 ?></span>
+                                                            </td>
+                                                            <td class="action-cell">
+                                                                <a href="<?= base_url('kaprodi/ami/detail/' . urlencode($j['opsi'] ?? '')) ?>"
+                                                                   class="action-btn view-btn">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <tr>
+                                                        <td colspan="4" class="empty-row">
+                                                            <div class="empty-content">
+                                                                <i class="fas fa-inbox"></i>
+                                                                <p>Belum ada jawaban untuk pertanyaan ini</p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <div class="row">
-                        <div class="col-lg-7 mb-4 mb-lg-0">
-                            <table class="table table-bordered align-middle text-center shadow-sm">
-                                <thead class="table-warning">
-                                    <tr>
-                                        <th style="width:5%;">#</th>
-                                        <th>Jawaban</th>
-                                        <th style="width:15%;">Jumlah</th>
-                                        <th style="width:15%;">Detail</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $no = 1; ?>
-                                    <?php if (!empty($p['jawaban'])): ?>
-                                        <?php foreach ($p['jawaban'] as $i => $j): ?>
-                                            <tr>
-                                                <?php $color = $colors[$i % count($colors)]; ?>
-                                                <td><?= $no++ ?></td>
-                                                <td class="text-start">
-                                                    <span class="legend-box me-2" style="background-color: <?= $color ?>"></span>
-                                                    <?= esc($j['opsi'] ?? '-') ?>
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-primary"><?= $j['jumlah'] ?? 0 ?></span>
-                                                </td>
-                                                <td>
-                                                    <a href="<?= base_url('kaprodi/ami/detail/' . urlencode($j['opsi'] ?? '')) ?>"
-                                                        class="btn btn-sm btn-detail">Detail</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="4" class="text-center">Belum ada jawaban untuk pertanyaan ini.</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="col-lg-5 d-flex justify-content-center align-items-center">
-                            <div style="max-width:350px; width:100%;">
-                                <canvas id="amiChart<?= $p['id'] ?>"></canvas>
+                            <div class="col-lg-5 d-flex justify-content-center align-items-center">
+                                <div class="chart-container">
+                                    <canvas id="amiChart<?= $p['id'] ?>"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
-                <?php endforeach; ?>
+                </div>
+            <?php endforeach; ?>
 
-            <?php else: ?>
-                <div class="alert alert-warning text-center">Belum ada pertanyaan untuk AMI.</div>
-            <?php endif; ?>
-        </div>
+        <?php else: ?>
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-content">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3 class="empty-state-title">Belum Ada Pertanyaan AMI</h3>
+                    <p class="empty-state-description">Saat ini belum ada pertanyaan yang tersedia untuk AMI. Silakan tambahkan pertanyaan terlebih dahulu.</p>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -89,11 +112,26 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12,
+                                    family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                                }
+                            }
                         },
                         tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1,
+                            cornerRadius: 8,
                             callbacks: {
                                 label: function(context) {
                                     let total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -104,7 +142,7 @@
                             }
                         }
                     },
-                    cutout: '70%'
+                    cutout: '65%'
                 }
             });
         <?php endforeach; ?>
