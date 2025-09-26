@@ -14,7 +14,7 @@
                     <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages') ?>">Halaman Kuesioner</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages/15/sections') ?>">Kuesioner Section</a>
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire/3/pages/30/sections') ?>">Kuesioner Section</a>
                 </li>
             </ul>
         </div>
