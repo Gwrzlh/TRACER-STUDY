@@ -24,6 +24,76 @@
         .page-step.active {
             display: block; /* Hanya active yang tampil */
         }
+        
+        /* NEW: Announcement overlay styles */
+        .announcement-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .announcement-modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.7);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .announcement-modal.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .announcement-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .announcement-body {
+            padding: 30px;
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .announcement-footer {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .btn-announcement {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-announcement:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+            color: white;
+        }
     </style>
 </head>
 
@@ -227,10 +297,43 @@
         </div>
     </div>
 
+    <!-- NEW: Announcement Overlay -->
+    <div class="announcement-overlay" id="announcementOverlay">
+        <div class="announcement-modal" id="announcementModal">
+            <div class="announcement-header">
+                <h4 class="mb-0">🎉 Selamat!</h4>
+                <p class="mb-0 mt-2">Kuesioner Berhasil Diselesaikan</p>
+            </div>
+            <div class="announcement-body" id="announcementContent">
+                <!-- Content will be inserted here -->
+            </div>
+            <div class="announcement-footer">
+                <button type="button" class="btn btn-announcement" onclick="redirectToQuestionnaires()">
+                    Kembali ke Daftar Kuesioner
+                </button>
+            </div>
+        </div>
+    </div>
+
 <script>
    // Enhanced questionnaire navigation with dynamic submit detection and proper validation
 let currentStep = 0;
 const steps = $(".page-step");
+
+// NEW: Announcement handling functions
+function showAnnouncement(content) {
+    console.log('[DEBUG] Showing announcement');
+    $('#announcementContent').html(content.replace(/\n/g, '<br>'));
+    $('#announcementOverlay').fadeIn(300);
+    
+    setTimeout(function() {
+        $('#announcementModal').addClass('show');
+    }, 100);
+}
+
+function redirectToQuestionnaires() {
+    window.location.href = "<?= base_url('alumni/questionnaires') ?>";
+}
 
 // Utility function to check if a page has any visible required fields
 function hasVisibleRequiredFields(pageElement) {
@@ -564,14 +667,44 @@ function validateCurrentPage() {
     return isValid;
 }
 
+let saveTimer;
+
 // Event handler for answer changes - re-evaluate current page and update buttons
-$(document).on('change input keyup click', 'input[name^="answer["], select[name^="answer["], textarea[name^="answer["]', function() {
-    console.log('[DEBUG] Answer changed, re-evaluating current page elements and buttons');
-    steps.hide(); // Hide all other pages
-    const currentPage = steps.eq(currentStep);
-    evaluateConditions(currentPage[0]); // Re-evaluate current page only
-    updateNavigationButtons(); // Update buttons based on new state
-});
+    $(document).on('change input keyup click', 'input[name^="answer["], select[name^="answer["], textarea[name^="answer["]', function() {
+        console.log('[DEBUG] Answer changed, re-evaluating current page elements and buttons');
+        steps.hide(); // Hide all other pages
+        const currentPage = steps.eq(currentStep);
+        evaluateConditions(currentPage[0]); // Re-evaluate current page only
+        updateNavigationButtons();
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(saveDraft, 1000); // Update buttons based on new state
+    });
+    
+    function saveDraft() {
+        const formData = $('#questionnaire-form').serializeArray();
+        const postData = {
+            q_id: $('[name="q_id"]').val(),
+            is_logically_complete: '0'  // Secara eksplisit tandai sebagai draft (bukan selesai)
+        };
+
+        formData.forEach(item => {
+            if (item.name.startsWith('answer[')) {
+                postData[item.name] = item.value;  // Biarkan CI menangani parsing array untuk checkbox, dll.
+            }
+        });
+
+        $.ajax({
+            url: "<?= base_url('alumni/questionnaires/save-answer') ?>",
+            type: 'POST',
+            data: postData,
+            success: function(response) {
+                console.log('[DEBUG] Draft berhasil disimpan');
+            },
+            error: function(xhr, status, error) {
+                console.error('[ERROR] Gagal menyimpan draft:', error);
+            }
+        });
+    }
 
 // Navigation: Next button click
 $(document).on("click", ".next-btn", function() {
@@ -700,7 +833,7 @@ $(document).on('change', '[data-conditions]', function() {
 });
 
 // Initial page load
-(document).ready(function() {
+$(document).ready(function() {
     console.log('[DEBUG] Document ready, initializing questionnaire');
     steps.removeClass('active').hide();
     
