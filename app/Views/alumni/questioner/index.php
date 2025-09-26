@@ -11,6 +11,16 @@
                 <!-- Tombol ini bisa dihapus atau disesuaikan jika tidak diperlukan untuk alumni -->
                 <!-- <a href="#" class="btn-add">Buat Kuesioner Baru</a> -->
             </div>
+
+            <!-- Alert untuk kondisi tertentu -->
+            <?php if (session()->has('no_questions_available')): ?>
+                <div class="error-alert-container">
+                    <div class="error-alert">
+                        Tidak ada pertanyaan yang tersedia untuk Anda.
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <div class="table-container">
                 <div class="table-wrapper">
                     <table class="user-table">
@@ -55,7 +65,7 @@
                                                 <?php elseif ($row['statusIsi'] == 'On Going'): ?>
                                                     <a href="<?= base_url('alumni/questionnaires/lanjutkan/' . $row['id']) ?>" class="btn-action btn-lanjutkan">⏵</a>
                                                 <?php else: ?>
-                                                    <a href="<?= base_url('alumni/questioner/lihat/' . $row['id']) ?>" class="btn-action btn-lihat">👁️</a>
+                                                    <a href="<?= base_url('alumni/questioner/lihat/' . $row['id']) ?>" class="btn-action btn-lihat"><i class="fas fa-eye"></i></a>
                                                 <?php endif; ?>
                                             </div>
                                         </td>
