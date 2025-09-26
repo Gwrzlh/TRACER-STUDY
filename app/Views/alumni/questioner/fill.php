@@ -24,6 +24,76 @@
         .page-step.active {
             display: block; /* Hanya active yang tampil */
         }
+        
+        /* NEW: Announcement overlay styles */
+        .announcement-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .announcement-modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.7);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .announcement-modal.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .announcement-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .announcement-body {
+            padding: 30px;
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .announcement-footer {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .btn-announcement {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-announcement:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+            color: white;
+        }
     </style>
 </head>
 
@@ -75,6 +145,9 @@
                                         <?php elseif (strtolower($q['question_type']) === 'email'): ?>
                                             <input type="email" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
                                                 value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
+                                        <?php elseif (strtolower($q['question_type']) === 'number'): ?>
+                                            <input type="number" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
                                         <?php elseif (in_array(strtolower($q['question_type']), ['dropdown', 'select'])): ?>
                                             <select class="form-select" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
                                                 <option value="">Pilih...</option>
@@ -101,6 +174,54 @@
                                                     <label class="form-check-label" for="check-<?= $q['id'] ?>-<?= md5($opt) ?>"><?= esc($opt) ?></label>
                                                 </div>
                                             <?php endforeach; ?>
+                                        <?php elseif ($q['question_type'] === 'user_field'): ?>
+                                       <?php
+                                            $fieldName = $q['user_field_name'] ?? '';
+                                            $friendlyLabel = isset($field_friendly_names[$fieldName]) ? $field_friendly_names[$fieldName] : ucwords(str_replace('_', ' ', $fieldName));
+                                            $fieldType = $field_types[$fieldName] ?? 'text';
+                                            $preValue = isset($user_profile[$fieldName]) ? $user_profile[$fieldName] : '';
+                                            $displayValue = isset($user_profile_display[$fieldName . '_name']) ? $user_profile_display[$fieldName . '_name'] : $preValue;
+                                            ?>
+                                           
+                                            <?php if (strpos($fieldType, 'foreign_key') === 0): ?>
+                                                <?php
+                                                // Map foreign key table to options and keys
+                                                $fkTable = explode(':', $fieldType)[1] ?? '';
+                                                $fkConfig = [
+                                                    'jurusan' => ['options' => $jurusan_options, 'key' => isset($jurusan_options[0]['id_jurusan']) ? 'id_jurusan' : 'id', 'label' => 'nama_jurusan'],
+                                                    'cities' => ['options' => $cities_options, 'key' => isset($cities_options[0]['id_cities']) ? 'id_cities' : 'id', 'label' => 'name'],
+                                                    'prodi' => ['options' => $prodi_options, 'key' => isset($prodi_options[0]['id_prodi']) ? 'id_prodi' : 'id', 'label' => 'nama_prodi'],
+                                                    'provinces' => ['options' => $provinsi_options, 'key' => isset($provinces_options[0]['id_provinsi']) ? 'id_provinsi' : 'id', 'label' => 'name'],
+                                                ];
+                                                $options = $fkConfig[$fkTable]['options'] ?? [];
+                                                $optionKey = $fkConfig[$fkTable]['key'] ?? 'id';
+                                                $optionLabel = $fkConfig[$fkTable]['label'] ?? 'name';
+                                                ?>
+                                                <?php if (!empty($options)): ?>
+                                                    <select class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
+                                                        <option value="">-- Pilih <?= esc($friendlyLabel) ?> --</option>
+                                                        <?php foreach ($options as $option): ?>
+                                                            <option value="<?= esc($option[$optionKey]) ?>" <?= $option[$optionKey] == $preValue ? 'selected' : '' ?>>
+                                                                <?= esc($option[$optionLabel]) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                    <?php if (!$preValue && $fieldName): ?>
+                                                        <small class="form-text text-muted">Pilih <?= esc($friendlyLabel) ?>.</small>
+                                                    <?php endif; ?>
+                                                <?php else: ?>
+                                                    <input type="text" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                        value="<?= esc($displayValue) ?>" <?= $q['is_required'] ? 'required' : '' ?>
+                                                        placeholder="No options available for <?= esc($friendlyLabel) ?>">
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <input type="text" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                    value="<?= esc($displayValue) ?>" <?= $q['is_required'] ? 'required' : '' ?>
+                                                    placeholder="<?= $displayValue ? '' : 'Enter your ' . esc($friendlyLabel) ?>">
+                                                <?php if (!$preValue && $fieldName): ?>
+                                                    <small class="form-text text-muted">No data found for <?= esc($friendlyLabel) ?>. Please enter it.</small>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
                                         <?php elseif (in_array(strtolower($q['question_type']), ['scale', 'matrix_scale'])): ?>
                                             <div class="row">
                                                 <div class="col-md-10">
@@ -144,6 +265,7 @@
                                                     <?php endforeach; ?>
                                                 </tbody>
                                             </table>
+                                        
                                         <?php elseif (strtolower($q['question_type']) === 'file'): ?>
                                             <input type="file" class="form-control" name="answer_<?= $q['id'] ?>" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
                                             <?php if ($existing_answer): ?>
@@ -170,17 +292,48 @@
                 <?php $pageIndex++; ?>
             <?php endforeach; ?>
         </form>
-
         <div class="mt-3">
             <a href="<?= base_url('alumni/questionnaires') ?>" class="btn btn-outline-secondary">Kembali</a>
         </div>
     </div>
 
-   <script>
-   // Enhanced questionnaire navigation with dynamic submit detection and proper validation
+    <!-- NEW: Announcement Overlay -->
+    <div class="announcement-overlay" id="announcementOverlay">
+        <div class="announcement-modal" id="announcementModal">
+            <div class="announcement-header">
+                <h4 class="mb-0">🎉 Selamat!</h4>
+                <p class="mb-0 mt-2">Kuesioner Berhasil Diselesaikan</p>
+            </div>
+            <div class="announcement-body" id="announcementContent">
+                <!-- Content will be inserted here -->
+            </div>
+            <div class="announcement-footer">
+                <button type="button" class="btn btn-announcement" onclick="redirectToQuestionnaires()">
+                    Kembali ke Daftar Kuesioner
+                </button>
+            </div>
+        </div>
+    </div>
 
+<script>
+   // Enhanced questionnaire navigation with dynamic submit detection and proper validation
 let currentStep = 0;
 const steps = $(".page-step");
+
+// NEW: Announcement handling functions
+function showAnnouncement(content) {
+    console.log('[DEBUG] Showing announcement');
+    $('#announcementContent').html(content.replace(/\n/g, '<br>'));
+    $('#announcementOverlay').fadeIn(300);
+    
+    setTimeout(function() {
+        $('#announcementModal').addClass('show');
+    }, 100);
+}
+
+function redirectToQuestionnaires() {
+    window.location.href = "<?= base_url('alumni/questionnaires') ?>";
+}
 
 // Utility function to check if a page has any visible required fields
 function hasVisibleRequiredFields(pageElement) {
@@ -209,68 +362,87 @@ function wouldPageBeValid(element) {
         return true; // No conditions = always valid
     }
     
+    let pass = false;
+    let logicType = 'any'; // Default
+    
     try {
-        const conditions = (typeof conditionsJson === 'string') ? JSON.parse(conditionsJson) : conditionsJson;
+        const parsed = (typeof conditionsJson === 'string') ? JSON.parse(conditionsJson) : conditionsJson;
+        const conds = Array.isArray(parsed) ? parsed : (parsed.conditions || []);
+        logicType = parsed.logic_type || 'any';
         
-        if (!Array.isArray(conditions) || conditions.length === 0) {
-            return true;
-        }
-        
-        // Check if any condition would pass (OR logic)
-        for (let cond of conditions) {
-            const field = (cond.field || '').trim();
-            const operator = cond.operator;
-            const value = (cond.value || '').toString().trim();
-            
-            if (!field || !operator) continue;
-            
-            const inputs = $(`input[name^="answer[${field}]"], select[name^="answer[${field}]"], textarea[name^="answer[${field}]"]`);
-            let formValue = [];
-            
-            inputs.each(function() {
-                if ($(this).is(':checkbox,:radio')) {
-                    if ($(this).is(':checked')) formValue.push($(this).val().trim());
-                } else if ($(this).val()) {
-                    formValue.push($(this).val().trim());
+        if (!Array.isArray(conds) || conds.length === 0) {
+            pass = true;
+        } else {
+            pass = logicType === 'all' ? true : false;
+            for (let cond of conds) {
+                const field = (cond.field || '').trim();
+                const operator = cond.operator;
+                const value = (cond.value || '').toString().trim();
+                
+                if (!field || !operator) continue;
+                
+                const inputs = $(`input[name^="answer[${field}]"], select[name^="answer[${field}]"], textarea[name^="answer[${field}]"]`);
+                let formValue = [];
+                inputs.each(function() {
+                    if ($(this).is(':checkbox,:radio')) {
+                        if ($(this).is(':checked')) formValue.push($(this).val().trim());
+                    } else if ($(this).val()) {
+                        formValue.push($(this).val().trim());
+                    }
+                });
+                
+                if (formValue.length === 0) {
+                    if (logicType === 'all') {
+                        pass = false;
+                        break;
+                    }
+                    continue;
                 }
-            });
-            
-            if (formValue.length === 0) continue;
-            
-            let match = false;
-            const expected = value.toLowerCase();
-            const formValuesLower = formValue.map(v => v.toLowerCase());
-            
-            switch (operator) {
-                case 'is':
-                    match = formValuesLower.some(v => v === expected);
-                    break;
-                case 'is_not':
-                    match = formValuesLower.every(v => v !== expected);
-                    break;
-                case 'contains':
-                    match = formValuesLower.some(v => v.includes(expected));
-                    break;
-                case 'not_contains':
-                    match = formValuesLower.every(v => !v.includes(expected));
-                    break;
-                case 'greater':
-                    match = formValue.some(v => parseFloat(v) > parseFloat(value));
-                    break;
-                case 'less':
-                    match = formValue.some(v => parseFloat(v) < parseFloat(value));
-                    break;
+                
+                let match = false;
+                const expected = value.toLowerCase();
+                const formValuesLower = formValue.map(v => v.toLowerCase());
+                
+                switch (operator) {
+                    case 'is':
+                        match = formValuesLower.some(v => v === expected);
+                        break;
+                    case 'is_not':
+                        match = formValuesLower.every(v => v !== expected);
+                        break;
+                    case 'contains':
+                        match = formValuesLower.some(v => v.includes(expected));
+                        break;
+                    case 'not_contains':
+                        match = formValuesLower.every(v => !v.includes(expected));
+                        break;
+                    case 'greater':
+                        match = formValue.some(v => parseFloat(v) > parseFloat(value));
+                        break;
+                    case 'less':
+                        match = formValue.some(v => parseFloat(v) < parseFloat(value));
+                        break;
+                }
+                
+                if (logicType === 'all') {
+                    if (!match) {
+                        pass = false;
+                        break;
+                    }
+                } else {
+                    if (match) {
+                        pass = true;
+                        break;
+                    }
+                }
             }
-            
-            if (match) return true; // At least one condition passed
         }
-        
-        return false; // No conditions passed
-        
     } catch (e) {
         console.error('Error evaluating page conditions:', e);
         return false;
     }
+    
+    return pass;
 }
 
 // Enhanced function to update navigation buttons
@@ -307,34 +479,39 @@ function evaluateConditions(element) {
     const conditionsJson = $el.data('conditions');
     const elementType = $el.hasClass('section-container') ? 'section' : $el.hasClass('question-container') ? 'question' : 'page';
 
-    console.log(`[DEBUG] Evaluating ${elementType} with raw conditions:`, conditionsJson);
+    console.log(`[DEBUG] Mengevaluasi ${elementType} dengan kondisi mentah:`, conditionsJson);
 
     if (!conditionsJson || conditionsJson === '[]' || conditionsJson === '') {
-        console.log(`[DEBUG] ${elementType} has no conditions, showing by default`);
+        console.log(`[DEBUG] ${elementType} tidak memiliki kondisi, ditampilkan secara default`);
         $el.show();
+        // Rekursif evaluasi child elements
         $el.find('.section-container, .question-container').each(function() {
             evaluateConditions(this);
         });
         return true;
     }
 
-    let anyPass = false;
+    let pass = false;
+    let logicType = 'any'; // Default di luar try untuk menghindari undefined
 
     try {
-        const conditions = (typeof conditionsJson === 'string') ? JSON.parse(conditionsJson) : conditionsJson;
-        console.log(`[DEBUG] Parsed conditions for ${elementType}:`, conditions);
+        const parsed = (typeof conditionsJson === 'string') ? JSON.parse(conditionsJson) : conditionsJson;
+        const conds = Array.isArray(parsed) ? parsed : (parsed.conditions || []);
+        logicType = parsed.logic_type || 'any'; // Override jika ada
+        console.log(`[DEBUG] Kondisi yang diuraikan untuk ${elementType}:`, conds, `Tipe logika: ${logicType}`);
 
-        if (!Array.isArray(conditions) || conditions.length === 0) {
-            console.warn(`[DEBUG] Invalid or empty conditions for ${elementType}, showing by default`);
-            anyPass = true;
+        if (!Array.isArray(conds) || conds.length === 0) {
+            console.warn(`[DEBUG] Kondisi tidak valid atau kosong untuk ${elementType}, ditampilkan secara default`);
+            pass = true;
         } else {
-            for (let cond of conditions) {
+            pass = logicType === 'all' ? true : false;
+            for (let cond of conds) {
                 const field = (cond.field || '').trim();
                 const operator = cond.operator;
                 const value = (cond.value || '').toString().trim();
 
                 if (!field || !operator) {
-                    console.warn(`[DEBUG] Skipping invalid condition in ${elementType}: field=${field}, operator=${operator}`);
+                    console.warn(`[DEBUG] Melewati kondisi tidak valid di ${elementType}: field=${field}, operator=${operator}`);
                     continue;
                 }
 
@@ -349,11 +526,15 @@ function evaluateConditions(element) {
                 });
 
                 if (formValue.length === 0) {
-                    console.warn(`[DEBUG] No answer found for field ${field} in ${elementType}, condition failed`);
+                    console.warn(`[DEBUG] Tidak ada jawaban ditemukan untuk field ${field} di ${elementType}`);
+                    if (logicType === 'all') {
+                        pass = false;
+                        break;
+                    }
                     continue;
                 }
 
-                console.log(`[DEBUG] Field ${field} answers:`, formValue);
+                console.log(`[DEBUG] Jawaban untuk field ${field}:`, formValue);
 
                 let match = false;
                 const expected = value.toLowerCase();
@@ -379,36 +560,45 @@ function evaluateConditions(element) {
                         match = formValue.some(v => parseFloat(v) < parseFloat(value));
                         break;
                     default:
-                        console.warn(`[DEBUG] Unknown operator ${operator} for field ${field} in ${elementType}`);
+                        console.warn(`[DEBUG] Operator tidak dikenal ${operator} untuk field ${field} di ${elementType}`);
                 }
 
-                console.log(`[DEBUG] Condition result for field ${field}: operator=${operator}, expected=${value}, match=${match}`);
+                console.log(`[DEBUG] Hasil kondisi untuk field ${field}: operator=${operator}, expected=${value}, match=${match}`);
 
-                if (match) {
-                    anyPass = true;
-                    console.log(`[DEBUG] At least one condition matched in ${elementType}, breaking for OR`);
-                    break;
+                if (logicType === 'all') {
+                    if (!match) {
+                        pass = false;
+                        break;
+                    }
+                } else {
+                    if (match) {
+                        pass = true;
+                        break;
+                    }
                 }
             }
         }
     } catch (e) {
-        console.error(`[ERROR] JSON parse failed for ${elementType} conditions:`, e, 'Raw JSON:', conditionsJson);
-        anyPass = false;
+        console.error(`[ERROR] Gagal menguraikan JSON untuk kondisi ${elementType}:`, e, 'JSON mentah:', conditionsJson);
+        pass = false; // Default hide jika error
+        logicType = 'error'; // Set untuk log
     }
 
-    if (anyPass) {
-        console.log(`[DEBUG] ${elementType} passed (OR logic), showing`);
+    // Console.log aman sekarang karena logicType selalu defined
+    if (pass) {
+        console.log(`[DEBUG] ${elementType} lulus (logika ${logicType}), ditampilkan`);
         $el.show();
+        // Rekursif evaluasi child elements
         $el.find('.section-container, .question-container').each(function() {
             evaluateConditions(this);
         });
     } else {
-        console.log(`[DEBUG] ${elementType} failed (no conditions met), hiding`);
+        console.log(`[DEBUG] ${elementType} gagal (kondisi tidak terpenuhi, logika ${logicType}), disembunyikan`);
         $el.hide();
         $el.find('.section-container, .question-container').hide();
     }
 
-    return anyPass;
+    return pass;
 }
 
 // Enhanced function to show step (page) with dynamic button updates
@@ -477,14 +667,44 @@ function validateCurrentPage() {
     return isValid;
 }
 
+let saveTimer;
+
 // Event handler for answer changes - re-evaluate current page and update buttons
-$(document).on('change input keyup click', 'input[name^="answer["], select[name^="answer["], textarea[name^="answer["]', function() {
-    console.log('[DEBUG] Answer changed, re-evaluating current page elements and buttons');
-    steps.hide(); // Hide all other pages
-    const currentPage = steps.eq(currentStep);
-    evaluateConditions(currentPage[0]); // Re-evaluate current page only
-    updateNavigationButtons(); // Update buttons based on new state
-});
+    $(document).on('change input keyup click', 'input[name^="answer["], select[name^="answer["], textarea[name^="answer["]', function() {
+        console.log('[DEBUG] Answer changed, re-evaluating current page elements and buttons');
+        steps.hide(); // Hide all other pages
+        const currentPage = steps.eq(currentStep);
+        evaluateConditions(currentPage[0]); // Re-evaluate current page only
+        updateNavigationButtons();
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(saveDraft, 1000); // Update buttons based on new state
+    });
+    
+    function saveDraft() {
+        const formData = $('#questionnaire-form').serializeArray();
+        const postData = {
+            q_id: $('[name="q_id"]').val(),
+            is_logically_complete: '0'  // Secara eksplisit tandai sebagai draft (bukan selesai)
+        };
+
+        formData.forEach(item => {
+            if (item.name.startsWith('answer[')) {
+                postData[item.name] = item.value;  // Biarkan CI menangani parsing array untuk checkbox, dll.
+            }
+        });
+
+        $.ajax({
+            url: "<?= base_url('alumni/questionnaires/save-answer') ?>",
+            type: 'POST',
+            data: postData,
+            success: function(response) {
+                console.log('[DEBUG] Draft berhasil disimpan');
+            },
+            error: function(xhr, status, error) {
+                console.error('[ERROR] Gagal menyimpan draft:', error);
+            }
+        });
+    }
 
 // Navigation: Next button click
 $(document).on("click", ".next-btn", function() {
@@ -630,7 +850,16 @@ $(document).ready(function() {
     if (startIndex === steps.length) {
         alert("Tidak ada halaman yang memenuhi kondisi awal. Silakan kembali ke daftar kuesioner.");
         console.error('[ERROR] No valid initial pages found');
+        return;
     }
+    
+    // Tambahan: Trigger re-evaluate pada semua fields yang sudah diisi (dari previous_answers) untuk memastikan sections/questions muncul jika kondisi met awalnya
+    $('input[name^="answer["], select[name^="answer["], textarea[name^="answer["]').each(function() {
+        if ($(this).val().trim() !== '') {
+            $(this).trigger('change');
+        }
+    });
+    console.log('[DEBUG] Initial re-evaluation triggered for pre-filled fields');
 });
 
 // Scale value update function (unchanged)

@@ -119,6 +119,33 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- User Field Selection -->
+                            <div class="mb-3" id="user_field_wrapper" style="display: none;">
+                                <label class="form-label fw-bold">User Profile Field <span class="text-danger">*</span></label>
+                                <select name="user_field_name" class="form-select">
+                                    <option value="">-- Pilih Field Profil --</option>
+                                    <?php
+                                    $fieldFriendlyNames = [
+                                        'nama_lengkap' => 'Nama Lengkap',
+                                        'nim' => 'NIM',
+                                        'id_jurusan' => 'ID Jurusan',
+                                        'id_prodi' => 'ID Prodi',
+                                        'angkatan' => 'Angkatan',
+                                        'tahun_kelulusan' => 'Tahun Kelulusan',
+                                        'ipk' => 'IPK',
+                                        'alamat' => 'Alamat',
+                                        'alamat2' => 'Alamat 2',
+                                        'kodepos' => 'Kode Pos',
+                                        'jenisKelamin' => 'Jenis Kelamin',
+                                        'notlp' => 'No. Telepon',
+                                        'id_provinsi' => 'ID Provinsi',
+                                        'id_cities' => 'ID Kota',
+                                    ];
+                                    foreach ($fieldFriendlyNames as $field => $name): ?>
+                                        <option value="<?= esc($field) ?>"><?= esc($name) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
 
                             <!-- File Upload Settings -->
                             <div class="mb-3" id="file_wrapper" style="display: none;">
@@ -417,6 +444,16 @@
                                     </optgroup>
                                 </select>
                             </div>
+                            <!-- Options for Selection Types -->
+                            <div class="mb-3" id="edit_user_field_wrapper" style="display: none;">
+                                <label class="form-label fw-bold">User Profile Field <span class="text-danger">*</span></label>
+                                <select name="user_field_name" id="edit_user_field_name" class="form-select">
+                                    <option value="">-- Pilih Field Profil --</option>
+                                    <?php foreach ($fieldFriendlyNames as $field => $name): ?>
+                                        <option value="<?= esc($field) ?>"><?= esc($name) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
 
                             <!-- Options for Selection Types -->
                             <div class="mb-3" id="edit_options_wrapper" style="display: none;">
@@ -554,6 +591,12 @@
                 fileWrapper.style.display = "block";
             } else if (type === "matrix") {
                 matrixWrapper.style.display = "block";
+            }
+
+            if (type === "user_field") {
+                document.getElementById("user_field_wrapper").style.display = "block";
+            } else {
+                document.getElementById("user_field_wrapper").style.display = "none";
             }
         });
 
@@ -803,6 +846,9 @@
                                 document.getElementById('edit_matrix_rows').value = (q.matrix_rows ? q.matrix_rows.join(', ') : '');
                                 document.getElementById('edit_matrix_columns').value = (q.matrix_columns ? q.matrix_columns.join(', ') : '');
                                 document.getElementById('edit_matrix_options').value = (q.matrix_options ? q.matrix_options.join(', ') : '');
+                            } else if (q.question_type === 'user_field') {
+                                document.getElementById('edit_user_field_wrapper').style.display = 'block';
+                                document.getElementById('edit_user_field_name').value = q.user_field_name || '';
                             }
 
                             // Handle conditional logic
@@ -851,11 +897,13 @@
                 'edit_options_wrapper': ['radio', 'checkbox', 'dropdown'],
                 'edit_scale_wrapper': ['scale'],
                 'edit_file_wrapper': ['file'],
-                'edit_matrix_wrapper': ['matrix']
+                'edit_matrix_wrapper': ['matrix'],  
             };
             for (let wrapper in wrappers) {
                 document.getElementById(wrapper).style.display = wrappers[wrapper].includes(type) ? 'block' : 'none';
             }
+
+            document.getElementById('edit_user_field_wrapper').style.display = (type === 'user_field') ? 'block' : 'none';
         });
 
         // Conditional logic toggle for edit form

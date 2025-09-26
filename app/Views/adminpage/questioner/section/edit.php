@@ -107,15 +107,17 @@
                 <div class="flex items-center gap-2 mb-3 text-sm text-gray-600">
                     <span>Show this section if</span>
                     <select name="logic_type" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
-                        <option value="any" <?= isset($conditionalLogic['logic_type']) && $conditionalLogic['logic_type'] === 'any' ? 'selected' : '' ?>>Any</option>
-                        <option value="all" <?= !isset($conditionalLogic['logic_type']) || $conditionalLogic['logic_type'] === 'all' ? 'selected' : '' ?>>All</option>
+                        <option value="any" <?= (is_array($conditionalLogic) && isset($conditionalLogic['logic_type']) && $conditionalLogic['logic_type'] === 'any') || (!is_array($conditionalLogic) && empty($conditionalLogic)) ? 'selected' : '' ?>>Any</option>
+                        <option value="all" <?= (is_array($conditionalLogic) && isset($conditionalLogic['logic_type']) && $conditionalLogic['logic_type'] === 'all') || !isset($conditionalLogic['logic_type']) ? 'selected' : '' ?>>All</option>
                     </select>
                     <span>of this/these following match:</span>
                 </div>
 
                 <div id="conditional-container" class="space-y-3">
-                    <?php if (!empty($conditionalLogic)): ?>
-                        <?php foreach ($conditionalLogic as $index => $condition): ?>
+                    <?php 
+                    $conditions = is_array($conditionalLogic) && isset($conditionalLogic['conditions']) ? $conditionalLogic['conditions'] : (is_array($conditionalLogic) ? $conditionalLogic : []);
+                    if (!empty($conditions)): ?>
+                        <?php foreach ($conditions as $index => $condition): ?>
                             <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border">
                                 <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                     <option value="">Pilih Pertanyaan</option>
@@ -137,11 +139,11 @@
 
                                 <span class="value-input-container flex-1">
                                     <input type="text" 
-                                        name="condition_value[]" 
-                                        placeholder="Value" 
-                                        class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                        value="<?= isset($condition['value']) ? esc($condition['value']) : '' ?>" 
-                                        required>
+                                           name="condition_value[]" 
+                                           placeholder="Value" 
+                                           class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                                           value="<?= isset($condition['value']) ? esc($condition['value']) : '' ?>" 
+                                           required>
                                 </span>
 
                                 <button type="button" 
@@ -151,28 +153,23 @@
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <!-- Template baris kosong default -->
+                        <!-- Template kosong -->
                         <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border" style="display:none;">
                             <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                                 <option value="">Pilih Pertanyaan</option>
                                 <?php foreach ($questions as $q): ?>
-                                    <option value="<?= esc($q['id']) ?>"><?= esc($q['question_text']) ?></option>
+                                    <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
                                 <?php foreach ($operators as $key => $label): ?>
-                                    <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
+                                    <option value="<?= $key ?>"><?= $label ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <span class="value-input-container flex-1">
-                                <input type="text" 
-                                    name="condition_value[]" 
-                                    placeholder="Value" 
-                                    class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                <input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                             </span>
-                            <button type="button" 
-                                    class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium" 
-                                    style="display:none;">
+                            <button type="button" class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium" style="display:none;">
                                 Hapus
                             </button>
                         </div>
@@ -343,7 +340,7 @@
 
         // Tangani pre-populated conditions pada load
         $('.condition-row').each(function(index) {
-            const condition = <?= json_encode($conditionalLogic) ?>[index];
+            const condition = <?= json_encode($conditions) ?>[index];
             if (condition) {
                 $(this).find('.question-selector').val(condition.field);  // Gunakan 'field' dari JSON
                 $(this).find('select[name="operator[]"]').val(condition.operator);

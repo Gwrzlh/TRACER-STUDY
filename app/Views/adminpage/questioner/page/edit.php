@@ -3,7 +3,6 @@
 
 <link rel="stylesheet" href="<?= base_url('css/questioner/page/edit.css') ?>">
 <div class="bg-white rounded-xl shadow-md p-8 w-full mx-auto">
-    <!-- Header + Divider -->
     <div class="-mx-8 mb-6 border-b border-gray-300 pb-3 px-8">
         <div class="flex items-center">
             <img src="/images/logo.png" alt="Tracer Study" class="h-12 mr-3">
@@ -57,25 +56,25 @@
         <div>
             <label class="flex items-center">
                 <input type="checkbox" 
-                    name="conditional_logic" 
-                    id="conditional_logic" 
-                    value="1" 
-                    <?= !empty($conditionalLogic) ? 'checked' : '' ?>
-                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                       name="conditional_logic" 
+                       id="conditional_logic" 
+                       value="1" 
+                       <?= !empty($conditionalLogic) ? 'checked' : '' ?>
+                       class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                 <span class="ml-2 text-sm font-medium text-gray-700">Aktifkan Conditional Logic</span>
             </label>
 
             <div id="conditional-form" style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>;" class="mt-4">
-                <!-- <div class="flex items-center mb-3 text-sm text-gray-700">
+                <div class="flex items-center mb-3 text-sm text-gray-700">
                     <span class="mr-2">Show this page if</span>
                     <select name="logic_type" 
                             class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm mr-2" 
                             style="width: auto;">
-                        <option value="any" <?= isset($conditionalLogic['logic_type']) && $conditionalLogic['logic_type'] === 'any' ? 'selected' : '' ?>>Any</option>
-                        <option value="all" <?= !isset($conditionalLogic['logic_type']) || $conditionalLogic['logic_type'] === 'all' ? 'selected' : '' ?>>All</option>
+                        <option value="any" <?= $logicType === 'any' ? 'selected' : '' ?>>Any</option>
+                        <option value="all" <?= $logicType === 'all' ? 'selected' : '' ?>>All</option>
                     </select>
                     <span>of this/these following match:</span>
-                </div> -->
+                </div>
 
                 <div id="conditional-container" class="mb-4">
                     <?php if (!empty($conditionalLogic)): ?>
@@ -97,18 +96,18 @@
                                         style="width: auto;"
                                         <?= !empty($conditionalLogic) ? 'required' : '' ?>>
                                     <?php foreach ($operators as $key => $label): ?>
-                                        <option value="<?= esc($key) ?>" <?= isset($condition['operator']) && $key == $condition['operator'] ? 'selected' : '' ?>>
+                                        <option value="<?= esc($key) ?>" <?= isset($condition['operator']) && $key === $condition['operator'] ? 'selected' : '' ?>>
                                             <?= esc($label) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                                 <span class="value-input-container flex-1">
                                     <input type="text" 
-                                        name="condition_value[]" 
-                                        placeholder="Value" 
-                                        class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                        value="<?= isset($condition['value']) ? esc($condition['value']) : '' ?>" 
-                                        <?= !empty($conditionalLogic) ? 'required' : '' ?>>
+                                           name="condition_value[]" 
+                                           placeholder="Value" 
+                                           class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                                           value="<?= isset($condition['value']) ? esc($condition['value']) : '' ?>" 
+                                           <?= !empty($conditionalLogic) ? 'required' : '' ?>>
                                 </span>
                                 <button type="button" 
                                         class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
@@ -129,14 +128,15 @@
                                     class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
                                     style="width: auto;">
                                 <?php foreach ($operators as $key => $label): ?>
-                                    <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
-                                <?php endforeach; ?>
+                                    <option value="<?= esc($key) ?>"><?= esc($label) ?>
+                                </option>
+                            <?php endforeach; ?>
                             </select>
                             <span class="value-input-container flex-1">
                                 <input type="text" 
-                                    name="condition_value[]" 
-                                    placeholder="Value" 
-                                    class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                       name="condition_value[]" 
+                                       placeholder="Value" 
+                                       class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
                             </span>
                             <button type="button" 
                                     class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium" 
@@ -177,132 +177,129 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
-        function loadConditionalValueInput(questionSelector, initialValue = null) {
-            const questionId = questionSelector.val();
-            const valueContainer = questionSelector.closest('.condition-row').find('.value-input-container');
+$(document).ready(function() {
+    function loadConditionalValueInput(questionSelector, initialValue = null) {
+        const questionId = questionSelector.val();
+        const valueContainer = questionSelector.closest('.condition-row').find('.value-input-container');
 
-            if (!questionId) {
-                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
-                return;
-            }
-
-            $.ajax({
-                url: "<?= base_url('admin/questionnaire/pages/getQuestionOptions') ?>",
-                type: 'GET',
-                data: { question_id: questionId },
-                dataType: 'json',
-                success: function(response) {
-                    console.log('AJAX Success:', response);
-                    let inputHtml = '';
-                    if (response.type === 'select' && response.options && response.options.length > 0) {
-                        inputHtml = `<select name="condition_value[]" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
-                        response.options.forEach(function(option) {
-                            const isSelected = initialValue !== null && String(initialValue) === String(option.id) ? 'selected' : '';
-                            inputHtml += `<option value="${option.id}" ${isSelected}>${option.option_text}</option>`;
-                        });
-                        inputHtml += '</select>';
-                    } else {
-                        inputHtml = `<input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
-                    }
-                    valueContainer.html(inputHtml);
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX Error:', status, error, xhr.responseText);
-                    valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
-                }
-            });
+        if (!questionId) {
+            valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
+            return;
         }
 
-        $('#conditional_logic').on('change', function() {
-            if (this.checked) {
-                $('#conditional-form').slideDown(300, function() {
-                    $('.condition-row').show();
-                    $('#add-condition-btn').show();
-                    $('.condition-row').each(function() {
-                        $(this).find('.remove-condition-btn').show();
+        $.ajax({
+            url: "<?= base_url('admin/questionnaire/pages/getQuestionOptions') ?>",
+            type: 'GET',
+            data: { question_id: questionId },
+            dataType: 'json',
+            success: function(response) {
+                console.log('AJAX Success:', response);
+                let inputHtml = '';
+                if (response.type === 'select' && response.options && response.options.length > 0) {
+                    inputHtml = `<select name="condition_value[]" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
+                    response.options.forEach(function(option) {
+                        const isSelected = initialValue !== null && String(initialValue) === String(option.id) ? 'selected' : '';
+                        inputHtml += `<option value="${option.id}" ${isSelected}>${option.option_text}</option>`;
                     });
-                    // Tambahkan required ke input kondisi
-                    $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', true);
-                    $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', true);
-                    $('.condition-row').find('select[name="operator[]"]').prop('required', true);
+                    inputHtml += `</select>`;
+                } else {
+                    inputHtml = `<input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`;
+                }
+                valueContainer.html(inputHtml);
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', status, error, xhr.responseText);
+                valueContainer.html(`<input type="text" name="condition_value[]" placeholder="Error loading options" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" value="${initialValue || ''}" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
+            }
+        });
+    }
+
+    $('#conditional_logic').on('change', function() {
+        if (this.checked) {
+            $('#conditional-form').slideDown(300, function() {
+                $('.condition-row').show();
+                $('#add-condition-btn').show();
+                $('.condition-row').each(function() {
+                    $(this).find('.remove-condition-btn').show();
                 });
-            } else {
-                $('#conditional-form').slideUp(300, function() {
-                    $('.condition-row:not(:first)').remove();
-                    $('.condition-row').first().hide();
-                    $('#add-condition-btn').hide();
-                    // Hapus required dari input kondisi
-                    $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', false);
-                    $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', false);
-                    $('.condition-row').find('select[name="operator[]"]').prop('required', false);
-                });
-            }
-        }).trigger('change');
-
-        $('#add-condition-btn').on('click', function() {
-            const templateRow = `
-                <div class="condition-row flex items-center gap-2 mb-3 p-3 bg-gray-50 rounded-md border">
-                    <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                        <option value="">Pilih Pertanyaan</option>
-                        <?php foreach ($questions as $q): ?>
-                            <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;" required>
-                        <?php foreach ($operators as $key => $label): ?>
-                            <option value="<?= $key ?>"><?= $label ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <span class="value-input-container flex-1">
-                        <input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                    </span>
-                    <button type="button" class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
-                        Hapus
-                    </button>
-                </div>
-            `;
-            $('#conditional-container').append(templateRow);
-            loadConditionalValueInput($('.condition-row:last .question-selector'), null);
-        });
-
-        $(document).on('click', '.remove-condition-btn', function() {
-            if ($('.condition-row').length > 1) {
-                $(this).closest('.condition-row').remove();
-            } else {
-                const row = $(this).closest('.condition-row');
-                row.find('.question-selector').val('');
-                row.find('select[name="operator[]"]').val('is');
-                row.find('.value-input-container').html(`<input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
-                row.find('.remove-condition-btn').hide();
-            }
-        });
-
-        $(document).on('change', '.question-selector', function() {
-            const initialValue = $(this).closest('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').val();
-            loadConditionalValueInput($(this), initialValue);
-        });
-
-        // Tangani pre-populated conditions pada load
-        $('.condition-row').each(function(index) {
-            const condition = <?= json_encode($conditionalLogic) ?>[index];
-            if (condition) {
-                $(this).find('.question-selector').val(condition.field);
-                $(this).find('select[name="operator[]"]').val(condition.operator);
-                loadConditionalValueInput($(this).find('.question-selector'), condition.value);
-                $(this).find('.remove-condition-btn').show();
-            }
-        });
-
-        // Cegah masalah submit dengan field required yang tersembunyi
-        $('form').on('submit', function(e) {
-            if (!$('#conditional_logic').is(':checked')) {
+                $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', true);
+                $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', true);
+                $('.condition-row').find('select[name="operator[]"]').prop('required', true);
+            });
+        } else {
+            $('#conditional-form').slideUp(300, function() {
+                $('.condition-row:not(:first)').remove();
+                $('.condition-row').first().hide();
+                $('#add-condition-btn').hide();
                 $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', false);
                 $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', false);
                 $('.condition-row').find('select[name="operator[]"]').prop('required', false);
-            }
-        });
+            });
+        }
+    }).trigger('change');
+
+    $('#add-condition-btn').on('click', function() {
+        const templateRow = `
+            <div class="condition-row flex items-center gap-2 mb-3 p-3 bg-gray-50 rounded-md border">
+                <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                    <option value="">Pilih Pertanyaan</option>
+                    <?php foreach ($questions as $q): ?>
+                        <option value="<?= esc($q['id']) ?>"><?= esc($q['question_text']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;" required>
+                    <?php foreach ($operators as $key => $label): ?>
+                        <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <span class="value-input-container flex-1">
+                    <input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                </span>
+                <button type="button" class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
+                    Hapus
+                </button>
+            </div>
+        `;
+        $('#conditional-container').append(templateRow);
+        loadConditionalValueInput($('.condition-row:last .question-selector'), null);
     });
+
+    $(document).on('click', '.remove-condition-btn', function() {
+        if ($('.condition-row').length > 1) {
+            $(this).closest('.condition-row').remove();
+        } else {
+            const row = $(this).closest('.condition-row');
+            row.find('.question-selector').val('');
+            row.find('select[name="operator[]"]').val('is');
+            row.find('.value-input-container').html(`<input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" ${$('#conditional_logic').is(':checked') ? 'required' : ''}>`);
+            row.find('.remove-condition-btn').hide();
+        }
+    });
+
+    $(document).on('change', '.question-selector', function() {
+        const initialValue = $(this).closest('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').val();
+        loadConditionalValueInput($(this), initialValue);
+    });
+
+    $('.condition-row').each(function(index) {
+        const conditions = <?= json_encode($conditionalLogic) ?>;
+        const condition = conditions[index];
+        if (condition && condition.field) {
+            $(this).find('.question-selector').val(condition.field);
+            $(this).find('select[name="operator[]"]').val(condition.operator);
+            loadConditionalValueInput($(this).find('.question-selector'), condition.value);
+            $(this).find('.remove-condition-btn').show();
+        }
+    });
+
+    $('form').on('submit', function(e) {
+        if (!$('#conditional_logic').is(':checked')) {
+            $('.condition-row').find('input[name="condition_value[]"], select[name="condition_value[]"]').prop('required', false);
+            $('.condition-row').find('select[name="condition_question_id[]"]').prop('required', false);
+            $('.condition-row').find('select[name="operator[]"]').prop('required', false);
+        }
+    });
+});
 </script>
 
 <?= $this->endSection() ?>
