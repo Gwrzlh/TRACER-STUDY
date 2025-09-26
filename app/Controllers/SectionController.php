@@ -101,6 +101,7 @@ class SectionController extends BaseController
         $conditionalLogic = null;
 
         if ($conditionalLogicEnabled) {
+            $logic_type = $this->request->getPost('logic_type');
             $conditionQuestionIds = $this->request->getPost('condition_question_id') ?? [];
             $operators = $this->request->getPost('operator') ?? [];
             $conditionValues = $this->request->getPost('condition_value') ?? [];
@@ -125,7 +126,10 @@ class SectionController extends BaseController
             }
 
             if (!empty($conditions)) {
-                $conditionalLogic = json_encode($conditions);
+                $conditionalLogic = json_encode([
+                    'conditions' => $conditions,
+                    'logic_type' => $logic_type
+                ]);
             }
         }
 
@@ -218,6 +222,7 @@ class SectionController extends BaseController
         $conditionalLogic = null;
 
         if ($conditionalLogicEnabled) {
+            $logic_type = $this->request->getPost('logic_type');   
             $conditionQuestionIds = $this->request->getPost('condition_question_id') ?? [];
             $operators = $this->request->getPost('operator') ?? [];
             $conditionValues = $this->request->getPost('condition_value') ?? [];
@@ -239,12 +244,15 @@ class SectionController extends BaseController
                         'value' => $value
                     ];
                 }
-            }
 
-            if (!empty($conditions)) {
-                $conditionalLogic = json_encode($conditions);
             }
-        }
+                if (!empty($conditions)) {
+                    $conditionalLogic = json_encode([
+                        'conditions' => $conditions,
+                        'logic_type' => $logic_type
+                    ]);
+                }
+          }
 
         $sectionModel = new SectionModel();
         $db = \Config\Database::connect();

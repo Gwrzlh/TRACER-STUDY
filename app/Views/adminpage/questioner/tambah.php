@@ -34,7 +34,13 @@
                 <textarea name="deskripsi" rows="4"
                     class="w-full border rounded-lg p-2 focus:ring focus:border-blue-400"></textarea>
             </div>
-
+            <!-- Pengumuman -->
+            <div>
+                <label for="announcement" class="block font-medium text-gray-700 mb-1">Pengumuman (Ditampilkan di Akhir Kuesioner)</label>
+                <textarea class="announcement-editor w-full border rounded-lg p-2 focus:ring focus:border-blue-400" id="announcement" name="announcement" rows="4"><?= old('announcement') ?></textarea>
+                <p class="text-gray-500 text-xs mt-1">Masukkan teks pengumuman yang akan ditampilkan setelah kuesioner selesai. Gunakan editor untuk memformat teks.</p>
+            </div>
+            
             <!-- Status -->
             <div>
                 <label class="block font-medium text-gray-700 mb-1">Status</label>
@@ -98,6 +104,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="<?= base_url('tinymce/tinymce.min.js'); ?>"></script>
     <script>
         $(document).ready(function() {
             function loadOptions(fieldSelector) {
@@ -170,6 +177,16 @@
                     $(this).closest('.condition-row').remove();
                 }
             });
+        });
+
+        tinymce.init({
+            selector: 'textarea.announcement-editor',
+            height: 400,
+            menubar: false,
+            plugins: 'lists link image table code fullscreen',
+            toolbar: 'undo redo | bold italic underline | bullist numlist | alignleft aligncenter alignright | fullscreen code',
+            content_style: 'body { font-family:"Figtree", sans-serif; font-size:16px; line-height:1.6 }',
+            license_key: 'gpl'
         });
     </script>
 

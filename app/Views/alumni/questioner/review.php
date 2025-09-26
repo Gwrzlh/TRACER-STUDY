@@ -38,6 +38,10 @@
                                 ?>
                                 <?php if (in_array(strtolower($q['question_type']), ['text', 'email'])): ?>
                                     <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
+                                <?php elseif (in_array(strtolower($q['question_type']), ['text','user_field'])): ?>
+                                    <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
+                                <?php elseif (in_array(strtolower($q['question_type']), ['text', 'number'])): ?>
+                                    <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
                                 <?php elseif (in_array(strtolower($q['question_type']), ['dropdown', 'select', 'radio'])): ?>
                                     <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
                                 <?php elseif (strtolower($q['question_type']) === 'checkbox'): ?>
