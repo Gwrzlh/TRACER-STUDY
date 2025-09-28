@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\QuestionModel;
-use App\Models\QuestionOptionModel;
+// use App\Models\QuestionOptionModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\QuestionnairModel;
 use App\Models\QuestionnairePageModel;
@@ -20,9 +20,20 @@ use App\Models\MatrixColumnModels;
 use Config\App;
 use App\Models\AnswerModel;
 use App\Models\ResponseModel;
+use App\Models\QuestionOptionModel;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class QuestionnairController extends BaseController
 {
+    protected $questionnaireModel;
+    public function __construct()
+    {
+        $this->questionnaireModel = new QuestionnairModel();
+        helper('questionnaire_helper');
+        // Asumsikan model lain seperti QuestionnairePageModel, dll., jika diperlukan
+    }
+
     public function index()
     {
         $model = new QuestionnairModel();
@@ -1156,6 +1167,63 @@ public function updateQuestion($questionnaire_id, $page_id, $section_id, $questi
             log_message('error', 'Exception in duplicateSectionQuestion: ' . $e->getMessage());
             $db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to duplicate question: ' . $e->getMessage()]);
+        }
+    }
+    public function downloadPDF($questionnaire_id)
+    {
+        // Validasi akses: Asumsikan hanya admin; sesuaikan dengan sistem autentikasi Anda
+        if (!session()->get('logged_in')) { // Ganti dengan pengecekan permission yang sesuai
+            log_message('error', '[downloadPDF] Unauthorized access attempt for questionnaire ID: ' . $questionnaire_id);
+            return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk mengunduh PDF ini.');
+        }
+
+        // $questionnaireModel = new QuestionnairModel();
+
+
+        // Ambil data questionnaire
+        $questionnaire = $this->questionnaireModel->find($questionnaire_id);
+        if (!$questionnaire) {
+            log_message('error', '[downloadPDF] Questionnaire not found: ID ' . $questionnaire_id);
+            return redirect()->back()->with('error', 'Kuesioner tidak ditemukan.');
+        }
+
+        // Ambil struktur lengkap (gunakan getQuestionnaireStructure dengan data kosong untuk mendapatkan semua)
+        $structure = $this->questionnaireModel->getQuestionnaireStructure($questionnaire_id, [], []);
+        if (empty($structure['pages'])) {
+            log_message('warning', '[downloadPDF] Empty structure for questionnaire ID: ' . $questionnaire_id);
+            return redirect()->back()->with('warning', 'Kuesioner ini tidak memiliki konten. Tidak ada PDF yang dapat dibuat.');
+        }
+
+        // Log attempt
+        log_message('info', '[downloadPDF] Generating PDF for questionnaire ID: ' . $questionnaire_id . ' by user ID: ' . session()->get('id'));
+
+        try {
+            // Generate HTML dari view
+            $data = [
+                'questionnaire' => $questionnaire,
+                'structure' => $structure,
+            ];
+            $html = view('adminpage/questioner/pdf_template', $data);
+
+            // Konfigurasi Dompdf
+            $options = new QuestionOptionModel();
+            $options->set('defaultFont', 'Helvetica');
+            $options->set('isRemoteEnabled', true); // Jika ada gambar eksternal, meskipun tidak ada di sini
+            $dompdf = new Dompdf($options);
+
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            // Sanitasi nama file
+            $safeTitle = preg_replace('/[^a-zA-Z0-9_-]/', '_', $questionnaire['title']);
+            $filename = 'questionnaire_' . $safeTitle . '_' . date('Y-m-d') . '.pdf';
+
+            // Stream PDF (download)
+            $dompdf->stream($filename, ['Attachment' => true]);
+        } catch (\Exception $e) {
+            log_message('error', '[downloadPDF] Error generating PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghasilkan PDF: ' . $e->getMessage());
         }
     }
 }
