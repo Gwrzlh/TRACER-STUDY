@@ -1,53 +1,89 @@
 <?= $this->extend('layout/sidebar_kaprodi') ?>
 <?= $this->section('content') ?>
+<link href="<?= base_url('css/kaprodi/ami/detail.css') ?>" rel="stylesheet">
 
-<div class="container mt-4">
-    <div class="card shadow border-0 rounded-3">
-        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Detail Jawaban: <strong><?= esc($opsi) ?></strong></h5>
-            <a href="<?= base_url('kaprodi/ami') ?>" class="btn btn-light btn-sm">
-                <i class="bi bi-arrow-left"></i> Kembali
+<div class="page-wrapper">
+    <div class="page-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Detail Jawaban: <strong><?= esc($opsi) ?></strong></h1>
+            <a href="<?= base_url('kaprodi/ami') ?>" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Kembali
             </a>
         </div>
-        <div class="card-body">
-            <p class="mb-3">
-                Menampilkan data alumni yang memilih jawaban:
-                <span class="fw-bold"><?= esc($opsi) ?></span>
-            </p>
 
-            <?php if (!empty($alumni)): ?>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-hover align-middle text-center mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width:5%;">#</th>
-                                <th class="text-start">Nama</th>
-                                <th>NIM</th>
-                                <th class="text-start">Jurusan</th>
-                                <th class="text-start">Program Studi</th>
-                                <th>Angkatan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php $no = 1; ?>
-                            <?php foreach ($alumni as $a): ?>
-                                <tr>
-                                    <td><?= $no++ ?></td>
-                                    <td class="text-start"><?= esc($a['nama']) ?></td>
-                                    <td><?= esc($a['nim']) ?></td>
-                                    <td class="text-start"><?= esc($a['jurusan']) ?></td>
-                                    <td class="text-start"><?= esc($a['prodi']) ?></td>
-                                    <td><?= esc($a['angkatan']) ?></td>
-                                </tr>
-                            <?php endforeach ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php else: ?>
-                <div class="alert alert-info mb-0 text-center">
-                    Belum ada alumni yang memilih jawaban ini.
-                </div>
-            <?php endif ?>
+        <!-- Content Card -->
+        <div class="content-card">
+            <div class="card-header-custom">
+                <h2 class="detail-title">
+                    <i class="fas fa-users detail-icon"></i>
+                    Daftar Alumni yang Menjawab
+                </h2>
+            </div>
+            
+            <div class="card-body-custom">
+                <p class="mb-3">
+                    Menampilkan data alumni yang memilih jawaban:
+                    <span class="fw-bold"><?= esc($opsi) ?></span>
+                </p>
+
+                <?php if (!empty($alumni)): ?>
+                    <div class="table-container">
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:5%;">#</th>
+                                        <th>Nama</th>
+                                        <th>NIM</th>
+                                        <th>Jurusan</th>
+                                        <th>Program Studi</th>
+                                        <th>Angkatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $no = 1; ?>
+                                    <?php foreach ($alumni as $a): ?>
+                                        <tr>
+                                            <td>
+                                                <span class="row-number"><?= $no++ ?></span>
+                                            </td>
+                                            <td>
+                                                <div class="user-info">
+                                                    <div class="user-avatar">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                    <div class="user-name"><?= esc($a['nama']) ?></div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="nim-badge"><?= esc($a['nim']) ?></span>
+                                            </td>
+                                            <td>
+                                                <span class="jurusan-text"><?= esc($a['jurusan']) ?></span>
+                                            </td>
+                                            <td>
+                                                <span class="prodi-text"><?= esc($a['prodi']) ?></span>
+                                            </td>
+                                            <td>
+                                                <span class="angkatan-badge"><?= esc($a['angkatan']) ?></span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <div class="empty-content">
+                            <i class="fas fa-user-slash"></i>
+                            <h3 class="empty-state-title">Belum Ada Alumni</h3>
+                            <p class="empty-state-description">Belum ada alumni yang memilih jawaban ini.</p>
+                        </div>
+                    </div>
+                <?php endif ?>
+            </div>
         </div>
     </div>
 </div>

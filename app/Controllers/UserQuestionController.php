@@ -280,7 +280,7 @@ class UserQuestionController extends BaseController
         // Check status with proper mapping
         $internalStatus = $this->answerModel->getStatus($q_id, $userId);
         $viewStatus = $this->mapStatusForView($internalStatus, $q_id, $userId);
-        
+
         log_message('debug', '[mulai] Status check - Internal: ' . $internalStatus . ', View: ' . $viewStatus);
         
         if ($viewStatus === 'Finish') {
@@ -296,7 +296,8 @@ class UserQuestionController extends BaseController
 
         if (empty($structure['pages'])) {
             log_message('warning', '[mulai] No pages available for questionnaire ' . $q_id);
-            return view('alumni/questioner/error', ['message' => 'Tidak ada pertanyaan yang tersedia untuk Anda.']);
+            session()->setFlashdata('no_questions_available', true);
+            return redirect()->to('alumni/questionnaires');
         }
 
         $progress = $this->calculateLogicalProgressForUser($structure, $previous_answers);
