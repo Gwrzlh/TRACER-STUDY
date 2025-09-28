@@ -37,6 +37,14 @@ class QuestionnairePageModel extends Model
 
         return $builder->get()->getResultArray();
     }
+    public function GetNextOrderNo_page($questionnaire_id)
+    {
+        $lastOrder = $this->where('questionnaire_id', $questionnaire_id)
+                          ->selectMax('order_no')
+                          ->first();
+
+        return $lastOrder ? $lastOrder['order_no'] + 1 : 1;
+    }
 
 
     // Dates

@@ -193,6 +193,7 @@ $routes->group('laporan', function ($routes) {
         $routes->get('(:num)/delete', 'QuestionnairController::delete/$1');
         $routes->post('(:num)/toggle-status', 'QuestionnairController::toggleStatus/$1');
         $routes->get('(:num)/preview', 'QuestionnairController::preview/$1');
+        $routes->get('(:num)/download-pdf', 'QuestionnairController::downloadPDF/$1');
         $routes->get('pages/getQuestionOptions', 'QuestionnairePageController::getQuestionOptions');
     });
 

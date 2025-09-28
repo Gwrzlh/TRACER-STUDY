@@ -31,7 +31,7 @@
         <!-- Urutan -->
         <div>
             <label class="block font-medium mb-1">Urutan</label>
-            <input type="number" name="order_no" value="1" min="1" required
+            <input type="number" name="order_no" value="<?= old('order_no', $pageOrderNo) ?>" min="1" required
                 class="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-300 focus:outline-none">
         </div>
 
