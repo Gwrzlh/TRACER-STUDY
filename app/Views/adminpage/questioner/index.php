@@ -81,6 +81,12 @@
                                         </td>
                                         <td class="action-cell">
                                             <div class="action-buttons">
+                                                   <!-- downloadPDF -->
+                                                <a href="<?= base_url('admin/questionnaire/' . $q['id'] . '/download-pdf') ?>"
+                                                    class="btn-action btn-download"
+                                                    title="Download PDF">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </a>
                                                 <!-- Kelola Halaman -->
                                                 <a href="<?= base_url('admin/questionnaire/' . $q['id'] . '/pages') ?>"
                                                     class="btn-action btn-edit"
