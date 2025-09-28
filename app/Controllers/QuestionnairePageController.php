@@ -35,8 +35,8 @@ class QuestionnairePageController extends BaseController
         $questionnaire = $questionnaireModel->find($questionnaire_id);
 
         return view('adminpage/questioner/page/index', [
-            'pages' => $pages, // Sekarang akan kosong jika belum ada halaman sama sekali
-            'questionnaire' => $questionnaire
+            'pages' => $pages, // Jika kuesioner baru, $pages = []
+            'questionnaire' => $questionnaire,
         ]);
     }
 
@@ -47,6 +47,8 @@ class QuestionnairePageController extends BaseController
     public function create($questionnaire_id)
     {
         // Ambil semua pertanyaan untuk dropdown conditional logic
+        $pageModel = new QuestionnairePageModel();
+        $pageOrderNo = $pageModel->GetNextOrderNo_page($questionnaire_id);
         $questionModel = new QuestionModel();
         $questions = $questionModel->where('questionnaires_id', $questionnaire_id)->findAll();
 
@@ -62,7 +64,9 @@ class QuestionnairePageController extends BaseController
         return view('adminpage/questioner/page/create', [
             'questionnaire_id' => $questionnaire_id,
             'questions' => $questions,
-            'operators' => $operators
+            'operators' => $operators,
+            'pageOrderNo' => $pageOrderNo,
+
         ]);
     }
 
@@ -296,4 +300,5 @@ class QuestionnairePageController extends BaseController
             'options' => $formatted_options
         ]);
     }
+    
 }
