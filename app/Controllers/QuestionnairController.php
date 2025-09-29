@@ -583,7 +583,7 @@ class QuestionnairController extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'User field name is required for user_field type']]);
             }
             // Validate against available fields (hardcoded for simplicity)
-            $availableFields = ['nama_lengkap', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
+            $availableFields = ['nama_lengkap','email', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
             if (!in_array($userFieldName, $availableFields)) {
                 return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'Invalid user field name']]);
             }

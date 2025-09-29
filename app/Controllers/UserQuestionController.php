@@ -17,12 +17,15 @@ use App\Models\Provincies;
 use App\Models\Cities;
 
 
+
 class UserQuestionController extends BaseController
 {
     protected $questionnaireModel;
     protected $answerModel;
     protected $conditionModel;
     protected $logActivityModel;
+    protected $accountModel;
+    protected $detailAccountAlumniModel;
 
     public function __construct()
     {
@@ -30,6 +33,8 @@ class UserQuestionController extends BaseController
         $this->answerModel = new AnswerModel();
         $this->conditionModel = new QuestionnairConditionModel();
         $this->logActivityModel = new LogActivityModel();
+        $this->accountModel = new AccountModel();
+        $this->detailAccountAlumniModel = new DetailaccountAlumni();
     }
 
     /**
@@ -166,69 +171,65 @@ class UserQuestionController extends BaseController
     /**
      * ENHANCED: Mulai isi kuesioner dengan better debugging
      */
-   public function mulai($q_id)
+    public function mulai($q_id)
     {
         if (!session()->get('logged_in')) {
             return redirect()->to('/login');
         }
 
+        // Ambil user ID dari session (konsisten dengan id_account)
         $userId = session()->get('id_account');
-        $detailModel = new DetailaccountAlumni();
+        $userData = session()->get();
+
+        // Inisialisasi model
         $jurusanModel = new Jurusan();
         $prodiModel = new Prodi();
         $provinciesModel = new Provincies();
         $citiesModel = new Cities();
 
-        $userProfile = $detailModel->where('id_account', $userId)->first() ?? [];
+        // Ambil data user dari tabel account dan detailaccount_alumni
+        $userAccount = $this->accountModel->find($userId);
+        $userDetail = $this->detailAccountAlumniModel->where('id_account', $userId)->first() ?? [];
 
-        $userProfileDisplay = $userProfile;
+        // Siapkan data profil pengguna
+        $userProfile = $userDetail; // Mulai dengan data dari detailaccount_alumni
+        $userProfileDisplay = $userDetail;
+
+        // Tambahkan email dari tabel account
+        if ($userAccount) {
+            $userProfile['email'] = $userAccount['email'];
+            $userProfileDisplay['email'] = $userAccount['email']; // Nilai display sama dengan aslinya untuk non-foreign key
+        } else {
+            log_message('warning', '[mulai] User account not found for ID: ' . $userId);
+            $userProfile['email'] = ''; // Fallback untuk menghindari error
+            $userProfileDisplay['email'] = ''; // Fallback
+        }
+
+        // Proses display value untuk foreign key (jurusan, cities, dll.)
         if (!empty($userProfile['id_jurusan'])) {
             $jurusan = $jurusanModel->find($userProfile['id_jurusan']);
-            $userProfileDisplay['id_jurusan_name'] = $jurusan['nama_jurusan'] ?? 'Unknown';
+            $userProfileDisplay['id_jurusan_name'] = $jurusan['nama_jurusan'] ?? 'Tidak diketahui';
         }
         if (!empty($userProfile['id_cities'])) {
             $city = $citiesModel->find($userProfile['id_cities']);
-            $userProfileDisplay['id_cities_name'] = $city['name'] ?? 'Unknown';
+            $userProfileDisplay['id_cities_name'] = $city['name'] ?? 'Tidak diketahui';
         }
         if (!empty($userProfile['id_prodi'])) {
             $prodi = $prodiModel->find($userProfile['id_prodi']);
-            $userProfileDisplay['id_prodi_name'] = $prodi['nama_prodi'] ?? 'Unknown';
+            $userProfileDisplay['id_prodi_name'] = $prodi['nama_prodi'] ?? 'Tidak diketahui';
         }
         if (!empty($userProfile['id_provinsi'])) {
             $provinsi = $provinciesModel->find($userProfile['id_provinsi']);
-            $userProfileDisplay['id_provinsi_name'] = $provinsi['name'] ?? 'Unknown';
+            $userProfileDisplay['id_provinsi_name'] = $provinsi['name'] ?? 'Tidak diketahui';
         }
 
+        // Ambil opsi untuk foreign key
         $jurusanOptions = $jurusanModel->findAll();
         $citiesOptions = $citiesModel->findAll();
         $prodiOptions = $prodiModel->findAll();
         $provinsiOptions = $provinciesModel->findAll();
 
-        $userId = session()->get('id');
-        $userData = session()->get();
-        $q_id = (int)$q_id;
-
-        log_message('debug', '[mulai] Starting questionnaire ' . $q_id . ' for user ' . $userId);
-        log_message('debug', '[mulai] UserData: ' . print_r($userData, true));
-
-        // NEW: Check if we should show announcement
-        $showAnnouncement = $this->request->getGet('show_announcement') === '1' || session()->getFlashdata('show_announcement');
-        $announcementContent = session()->getFlashdata('announcement_content');
-        $questionnaireTitle = session()->getFlashdata('questionnaire_title');
-        
-        if ($showAnnouncement && !empty($announcementContent)) {
-            log_message('debug', '[mulai] Showing announcement for questionnaire ' . $q_id);
-            
-            // Clean and sanitize HTML content from TinyMCE
-            $cleanedContent = $this->sanitizeAnnouncementContent($announcementContent);
-            
-            return view('alumni/questioner/announcement', [
-                'q_id' => $q_id,
-                'questionnaire_title' => $questionnaireTitle,
-                'announcement_content' => $cleanedContent
-            ]);
-        }
-
+        // Mapping friendly names dan types (termasuk email)
         $fieldFriendlyNames = [
             'nama_lengkap' => 'Nama Lengkap',
             'nim' => 'NIM',
@@ -244,7 +245,9 @@ class UserQuestionController extends BaseController
             'notlp' => 'No. Telepon',
             'id_provinsi' => 'ID Provinsi',
             'id_cities' => 'ID Kota',
+            'email' => 'Email',
         ];
+
         $fieldTypes = [
             'nama_lengkap' => 'text',
             'id_jurusan' => 'foreign_key:jurusan',
@@ -260,7 +263,33 @@ class UserQuestionController extends BaseController
             'kodepos' => 'number',
             'notlp' => 'text',
             'nim' => 'number',
+            'email' => 'email',
         ];
+
+        $q_id = (int)$q_id;
+
+        log_message('debug', '[mulai] Starting questionnaire ' . $q_id . ' for user ' . $userId);
+        log_message('debug', '[mulai] UserData: ' . print_r($userData, true));
+        log_message('debug', '[mulai] UserProfile: ' . print_r($userProfile, true));
+        log_message('debug', '[mulai] UserProfileDisplay: ' . print_r($userProfileDisplay, true));
+
+        // Check if we should show announcement
+        $showAnnouncement = $this->request->getGet('show_announcement') === '1' || session()->getFlashdata('show_announcement');
+        $announcementContent = session()->getFlashdata('announcement_content');
+        $questionnaireTitle = session()->getFlashdata('questionnaire_title');
+
+        if ($showAnnouncement && !empty($announcementContent)) {
+            log_message('debug', '[mulai] Showing announcement for questionnaire ' . $q_id);
+
+            // Clean and sanitize HTML content from TinyMCE
+            $cleanedContent = $this->sanitizeAnnouncementContent($announcementContent);
+
+            return view('alumni/questioner/announcement', [
+                'q_id' => $q_id,
+                'questionnaire_title' => $questionnaireTitle,
+                'announcement_content' => $cleanedContent
+            ]);
+        }
 
         $questionnaire = $this->questionnaireModel->find($q_id);
         if (!$questionnaire) {
@@ -271,7 +300,7 @@ class UserQuestionController extends BaseController
         // Enhanced access check with debugging
         $hasAccess = $this->questionnaireModel->checkConditions($questionnaire['conditional_logic'] ?? '', $userData);
         log_message('debug', '[mulai] Access check result: ' . ($hasAccess ? 'GRANTED' : 'DENIED'));
-        
+
         if (!$hasAccess) {
             log_message('warning', '[mulai] Access denied for questionnaire ' . $q_id . ' user ' . $userId);
             return redirect()->back()->with('error', 'Anda tidak memiliki akses ke kuesioner ini.');
@@ -282,7 +311,7 @@ class UserQuestionController extends BaseController
         $viewStatus = $this->mapStatusForView($internalStatus, $q_id, $userId);
 
         log_message('debug', '[mulai] Status check - Internal: ' . $internalStatus . ', View: ' . $viewStatus);
-        
+
         if ($viewStatus === 'Finish') {
             return redirect()->to("/alumni/questioner/lihat/$q_id");
         }
@@ -313,10 +342,10 @@ class UserQuestionController extends BaseController
             'previous_answers' => $previous_answers,
             'user_profile'     => $userProfile,
             'field_friendly_names' => $fieldFriendlyNames,
-            'field_types' => $fieldTypes,
-            'jurusan_options' => $jurusanOptions,
-            'cities_options' => $citiesOptions,
-            'prodi_options' => $prodiOptions,
+            'field_types'      => $fieldTypes,
+            'jurusan_options'  => $jurusanOptions,
+            'cities_options'   => $citiesOptions,
+            'prodi_options'    => $prodiOptions,
             'provinsi_options' => $provinsiOptions,
             'user_profile_display' => $userProfileDisplay,
         ]);

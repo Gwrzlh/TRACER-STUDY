@@ -140,6 +140,7 @@
                                         'notlp' => 'No. Telepon',
                                         'id_provinsi' => 'ID Provinsi',
                                         'id_cities' => 'ID Kota',
+                                        'email' => 'Email',
                                     ];
                                     foreach ($fieldFriendlyNames as $field => $name): ?>
                                         <option value="<?= esc($field) ?>"><?= esc($name) ?></option>
