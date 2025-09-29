@@ -3,7 +3,12 @@
 
 <div class="container mt-4">
     <h3>Detail Jawaban Alumni</h3>
-    <a href="<?= base_url('admin/respon') ?>" class="btn btn-secondary mb-3">← Kembali</a>
+    <a href="<?= base_url('admin/respon') ?>" class="btn btn-secondary mb-3">Kembali</a>
+    <a href="<?= base_url('admin/respon/exportPdf/' . $response['id']) ?>"
+        class="btn btn-danger mb-3" target="_blank">
+        Download PDF
+    </a>
+
 
     <div class="card mb-3">
         <?php foreach ($structure['pages'] as $page): ?>
