@@ -15,6 +15,7 @@
     <form action="<?= base_url('admin/profil/update/' . $admin['id']) ?>" method="post">
         <?= csrf_field() ?>
         
+        <!-- Nama Lengkap -->
         <div class="mb-4">
             <label class="block font-medium">Nama Lengkap</label>
             <input type="text" name="nama_lengkap" 
@@ -22,6 +23,23 @@
                    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-300">
         </div>
 
+        <!-- Username -->
+        <div class="mb-4">
+            <label class="block font-medium">Username</label>
+            <input type="text" name="username" 
+                   value="<?= old('username', $admin['username'] ?? '') ?>"
+                   class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-300">
+        </div>
+
+        <!-- Email -->
+        <div class="mb-4">
+            <label class="block font-medium">Email</label>
+            <input type="email" name="email" 
+                   value="<?= old('email', $admin['email'] ?? '') ?>"
+                   class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-300">
+        </div>
+
+        <!-- No HP -->
         <div class="mb-4">
             <label class="block font-medium">Nomor Telepon / WhatsApp</label>
             <input type="text" name="no_hp" 
@@ -29,6 +47,7 @@
                    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-300">
         </div>
 
+        <!-- Tombol -->
         <div class="flex justify-end gap-2">
             <a href="<?= base_url('admin/profil') ?>" 
                class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Batal</a>
