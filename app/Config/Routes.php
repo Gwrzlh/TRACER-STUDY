@@ -99,13 +99,13 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('delete/(:num)', 'TipeOrganisasiController::delete/$1');
     });
 
-   // --- Tentang (Landing Page) ---
-$routes->get('tentang', 'Tentang::index');
-$routes->get('event', 'Tentang::event');
+    // --- Tentang (Landing Page) ---
+    $routes->get('tentang', 'Tentang::index');
+    $routes->get('event', 'Tentang::event');
 
-// --- Tentang (Admin) ---
-$routes->get('admin/tentang/edit', 'Tentang::edit');
-$routes->post('admin/tentang/update', 'Tentang::update');
+    // --- Tentang (Admin) ---
+    $routes->get('admin/tentang/edit', 'Tentang::edit');
+    $routes->post('admin/tentang/update', 'Tentang::update');
 
 
     // Tipe Organisasi
@@ -144,8 +144,8 @@ $routes->post('admin/tentang/update', 'Tentang::update');
     });
 
 
-// --- Perusahaan ---
-$routes->get('perusahaan/dashboard', 'PerusahaanController::dashboard');
+    // --- Perusahaan ---
+    $routes->get('perusahaan/dashboard', 'PerusahaanController::dashboard');
 
 
 
@@ -154,17 +154,17 @@ $routes->get('perusahaan/dashboard', 'PerusahaanController::dashboard');
     $routes->get('tentang/edit', 'Tentang::edit');
     $routes->post('tentang/update', 'Tentang::update');
 
-   // Laporan
-$routes->group('laporan', function ($routes) {
-    $routes->get('', 'AdminLaporan::index');
-    $routes->get('create', 'AdminLaporan::create');
-    $routes->post('save', 'AdminLaporan::save');
-    $routes->get('edit/(:num)', 'AdminLaporan::edit/$1');
-    $routes->post('update/(:num)', 'AdminLaporan::update/$1');
+    // Laporan
+    $routes->group('laporan', function ($routes) {
+        $routes->get('', 'AdminLaporan::index');
+        $routes->get('create', 'AdminLaporan::create');
+        $routes->post('save', 'AdminLaporan::save');
+        $routes->get('edit/(:num)', 'AdminLaporan::edit/$1');
+        $routes->post('update/(:num)', 'AdminLaporan::update/$1');
 
-    // Tambahkan route DELETE (dipanggil via POST dari frontend)
-    $routes->post('delete/(:num)', 'AdminLaporan::delete/$1');
-});
+        // Tambahkan route DELETE (dipanggil via POST dari frontend)
+        $routes->post('delete/(:num)', 'AdminLaporan::delete/$1');
+    });
 
 
     // $routes->group('respon', function ($routes) {
@@ -456,6 +456,8 @@ $routes->group('admin/respon', ['filter' => 'adminAuth'], function ($routes) {
     // Tambahan baru
     $routes->get('grafik', 'AdminRespon::grafik');           // untuk tombol "Grafik"
     $routes->get('detail/(:num)', 'AdminRespon::detail/$1'); // untuk tombol "Jawaban"
+    // Tambahan PDF
+    $routes->get('exportPdf/(:num)', 'AdminRespon::exportPdf/$1');
 });
 
 
