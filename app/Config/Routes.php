@@ -560,8 +560,8 @@ $routes->group('admin/profil', ['filter' => 'auth'], function ($routes) {
     $routes->post('update-foto/(:num)', 'AdminController::updateFoto/$1');
 
     // ubah password (kalau ada)
-    $routes->get('ubah-password', 'AdminController::ubahPassword');
-    $routes->post('ubah-password', 'AdminController::updatePassword');
+     $routes->get('ubah-password', 'AdminController::ubahPassword');
+    $routes->post('update-password', 'AdminController::updatePassword');
 });
 
 $routes->group('perusahaan', ['filter' => 'perusahaanAuth'], function ($routes) {
