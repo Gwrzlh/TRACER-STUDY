@@ -238,6 +238,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('(:num)/delete', 'SectionController::delete/$1/$2/$3');
         $routes->post('(:num)/moveDown', 'SectionController::moveDown/$1/$2/$3');
         $routes->post('(:num)/moveUp', 'SectionController::moveUp/$1/$2/$3');
+        $routes->post('(:num)/duplicate', 'SectionController::duplicate/$1/$2/$3');
 
         // Questions per section
 
