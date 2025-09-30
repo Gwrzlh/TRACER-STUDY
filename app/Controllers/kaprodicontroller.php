@@ -137,9 +137,9 @@ class KaprodiController extends Controller
         $idAccount = session()->get('id_account');
         $data = [];
 
-        // // Update nama lengkap dan notlp
-        // $data['nama_lengkap'] = $this->request->getPost('nama_lengkap');
-        // $data['notlp']        = $this->request->getPost('notlp');
+        // Update nama lengkap dan notlp
+        $data['nama_lengkap'] = $this->request->getPost('nama_lengkap');
+        $data['notlp']        = $this->request->getPost('notlp');
 
         // Upload file manual
         $file = $this->request->getFile('foto');

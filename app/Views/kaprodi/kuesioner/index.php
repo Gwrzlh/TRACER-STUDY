@@ -27,7 +27,6 @@
                             <tr>
                                 <th>Title</th>
                                 <th>Deskripsi</th>
-                                <th>Conditional</th>
                                 <th>Status</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
@@ -37,13 +36,6 @@
                                 <tr>
                                     <td><?= esc($q['title']) ?></td>
                                     <td><?= esc($q['deskripsi']) ?></td>
-                                    <td>
-                                        <?php if ($q['conditional_logic']): ?>
-                                            <span class="status-badge status-active">Ya</span>
-                                        <?php else: ?>
-                                            <span class="status-badge status-inactive">Tidak</span>
-                                        <?php endif; ?>
-                                    </td>
                                     <td>
                                         <?php if ($q['is_active'] === 'active'): ?>
                                             <span class="status-badge status-active">Aktif</span>
