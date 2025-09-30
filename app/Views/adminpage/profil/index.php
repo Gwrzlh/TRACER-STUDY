@@ -3,6 +3,7 @@
 
 <?= $this->section('content') ?>
 <link rel="stylesheet" href="<?= base_url('css/profil.css') ?>">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Profil Admin -->
 <div class="profile-container">
@@ -48,7 +49,7 @@
       <p>
         <strong>Nomor Telepon / WhatsApp :</strong> <span><?= esc($hp) ?></span>
         <?php if ($hp_note): ?>
-          <span class="dummy-note">(nomor dummy — belum ada data di DB)</span>
+          <span class="dummy-note"></span>
         <?php endif ?>
       </p>
 
@@ -173,5 +174,30 @@
     fotoPreview.addEventListener('click', openModal);
   });
 </script>
+
+<!-- SweetAlert untuk flashdata (ubah password) -->
+<?php if (session()->getFlashdata('success')): ?>
+<script>
+Swal.fire({
+  icon: 'success',
+  title: 'Berhasil!',
+  text: '<?= session()->getFlashdata('success') ?>',
+  confirmButtonColor: '#3085d6',
+  timer: 2000,
+  timerProgressBar: true
+});
+</script>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('error')): ?>
+<script>
+Swal.fire({
+  icon: 'error',
+  title: 'Oops...',
+  text: '<?= session()->getFlashdata('error') ?>',
+  confirmButtonColor: '#d33'
+});
+</script>
+<?php endif; ?>
 
 <?= $this->endSection() ?>
