@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Controllers\Admin;
-use App\Controllers\BaseController;
 
+use App\Controllers\BaseController;
 use App\Models\LandingPage\WelcomePageModel;
 
 class AdminWelcomePage extends BaseController

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
@@ -151,4 +152,105 @@ class AdminController extends BaseController
 
         return view('adminpage/dashboard', $data);
     }
+   
+public function profil()
+{
+    $accountModel = new Accounts();
+    $detailAdminModel = new DetailaccountAdmins();
+
+    $id = session()->get('id_account');
+
+    // Join account + detailaccount_admin
+    $admin = $accountModel
+        ->select('account.*, detailaccount_admin.nama_lengkap, detailaccount_admin.no_hp')
+        ->join('detailaccount_admin', 'detailaccount_admin.id_account = account.id', 'left')
+        ->where('account.id', $id)
+        ->first();
+
+    return view('adminpage/profil/index', [
+        'title' => 'Profil Admin',
+        'admin' => $admin
+    ]);
+}
+
+public function updateFoto($id)
+{
+    $accountModel = new Accounts();
+
+    $file = $this->request->getFile('foto');
+    if ($file && $file->isValid() && !$file->hasMoved()) {
+        $newName = $file->getRandomName();
+        $file->move(FCPATH . 'uploads/foto_admin', $newName);
+
+        // update database
+        $accountModel->update($id, [
+            'foto' => $newName
+        ]);
+
+        // update session juga supaya sidebar langsung ikut berubah
+        session()->set('foto', $newName);
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'fotoUrl' => base_url('uploads/foto_admin/' . $newName)
+        ]);
+    }
+
+    return $this->response->setJSON([
+        'status' => 'error',
+        'message' => 'File tidak valid atau gagal diupload.'
+    ]);
+}
+public function editProfil($id)
+{
+    // Cek biar admin hanya bisa edit profilnya sendiri
+    if (session()->get('id_account') != $id) {
+        return redirect()->to('/admin/profil')->with('error', 'Tidak boleh edit profil orang lain.');
+    }
+
+    $accountModel = new Accounts();
+
+    // join dengan detailaccount_admin
+    $admin = $accountModel
+        ->select('account.*, detailaccount_admin.nama_lengkap, detailaccount_admin.no_hp')
+        ->join('detailaccount_admin', 'detailaccount_admin.id_account = account.id', 'left')
+        ->where('account.id', $id)
+        ->first();
+
+    return view('adminpage/profil/edit', [
+        'title' => 'Edit Profil Admin',
+        'admin' => $admin
+    ]);
+}
+
+public function updateProfil($id)
+{
+    if (session()->get('id_account') != $id) {
+        return redirect()->to('/admin/profil')->with('error', 'Tidak boleh update profil orang lain.');
+    }
+
+    $detailAdminModel = new DetailaccountAdmins();
+
+    $rules = [
+        'nama_lengkap' => 'required|min_length[3]',
+        'no_hp'        => 'required|min_length[10]|max_length[20]'
+    ];
+
+    if (!$this->validate($rules)) {
+        return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+    }
+
+    // ✅ update data di tabel detailaccount_admin
+    $detailAdminModel
+        ->where('id_account', $id)
+        ->update(null, [
+            'nama_lengkap' => $this->request->getPost('nama_lengkap'),
+            'no_hp'        => $this->request->getPost('no_hp')
+        ]);
+
+    return redirect()->to('/admin/profil')->with('success', 'Profil berhasil diperbarui');
+}
+
+
+
 }

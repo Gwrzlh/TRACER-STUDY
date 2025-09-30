@@ -7,33 +7,49 @@ use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\Questionnaire\QuestionnairePageModel;
 use App\Models\Questionnaire\QuestionnairModel;
 use App\Models\Questionnaire\QuestionModel; // Tambahkan model pertanyaan
-use App\Models\Questionnaire\QuestionOptionModel; 
-use App\Models\Organisasi\SectionModel;
+use App\Models\Questionnaire\QuestionOptionModel;
+use App\Models\Questionnaire\SectionModel;
+use App\Models\Support\MatrixColumnModels;
+use App\Models\Support\MatrixRowModel;
+use App\Models\Questionnaire\AnswerModel;
+use App\Models\Questionnaire\ResponseModel;
 
 class QuestionnairePageController extends BaseController
 {
     public function index($questionnaire_id)
     {
         $pageModel = new QuestionnairePageModel();
-        $pages = $pageModel->where('questionnaire_id', $questionnaire_id)
-                           ->orderBy('order_no', 'ASC')
-                           ->findAll();
+
+        // Ambil halaman sesuai questionnaire_id, urutkan berdasarkan order_no
+        $pages = $pageModel
+            ->where('questionnaire_id', $questionnaire_id)
+            ->orderBy('order_no', 'ASC')
+            ->findAll();
+
+        // Jika kuesioner baru dan belum ada halaman sama sekali, tetap tampilkan array kosong
+        if (!$pages) {
+            $pages = [];
+        }
 
         $questionnaireModel = new QuestionnairModel();
         $questionnaire = $questionnaireModel->find($questionnaire_id);
 
         return view('adminpage/questioner/page/index', [
-            'pages' => $pages,
+            'pages' => $pages, // Sekarang akan kosong jika belum ada halaman sama sekali
             'questionnaire' => $questionnaire
         ]);
     }
+
+
+
+
 
     public function create($questionnaire_id)
     {
         // Ambil semua pertanyaan untuk dropdown conditional logic
         $questionModel = new QuestionModel();
         $questions = $questionModel->where('questionnaires_id', $questionnaire_id)->findAll();
-        
+
         $operators = [
             'is' => 'Is',
             'is_not' => 'Is Not',
@@ -52,82 +68,91 @@ class QuestionnairePageController extends BaseController
 
     public function store($questionnaire_id)
     {
-          $pageModel = new QuestionnairePageModel();
-    $conditionalLogicEnabled = $this->request->getPost('conditional_logic');
-    $conditionalLogic = null;
+        $pageModel = new QuestionnairePageModel();
+        $conditionalLogicEnabled = $this->request->getPost('conditional_logic');
+        $conditionalLogic = null;
 
-    if ($conditionalLogicEnabled) {
-        $logic_type = $this->request->getPost('logic_type');
-        $conditionQuestionIds = $this->request->getPost('condition_question_id');
-        $operators = $this->request->getPost('operator');
-        $conditionValues = $this->request->getPost('condition_value');
+        if ($conditionalLogicEnabled) {
+            $logic_type = $this->request->getPost('logic_type');
+            $conditionQuestionIds = $this->request->getPost('condition_question_id') ?? [];
+            $operators = $this->request->getPost('operator') ?? [];
+            $conditionValues = $this->request->getPost('condition_value') ?? [];
+            $optionModel = new QuestionOptionModel();
 
-        $conditions = [];
-        for ($i = 0; $i < count($conditionQuestionIds); $i++) {
-            if (!empty($conditionQuestionIds[$i])) {
-                $conditions[] = [
-                    'question_id' => $conditionQuestionIds[$i],
-                    'operator' => $operators[$i],
-                    'value' => $conditionValues[$i]
-                ];
+            $conditions = [];
+            for ($i = 0; $i < count($conditionQuestionIds); $i++) {
+                if (!empty($conditionQuestionIds[$i]) && !empty($operators[$i]) && isset($conditionValues[$i])) {
+                    $value = $conditionValues[$i];
+                    // Translate option ID ke option_text
+                    if (preg_match('/^\d+$/', $value)) {
+                        $option = $optionModel->where(['question_id' => $conditionQuestionIds[$i], 'id' => $value])->first();
+                        $value = $option ? $option['option_text'] : $value;
+                        log_message('debug', "[QuestionnairePageController::store] Translated option ID $conditionValues[$i] to text: $value");
+                    }
+                    $conditions[] = [
+                        'field' => $conditionQuestionIds[$i], // Ganti question_id jadi field
+                        'operator' => $operators[$i],
+                        'value' => $value
+                    ];
+                }
+            }
+
+            if (!empty($conditions)) {
+                $conditionalLogic = json_encode([
+                    'logic_type' => $logic_type,
+                    'conditions' => $conditions
+                ]);
             }
         }
-        
-        if (!empty($conditions)) {
-            $conditionalLogic = json_encode([
-                'logic_type' => $logic_type,
-                'conditions' => $conditions
-            ]);
-        }
-    }
-    
-    $pageModel->insert([
-        'questionnaire_id' => $questionnaire_id,
-        'page_title' => $this->request->getPost('title'),
-        'page_description' => $this->request->getPost('description'),
-        'order_no' => $this->request->getPost('order_no'),
-        'conditional_logic' => $conditionalLogic,
-        'created_at' => date('Y-m-d H:i:s')
-    ]);
+
+        $pageModel->insert([
+            'questionnaire_id' => $questionnaire_id,
+            'page_title' => $this->request->getPost('title'),
+            'page_description' => $this->request->getPost('description'),
+            'order_no' => $this->request->getPost('order_no'),
+            'conditional_logic' => $conditionalLogic,
+            'created_by' => session()->get('id'), // Tambahkan ini
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
 
         return redirect()->to("/admin/questionnaire/{$questionnaire_id}/pages")
-                         ->with('success', 'Halaman berhasil ditambahkan.');
+            ->with('success', 'Halaman berhasil ditambahkan.');
     }
 
     public function edit($questionnaire_id, $page_id)
     {
-            $pageModel = new QuestionnairePageModel();
-            $page = $pageModel->find($page_id);
+        $pageModel = new QuestionnairePageModel();
+        $page = $pageModel->find($page_id);
 
-            if (!$page) {
-                throw new \CodeIgniter\Exceptions\PageNotFoundException('Page not found');
-            }
-
-            $questionModel = new QuestionModel();
-            $questions = $questionModel->where('questionnaires_id', $questionnaire_id)->findAll();
-
-            $operators = [
-                'is' => 'Is',
-                'is_not' => 'Is Not',
-                'contains' => 'Contains',
-                'not_contains' => 'Not Contains',
-                'greater' => 'Greater Than',
-                'less' => 'Less Than'
-            ];
-
-            $conditionalLogic = [];
-            if ($page['conditional_logic']) {
-                $conditionalLogic = json_decode($page['conditional_logic'], true) ?? [];
-            }
-
-            return view('adminpage/questioner/page/edit', [
-                'page' => $page,
-                'questionnaire_id' => $questionnaire_id,
-                'questions' => $questions,
-                'operators' => $operators,
-                'conditionalLogic' => $conditionalLogic
-            ]);
+        if (!$page) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Page not found');
         }
+
+        $questionModel = new QuestionModel();
+        $questions = $questionModel->where('questionnaires_id', $questionnaire_id)->findAll();
+
+        $operators = [
+            'is' => 'Is',
+            'is_not' => 'Is Not',
+            'contains' => 'Contains',
+            'not_contains' => 'Not Contains',
+            'greater' => 'Greater Than',
+            'less' => 'Less Than'
+        ];
+
+        $conditionalLogic = [];
+        if ($page['conditional_logic']) {
+            $conditionalLogic = json_decode($page['conditional_logic'], true) ?? [];
+        }
+
+        return view('adminpage/questioner/page/edit', [
+            'page' => $page,
+            'questionnaire_id' => $questionnaire_id,
+            'questions' => $questions,
+            'operators' => $operators,
+            'conditionalLogic' => $conditionalLogic
+        ]);
+    }
 
     public function update($questionnaire_id, $page_id)
     {
@@ -139,14 +164,22 @@ class QuestionnairePageController extends BaseController
             $conditionQuestionIds = $this->request->getPost('condition_question_id') ?? [];
             $operators = $this->request->getPost('operator') ?? [];
             $conditionValues = $this->request->getPost('condition_value') ?? [];
+            $optionModel = new QuestionOptionModel();
 
             $conditions = [];
             for ($i = 0; $i < count($conditionQuestionIds); $i++) {
                 if (!empty($conditionQuestionIds[$i]) && !empty($operators[$i]) && isset($conditionValues[$i])) {
+                    $value = $conditionValues[$i];
+                    // Translate option ID ke option_text
+                    if (preg_match('/^\d+$/', $value)) {
+                        $option = $optionModel->where(['question_id' => $conditionQuestionIds[$i], 'id' => $value])->first();
+                        $value = $option ? $option['option_text'] : $value;
+                        log_message('debug', "[QuestionnairePageController::update] Translated option ID $conditionValues[$i] to text: $value");
+                    }
                     $conditions[] = [
-                        'question_id' => $conditionQuestionIds[$i],
+                        'field' => $conditionQuestionIds[$i], // Ganti question_id jadi field
                         'operator' => $operators[$i],
-                        'value' => $conditionValues[$i]
+                        'value' => $value
                     ];
                 }
             }
@@ -165,32 +198,47 @@ class QuestionnairePageController extends BaseController
         ]);
 
         return redirect()->to("/admin/questionnaire/{$questionnaire_id}/pages")
-                        ->with('success', 'Halaman berhasil diperbarui.');
+            ->with('success', 'Halaman berhasil diperbarui.');
     }
 
     public function delete($questionnaire_id, $page_id)
     {
+        $pageModel         = new QuestionnairePageModel();
+        $sectionModel      = new SectionModel();
+        $questionModel     = new QuestionModel();
+        $optionModel       = new QuestionOptionModel();
+        $matrixRowModel    = new MatrixRowModel();
+        $matrixColumnModel = new MatrixColumnModels();
+        $answerModel       = new AnswerModel();
+        $responseModel     = new ResponseModel(); // Hapus responses terkait questionnaire
 
-        // $questionnaireModel = new QuestionnairModel();
-        $pageModel = new QuestionnairePageModel();
-        $sectionModel = new SectionModel();
-        $questionModel = new QuestionModel();
-        $optionModel = new QuestionOptionModel();
+        // Hapus semua responses terkait questionnaire
+        $responseModel->where('questionnaire_id', $questionnaire_id)->delete();
 
-       $questionOp = $questionModel->where('page_id', $page_id)->findAll();
-        foreach ($questionOp as $q) {
+        // Ambil semua pertanyaan di page
+        $questions = $questionModel->where('page_id', $page_id)->findAll();
+
+        foreach ($questions as $q) {
+            $answerModel->where('question_id', $q['id'])->delete();
             $optionModel->where('question_id', $q['id'])->delete();
+            $matrixRowModel->where('question_id', $q['id'])->delete();
+            $matrixColumnModel->where('question_id', $q['id'])->delete();
         }
 
+        // Hapus pertanyaan di page
         $questionModel->where('page_id', $page_id)->delete();
-        
+
+        // Hapus sections di page
         $sectionModel->where('page_id', $page_id)->delete();
 
+        // Terakhir hapus page
         $pageModel->delete($page_id);
 
         return redirect()->to("/admin/questionnaire/{$questionnaire_id}/pages")
-                         ->with('success', 'Halaman berhasil dihapus.');
+            ->with('success', 'Page beserta semua relasinya berhasil dihapus.');
     }
+
+
 
     // Fungsi AJAX untuk mengambil opsi jawaban pertanyaan
     public function getQuestionOptions()

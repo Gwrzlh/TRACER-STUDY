@@ -1,136 +1,102 @@
 <?= $this->extend('layout/sidebar_kaprodi') ?>
 <?= $this->section('content') ?>
+<link href="<?= base_url('css/kaprodi/dashboard.css') ?>" rel="stylesheet">
 
-<div class="p-6">
-    <!-- Header -->
-    <h1 class="text-2xl font-bold">Dashboard Kaprodi</h1>
-    <p class="mt-2">Halo <?= session()->get('username') ?> (Kaprodi)</p>
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <div class="dashboard-logo">
+                <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2" style="height: 60px;">
+            </div>
+            <div class="header-text">
+                <h1 class="dashboard-title">Dashboard Kaprodi</h1>
+                <p class="dashboard-subtitle">Halo <?= esc(session()->get('username')) ?> (Kaprodi)</p>
+            </div>
+        </div>
+        <div class="header-decoration"></div>
+    </div>
 
-    <!-- Card Statistik -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
-        <div class="bg-white rounded-xl shadow p-4">
-            <h2 class="text-sm font-semibold text-gray-500">Jumlah Alumni</h2>
-            <p class="text-2xl font-bold mt-2">1200</p>
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <!-- Kuesioner Aktif Card -->
+        <div class="stat-card kuesioner-card">
+            <div class="card-header">
+                <div class="card-icon kuesioner-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="card-trend positive">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Jumlah Kuesioner Aktif</h3>
+                <p class="card-value"><?= esc($kuesionerCount ?? 0) ?></p>
+                <div class="card-progress">
+                    <div class="progress-bar kuesioner-progress"></div>
+                </div>
+            </div>
         </div>
-        <div class="bg-white rounded-xl shadow p-4">
-            <h2 class="text-sm font-semibold text-gray-500">Sudah Isi Tracer</h2>
-            <p class="text-2xl font-bold mt-2">800</p>
+
+        <!-- Alumni Card -->
+        <div class="stat-card alumni-card">
+            <div class="card-header">
+                <div class="card-icon alumni-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="card-trend positive">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Jumlah Alumni <?= esc($kaprodi['nama_prodi'] ?? '-') ?></h3>
+                <p class="card-value"><?= esc($alumniCount ?? 0) ?></p>
+                <div class="card-progress">
+                    <div class="progress-bar alumni-progress"></div>
+                </div>
+            </div>
         </div>
-        <div class="bg-white rounded-xl shadow p-4">
-            <h2 class="text-sm font-semibold text-gray-500">Bekerja</h2>
-            <p class="text-2xl font-bold mt-2">65%</p>
+
+        <!-- Akreditasi Card -->
+        <div class="stat-card akreditasi-card">
+            <div class="card-header">
+                <div class="card-icon akreditasi-icon">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <div class="card-trend stable">
+                    <i class="fas fa-minus"></i>
+                </div>
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Akreditasi</h3>
+                <p class="card-value"><?= esc($akreditasiAlumni ?? 0) ?></p>
+                <div class="card-progress">
+                    <div class="progress-bar akreditasi-progress"></div>
+                </div>
+            </div>
         </div>
-        <div class="bg-white rounded-xl shadow p-4">
-            <h2 class="text-sm font-semibold text-gray-500">Kuliah Lanjut</h2>
-            <p class="text-2xl font-bold mt-2">15%</p>
+
+        <!-- AMI Card -->
+        <div class="stat-card ami-card">
+            <div class="card-header">
+                <div class="card-icon ami-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-trend stable">
+                    <i class="fas fa-minus"></i>
+                </div>
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">AMI</h3>
+                <p class="card-value"><?= esc($amiAlumni ?? 0) ?></p>
+                <div class="card-progress">
+                    <div class="progress-bar ami-progress"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Grafik -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-        <div class="bg-white rounded-xl shadow p-4">
-            <h2 class="text-lg font-semibold mb-4">Status Pekerjaan Alumni</h2>
-            <canvas id="statusChart"></canvas>
-        </div>
-
-        <div class="bg-white rounded-xl shadow p-4">
-            <h2 class="text-lg font-semibold mb-4">Kesesuaian Bidang Kerja</h2>
-            <canvas id="kesesuaianChart"></canvas>
-        </div>
-
-        <!-- Rate Gaji Alumni -->
-        <div class="bg-white rounded-xl shadow p-4">
-            <h2 class="text-lg font-semibold mb-4">Rate Gaji Alumni</h2>
-            <canvas id="gajiChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Tabel Data -->
-    <div class="bg-white rounded-xl shadow p-4 mt-6">
-        <h2 class="text-lg font-semibold mb-4">Feedback Alumni</h2>
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-gray-100">
-                    <th class="p-2 border">Aspek</th>
-                    <th class="p-2 border">Rating</th>
-                    <th class="p-2 border">Komentar</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="p-2 border">Kurikulum</td>
-                    <td class="p-2 border">4.5</td>
-                    <td class="p-2 border">Perlu update teknologi terbaru</td>
-                </tr>
-                <tr>
-                    <td class="p-2 border">Dosen</td>
-                    <td class="p-2 border">4.2</td>
-                    <td class="p-2 border">Sangat membantu</td>
-                </tr>
-                <tr>
-                    <td class="p-2 border">Fasilitas</td>
-                    <td class="p-2 border">3.8</td>
-                    <td class="p-2 border">Lab komputer kurang</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Status Pekerjaan Alumni
-    const ctx1 = document.getElementById('statusChart').getContext('2d');
-    new Chart(ctx1, {
-        type: 'doughnut',
-        data: {
-            labels: ['Bekerja', 'Kuliah Lanjut', 'Wirausaha', 'Belum Bekerja'],
-            datasets: [{
-                data: [55, 15, 10, 20],
-                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
-            }]
-        }
-    });
-
-    // Kesesuaian Bidang Kerja
-    const ctx2 = document.getElementById('kesesuaianChart').getContext('2d');
-    new Chart(ctx2, {
-        type: 'bar',
-        data: {
-            labels: ['Sesuai', 'Tidak Sesuai'],
-            datasets: [{
-                data: [70, 30],
-                backgroundColor: ['#10b981', '#ef4444'],
-            }]
-        },
-        options: {
-            indexAxis: 'y'
-        }
-    });
-
-    // Rate Gaji Alumni
-    const ctx3 = document.getElementById('gajiChart').getContext('2d');
-    new Chart(ctx3, {
-        type: 'bar',
-        data: {
-            labels: ['< 3 Juta', '3 - 5 Juta', '5 - 10 Juta', '> 10 Juta'],
-            datasets: [{
-                label: 'Jumlah Alumni',
-                data: [200, 350, 180, 70],
-                backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'],
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    });
-</script>
+<!-- Add FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <?= $this->endSection() ?>

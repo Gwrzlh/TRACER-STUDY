@@ -1,0 +1,512 @@
+/* ====== AMI RESULTS STYLE - CONSISTENT WITH AKREDITASI DESIGN ====== */
+
+/* Base styles */
+.page-wrapper {
+    padding: 24px;
+    background-color: #f8fafc;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 32px;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-title strong {
+    color: #1e293b;
+    font-weight: 800;
+}
+
+/* Content Card */
+.content-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 32px;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.card-header-custom {
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 20px 24px;
+}
+
+.question-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.detail-icon {
+    width: 20px;
+    height: 20px;
+    color: #0369a1;
+}
+
+.card-body-custom {
+    padding: 24px;
+}
+
+/* Results Layout - Following Akreditasi Style */
+.results-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    align-items: start;
+}
+
+.table-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.chart-section {
+    flex: 0 0 auto;
+    width: 350px;
+}
+
+/* Table Container */
+.table-container {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+/* Table Styles */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    font-size: 14px;
+}
+
+.data-table thead {
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.data-table th {
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.data-table th:last-child {
+    text-align: center;
+}
+
+.data-table tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.data-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.data-table td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    color: #374151;
+}
+
+/* Row Number */
+.row-number {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    background-color: #f3f4f6;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #374151;
+    font-size: 12px;
+}
+
+/* Answer Content */
+.answer-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.legend-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.answer-text {
+    font-weight: 500;
+    color: #1e293b;
+    line-height: 1.4;
+}
+
+/* Count Badge */
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #bae6fd;
+    min-width: 32px;
+    justify-content: center;
+}
+
+/* Action Buttons */
+.action-cell {
+    text-align: center;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.view-btn {
+    background-color: #f0f9ff;
+    color: #0369a1;
+}
+
+.view-btn:hover {
+    background-color: #0369a1;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(3, 105, 161, 0.25);
+}
+
+/* Chart Container - Following Akreditasi Style */
+.chart-container {
+    max-width: 350px;
+    width: 100%;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    max-height: 300px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.empty-content i {
+    font-size: 48px;
+    color: #9ca3af;
+    opacity: 1;
+}
+
+.empty-state-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+}
+
+.empty-state-description {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.5;
+    max-width: 400px;
+}
+
+/* Empty Row */
+.empty-row {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-row .empty-content {
+    gap: 8px;
+}
+
+.empty-row .empty-content i {
+    font-size: 32px;
+    color: #d1d5db;
+}
+
+.empty-row .empty-content p {
+    color: #9ca3af;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Loading Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .results-layout {
+        flex-direction: column;
+        gap: 24px;
+    }
+    
+    .chart-section {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-wrapper {
+        padding: 16px;
+    }
+    
+    .page-title {
+        font-size: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .card-header-custom,
+    .card-body-custom {
+        padding: 16px;
+    }
+    
+    .question-title {
+        font-size: 16px;
+    }
+    
+    .data-table {
+        font-size: 13px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 12px 16px;
+    }
+    
+    .answer-content {
+        gap: 8px;
+    }
+    
+    .legend-box {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .answer-text {
+        font-size: 13px;
+    }
+    
+    .action-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+    
+    .chart-container {
+        padding: 16px;
+        max-width: 100%;
+    }
+    
+    .results-layout {
+        gap: 20px;
+    }
+    
+    .col-lg-7,
+    .col-lg-5 {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .content-card {
+        margin-bottom: 24px;
+    }
+}
+
+@media (max-width: 576px) {
+    .content-card {
+        margin: 0 -8px 24px -8px;
+        border-radius: 8px;
+    }
+    
+    .table-container {
+        margin: 0 -8px;
+        border-radius: 8px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 10px 12px;
+    }
+    
+    .card-header-custom,
+    .card-body-custom {
+        padding: 12px;
+    }
+    
+    .question-title {
+        font-size: 15px;
+        gap: 8px;
+    }
+    
+    .detail-icon {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .chart-section {
+        max-width: 100%;
+    }
+    
+    .chart-container {
+        height: 250px;
+        padding: 12px;
+        max-width: 100%;
+    }
+    
+    .empty-state {
+        padding: 40px 16px;
+        margin: 0;
+    }
+    
+    .empty-content i {
+        font-size: 36px;
+    }
+    
+    /* Stack answer content on very small screens */
+    .answer-content {
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 20px;
+        line-height: 1.3;
+    }
+    
+    .data-table th:nth-child(3),
+    .data-table td:nth-child(3) {
+        display: none;
+    }
+    
+    .chart-container {
+        height: 220px;
+    }
+}
+
+/* Scrollbar Styling */
+.page-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.page-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.page-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.page-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

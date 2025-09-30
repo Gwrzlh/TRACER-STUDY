@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models\Questionnaire;
 
 use CodeIgniter\Model;
@@ -11,17 +12,40 @@ class QuestionnairePageModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [        
+    protected $allowedFields    = [
         'questionnaire_id',
         'page_title',
         'page_description',
         'order_no',
         'conditional_logic', // <-- Tambahkan ini
+        'created_by',
         'created_at',
         'updated_at'
-];
+    ];
 
     protected bool $allowEmptyInserts = false;
+    public function getPagesForUser(int $questionnaire_id, ?int $user_id = null)
+    {
+        $builder = $this->builder()
+            ->where('questionnaire_id', $questionnaire_id)
+            ->orderBy('order_no', 'ASC');
+
+        if ($user_id) {
+            // Untuk kaprodi: hanya halaman yang dia buat
+            $builder->where('created_by', $user_id);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+    public function GetNextOrderNo_page($questionnaire_id)
+    {
+        $lastOrder = $this->where('questionnaire_id', $questionnaire_id)
+                          ->selectMax('order_no')
+                          ->first();
+
+        return $lastOrder ? $lastOrder['order_no'] + 1 : 1;
+    }
+
 
     // Dates
     protected $useTimestamps = true;

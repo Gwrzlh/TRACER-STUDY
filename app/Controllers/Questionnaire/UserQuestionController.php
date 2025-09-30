@@ -1,47 +1,604 @@
 <?php
 
-namespace App\Controllers\Questionnaire;;
+namespace App\Controllers\Questionnaire;
 
 use App\Controllers\BaseController;
 use App\Models\Questionnaire\AnswerModel;
-use CodeIgniter\HTTP\ResponseInterface;
-
+use App\Models\User\DetailaccountAlumni;
 use App\Models\Questionnaire\QuestionnairModel;
 use App\Models\Questionnaire\QuestionModel;
 use App\Models\Questionnaire\QuestionnairePageModel;
 use App\Models\Questionnaire\QuestionnairConditionModel;
-use App\Models\Organisasi\SectionModel;
-
+use App\models\Support\LogActivityModel;
+use App\Models\User\AccountModel;
+use App\Models\Organisasi\Jurusan;
+use App\Models\Organisasi\Prodi;
+use App\Models\Support\Provincies;
+use App\Models\Support\Cities;
 
 
 class UserQuestionController extends BaseController
 {
     protected $questionnaireModel;
     protected $answerModel;
+    protected $conditionModel;
+    protected $logActivityModel;
 
     public function __construct()
     {
         $this->questionnaireModel = new QuestionnairModel();
         $this->answerModel = new AnswerModel();
+        $this->conditionModel = new QuestionnairConditionModel();
+        $this->logActivityModel = new LogActivityModel();
     }
 
+    /**
+     * FIXED: Daftar semua kuesioner yang bisa diakses user
+     */
     public function index()
     {
-        $user = session()->get('user');
-        if (!$user || !$user['logged_in']) {
+        if (!session()->get('logged_in')) {
             return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
         }
 
-        $questionnaires = $this->questionnaireModel->getAccessibleQuestionnaires($user);
+        $userId   = session()->get('id');
+        $userData = session()->get();
+
+        $userId = session()->get('id_account'); // Assume logged in user
+        $detailModel = new DetailaccountAlumni();
+        $userProfile = $detailModel->where('id_account', $userId)->first() ?? [];
+
+        log_message('debug', '[index] User Data for conditional check: ' . print_r($userData, true));
+
+        $questionnaires = $this->questionnaireModel->getAccessibleQuestionnaires($userData);
+        log_message('debug', '[index] Accessible questionnaires count: ' . count($questionnaires));
+
         $data = [];
         foreach ($questionnaires as $q) {
-            $status = $this->answerModel->getStatus($q['id'], $user['id']);
+            if ($q['is_active'] === 'inactive') {
+                log_message('debug', '[index] Skipping inactive questionnaire ID: ' . $q['id']);
+                continue;
+            }
+
+            // FIXED: Map internal status to expected view status
+            $internalStatus = $this->answerModel->getStatus($q['id'], $userId) ?: 'draft';
+            $statusPengisian = $this->mapStatusForView($internalStatus, $q['id'], $userId);
+            
+            // FIXED: Calculate progress based on status and logical completion
+            $progress = $this->calculateProgressForView($statusPengisian, $q['id'], $userId, $userData);
+
+            log_message('debug', '[index] Questionnaire ' . $q['id'] . ' - Internal Status: ' . $internalStatus . ', View Status: ' . $statusPengisian . ', Progress: ' . $progress);
+
             $data[] = [
-                'id' => $q['id'],
-                'judul' => $q['title'],
-                'status' => $status ?: 'Belum Mengisi'
+                'id'          => $q['id'],
+                'judul'       => $q['title'],
+                'statusIsi'   => $statusPengisian,
+                'progress'    => $progress,
+                'is_active'   => $q['is_active'],
+                'conditional' => $q['conditional_logic'] ?? '-',
+                'user_profile' => $userProfile,
             ];
         }
-        return view('alumni/questionnaire/index', ['data' => $data]);
+
+        log_message('debug', '[index] Final data for view: ' . print_r($data, true));
+
+        return view('alumni/questioner/index', ['data' => $data]);
+    }
+
+    /**
+     * NEW: Map internal status values to view-expected status values
+     */
+    private function mapStatusForView($internalStatus, $questionnaireId, $userId)
+    {
+        switch ($internalStatus) {
+            case 'completed':
+                return 'Finish';
+            case 'draft':
+                // Check if user has any answers - if yes, it's "On Going"
+                $hasAnswers = $this->answerModel->where([
+                    'questionnaire_id' => $questionnaireId,
+                    'user_id' => $userId
+                ])->countAllResults() > 0;
+                
+                return $hasAnswers ? 'On Going' : 'Belum Mengisi';
+            default:
+                return 'Belum Mengisi';
+        }
+    }
+
+    /**
+     * NEW: Calculate progress appropriate for the view status
+     */
+    private function calculateProgressForView($viewStatus, $questionnaireId, $userId, $userData)
+    {
+        if ($viewStatus === 'Finish') {
+            return 100;
+        } elseif ($viewStatus === 'On Going') {
+            // Use enhanced logical progress calculation
+            $previousAnswers = $this->answerModel->getUserAnswers($questionnaireId, $userId);
+            $structure = $this->questionnaireModel->getQuestionnaireStructure($questionnaireId, $userData, $previousAnswers);
+            
+            if (!empty($structure)) {
+                return $this->calculateLogicalProgressForUser($structure, $previousAnswers);
+            }
+            
+            // Fallback to simple progress
+            return $this->answerModel->getProgress($questionnaireId, $userId);
+        } else {
+            return 0;
+        }
+    }
+
+    private function sanitizeAnnouncementContent($content)
+    {
+        if (empty($content)) {
+            return '';
+        }
+        
+        // List of allowed HTML tags for announcement content
+        $allowedTags = [
+            'p', 'br', 'strong', 'b', 'em', 'i', 'u', 
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'ul', 'ol', 'li', 'blockquote', 'span'
+        ];
+        
+        // Convert allowed tags array to string format for strip_tags
+        $allowedTagsString = '<' . implode('><', $allowedTags) . '>';
+        
+        // Strip unwanted tags while keeping allowed ones
+        $cleanContent = strip_tags($content, $allowedTagsString);
+        
+        // Remove empty paragraphs that only contain &nbsp; or whitespace
+        $cleanContent = preg_replace('/<p[^>]*>(\s|&nbsp;)*<\/p>/i', '', $cleanContent);
+        
+        // Clean up multiple consecutive <br> tags
+        $cleanContent = preg_replace('/(<br\s*\/?>\s*){3,}/i', '<br><br>', $cleanContent);
+        
+        // Remove any remaining empty paragraphs
+        $cleanContent = preg_replace('/<p[^>]*><\/p>/i', '', $cleanContent);
+        
+        // Trim whitespace
+        $cleanContent = trim($cleanContent);
+        
+        return $cleanContent;
+    }
+
+    /**
+     * ENHANCED: Mulai isi kuesioner dengan better debugging
+     */
+   public function mulai($q_id)
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login');
+        }
+
+        $userId = session()->get('id_account');
+        $detailModel = new DetailaccountAlumni();
+        $jurusanModel = new Jurusan();
+        $prodiModel = new Prodi();
+        $provinciesModel = new Provincies();
+        $citiesModel = new Cities();
+
+        $userProfile = $detailModel->where('id_account', $userId)->first() ?? [];
+
+        $userProfileDisplay = $userProfile;
+        if (!empty($userProfile['id_jurusan'])) {
+            $jurusan = $jurusanModel->find($userProfile['id_jurusan']);
+            $userProfileDisplay['id_jurusan_name'] = $jurusan['nama_jurusan'] ?? 'Unknown';
+        }
+        if (!empty($userProfile['id_cities'])) {
+            $city = $citiesModel->find($userProfile['id_cities']);
+            $userProfileDisplay['id_cities_name'] = $city['name'] ?? 'Unknown';
+        }
+        if (!empty($userProfile['id_prodi'])) {
+            $prodi = $prodiModel->find($userProfile['id_prodi']);
+            $userProfileDisplay['id_prodi_name'] = $prodi['nama_prodi'] ?? 'Unknown';
+        }
+        if (!empty($userProfile['id_provinsi'])) {
+            $provinsi = $provinciesModel->find($userProfile['id_provinsi']);
+            $userProfileDisplay['id_provinsi_name'] = $provinsi['name'] ?? 'Unknown';
+        }
+
+        $jurusanOptions = $jurusanModel->findAll();
+        $citiesOptions = $citiesModel->findAll();
+        $prodiOptions = $prodiModel->findAll();
+        $provinsiOptions = $provinciesModel->findAll();
+
+        $userId = session()->get('id');
+        $userData = session()->get();
+        $q_id = (int)$q_id;
+
+        log_message('debug', '[mulai] Starting questionnaire ' . $q_id . ' for user ' . $userId);
+        log_message('debug', '[mulai] UserData: ' . print_r($userData, true));
+
+        // NEW: Check if we should show announcement
+        $showAnnouncement = $this->request->getGet('show_announcement') === '1' || session()->getFlashdata('show_announcement');
+        $announcementContent = session()->getFlashdata('announcement_content');
+        $questionnaireTitle = session()->getFlashdata('questionnaire_title');
+        
+        if ($showAnnouncement && !empty($announcementContent)) {
+            log_message('debug', '[mulai] Showing announcement for questionnaire ' . $q_id);
+            
+            // Clean and sanitize HTML content from TinyMCE
+            $cleanedContent = $this->sanitizeAnnouncementContent($announcementContent);
+            
+            return view('alumni/questioner/announcement', [
+                'q_id' => $q_id,
+                'questionnaire_title' => $questionnaireTitle,
+                'announcement_content' => $cleanedContent
+            ]);
+        }
+
+        $fieldFriendlyNames = [
+            'nama_lengkap' => 'Nama Lengkap',
+            'nim' => 'NIM',
+            'id_jurusan' => 'ID Jurusan',
+            'id_prodi' => 'ID Prodi',
+            'angkatan' => 'Angkatan',
+            'tahun_kelulusan' => 'Tahun Kelulusan',
+            'ipk' => 'IPK',
+            'alamat' => 'Alamat',
+            'alamat2' => 'Alamat 2',
+            'kodepos' => 'Kode Pos',
+            'jenisKelamin' => 'Jenis Kelamin',
+            'notlp' => 'No. Telepon',
+            'id_provinsi' => 'ID Provinsi',
+            'id_cities' => 'ID Kota',
+        ];
+        $fieldTypes = [
+            'nama_lengkap' => 'text',
+            'id_jurusan' => 'foreign_key:jurusan',
+            'id_cities' => 'foreign_key:cities',
+            'jenisKelamin' => 'text',
+            'id_prodi' => 'foreign_key:prodi',
+            'id_provinsi' => 'foreign_key:provincies',
+            'angkatan' => 'number',
+            'tahun_kelulusan' => 'number',
+            'ipk' => 'decimal',
+            'alamat' => 'text',
+            'alamat2' => 'text',
+            'kodepos' => 'number',
+            'notlp' => 'text',
+            'nim' => 'number',
+        ];
+
+        $questionnaire = $this->questionnaireModel->find($q_id);
+        if (!$questionnaire) {
+            log_message('error', '[mulai] Questionnaire not found for ID: ' . $q_id);
+            return redirect()->back()->with('error', 'Kuesioner tidak ditemukan.');
+        }
+
+        // Enhanced access check with debugging
+        $hasAccess = $this->questionnaireModel->checkConditions($questionnaire['conditional_logic'] ?? '', $userData);
+        log_message('debug', '[mulai] Access check result: ' . ($hasAccess ? 'GRANTED' : 'DENIED'));
+        
+        if (!$hasAccess) {
+            log_message('warning', '[mulai] Access denied for questionnaire ' . $q_id . ' user ' . $userId);
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses ke kuesioner ini.');
+        }
+
+        // Check status with proper mapping
+        $internalStatus = $this->answerModel->getStatus($q_id, $userId);
+        $viewStatus = $this->mapStatusForView($internalStatus, $q_id, $userId);
+
+        log_message('debug', '[mulai] Status check - Internal: ' . $internalStatus . ', View: ' . $viewStatus);
+        
+        if ($viewStatus === 'Finish') {
+            return redirect()->to("/alumni/questioner/lihat/$q_id");
+        }
+
+        // Get previous answers and structure
+        $previous_answers = $this->answerModel->getUserAnswers($q_id, $userId);
+        log_message('debug', '[mulai] Previous answers count: ' . count($previous_answers));
+
+        $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $userData, $previous_answers);
+        log_message('debug', '[mulai] Structure pages count: ' . count($structure['pages'] ?? []));
+
+        if (empty($structure['pages'])) {
+            log_message('warning', '[mulai] No pages available for questionnaire ' . $q_id);
+            session()->setFlashdata('no_questions_available', true);
+            return redirect()->to('alumni/questionnaires');
+        }
+
+        $progress = $this->calculateLogicalProgressForUser($structure, $previous_answers);
+        log_message('debug', '[mulai] Calculated progress: ' . $progress . '%');
+
+        session()->set("current_q_id", $q_id);
+
+        return view('alumni/questioner/fill', [
+            'structure'        => $structure,
+            'user_id'          => $userId,
+            'q_id'             => $q_id,
+            'progress'         => $progress,
+            'previous_answers' => $previous_answers,
+            'user_profile'     => $userProfile,
+            'field_friendly_names' => $fieldFriendlyNames,
+            'field_types' => $fieldTypes,
+            'jurusan_options' => $jurusanOptions,
+            'cities_options' => $citiesOptions,
+            'prodi_options' => $prodiOptions,
+            'provinsi_options' => $provinsiOptions,
+            'user_profile_display' => $userProfileDisplay,
+        ]);
+    }
+
+    /**
+     * Lanjutkan isi kuesioner
+     */
+    public function lanjutkan($q_id)
+    {
+        return $this->mulai($q_id);
+    }
+
+    /**
+     * Review / lihat hasil kuesioner
+     */
+    public function lihat($q_id)
+    {
+        $user_data = session()->get();
+
+        $data['structure'] = $this->questionnaireModel->getQuestionnaireStructure(
+            $q_id,
+            $user_data,
+            $this->answerModel->getUserAnswers($q_id, $user_data['id'])
+        );
+
+        if (!$data['structure']) {
+            return redirect()->to('/alumni/questioner')
+                ->with('error', 'Kuesioner tidak ditemukan atau tidak dapat diakses.');
+        }
+
+        $data['q_id']             = $q_id;
+        $data['progress']         = $this->answerModel->getProgress($q_id, $user_data['id']);
+        $data['previous_answers'] = $this->answerModel->getUserAnswers($q_id, $user_data['id']);
+
+        return view('alumni/questioner/review', $data);
+    }
+
+    /**
+     * KEEP: Your enhanced saveAnswer method (this was working correctly)
+     */
+   public function saveAnswer()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login');
+        }
+
+        $q_id = $this->request->getPost('q_id');
+        $answers = $this->request->getPost('answer') ?? [];
+        $files = $this->request->getFiles() ?? [];
+        $isLogicallyComplete = $this->request->getPost('is_logically_complete') === '1';
+        $userId = session()->get('id');
+
+        log_message('debug', '[saveAnswer] Received request. Q_ID: ' . $q_id . ', User ID: ' . $userId);
+        log_message('debug', '[saveAnswer] Is Logically Complete: ' . ($isLogicallyComplete ? 'true' : 'false'));
+
+        if (empty($answers) && empty($files)) {
+            log_message('error', '[saveAnswer] No answers or files provided');
+            return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Tidak ada jawaban yang disimpan.');
+        }
+
+        try {
+            $saveSuccess = false;
+
+            // Process answers
+            if ($answers) {
+                foreach ($answers as $question_id => $answer) {
+                    if (empty($answer) && !is_array($answer)) continue;
+                    
+                    $processedAnswer = is_array($answer) ? json_encode($answer) : $answer;
+                    $this->answerModel->saveAnswer($userId, $q_id, $question_id, $processedAnswer);
+                    log_message('debug', '[saveAnswer] Saved answer for question ' . $question_id);
+                    $saveSuccess = true;
+                }
+            }
+
+            // Process files
+            foreach ($files as $key => $file) {
+                if (preg_match('/answer_(\d+)/', $key, $matches)) {
+                    $question_id = $matches[1];
+                    if ($file && $file->isValid() && !$file->hasMoved()) {
+                        $uploadPath = WRITEPATH . 'uploads/answers/';
+                        if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
+                        
+                        $newName = $file->getRandomName();
+                        $file->move($uploadPath, $newName);
+                        
+                        $filePath = 'uploaded_file:' . $uploadPath . $newName;
+                        $this->answerModel->saveAnswer($userId, $q_id, $question_id, $filePath);
+                        log_message('debug', '[saveAnswer] Saved file for question ' . $question_id);
+                        $saveSuccess = true;
+                    }
+                }
+            }
+
+            // ENHANCED: Set proper completion status and handle announcement
+            if ($saveSuccess && $isLogicallyComplete) {
+                $this->answerModel->setStatus($q_id, $userId, 'completed');
+                log_message('info', '[saveAnswer] Set questionnaire as completed due to logical completion');
+                
+                // NEW: Check for announcement and redirect accordingly
+                $questionnaire = $this->questionnaireModel->find($q_id);
+                $announcement = $questionnaire['announcement'] ?? '';
+                
+                if (!empty(trim($announcement))) {
+                    log_message('debug', '[saveAnswer] Announcement found, redirecting to show announcement');
+                    // Store announcement data in session for display
+                    session()->setFlashdata('show_announcement', true);
+                    session()->setFlashdata('announcement_content', $announcement);
+                    session()->setFlashdata('questionnaire_title', $questionnaire['title'] ?? 'Kuesioner');
+                    
+                    return redirect()->to("/alumni/questionnaires/mulai/$q_id?show_announcement=1");
+                }
+            }
+
+            // Log activity
+            try {
+                $this->logActivityModel->logAction('submit_questionnaire', 'User ' . $userId . ' submitted questionnaire ID ' . $q_id);
+            } catch (\Exception $logException) {
+                log_message('warning', '[saveAnswer] Failed to log activity: ' . $logException->getMessage());
+            }
+
+            log_message('info', '[saveAnswer] Process completed successfully');
+            return redirect()->to("/alumni/questionnaires")->with('success', 'Jawaban berhasil disimpan!');
+
+        } catch (\Exception $e) {
+            log_message('error', '[saveAnswer] Error during process: ' . $e->getMessage());
+            return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Gagal menyimpan jawaban: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Method untuk menghitung logical progress
+     */
+    private function calculateLogicalProgressForUser($structure, $previousAnswers)
+    {
+        if (empty($structure['pages'])) {
+            return 0;
+        }
+        
+        $totalRelevantPages = 0;
+        $completedRelevantPages = 0;
+        
+        foreach ($structure['pages'] as $pageIndex => $page) {
+            $isPageRelevant = $this->evaluatePageConditionsForUser($page, $previousAnswers);
+            
+            if ($isPageRelevant) {
+                $totalRelevantPages++;
+                
+                $hasAnswers = $this->pageHasAnswersForUser($page, $previousAnswers);
+                if ($hasAnswers) {
+                    $completedRelevantPages++;
+                }
+            }
+        }
+        
+        log_message('debug', '[calculateLogicalProgress] Total relevant: ' . $totalRelevantPages . ', Completed: ' . $completedRelevantPages);
+        
+        return $totalRelevantPages > 0 ? ($completedRelevantPages / $totalRelevantPages) * 100 : 0;
+    }
+
+    /**
+     * Helper untuk evaluasi kondisi halaman
+     */
+   private function evaluatePageConditionsForUser($page, $answers)
+    {
+        $decoded = json_decode($page['conditional_logic'] ?? '{}', true);
+        $conditions = $decoded['conditions'] ?? [];
+        $logic_type = $decoded['logic_type'] ?? 'any';
+
+        if (empty($conditions)) {
+            return true;
+        }
+
+        $pass = ($logic_type === 'all') ? true : false;
+
+        foreach ($conditions as $condition) {
+            $field = $condition['field'] ?? '';
+            $operator = $condition['operator'] ?? '';
+            $value = $condition['value'] ?? '';
+
+            if (!$field || !$operator) continue;
+
+            $userAnswer = $answers['q_' . $field] ?? '';
+            $userAnswerArray = is_array(json_decode($userAnswer, true)) ? json_decode($userAnswer, true) : [$userAnswer];
+
+            $match = false;
+            switch ($operator) {
+                case 'is':
+                    $match = in_array($value, $userAnswerArray);
+                    break;
+                case 'is_not':
+                    $match = !in_array($value, $userAnswerArray);
+                    break;
+                case 'contains':
+                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                        return strpos(strtolower($ans), strtolower($value)) !== false;
+                    });
+                    $match = !empty($match);
+                    break;
+                case 'not_contains':
+                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                        return strpos(strtolower($ans), strtolower($value)) === false;
+                    });
+                    $match = !empty($match);
+                    break;
+                case 'greater':
+                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                        return is_numeric($ans) && is_numeric($value) && floatval($ans) > floatval($value);
+                    });
+                    $match = !empty($match);
+                    break;
+                case 'less':
+                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                        return is_numeric($ans) && is_numeric($value) && floatval($ans) < floatval($value);
+                    });
+                    $match = !empty($match);
+                    break;
+            }
+
+            if ($logic_type === 'all') {
+                if (!$match) {
+                    $pass = false;
+                    break;
+                }
+            } else {
+                if ($match) {
+                    $pass = true;
+                    break;
+                }
+            }
+        }
+
+        return $pass;
+    }
+
+    /**
+     * Helper untuk cek apakah halaman sudah dijawab
+     */
+    private function pageHasAnswersForUser($page, $answers)
+    {
+        foreach ($page['sections'] as $section) {
+            foreach ($section['questions'] as $question) {
+                $questionAnswer = $answers['q_' . $question['id']] ?? '';
+                if (!empty($questionAnswer)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Helper method untuk menghitung total halaman
+     */
+    private function getTotalPages($questionnaireId)
+    {
+        $pageModel = new QuestionnairePageModel();
+        return $pageModel->where('questionnaire_id', $questionnaireId)->countAllResults();
+    }
+
+    public function responseLanding()
+    {
+        $responseModel = new \App\Models\Questionnaire\ResponseModel();
+
+        $yearsRaw = $responseModel->getAvailableYears() ?? [];
+        $allYears = array_column($yearsRaw, 'tahun');
+
+        $selectedYear = $this->request->getGet('tahun');
+        if (!$selectedYear && !empty($allYears)) {
+            $selectedYear = $allYears[0];
+        }
+        if (!$selectedYear) {
+            $selectedYear = date('Y');
+        }
+
+        $data = [
+            'selectedYear' => $selectedYear,
+            'allYears'     => $allYears,
+            'data'         => $responseModel->getSummaryByYear($selectedYear)
+        ];
+
+        return view('LandingPage/respon', $data);
     }
 }

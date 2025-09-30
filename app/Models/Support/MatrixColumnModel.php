@@ -4,7 +4,7 @@ namespace App\Models\Support;
 
 use CodeIgniter\Model;
 
-class MatrixColumnModels extends Model
+class MatrixColumnModel extends Model
 {
     protected $table            = 'matrix_columns';
     protected $primaryKey       = 'id';

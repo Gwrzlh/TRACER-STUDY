@@ -7,19 +7,21 @@ class AccountModel extends Model
 {
     protected $table      = 'account';
     protected $primaryKey = 'id';
-    protected $allowedFields = [
-        'username',
-        'email',
-        'password',
-        'status',       // Aktif / Nonaktif
-        'id_role',
-        'id_surveyor',
-        'remember_token',
-        'reset_token',
-        'reset_expires',
-        'created_at',
-        'updated_at'
-    ];
+  protected $allowedFields = [
+    'username',
+    'email',
+    'password',
+    'status',
+    'id_role',
+    'id_surveyor',
+    'remember_token',
+    'reset_token',
+    'reset_expires',
+    'created_at',
+    'updated_at',
+    'foto'   // ✅ tambah ini
+];
+
 
     protected $useTimestamps = true;
 

@@ -11,7 +11,7 @@ class DetailaccountAdmins extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','nama_lengkap','id_account'];
+    protected $allowedFields = ['id', 'nama_lengkap', 'id_account', 'no_hp'];
 
     protected bool $allowEmptyInserts = false;
 

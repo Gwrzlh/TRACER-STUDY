@@ -12,7 +12,7 @@ class QuestionModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields = ['questionnaires_id', 'page_id', 'section_id', 'question_text', 'question_type', 'is_required', 'order_no', 'condition_json', 'scale_min', 'scale_max', 'scale_step', 'scale_min_label', 'scale_max_label', 'allowed_types', 'max_file_size', 'matrix_rows', 'matrix_columns', 'matrix_options', 'created_at', 'updated_at'];
+    protected $allowedFields = ['questionnaires_id', 'page_id', 'section_id', 'question_text', 'question_type', 'is_required', 'order_no', 'condition_json', 'scale_min', 'scale_max', 'scale_step', 'scale_min_label', 'scale_max_label', 'allowed_types', 'max_file_size', 'matrix_rows', 'matrix_columns', 'matrix_options', 'created_at', 'updated_at','user_field_name'];
 
     protected bool $allowEmptyInserts = false;
 
