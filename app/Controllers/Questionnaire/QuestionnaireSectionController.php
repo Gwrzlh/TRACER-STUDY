@@ -6,14 +6,14 @@ use App\Controllers\BaseController;
 use App\Models\Questionnaire\SectionModel;
 use App\Models\Questionnaire\QuestionnairePageModel;
 use App\Models\Questionnaire\QuestionnairModel;
-use App\Models\Questionnaire\QuestionModel;
+use App\Models\Questionnaire\QuestionModel; 
 use App\Models\Questionnaire\QuestionOptionModel;
 use App\Models\Support\MatrixRowModel;
-use App\Models\Support\MatrixColumnModels;
+use App\Models\Support\MatrixColumnModel;
 use App\Models\Questionnaire\AnswerModel;
 use App\Models\Questionnaire\ResponseModel;
 
-class SectionController extends BaseController
+class QuestionnaireSectionController extends BaseController
 {
     public function index($questionnaire_id, $page_id)
     {
@@ -278,7 +278,7 @@ class SectionController extends BaseController
         $questionModel     = new QuestionModel();
         $optionModel       = new QuestionOptionModel();
         $matrixRowModel    = new MatrixRowModel();
-        $matrixColumnModel = new MatrixColumnModels();
+        $matrixColumnModel = new MatrixColumnModel();
         $answerModel       = new AnswerModel();
         $responseModel     = new ResponseModel(); // Hapus responses terkait questionnaire
 

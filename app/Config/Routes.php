@@ -79,11 +79,12 @@
             $routes->get('import', '\App\Controllers\Auth\ImportAccount::form', ['filter' => 'auth']);
             $routes->post('import', '\App\Controllers\Auth\ImportAccount::process', ['filter' => 'auth']);
         });
-
 // --------------------
 // ROUTES: Questionnaire
 // --------------------
 $routes->group('questionnaire', ['namespace' => 'App\Controllers\Questionnaire'], function ($routes) {
+
+    // ==== Questionnaire CRUD ====
     $routes->get('/', 'QuestionnaireController::index');
     $routes->get('create', 'QuestionnaireController::create');
     $routes->post('store', 'QuestionnaireController::store');
@@ -94,7 +95,7 @@ $routes->group('questionnaire', ['namespace' => 'App\Controllers\Questionnaire']
     $routes->post('(:num)/toggle-status', 'QuestionnaireController::toggleStatus/$1');
     $routes->get('(:num)/preview', 'QuestionnaireController::preview/$1');
 
-    // Questionnaire Pages
+    // ==== Questionnaire Pages ====
     $routes->get('(:num)/pages', 'QuestionnairePageController::index/$1');
     $routes->get('(:num)/pages/create', 'QuestionnairePageController::create/$1'); 
     $routes->post('(:num)/pages/store', 'QuestionnairePageController::store/$1');   
@@ -102,14 +103,24 @@ $routes->group('questionnaire', ['namespace' => 'App\Controllers\Questionnaire']
     $routes->post('(:num)/pages/(:num)/update', 'QuestionnairePageController::update/$1/$2'); 
     $routes->get('(:num)/pages/(:num)/delete', 'QuestionnairePageController::delete/$1/$2'); 
 
-   // Questionnaire Section Questions
-$routes->get('(:num)/pages/(:num)/sections/(:num)/questions', 'QuestionnaireController::manageSectionQuestions/$1/$2/$3');
-$routes->get('(:num)/pages/(:num)/sections/(:num)/questions/create', 'QuestionnaireController::createSectionQuestion/$1/$2/$3');
-$routes->post('(:num)/pages/(:num)/sections/(:num)/questions/store', 'QuestionnaireController::storeSectionQuestion/$1/$2/$3');
-$routes->get('(:num)/pages/(:num)/sections/(:num)/questions/(:num)/edit', 'QuestionnaireController::editQuestion/$1/$2/$3/$4');
-$routes->post('(:num)/pages/(:num)/sections/(:num)/questions/(:num)/update', 'QuestionnaireController::updateQuestion/$1/$2/$3/$4');
-$routes->get('(:num)/pages/(:num)/sections/(:num)/questions/(:num)/delete', 'QuestionnaireController::deleteSectionQuestion/$1/$2/$3/$4');
+    // ==== Questionnaire Sections ====
+    $routes->get('(:num)/pages/(:num)/sections', 'QuestionnaireSectionController::index/$1/$2');
+    $routes->get('(:num)/pages/(:num)/sections/create', 'QuestionnaireSectionController::create/$1/$2');
+    $routes->post('(:num)/pages/(:num)/sections/store', 'QuestionnaireSectionController::store/$1/$2');
+    $routes->get('(:num)/pages/(:num)/sections/(:num)/edit', 'QuestionnaireSectionController::edit/$1/$2/$3');
+    $routes->post('(:num)/pages/(:num)/sections/(:num)/update', 'QuestionnaireSectionController::update/$1/$2/$3');
+    $routes->get('(:num)/pages/(:num)/sections/(:num)/delete', 'QuestionnaireSectionController::delete/$1/$2/$3');
+
+    // ==== Section Questions ====
+    $routes->get('(:num)/pages/(:num)/sections/(:num)/questions', 'QuestionnaireController::manageSectionQuestions/$1/$2/$3');
+    $routes->get('(:num)/pages/(:num)/sections/(:num)/questions/create', 'QuestionnaireController::createSectionQuestion/$1/$2/$3');
+    $routes->post('(:num)/pages/(:num)/sections/(:num)/questions/store', 'QuestionnaireController::storeSectionQuestion/$1/$2/$3');
+    $routes->get('(:num)/pages/(:num)/sections/(:num)/questions/(:num)/edit', 'QuestionnaireController::editQuestion/$1/$2/$3/$4');
+    $routes->post('(:num)/pages/(:num)/sections/(:num)/questions/(:num)/update', 'QuestionnaireController::updateQuestion/$1/$2/$3/$4');
+    $routes->get('(:num)/pages/(:num)/sections/(:num)/questions/(:num)/delete', 'QuestionnaireController::deleteSectionQuestion/$1/$2/$3/$4');
+
 });
+
 
 
 
@@ -168,11 +179,6 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers\Organisasi',
         $routes->get('admin/questionnaire/(:num)/questions/(:num)/options', 'Questionnaire\QuestionnaireController::getQuestionOptions/$1/$2');
         $routes->get('admin/questionnaire/(:num)/pages/(:num)/sections/(:num)/questions-with-options', 'Questionnaire\QuestionnaireController::getQuestionsWithOptions/$1/$2/$3');
     });
-    // $routes->group('admin', ['filter' => 'auth'], function ($routes) {
-    
-    //     $routes->get('profil', 'Admin\Profil::index');
-    //     $routes->get('log_activities', 'Admin\LogController::index');
-    // });
                                                                                                                     
 $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('profil', 'Admin\AdminController::profil');
