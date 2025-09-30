@@ -14,7 +14,7 @@
                     <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages') ?>">Halaman Kuesioner</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages/15/sections') ?>">Kuesioner Section</a>
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire/3/pages/30/sections') ?>">Kuesioner Section</a>
                 </li>
             </ul>
         </div>
@@ -24,77 +24,80 @@
     <div class="page-wrapper">
         <div class="page-container">
             <!-- Judul -->
-            <h2 class="page-title"> 📑 Halaman Kuesioner: <?= esc($questionnaire['title']) ?></h2>
-            <p class="text-muted"><?= esc($questionnaire['deskripsi']) ?></p>
+            <h2 class="page-title"> 📑 Halaman Kuesioner: <?= isset($questionnaire['title']) ? esc($questionnaire['title']) : 'Judul Tidak Tersedia' ?></h2>
+            <p class="text-muted"><?= isset($questionnaire['deskripsi']) ? esc($questionnaire['deskripsi']) : 'Deskripsi Tidak Tersedia' ?></p>
 
             <!-- Top Controls -->
             <div class="top-controls">
                 <div class="controls-container"></div>
                 <div class="button-container">
-                    <a href="<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages/create") ?>"
+                    <a href="<?= base_url('admin/questionnaire/' . (isset($questionnaire['id']) ? $questionnaire['id'] : 0) . '/pages/create') ?>"
                         class="btn-add">
                         <i class="fas fa-plus"></i> Tambah Halaman
                     </a>
                 </div>
             </div>
 
-           <!-- Bagian Tabel yang diperbaiki -->
-<div class="table-container">
-    <div class="table-wrapper">
-        <?php if (empty($pages)): ?>
-            <div class="alert alert-warning">Belum ada halaman kuesioner.</div>
-        <?php else: ?>
-            <table class="user-table">
-                <thead>
-                    <tr>
-                        <th>Urutan</th>
-                        <th>Judul Halaman</th>
-                        <th>Deskripsi</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($pages as $page): ?>
-                        <tr>
-                            <td>
-                                <span class="status-badge status-inactive">
-                                    <?= esc($page['order_no']) ?>
-                                </span>
-                            </td>
-                            <td>
-                                <div class="questionnaire-info">
-                                    <div class="questionnaire-title"><?= esc($page['page_title']) ?></div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="questionnaire-info">
-                                    <div class="questionnaire-description"><?= esc($page['page_description']) ?></div>
-                                </div>
-                            </td>
-                            <td class="action-cell">
-                                <div class="action-buttons">
-                                    <!-- Atur Pertanyaan -->
-                                    <a href="<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages/{$page['id']}/sections") ?>"
-                                        class="btn-action btn-edit" title="Atur Pertanyaan">
-                                        <i class="fas fa-file-alt"></i>
-                                    </a>
-                                    <!-- Edit -->
-                                    <a href="<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages/{$page['id']}/edit") ?>"
-                                        class="btn-action btn-edit" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <!-- Hapus -->
-                                    <button class="btn-action btn-delete delete-page"
-                                        data-id="<?= $page['id'] ?>" title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+            <!-- Bagian Tabel -->
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <?php if (empty($pages)): ?>
+                        <div class="alert alert-warning">Belum ada halaman kuesioner.</div>
+                    <?php else: ?>
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>Urutan</th>
+                                    <th>Judul Halaman</th>
+                                    <th>Deskripsi</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($pages as $page): ?>
+                                    <tr>
+                                        <td>
+                                            <span class="status-badge status-inactive">
+                                                <?= esc($page['order_no']) ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="questionnaire-info">
+                                                <div class="questionnaire-title"><?= esc($page['page_title']) ?></div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="questionnaire-info">
+                                                <div class="questionnaire-description"><?= esc($page['page_description']) ?></div>
+                                            </div>
+                                        </td>
+                                        <td class="action-cell">
+                                            <div class="action-buttons">
+                                                <!-- Atur Pertanyaan -->
+                                                <a href="<?= base_url('admin/questionnaire/' . (isset($questionnaire['id']) ? $questionnaire['id'] : 0) . '/pages/' . $page['id'] . '/sections') ?>"
+                                                    class="btn-action btn-edit" title="Atur Pertanyaan">
+                                                    <i class="fas fa-file-alt"></i>
+                                                </a>
+                                                <!-- Edit -->
+                                                <a href="<?= base_url('admin/questionnaire/' . (isset($questionnaire['id']) ? $questionnaire['id'] : 0) . '/pages/' . $page['id'] . '/edit') ?>"
+                                                    class="btn-action btn-edit" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <!-- Hapus -->
+                                                <button class="btn-action btn-delete delete-page"
+                                                    data-id="<?= $page['id'] ?>" title="Hapus">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -117,7 +120,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // redirect to the page delete endpoint
-                        window.location.href = '<?= base_url("admin/questionnaire/{$questionnaire['id']}/pages") ?>/' + pageId + '/delete';
+                        window.location.href = '<?= base_url('admin/questionnaire/' . (isset($questionnaire['id']) ? $questionnaire['id'] : 0) . '/pages') ?>/' + pageId + '/delete';
                     }
                 });
             });

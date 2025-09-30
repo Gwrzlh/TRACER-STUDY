@@ -386,7 +386,7 @@
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <div class="mb-3">
+                                <!-- <div class="mb-3">
                                     <label for="lainnya_jurusan" class="form-label">Jurusan</label>
                                     <select class="form-select" name="lainnya_jurusan" id="lainnya_jurusan">
                                         <option value="">-- Pilih Jurusan --</option>
@@ -394,8 +394,8 @@
                                             <option value="<?= $jurusan['id'] ?>"><?= $jurusan['nama_jurusan'] ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                </div>
-                                <div class="mb-3">
+                                </div> -->
+                                <!-- <div class="mb-3">
                                     <label for="lainnya_prodi" class="form-label">Program Studi</label>
                                     <select class="form-select" name="lainnya_prodi" id="lainnya_prodi">
                                         <option value="">-- Pilih Program Studi --</option>
@@ -403,7 +403,7 @@
                                             <option value="<?= $prodi['id'] ?>"><?= $prodi['nama_prodi'] ?></option>
                                         <?php endforeach; ?>
                                     </select>
-                                </div>
+                                </div> -->
                                 <div class="mb-3">
                                     <label for="lainnya_notlp" class="form-label">No.Hp:</label>
                                     <input type="text" class="form-control" name="lainnya_notlp" id="lainnya_notlp">
@@ -671,14 +671,14 @@ if (roleId == '1') { // Alumni
         $('#lainnya_jabatan').addClass('is-invalid');
         isValid = false;
     }
-    if (!$('#lainnya_jurusan').val()) {
-        $('#lainnya_jurusan').addClass('is-invalid');
-        isValid = false;
-    }
-    if (!$('#lainnya_prodi').val()) {
-        $('#lainnya_prodi').addClass('is-invalid');
-        isValid = false;
-    }
+    // if (!$('#lainnya_jurusan').val()) {
+    //     $('#lainnya_jurusan').addClass('is-invalid');
+    //     isValid = false;
+    // }
+    // if (!$('#lainnya_prodi').val()) {
+    //     $('#lainnya_prodi').addClass('is-invalid');
+    //     isValid = false;
+    // }
     if (!$('#lainnya_notlp').val()) {
         $('#lainnya_notlp').addClass('is-invalid');
         isValid = false;

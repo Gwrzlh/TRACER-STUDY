@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\AccountModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\Accounts;
 use App\Models\Roles;
@@ -229,28 +230,82 @@ public function updateProfil($id)
         return redirect()->to('/admin/profil')->with('error', 'Tidak boleh update profil orang lain.');
     }
 
+    $accountModel = new Accounts();
     $detailAdminModel = new DetailaccountAdmins();
 
+    // Validasi dengan pengecualian ID
     $rules = [
         'nama_lengkap' => 'required|min_length[3]',
-        'no_hp'        => 'required|min_length[10]|max_length[20]'
+        'no_hp'        => 'required|min_length[10]|max_length[20]',
+        'username'     => 'required|min_length[3]|is_unique[account.username,id,' . $id . ']',
+        'email'        => 'required|valid_email|is_unique[account.email,id,' . $id . ']',
     ];
 
     if (!$this->validate($rules)) {
         return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
     }
 
-    // ✅ update data di tabel detailaccount_admin
+    // Update tabel account
+    $accountModel->update($id, [
+        'username' => $this->request->getPost('username'),
+        'email'    => $this->request->getPost('email'),
+    ]);
+
+    // Update detailaccount_admin
     $detailAdminModel
         ->where('id_account', $id)
-        ->update(null, [
+        ->set([
             'nama_lengkap' => $this->request->getPost('nama_lengkap'),
-            'no_hp'        => $this->request->getPost('no_hp')
-        ]);
+            'no_hp'        => $this->request->getPost('no_hp'),
+        ])
+        ->update();
 
     return redirect()->to('/admin/profil')->with('success', 'Profil berhasil diperbarui');
 }
 
 
+public function ubahPassword()
+    {
+       
+    return view('adminpage/profil/ubah_password', [
+        'title' => 'Ubah Password'
+    ]);
+    }
+
+  public function updatePassword()
+{
+    $accountModel = new AccountModel();
+    $id = session()->get('id_account'); // id dari session login
+
+    $oldPassword = $this->request->getPost('old_password');
+    $newPassword = $this->request->getPost('new_password');
+    $confirmPassword = $this->request->getPost('confirm_password');
+
+    $user = $accountModel->find($id);
+    if (!$user) {
+        return redirect()->to(base_url('admin/profil'))->with('error', 'Akun tidak ditemukan');
+    }
+
+    if (!password_verify($oldPassword, $user['password'])) {
+        return redirect()->to(base_url('admin/profil'))->with('error', 'Password lama salah');
+    }
+
+    if ($newPassword !== $confirmPassword) {
+        return redirect()->to(base_url('admin/profil'))->with('error', 'Password baru tidak sama dengan konfirmasi');
+    }
+
+    if (strlen($newPassword) < 6) {
+        return redirect()->to(base_url('admin/profil'))->with('error', 'Password baru minimal 6 karakter');
+    }
+
+    if (password_verify($newPassword, $user['password'])) {
+        return redirect()->to(base_url('admin/profil'))->with('error', 'Password baru tidak boleh sama dengan password lama');
+    }
+
+    $hashed = password_hash($newPassword, PASSWORD_BCRYPT);
+    $accountModel->update($id, ['password' => $hashed]);
+
+    return redirect()->to(base_url('admin/profil'))->with('success', 'Password berhasil diubah');
+}
 
 }
