@@ -6,7 +6,7 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Filters\FilterInterface;
 
-class PerusahaanAuth implements FilterInterface
+class jabatanAuth implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
@@ -14,8 +14,8 @@ class PerusahaanAuth implements FilterInterface
             return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        if (session()->get('role_id') != 7) { // role perusahaan
-            return redirect()->to('/')->with('error', 'Akses ditolak. Anda bukan perusahaan.');
+        if (session()->get('role_id') != 9) { // role perusahaan
+            return redirect()->to('/')->with('error', 'Akses ditolak. Anda bukan jabatan lainnya.');
         }
     }
 
