@@ -269,8 +269,8 @@ class PenggunaController extends BaseController
             $rules = array_merge($rules, [
                 'lainnya_nama_lengkap' => 'required|min_length[3]',
                 'lainnya_jabatan'      => 'required|numeric',
-                'lainnya_jurusan'      => 'required|numeric',
-                'lainnya_prodi'        => 'required|numeric',
+                // 'lainnya_jurusan'      => 'required|numeric',
+                // 'lainnya_prodi'        => 'required|numeric',
                 'lainnya_notlp'        => 'required|min_length[10]',
             ]);
         }
@@ -361,8 +361,8 @@ class PenggunaController extends BaseController
                     $detailJabatanll->insert([
                         'nama_lengkap' => $this->request->getPost('lainnya_nama_lengkap'),
                         'id_jabatan'   => $this->request->getPost('lainnya_jabatan'),
-                        'id_jurusan'   => $this->request->getPost('lainnya_jurusan'),
-                        'id_prodi'     => $this->request->getPost('lainnya_prodi'),
+                        // 'id_jurusan'   => $this->request->getPost('lainnya_jurusan'),
+                        // 'id_prodi'     => $this->request->getPost('lainnya_prodi'),
                         'notlp'        => $this->request->getPost('lainnya_notlp'),
                         'id_account'   => $accountId,
                     ]);
@@ -561,8 +561,8 @@ class PenggunaController extends BaseController
                 $rules = array_merge($rules, [
                     'lainnya_nama_lengkap' => 'required',
                     'lainnya_jabatan'      => 'required',
-                    'lainnya_jurusan'      => 'required',
-                    'lainnya_prodi'        => 'required',
+                    // 'lainnya_jurusan'      => 'required',
+                    // 'lainnya_prodi'        => 'required',
                     'lainnya_notlp'        => 'required|numeric',
                 ]);
                 break;
@@ -751,8 +751,8 @@ class PenggunaController extends BaseController
                     'id_account' => $accountId,
                     'nama_lengkap' => $this->request->getPost('lainnya_nama_lengkap'),
                     'jabatan' => $this->request->getPost('lainnya_jabatan'),
-                    'id_jurusan' => $this->request->getPost('lainnya_jurusan'),
-                    'id_prodi' => $this->request->getPost('lainnya_prodi'),
+                    // 'id_jurusan' => $this->request->getPost('lainnya_jurusan'),
+                    // 'id_prodi' => $this->request->getPost('lainnya_prodi'),
                     'notlp' => $this->request->getPost('lainnya_notlp'),
                     'alamat' => $this->request->getPost('lainnya_alamat'),
                     'alamat2' => $this->request->getPost('lainnya_alamat2'),
@@ -842,8 +842,8 @@ class PenggunaController extends BaseController
                 $lainnyaData = [
                     'nama_lengkap' => $this->request->getPost('lainnya_nama_lengkap'),
                     'id_jurusan'   => $this->request->getPost('lainnya_jurusan'),
-                    'id_prodi'     => $this->request->getPost('lainnya_prodi'),
-                    'id_jabatan'   => $this->request->getPost('lainnya_jabatan'),
+                    // 'id_prodi'     => $this->request->getPost('lainnya_prodi'),
+                    // 'id_jabatan'   => $this->request->getPost('lainnya_jabatan'),
                     'notlp'       => $this->request->getPost('lainnya_notlp'),
                 ];
                 if (!$detailLainnya->where('id_account', $accountId)->set($lainnyaData)->update()) {

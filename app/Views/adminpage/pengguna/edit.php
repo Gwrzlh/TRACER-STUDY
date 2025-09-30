@@ -472,7 +472,7 @@ echo "</div>";
                                         <?php endif; ?>
                                     </select>
                                 </div>
-                                <div class="mb-3">
+                                <!-- <div class="mb-3">
                                     <label for="lainnya_jurusan" class="form-label">Jurusan</label>
                                     <select class="form-select" name="lainnya_jurusan" id="lainnya_jurusan">
                                         <option value="">-- Pilih Jurusan --</option>
@@ -495,7 +495,7 @@ echo "</div>";
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
-                                </div>
+                                </div> -->
                                 <div class="mb-3">
                                     <label for="lainnya_notlp" class="form-label">No.Hp:</label>
                                     <input type="text" class="form-control" name="lainnya_notlp" id="lainnya_notlp"
@@ -807,14 +807,14 @@ echo "</div>";
                     $('#lainnya_jabatan').addClass('is-invalid');
                     isValid = false;
                 }
-                if (!$('#lainnya_jurusan').val()) {
-                    $('#lainnya_jurusan').addClass('is-invalid');
-                    isValid = false;
-                }
-                if (!$('#lainnya_prodi').val()) {
-                    $('#lainnya_prodi').addClass('is-invalid');
-                    isValid = false;
-                }
+                // if (!$('#lainnya_jurusan').val()) {
+                //     $('#lainnya_jurusan').addClass('is-invalid');
+                //     isValid = false;
+                // }
+                // if (!$('#lainnya_prodi').val()) {
+                //     $('#lainnya_prodi').addClass('is-invalid');
+                //     isValid = false;
+                // }
                 if (!$('#lainnya_notlp').val()) {
                     $('#lainnya_notlp').addClass('is-invalid');
                     isValid = false;
