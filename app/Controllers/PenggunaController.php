@@ -20,6 +20,7 @@ use App\Models\DetailaccountPerusahaan;
 use App\Models\DetailaccountKaprodi;
 use App\Models\DetailaccountAtasan;
 use App\Models\DetailaccountJabatanLLnya;
+use App\Models\LogActivityModel;
 use Exception;
 
 class PenggunaController extends BaseController
@@ -862,6 +863,8 @@ class PenggunaController extends BaseController
         $detailAtasan = new DetailaccountAtasan();
         $accountJabatanLainnya = new DetailaccountJabatanLLnya();
         $account = $accountModel->find($id);
+        $logModel = new LogActivityModel(); // tambahin model log activities
+
 
         if ($account['id_role'] == 1) {
             $model->where('id_account', $id)->delete();
@@ -877,7 +880,14 @@ class PenggunaController extends BaseController
             $accountJabatanLainnya->where('id_account', $id)->delete();
         }
 
-        $accountModel->delete($id); // Jangan lupa hapus juga akun utama
+
+
+        // 🔥 Hapus dulu semua log aktivitas terkait user ini
+        $logModel->where('user_id', $id)->delete();
+
+        // Baru hapus akun utama
+        $accountModel->delete($id);
+
         return redirect()->to('/admin/pengguna')->with('success', 'Data dihapus.');
     }
 }
