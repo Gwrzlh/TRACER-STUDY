@@ -201,12 +201,14 @@ class KaprodiQuestionnairController extends BaseController
     {
         $questionnaireModel = new \App\Models\QuestionnairModel();
 
-        $title = $this->request->getPost('title');
+        $title      = $this->request->getPost('title');
         $description = $this->request->getPost('deskripsi');
-        $is_active = $this->request->getPost('is_active'); // enum string
+        $is_active   = $this->request->getPost('is_active'); // enum string
         $conditionalLogic = null;
 
-        // Handle conditional logic
+        $id_prodi_kaprodi = $this->kaprodi['id_prodi'] ?? null;
+
+        // Jika kaprodi tidak mengisi conditional logic, buat otomatis
         if ($this->request->getPost('conditional_logic')) {
             $fields    = $this->request->getPost('field_name');
             $operators = $this->request->getPost('operator');
@@ -215,11 +217,9 @@ class KaprodiQuestionnairController extends BaseController
             $conditions = [];
             for ($i = 0; $i < count($fields); $i++) {
                 if (!empty($fields[$i]) && !empty($operators[$i]) && !empty($values[$i])) {
-                    // Jika field adalah prodi/jurusan, pastikan value sesuai kaprodi
-                    if (in_array($fields[$i], ['id_prodi', 'id_jurusan'])) {
-                        if ($values[$i] != $this->kaprodi['id_prodi']) {
-                            $values[$i] = $this->kaprodi['id_prodi']; // paksa sesuai prodi kaprodi
-                        }
+                    // Paksa value id_prodi sesuai kaprodi
+                    if ($fields[$i] === 'id_prodi') {
+                        $values[$i] = $id_prodi_kaprodi;
                     }
 
                     $conditions[] = [
@@ -233,19 +233,29 @@ class KaprodiQuestionnairController extends BaseController
             if (!empty($conditions)) {
                 $conditionalLogic = json_encode($conditions);
             }
+        } else {
+            // Otomatis buat conditional logic untuk kaprodi
+            if ($id_prodi_kaprodi) {
+                $conditionalLogic = json_encode([
+                    [
+                        'field' => 'id_prodi',
+                        'operator' => 'is',
+                        'value' => $id_prodi_kaprodi
+                    ]
+                ]);
+            }
         }
 
         $questionnaireModel->insert([
             'title'             => $title,
             'deskripsi'         => $description,
             'is_active'         => $is_active,
-            'id_prodi'          => $this->kaprodi['id_prodi'], // otomatis dari kaprodi
+            'id_prodi'          => $id_prodi_kaprodi, // otomatis dari kaprodi
             'conditional_logic' => $conditionalLogic,
             'created_at'        => date('Y-m-d H:i:s'),
             'updated_at'        => date('Y-m-d H:i:s')
         ]);
 
-        // Redirect ke create lagi, agar tetap di halaman tambah kuesioner
         return redirect()->to(base_url('/kaprodi/kuesioner'))
             ->with('success', 'Kuesioner berhasil dibuat!');
     }

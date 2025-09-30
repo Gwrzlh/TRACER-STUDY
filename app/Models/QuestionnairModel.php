@@ -33,8 +33,22 @@ class QuestionnairModel extends Model
         log_message('debug', '[checkConditions] Evaluating conditions count: ' . count($conditions));
 
         $user_fields = [
-            'email', 'username', 'group_id', 'nama_lengkap', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'ipk',
-            'alamat', 'alamat2', 'id_cities', 'kodepos', 'tahun_kelulusan', 'jeniskelamin', 'notlp'
+            'email',
+            'username',
+            'group_id',
+            'nama_lengkap',
+            'nim',
+            'id_jurusan',
+            'id_prodi',
+            'angkatan',
+            'ipk',
+            'alamat',
+            'alamat2',
+            'id_cities',
+            'kodepos',
+            'tahun_kelulusan',
+            'jeniskelamin',
+            'notlp'
         ];
 
         $all_fields = array_merge($user_fields, array_keys($previous_answers ?? []));
@@ -125,9 +139,10 @@ class QuestionnairModel extends Model
         $accessible = [];
 
         foreach ($all_q as $q) {
-            if ($role === 'kaprodi') {
-                $id_prodi_user = $user_data['id_prodi'] ?? null;
+            $id_prodi_user = $user_data['id_prodi'] ?? null;
+            $conditional = $q['conditional_logic'] ?? '';
 
+            if ($role === 'kaprodi') {
                 // 1️⃣ Kuesioner khusus prodi kaprodi
                 if (!empty($q['id_prodi']) && $q['id_prodi'] == $id_prodi_user) {
                     $q['nama_prodi'] = $this->getNamaProdi($q['id_prodi']);
@@ -136,14 +151,10 @@ class QuestionnairModel extends Model
                 }
 
                 // 2️⃣ Kuesioner admin (id_prodi NULL) dengan conditional logic sesuai prodi kaprodi
-                if (empty($q['id_prodi'])) {
-                    $conditional = $q['conditional_logic'] ?? '';
-
-                    if (!empty($conditional) && $this->checkConditions($conditional, $user_data, [], $role)) {
+                if (empty($q['id_prodi']) && !empty($conditional)) {
+                    if ($this->checkConditions($conditional, $user_data, [], $role)) {
                         $cond = json_decode($conditional, true);
                         $id_prodi_cond = $cond[0]['value'] ?? null;
-
-                        // Pastikan prodi cond sesuai kaprodi
                         if ($id_prodi_cond == $id_prodi_user) {
                             $q['nama_prodi'] = $this->getNamaProdi($id_prodi_cond);
                             $accessible[] = $q;
@@ -154,21 +165,29 @@ class QuestionnairModel extends Model
                 continue;
             }
 
-            // Role lain (alumni, admin, dsb)
-            $conditional = $q['conditional_logic'] ?? '';
+            // Role alumni / admin / lainnya
             if (empty($conditional) || $conditional === '[]') {
+                // Kuesioner umum (admin) muncul untuk semua alumni
                 $q['nama_prodi'] = $this->getNamaProdi($q['id_prodi']);
                 $accessible[] = $q;
-            } elseif ($this->checkConditions($conditional, $user_data, [], $role)) {
-                $cond = json_decode($conditional, true);
-                $id_prodi_cond = $cond[0]['value'] ?? null;
-                $q['nama_prodi'] = $this->getNamaProdi($id_prodi_cond);
-                $accessible[] = $q;
+            } else {
+                // Conditional logic ada, cek prodi alumni
+                if ($this->checkConditions($conditional, $user_data, [], $role)) {
+                    $cond = json_decode($conditional, true);
+                    $id_prodi_cond = $cond[0]['value'] ?? null;
+                    if ($role === 'alumni' && $id_prodi_cond != $id_prodi_user) {
+                        // Alumni hanya boleh melihat jika prodi sesuai
+                        continue;
+                    }
+                    $q['nama_prodi'] = $this->getNamaProdi($id_prodi_cond);
+                    $accessible[] = $q;
+                }
             }
         }
 
         return $accessible;
     }
+
 
 
 

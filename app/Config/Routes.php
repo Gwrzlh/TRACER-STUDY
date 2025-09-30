@@ -543,6 +543,11 @@ $routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
     $routes->get('akreditasi', 'KaprodiController::akreditasi');
     $routes->get('akreditasi/detail/(:any)', 'KaprodiController::detailAkreditasi/$1');
 
+    // Hapus pertanyaan
+    $routes->get('questioner/delete/(:num)', 'KaprodiController::delete/$1');
+
+
+
     // AMI
     $routes->get('ami', 'KaprodiController::ami');
     $routes->get('ami/detail/(:any)', 'KaprodiController::detailAmi/$1');
@@ -570,7 +575,14 @@ $routes->group('admin/profil', ['filter' => 'auth'], function ($routes) {
     $routes->post('update-password', 'AdminController::updatePassword');
 });
 
-$routes->group('perusahaan', ['filter' => 'perusahaanAuth'], function ($routes) {
+$routes->group('jabatan', ['filter' => 'jabatanAuth'], function ($routes) {
     // Dashboard perusahaan
-    $routes->get('dashboard', 'PerusahaanController::dashboard');
+    $routes->get('dashboard', 'JabatanController::dashboard');
+    // AMI & Akreditasi Kaprodi
+    $routes->get('ami-akreditasi', 'JabatanController::amiAkreditasi');
+    $routes->post('filter-ami-akreditasi', 'JabatanController::filterAmiAkreditasi');
+
+    // Detail Ami / Akreditasi
+    $routes->get('detail-ami', 'JabatanController::detailAmi');
+    $routes->get('detail-akreditasi', 'JabatanController::detailAkreditasi');
 });
