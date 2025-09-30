@@ -14,6 +14,8 @@ class SatuanOrganisasiModel extends Model
         'nama_slug',
         'deskripsi',
         'id_tipe',
+        'id_jurusan',   
+        'id_prodi',     
         'urutan',
         'satuan_induk',
         'created_at',
@@ -21,12 +23,10 @@ class SatuanOrganisasiModel extends Model
     ];
     protected $useTimestamps = true;
 
-    // ✅ Tambahkan method untuk ambil data lengkap (JOIN)
-   public function getWithTipe()
-{
-    return $this->select('satuan_organisasi.*, tipe_organisasi.nama_tipe')
-                ->join('tipe_organisasi', 'tipe_organisasi.id = satuan_organisasi.id_tipe')
-                ->findAll();
-}
-
+    public function getWithTipe()
+    {
+        return $this->select('satuan_organisasi.*, tipe_organisasi.nama_tipe')
+                    ->join('tipe_organisasi', 'tipe_organisasi.id = satuan_organisasi.id_tipe')
+                    ->findAll();
+    }
 }

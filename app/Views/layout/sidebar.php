@@ -1,5 +1,13 @@
 <?php
 $currentRoute = service('request')->uri->getPath();
+$session = session();
+$foto = $session->get('foto');
+$fotoPath = FCPATH . 'uploads/foto_admin/' . ($foto ?? '');
+$fotoUrl = ($foto && file_exists($fotoPath))
+    ? base_url('uploads/foto_admin/' . $foto)
+    : base_url('uploads/default.png');
+// tambahkan timestamp supaya browser selalu load terbaru
+$fotoUrl .= '?t=' . time();
 ?>
 <!DOCTYPE html>
 <html lang="en">

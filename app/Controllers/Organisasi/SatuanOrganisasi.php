@@ -13,39 +13,45 @@ class SatuanOrganisasi extends Controller
     protected $helpers = ['form'];
 
     public function index()
-    {
-        $satuanModel = new SatuanOrganisasiModel();
-        $jurusanModel = new JurusanModel();
-        $prodiModel  = new Prodi();
-        $tipeModel   = new TipeOrganisasiModel();
+{
+    $satuanModel = new SatuanOrganisasiModel();
+    $jurusanModel = new JurusanModel();
+    $prodiModel  = new Prodi();
+    $tipeModel   = new TipeOrganisasiModel();
 
-        $keyword = $this->request->getGet('keyword');
+    $keyword = $this->request->getGet('keyword');
 
-        // Hitung jumlah
-        $data['count_satuan']  = $satuanModel->countAll();
-        $data['count_jurusan'] = $jurusanModel->countAll();
-        $data['count_prodi']   = $prodiModel->countAll();
+    // Hitung jumlah
+    $data['count_satuan']  = $satuanModel->countAll();
+    $data['count_jurusan'] = $jurusanModel->countAll();
+    $data['count_prodi']   = $prodiModel->countAll();
 
-        // Query utama (join tipe & prodi)
-        $builder = $satuanModel
-            ->select('satuan_organisasi.*, tipe_organisasi.nama_tipe, prodi.nama_prodi')
-            ->join('tipe_organisasi', 'tipe_organisasi.id = satuan_organisasi.id_tipe', 'left')
-            ->join('prodi', 'prodi.id = satuan_organisasi.id_prodi', 'left');
+    // Ambil semua satuan + tipe
+    $builder = $satuanModel
+        ->select('satuan_organisasi.*, tipe_organisasi.nama_tipe')
+        ->join('tipe_organisasi', 'tipe_organisasi.id = satuan_organisasi.id_tipe', 'left');
 
-        if (!empty($keyword)) {
-            $builder->groupStart()
-                ->like('satuan_organisasi.nama_satuan', $keyword)
-                ->orLike('satuan_organisasi.nama_singkatan', $keyword)
-                ->orLike('tipe_organisasi.nama_tipe', $keyword)
-                ->orLike('prodi.nama_prodi', $keyword)
-                ->groupEnd();
-        }
-
-        $data['satuan'] = $builder->findAll();
-        $data['keyword'] = $keyword;
-
-        return view('adminpage/organisasi/satuanorganisasi/index', $data);
+    if (!empty($keyword)) {
+        $builder->groupStart()
+            ->like('satuan_organisasi.nama_satuan', $keyword)
+            ->orLike('satuan_organisasi.nama_singkatan', $keyword)
+            ->orLike('tipe_organisasi.nama_tipe', $keyword)
+            ->groupEnd();
     }
+
+    $satuan = $builder->findAll();
+
+    // Tambahkan prodi_list untuk setiap satuan
+    foreach ($satuan as &$row) {
+        $row['prodi_list'] = $prodiModel->where('id_jurusan', $row['id_jurusan'])->findAll();
+    }
+
+    $data['satuan']  = $satuan;
+    $data['keyword'] = $keyword;
+
+    return view('adminpage/organisasi/satuanorganisasi/index', $data);
+}
+
 
     public function create()
     {
@@ -81,7 +87,8 @@ class SatuanOrganisasi extends Controller
             'deskripsi'      => $this->request->getPost('deskripsi'),
         ]);
 
-        return redirect()->to('/satuanorganisasi')->with('success', 'Data berhasil ditambahkan.');
+       return redirect()->to('/satuanorganisasi')->with('success', 'Data berhasil ditambahkan.');
+
     }
 
    public function edit($id)
@@ -118,10 +125,11 @@ public function delete($id)
 }
 
     // AJAX get Prodi by Jurusan
-    public function getProdi($id_jurusan)
-    {
-        $prodiModel = new Prodi();
-        $prodi = $prodiModel->where('id_jurusan', $id_jurusan)->findAll();
-        return $this->response->setJSON($prodi);
-    }
+    public function getProdiByJurusan($id_jurusan)
+{
+    $prodiModel = new Prodi();
+    $prodi = $prodiModel->where('id_jurusan', $id_jurusan)->findAll();
+    return $this->response->setJSON($prodi);
+}
+
 }

@@ -2,8 +2,7 @@
 
 namespace App\Controllers\Auth;
 
-
-use App\Models\User\AccountModel;   
+use App\Models\User\AccountModel;
 use CodeIgniter\Controller;
 use App\Libraries\BrevoMailer;
 
@@ -15,16 +14,15 @@ class Auth extends Controller
     {
         $this->accountModel = new AccountModel();
     }
+
     public function login()
     {
         // Kirim default value biar tidak error
         return view('login', [
-            'server_logged_in' => session()->get('isLoggedIn') ?? false,
+            'server_logged_in' => session()->get('logged_in') ?? false, // konsisten pakai logged_in
             'via_cookie'       => false, // kalau kamu tidak pakai "ingat saya"
         ]);
     }
-
-
     public function doLogin()
     {
         $request  = service('request');
@@ -33,89 +31,104 @@ class Auth extends Controller
         $usernameOrEmail = $request->getPost('username');
         $password        = $request->getPost('password');
 
-        // Cari user berdasarkan username / email
         $user = $this->accountModel
             ->where('username', $usernameOrEmail)
             ->orWhere('email', $usernameOrEmail)
             ->first();
 
         if ($user && password_verify($password, $user['password']) && $user['status'] === 'Aktif') {
-    $db = db_connect();
+            $db = db_connect();
+            $detail = null;
+            if ($user['id_role'] == 1) { // Alumni
+                $detail = $db->table('detailaccount_alumni')
+                    ->where('id_account', $user['id'])
+                    ->get()
+                    ->getRowArray();
+            } elseif ($user['id_role'] == 6) { // Kaprodi
+                $detail = $db->table('detailaccount_kaprodi')
+                    ->where('id_account', $user['id'])
+                    ->get()
+                    ->getRowArray();
+            }
 
-    // Ambil detail berdasarkan role
-    $detail = null;
-    if ($user['id_role'] == 1) { // Alumni
-        $detail = $db->table('detailaccount_alumni')
-            ->where('id_account', $user['id'])
-            ->get()
-            ->getRowArray();
-    } elseif ($user['id_role'] == 6) { // Kaprodi
-        $detail = $db->table('detailaccount_kaprodi')
-            ->where('id_account', $user['id'])
-            ->get()
-            ->getRowArray();
-    }
+            $sessionData = [
+                'id'          => $user['id'],
+                'id_account'  => $user['id'],
+                'username'    => $user['username'],
+                'email'       => $user['email'],
+                'role_id'     => $user['id_role'],
+                'id_surveyor' => $user['id_surveyor'],
+                'logged_in'   => true,
+            ];
 
-    // Data session dasar
-    $sessionData = [
-        'id'          => $user['id'],
-        'id_account'  => $user['id'],
-        'username'    => $user['username'],
-        'email'       => $user['email'],
-        'role_id'     => $user['id_role'],
-        'id_surveyor' => $user['id_surveyor'],
-        'logged_in'   => true,
-    ];
-
-    // Tambah data detail (kalau ada)
-    if ($detail) {
-        $sessionData['nama_lengkap'] = $detail['nama_lengkap'];
-        $sessionData['foto']         = $detail['foto'] ?? 'default.png';
-    } else {
-        // fallback kalau tidak ada detail
-        $sessionData['nama_lengkap'] = $user['username'];
-        $sessionData['foto']         = 'default.png';
-    }
-
-    session()->set($sessionData);
-
-    return $this->redirectByRole($user['id_role']);
+            if ($detail) {
+    $sessionData['nama_lengkap'] = $detail['nama_lengkap'] ?? $user['username'];
+    $sessionData['foto']         = $detail['foto'] ?? $user['foto'] ?? 'default.png';
+                $fields = [
+                    'id_jurusan',
+                    'id_prodi',
+                    'angkatan',
+                    'ipk',
+                    'alamat',
+                    'alamat2',
+                    'id_cities',
+                    'kodepos',
+                    'tahun_kelulusan',
+                    'jeniskelamin',
+                    'notlp'
+                ];
+                foreach ($fields as $field) {
+                    $sessionData[$field] = $detail[$field] ?? null;
+                }
+           } else {
+    $sessionData['nama_lengkap'] = $user['username'];
+    $sessionData['foto']         = $user['foto'] ?? 'default.png';
 }
+
+            session()->set($sessionData);
+            log_message('debug', '[AuthController] Session set: ' . json_encode($session->get()));
+
+            return $this->redirectByRole($user['id_role']);
+        }
+
         return redirect()->back()->with('error', 'Username atau password salah atau akun tidak aktif.');
     }
-
 
     public function logout()
     {
         $session = session();
+        log_message('debug', '[AuthController] Session before logout: ' . json_encode($session->get()));
         $session->destroy();
         return redirect()->to('/login')->with('success', 'Anda berhasil logout.');
     }
 
-    // Redirect sesuai role
     private function redirectByRole($roleId)
     {
         switch ($roleId) {
-            case 1:
+            case 1: // Alumni
+                if (session('id_surveyor') == 1) {
+                    return redirect()->to('/alumni/supervisi');
+                } else {
+                    return redirect()->to('/alumni/dashboard');
+                }
+            case 2: // Admin
+                return redirect()->to('/admin/dashboard');
+            case 6: // Kaprodi
                 return session('id_surveyor') == 1
-                    ? redirect()->to('alumni/supervisi')
-                    : redirect()->to('alumni/dashboard');
-            case 2:
-                return redirect()->to('admin/dashboard');
-            case 6:
-                return session('id_surveyor') == 1
-                    ? redirect()->to('kaprodi/supervisi')
-                    : redirect()->to('kaprodi/dashboard');
+                    ? redirect()->to('/kaprodi/supervisi')
+                    : redirect()->to('/kaprodi/dashboard');
             case 7:
-                return redirect()->to('perusahaan/dashboard');
+                return redirect()->to('/perusahaan/dashboard');
             case 8:
-                return redirect()->to('atasan/dashboard');
+                return redirect()->to('/atasan/dashboard');
             case 9:
-                return redirect()->to('jabatan/dashboard');
+                return redirect()->to('/jabatan/dashboard');
             default:
                 return redirect()->to('/login');
         }
     }
+
+
 
     // Form lupa password
     public function forgotPassword()
@@ -172,23 +185,30 @@ class Auth extends Controller
 
     // Simpan password baru
     public function doResetPassword()
-    {
-        $token       = $this->request->getPost('token');
-        $newPassword = $this->request->getPost('password');
-        $confirm     = $this->request->getPost('confirm_password');
+{
+    $token = $this->request->getPost('token');
+    $password = $this->request->getPost('password');
+    $confirmPassword = $this->request->getPost('confirm_password');
 
-        if ($newPassword !== $confirm) {
-            return redirect()->back()->with('error', 'Password dan konfirmasi tidak sama.');
-        }
+    // Cari user berdasarkan token
+    $user = $this->accountModel->getUserByResetToken($token);
 
-        $user = $this->accountModel->getUserByResetToken($token);
-
-        if (!$user) {
-            return redirect()->to('/login')->with('error', 'Token tidak valid atau sudah kadaluarsa.');
-        }
-
-        $this->accountModel->updatePasswordAndExpire($user['id'], $newPassword);
-
-        return redirect()->to('/login')->with('success', 'Password berhasil direset, silakan login.');
+    if (!$user) {
+        return redirect()->to('/login')->with('error', 'Token tidak valid atau sudah kadaluarsa.');
     }
+
+    if ($password !== $confirmPassword) {
+        return redirect()->back()->with('error', 'Konfirmasi password tidak sama.');
+    }
+
+    // Update password & hapus token
+    $this->accountModel->update($user['id'], [
+        'password' => password_hash($password, PASSWORD_DEFAULT),
+        'reset_token' => null,
+        'reset_expires' => null
+    ]);
+    // Redirect ke login dengan alert sukses
+    return redirect()->to('/login')->with('success', 'Password berhasil diupdate. Silakan login.');
 }
+}
+

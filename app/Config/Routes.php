@@ -133,20 +133,36 @@ $routes->group('questionnaire', ['namespace' => 'App\Controllers\Questionnaire']
         $routes->post('tentang/update', 'LandingPage\Tentang::update');
     });
 
- // --------------------
-// ROUTES: Satuan Organisasi
-// --------------------
+    
+
+
 $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers\Organisasi', 'filter' => 'auth'], function ($routes) {
     $routes->get('/', 'SatuanOrganisasi::index');
     $routes->get('create', 'SatuanOrganisasi::create');
     $routes->post('store', 'SatuanOrganisasi::store');
     $routes->get('edit/(:num)', 'SatuanOrganisasi::edit/$1');
     $routes->post('update/(:num)', 'SatuanOrganisasi::update/$1');
-    $routes->get('delete/(:num)', 'SatuanOrganisasi::delete/$1');
+    $routes->post('delete/(:num)', 'SatuanOrganisasi::delete/$1');
 
-    // AJAX
-    $routes->get('get-prodi/(:num)', 'SatuanOrganisasi::getProdi/$1');
+
+    // Jurusan
+    $routes->get('jurusan', 'Jurusan::index');
+    $routes->get('jurusan/create', 'Jurusan::create');
+    $routes->post('jurusan/store', 'Jurusan::store');
+    $routes->get('jurusan/edit/(:num)', 'Jurusan::edit/$1');
+    $routes->post('jurusan/update/(:num)', 'Jurusan::update/$1');
+    $routes->get('jurusan/delete/(:num)', 'Jurusan::delete/$1');
+$routes->get('getProdiByJurusan/(:num)', 'SatuanOrganisasi::getProdiByJurusan/$1');
+
+    // Prodi
+    $routes->get('prodi', 'ProdiController::index');
+    $routes->get('prodi/create', 'ProdiController::c    reate');
+    $routes->post('prodi/store', 'ProdiController::store');
+    $routes->get('prodi/edit/(:num)', 'ProdiController::edit/$1');
+    $routes->post('prodi/update/(:num)', 'ProdiController::update/$1');
+    $routes->post('prodi/delete/(:num)', 'ProdiController::delete/$1'); // ganti dari GET
 });
+
 
 
     // --------------------

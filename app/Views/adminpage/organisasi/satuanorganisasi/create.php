@@ -1,16 +1,17 @@
+```php
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
 <link rel="stylesheet" href="<?= base_url('css/organisasi/create.css') ?>">
 
 <div class="card shadow-sm">
-    <div class="card-header">
-        <img src="/images/logo.png" alt="Tracer Study" class="logo">
-        <h4>Tambah Satuan Organisasi</h4>
+    <div class="card-header d-flex align-items-center">
+        <img src="/images/logo.png" alt="Tracer Study" class="logo me-2">
+        <h4 class="mb-0">Tambah Satuan Organisasi</h4>
     </div>
 
     <div class="card-body">
-        <form action="/satuanorganisasi/store" method="post">
+        <form action="<?= base_url('satuanorganisasi/store') ?>" method="post">
             <?= csrf_field() ?>
 
             <!-- Jurusan -->
@@ -26,11 +27,12 @@
 
             <!-- Prodi (hanya tampil sesuai jurusan) -->
             <div class="mb-3">
-                <label class="form-label">Prodi</label>
-                <div id="prodi_list" class="border rounded p-2 bg-light">
-                    <em>Pilih jurusan terlebih dahulu</em>
-                </div>
-            </div>
+    <label for="id_prodi" class="form-label required">Prodi</label>
+    <select name="id_prodi" id="id_prodi" class="form-control" required>
+        <option value="">-- Pilih Jurusan dahulu --</option>
+    </select>
+</div>
+
 
             <!-- Nama Satuan -->
             <div class="mb-3">
@@ -69,8 +71,8 @@
 
             <!-- Tombol -->
             <div class="mt-3">
-                <button type="submit" class="btn-primary-custom">Simpan</button>
-                <a href="/satuanorganisasi" class="btn-warning-custom">Batal</a>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+                <a href="<?= base_url('satuanorganisasi') ?>" class="btn btn-warning">Batal</a>
             </div>
         </form>
     </div>
@@ -79,7 +81,7 @@
 <!-- Script -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    // Slug & singkatan otomatis
+// Slug & singkatan otomatis
 $('#nama_satuan').on('input', function() {
     const nama = $(this).val();
     const slug = nama.toLowerCase()
@@ -97,25 +99,25 @@ $('#nama_satuan').on('input', function() {
 // Tampilkan Prodi sesuai Jurusan dan buat hidden input otomatis
 $('#id_jurusan').change(function() {
     const jurusanId = $(this).val();
-    $('#prodi_list').html('<em>Memuat data...</em>');
-
+    $('#id_prodi').html('<option value="">Memuat...</option>');
+    
     if (jurusanId) {
-        $.getJSON("<?= base_url('satuanorganisasi/getProdiByJurusan') ?>/" + jurusanId, function(data) {
+        $.getJSON("<?= base_url('satuanorganisasi/getProdiByJurusan') ?>/" + jurusanId
+, function(data) {
             if (data && data.length > 0) {
-                let html = '<ul>';
+                let options = '<option value="">-- Pilih Prodi --</option>';
                 data.forEach(p => {
-                    html += `<li>${p.nama_prodi}</li>`;
-                    // hidden input supaya ikut ke form
-                    html += `<input type="hidden" name="prodi_ids[]" value="${p.id}">`;
+                    options += `<option value="${p.id}">${p.nama_prodi}</option>`;
                 });
-                html += '</ul>';
-                $('#prodi_list').html(html);
+                $('#id_prodi').html(options);
             } else {
-                $('#prodi_list').html('<em>Tidak ada prodi untuk jurusan ini</em>');
+                $('#id_prodi').html('<option value="">Tidak ada prodi</option>');
             }
+        }).fail(function() {
+            $('#id_prodi').html('<option value="">Gagal memuat data</option>');
         });
     } else {
-        $('#prodi_list').html('<em>Pilih jurusan terlebih dahulu</em>');
+        $('#id_prodi').html('<option value="">-- Pilih Jurusan dahulu --</option>');
     }
 });
 

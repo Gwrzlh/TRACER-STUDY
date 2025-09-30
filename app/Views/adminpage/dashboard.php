@@ -49,6 +49,17 @@
             </div>
         </div>
 
+        <div class="dashboard-header loading">
+            <div class="header-content">
+                <div class="dashboard-logo">
+                   <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2" style="height: 60px;">
+                </div>
+                <div class="header-text">
+                    <h1 class="dashboard-title">Akun</h1>
+                </div>
+            </div>
+        </div>
+
         <!-- STATISTICS GRID -->
         <div class="stats-grid">
            
