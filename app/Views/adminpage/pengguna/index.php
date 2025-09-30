@@ -110,43 +110,52 @@
                                 $no = 1 + (($perPage ?? 10) * (($currentPage ?? 1) - 1));
                                 foreach ($accounts as $acc): ?>
                                     <tr>
-                                        <td><input type="checkbox" class="table-checkbox"></td>
-                                        <td class="user-info">
-                                            <div class="user-avatar" data-initial="<?= strtoupper(substr($acc['username'], 0, 1)) ?>">
-                                                <span><?= strtoupper(substr($acc['username'], 0, 1)) ?></span>
-                                            </div>
-                                            <div class="user-details">
-                                                <div class="user-name"><?= esc($acc['username']) ?></div>
-                                                <div class="user-email"><?= esc($acc['email']) ?></div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="status-badge <?= (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1') ? 'status-active' : 'status-inactive' ?>">
-                                                <?= (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1') ? 'Active' : 'Inactive' ?>
-                                            </span>
-                                        </td>
-                                        <td class="email-cell"><?= esc($acc['email']) ?></td>
-                                        <td>
-                                            <span class="group-badge"><?= esc($acc['nama_role'] ?? 'No Role') ?></span>
-                                        </td>
-                                        <td class="action-cell">
-                                            <div class="action-buttons">
-                                                <a href="<?= base_url('/admin/pengguna/editPengguna/' . $acc['id']) ?>" class="btn-action btn-edit" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')">
-                                                    <?= csrf_field() ?>
-                                                    <input type="hidden" name="_method" value="DELETE">
-                                                    <button type="submit" class="btn-action btn-delete" title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                                <button class="btn-action btn-more" title="More options">
-                                                    <i class="fas fa-ellipsis-v"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+    <td><input type="checkbox" class="table-checkbox"></td>
+    <td class="user-info">
+        <div class="user-avatar">
+            <?php if (!empty($acc['foto'])): ?>
+                <img src="<?= base_url('uploads/foto_admin/' . $acc['foto']) ?>"
+                     alt="Foto Profil"
+                     style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+            <?php else: ?>
+                <img src="<?= base_url('uploads/default.png') ?>"
+                     alt="Default Avatar"
+                     style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+            <?php endif; ?>
+        </div>
+        <div class="user-details">
+            <div class="user-name"><?= esc($acc['username']) ?></div>
+            <div class="user-email"><?= esc($acc['email']) ?></div>
+        </div>
+    </td>
+    <td>
+        <span class="status-badge <?= (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1') ? 'status-active' : 'status-inactive' ?>">
+            <?= (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1') ? 'Active' : 'Inactive' ?>
+        </span>
+    </td>
+    <td class="email-cell"><?= esc($acc['email']) ?></td>
+    <td>
+        <span class="group-badge"><?= esc($acc['nama_role'] ?? 'No Role') ?></span>
+    </td>
+    <td class="action-cell">
+        <div class="action-buttons">
+            <a href="<?= base_url('/admin/pengguna/editPengguna/' . $acc['id']) ?>" class="btn-action btn-edit" title="Edit">
+                <i class="fas fa-edit"></i>
+            </a>
+            <form action="<?= base_url('/admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?')">
+                <?= csrf_field() ?>
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="btn-action btn-delete" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+            <button class="btn-action btn-more" title="More options">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+        </div>
+    </td>
+</tr>
+
                                 <?php endforeach; ?>
                             </tbody>
                         </table>

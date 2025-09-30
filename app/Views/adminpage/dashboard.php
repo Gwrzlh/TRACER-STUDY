@@ -21,14 +21,21 @@
         <!-- TOP CARDS -->
         <div class="top-cards">
             <!-- User Info Card -->
-            <div class="card user-info-card loading">
-                <div class="user-avatar">
-                    <?= strtoupper(substr(session()->get('username'), 0, 2)) ?>
-                </div>
-                <div class="user-name"><?= session()->get('username') ?></div>
-                <div class="user-email"><?= session()->get('email') ?></div>
-                <div class="user-role">Role ID: <?= session()->get('role_id') ?></div>
-            </div>
+          <div class="card user-info-card loading">
+    <div class="user-avatar">
+        <?php if (session()->get('foto')): ?>
+            <img src="<?= base_url('uploads/foto_admin/' . session()->get('foto')) ?>"
+                 alt="Foto Profil"
+                 style="width:60px; height:60px; border-radius:50%;">
+        <?php else: ?>
+            <?= strtoupper(substr(session()->get('username'), 0, 2)) ?>
+        <?php endif; ?>
+    </div>
+    <div class="user-name"><?= session()->get('username') ?></div>
+    <div class="user-email"><?= session()->get('email') ?></div>
+    <div class="user-role">Role ID: <?= session()->get('role_id') ?></div>
+</div>
+                
 
             <!-- Response Rate Card -->
             <div class="card response-card loading">
