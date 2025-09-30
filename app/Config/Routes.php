@@ -193,6 +193,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->get('(:num)/delete', 'QuestionnairController::delete/$1');
         $routes->post('(:num)/toggle-status', 'QuestionnairController::toggleStatus/$1');
         $routes->get('(:num)/preview', 'QuestionnairController::preview/$1');
+        $routes->get('(:num)/download-pdf', 'QuestionnairController::downloadPDF/$1');
         $routes->get('pages/getQuestionOptions', 'QuestionnairePageController::getQuestionOptions');
     });
 
@@ -237,6 +238,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('(:num)/delete', 'SectionController::delete/$1/$2/$3');
         $routes->post('(:num)/moveDown', 'SectionController::moveDown/$1/$2/$3');
         $routes->post('(:num)/moveUp', 'SectionController::moveUp/$1/$2/$3');
+        $routes->post('(:num)/duplicate', 'SectionController::duplicate/$1/$2/$3');
 
         // Questions per section
 
@@ -569,8 +571,8 @@ $routes->group('admin/profil', ['filter' => 'auth'], function ($routes) {
     $routes->post('update-foto/(:num)', 'AdminController::updateFoto/$1');
 
     // ubah password (kalau ada)
-    $routes->get('ubah-password', 'AdminController::ubahPassword');
-    $routes->post('ubah-password', 'AdminController::updatePassword');
+     $routes->get('ubah-password', 'AdminController::ubahPassword');
+    $routes->post('update-password', 'AdminController::updatePassword');
 });
 
 $routes->group('jabatan', ['filter' => 'jabatanAuth'], function ($routes) {

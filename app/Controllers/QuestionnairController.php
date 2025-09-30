@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\QuestionModel;
-use App\Models\QuestionOptionModel;
+// use App\Models\QuestionOptionModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\QuestionnairModel;
 use App\Models\QuestionnairePageModel;
@@ -20,9 +20,20 @@ use App\Models\MatrixColumnModels;
 use Config\App;
 use App\Models\AnswerModel;
 use App\Models\ResponseModel;
+use App\Models\QuestionOptionModel;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class QuestionnairController extends BaseController
 {
+    protected $questionnaireModel;
+    public function __construct()
+    {
+        $this->questionnaireModel = new QuestionnairModel();
+        helper('questionnaire_helper');
+        // Asumsikan model lain seperti QuestionnairePageModel, dll., jika diperlukan
+    }
+
     public function index()
     {
         $model = new QuestionnairModel();
@@ -130,7 +141,8 @@ class QuestionnairController extends BaseController
 
         $title       = $this->request->getPost('title');
         $description = $this->request->getPost('deskripsi');
-        $is_active   = $this->request->getPost('is_active'); // langsung enum string
+        $is_active   = $this->request->getPost('is_active');
+        $announcement = $this->request->getPost('announcement');
         $conditionalLogic = null;
 
         // Handle conditional logic
@@ -159,6 +171,7 @@ class QuestionnairController extends BaseController
             'deskripsi'         => $description,
             'is_active'         => $is_active, // enum langsung
             'conditional_logic' => $conditionalLogic,
+            'announcement'      => $announcement,
             'created_at'        => date('Y-m-d H:i:s'),
             'updated_at'        => date('Y-m-d H:i:s')
         ]);
@@ -234,8 +247,12 @@ class QuestionnairController extends BaseController
         $validation->setRules([
             'title'      => 'required|min_length[3]|max_length[255]',
             'deskripsi'  => 'permit_empty|max_length[1000]',
-            'is_active'  => 'required|in_list[active,draft,inactive]', // langsung enum
+            'is_active'  => 'required|in_list[active,draft,inactive]',
+            'announcement' => 'required|max_length[1000]'
         ]);
+
+            $announcement = $this->request->getPost('announcement');
+
 
         if (!$validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
@@ -269,6 +286,7 @@ class QuestionnairController extends BaseController
             'deskripsi' => $this->request->getPost('deskripsi'),
             'is_active' => $this->request->getPost('is_active'),
             'conditional_logic' => $conditionalLogic,
+            'announcement' => $announcement,
             'updated_at' => date('Y-m-d H:i:s')
         ]);
 
@@ -407,6 +425,7 @@ class QuestionnairController extends BaseController
             'file'      => 'Upload File',
             'rating'    => 'Rating',
             'matrix'    => 'Matriks',
+            'user_field' => 'User Profile Field',
         ];
 
 
@@ -529,42 +548,52 @@ class QuestionnairController extends BaseController
     {
         log_message('debug', 'POST Data: ' . print_r($this->request->getPost(), true));
 
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'question_text' => 'required',
-            'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
-            'is_required' => 'permit_empty|in_list[0,1]',
-            'order_no' => 'required|integer',
-            'options' => 'permit_empty',
-            'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-            'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
-            'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-            'scale_min_label' => 'permit_empty',
-            'scale_max_label' => 'permit_empty',
-            'allowed_types' => 'permit_empty',
-            'max_file_size' => 'permit_empty|integer',
-            'matrix_rows' => 'permit_empty',
-            'matrix_columns' => 'permit_empty',
-            'enable_conditional' => 'permit_empty|in_list[0,1]',
-            'parent_question_id' => 'permit_empty|integer',
-            'condition_operator' => 'permit_empty|in_list[is,is not]',
-            'condition_value' => 'permit_empty',
-        ]);
+    $validation = \Config\Services::validation();
+    $validation->setRules([
+        'question_text' => 'required',
+        'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
+        'is_required' => 'permit_empty|in_list[0,1]',
+        'order_no' => 'required|integer',
+        'options' => 'permit_empty',
+        'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
+        'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_min_label' => 'permit_empty',
+        'scale_max_label' => 'permit_empty',
+        'allowed_types' => 'permit_empty',
+        'max_file_size' => 'permit_empty|integer',
+        'matrix_rows' => 'permit_empty',
+        'matrix_columns' => 'permit_empty',
+        'user_field_name' => 'permit_empty|alpha_dash',
+    ]);
 
-        if (!$validation->withRequest($this->request)->run()) {
-            log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
-            return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
+    if (!$validation->withRequest($this->request)->run()) {
+        log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
+        return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
+    }
+
+    $type = $this->request->getPost('question_type');
+        if ($type === 'user_field') {
+            $userFieldName = $this->request->getPost('user_field_name');
+            if (empty($userFieldName)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'User field name is required for user_field type']]);
+            }
+            // Validate against available fields (hardcoded for simplicity)
+            $availableFields = ['nama_lengkap','email', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
+            if (!in_array($userFieldName, $availableFields)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'Invalid user field name']]);
+            }
         }
 
-        $questionModel = new QuestionModel();
-        $maxOrder = $questionModel->where([
-            'questionnaires_id' => $questionnaire_id,
-            'page_id' => $page_id,
-            'section_id' => $section_id
-        ])->selectMax('order_no')->first()['order_no'] ?? 0;
+    $questionModel = new QuestionModel();
+    $maxOrder = $questionModel->where([
+        'questionnaires_id' => $questionnaire_id,
+        'page_id' => $page_id,
+        'section_id' => $section_id
+    ])->selectMax('order_no')->first()['order_no'] ?? 0;
 
-        $db = \Config\Database::connect();
-        $db->transStart();
+    $db = \Config\Database::connect();
+    $db->transStart();
 
         try {
             $questionModel = new QuestionModel();
@@ -584,36 +613,27 @@ class QuestionnairController extends BaseController
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
 
-            // Conditional logic to condition_json
-            $enableConditional = $this->request->getPost('enable_conditional') ? 1 : 0;
-            $parentId = $this->request->getPost('parent_question_id');
-            if ($enableConditional && $parentId) {
-                $condition = [
-                    'field' => 'question_' . $parentId,
-                    'operator' => $this->request->getPost('condition_operator') ?: 'is',
-                    'value' => $this->request->getPost('condition_value')
-                ];
-                $data['condition_json'] = json_encode([$condition]);
-                log_message('debug', 'Saving condition_json: ' . $data['condition_json']);
-            } else {
-                $data['condition_json'] = null;
-            }
+            $data['condition_json'] = null;
+
             // Special type handling
             $type = $data['question_type'];
             log_message('debug', 'Processing special type: ' . $type);
 
-            if ($type === 'scale') {
-                $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
-                $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
-                $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
-                $data['scale_min_label'] = $this->request->getPost('scale_min_label');
-                $data['scale_max_label'] = $this->request->getPost('scale_max_label');
-                log_message('debug', 'Scale settings saved: min=' . $data['scale_min'] . ', max=' . $data['scale_max'] . ', step=' . $data['scale_step']);
-            } elseif ($type === 'file') {
-                $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
-                $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
-                log_message('debug', 'File settings saved: types=' . $data['allowed_types'] . ', size=' . $data['max_file_size']);
-            }
+        if ($type === 'scale') {
+            $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
+            $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
+            $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
+            $data['scale_min_label'] = $this->request->getPost('scale_min_label');
+            $data['scale_max_label'] = $this->request->getPost('scale_max_label');
+            log_message('debug', 'Scale settings saved: min=' . $data['scale_min'] . ', max=' . $data['scale_max'] . ', step=' . $data['scale_step']);
+        } elseif ($type === 'file') {
+            $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
+            $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
+            log_message('debug', 'File settings saved: types=' . $data['allowed_types'] . ', size=' . $data['max_file_size']);
+        } elseif ($type === 'user_field') {
+            $data['user_field_name'] = $this->request->getPost('user_field_name');
+        }
+        
 
             // Insert question
             $question_id = $questionModel->insert($data);
@@ -701,32 +721,42 @@ class QuestionnairController extends BaseController
 
     public function updateQuestion($questionnaire_id, $page_id, $section_id, $question_id)
     {
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'question_id' => 'required|integer',
-            'question_text' => 'required',
-            'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
-            'is_required' => 'permit_empty|in_list[0,1]',
-            'order_no' => 'permit_empty|integer',
-            'options' => 'permit_empty',
-            'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-            'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
-            'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-            'scale_min_label' => 'permit_empty',
-            'scale_max_label' => 'permit_empty',
-            'allowed_types' => 'permit_empty',
-            'max_file_size' => 'permit_empty|integer',
-            'matrix_rows' => 'permit_empty',
-            'matrix_columns' => 'permit_empty',
-            'enable_conditional' => 'permit_empty|in_list[0,1]',
-            'parent_question_id' => 'permit_empty|integer',
-            'condition_operator' => 'permit_empty|in_list[is,is not]',
-            'condition_value' => 'permit_empty',
-        ]);
+    $validation = \Config\Services::validation();
+    $validation->setRules([
+        'question_id' => 'required|integer',
+        'question_text' => 'required',
+        'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
+        'is_required' => 'permit_empty|in_list[0,1]',
+        'order_no' => 'permit_empty|integer',
+        'options' => 'permit_empty',
+        'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
+        'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_min_label' => 'permit_empty',
+        'scale_max_label' => 'permit_empty',
+        'allowed_types' => 'permit_empty',
+        'max_file_size' => 'permit_empty|integer',
+        'matrix_rows' => 'permit_empty',
+        'matrix_columns' => 'permit_empty',
+        'user_field_name' => 'permit_empty|alpha_dash',
+    ]);
 
-        if (!$validation->withRequest($this->request)->run()) {
-            log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
-            return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
+    if (!$validation->withRequest($this->request)->run()) {
+        log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
+        return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
+    }
+
+    $type = $this->request->getPost('question_type');
+        if ($type === 'user_field') {
+            $userFieldName = $this->request->getPost('user_field_name');
+            if (empty($userFieldName)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'User field name is required for user_field type']]);
+            }
+            // Validate against available fields (hardcoded for simplicity)
+            $availableFields = ['nama_lengkap', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
+            if (!in_array($userFieldName, $availableFields)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'Invalid user field name']]);
+            }
         }
 
         $db = \Config\Database::connect();
@@ -751,34 +781,20 @@ class QuestionnairController extends BaseController
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
 
-            // Conditional logic
-            $enableConditional = $this->request->getPost('enable_conditional') ? 1 : 0;
-            $parentId = $this->request->getPost('parent_question_id');
-            if ($enableConditional && $parentId) {
-                $condition = [
-                    'field' => 'question_' . $parentId,
-                    'operator' => $this->request->getPost('condition_operator') ?: 'is',
-                    'value' => $this->request->getPost('condition_value')
-                ];
-                $data['condition_json'] = json_encode([$condition]);
-                log_message('debug', 'Saving condition_json: ' . $data['condition_json']);
-            } else {
-                $data['condition_json'] = null;
-                log_message('debug', 'No conditional logic enabled, condition_json set to null');
-            }
+            $data['condition_json'] = null;
 
-            // Special type handling
-            $type = $data['question_type'];
-            if ($type === 'scale') {
-                $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
-                $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
-                $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
-                $data['scale_min_label'] = $this->request->getPost('scale_min_label');
-                $data['scale_max_label'] = $this->request->getPost('scale_max_label');
-            } elseif ($type === 'file') {
-                $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
-                $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
-            }
+        // Special type handling
+        $type = $data['question_type'];
+        if ($type === 'scale') {
+            $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
+            $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
+            $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
+            $data['scale_min_label'] = $this->request->getPost('scale_min_label');
+            $data['scale_max_label'] = $this->request->getPost('scale_max_label');
+        } elseif ($type === 'file') {
+            $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
+            $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
+        }
 
             $questionModel->update($question_id, $data);
 
@@ -1117,6 +1133,63 @@ class QuestionnairController extends BaseController
             log_message('error', 'Exception in duplicateSectionQuestion: ' . $e->getMessage());
             $db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to duplicate question: ' . $e->getMessage()]);
+        }
+    }
+    public function downloadPDF($questionnaire_id)
+    {
+        // Validasi akses: Asumsikan hanya admin; sesuaikan dengan sistem autentikasi Anda
+        if (!session()->get('logged_in')) { // Ganti dengan pengecekan permission yang sesuai
+            log_message('error', '[downloadPDF] Unauthorized access attempt for questionnaire ID: ' . $questionnaire_id);
+            return redirect()->back()->with('error', 'Anda tidak memiliki izin untuk mengunduh PDF ini.');
+        }
+
+        // $questionnaireModel = new QuestionnairModel();
+
+
+        // Ambil data questionnaire
+        $questionnaire = $this->questionnaireModel->find($questionnaire_id);
+        if (!$questionnaire) {
+            log_message('error', '[downloadPDF] Questionnaire not found: ID ' . $questionnaire_id);
+            return redirect()->back()->with('error', 'Kuesioner tidak ditemukan.');
+        }
+
+        // Ambil struktur lengkap (gunakan getQuestionnaireStructure dengan data kosong untuk mendapatkan semua)
+        $structure = $this->questionnaireModel->getQuestionnaireStructure($questionnaire_id, [], []);
+        if (empty($structure['pages'])) {
+            log_message('warning', '[downloadPDF] Empty structure for questionnaire ID: ' . $questionnaire_id);
+            return redirect()->back()->with('warning', 'Kuesioner ini tidak memiliki konten. Tidak ada PDF yang dapat dibuat.');
+        }
+
+        // Log attempt
+        log_message('info', '[downloadPDF] Generating PDF for questionnaire ID: ' . $questionnaire_id . ' by user ID: ' . session()->get('id'));
+
+        try {
+            // Generate HTML dari view
+            $data = [
+                'questionnaire' => $questionnaire,
+                'structure' => $structure,
+            ];
+            $html = view('adminpage/questioner/pdf_template', $data);
+
+            // Konfigurasi Dompdf
+            $options = new QuestionOptionModel();
+            $options->set('defaultFont', 'Helvetica');
+            $options->set('isRemoteEnabled', true); // Jika ada gambar eksternal, meskipun tidak ada di sini
+            $dompdf = new Dompdf($options);
+
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            // Sanitasi nama file
+            $safeTitle = preg_replace('/[^a-zA-Z0-9_-]/', '_', $questionnaire['title']);
+            $filename = 'questionnaire_' . $safeTitle . '_' . date('Y-m-d') . '.pdf';
+
+            // Stream PDF (download)
+            $dompdf->stream($filename, ['Attachment' => true]);
+        } catch (\Exception $e) {
+            log_message('error', '[downloadPDF] Error generating PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghasilkan PDF: ' . $e->getMessage());
         }
     }
 }

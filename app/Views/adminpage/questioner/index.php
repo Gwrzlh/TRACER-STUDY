@@ -15,7 +15,7 @@
                     <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages') ?>">Halaman Kuesioner</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= base_url('admin/questionnaire/14/pages/15/sections') ?>">Kuesioner Section</a>
+                    <a class="nav-link" href="<?= base_url('admin/questionnaire/3/pages/30/sections') ?>">Kuesioner Section</a>
                 </li>
             </ul>
         </div>
@@ -81,6 +81,12 @@
                                         </td>
                                         <td class="action-cell">
                                             <div class="action-buttons">
+                                                   <!-- downloadPDF -->
+                                                <a href="<?= base_url('admin/questionnaire/' . $q['id'] . '/download-pdf') ?>"
+                                                    class="btn-action btn-download"
+                                                    title="Download PDF">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </a>
                                                 <!-- Kelola Halaman -->
                                                 <a href="<?= base_url('admin/questionnaire/' . $q['id'] . '/pages') ?>"
                                                     class="btn-action btn-edit"
