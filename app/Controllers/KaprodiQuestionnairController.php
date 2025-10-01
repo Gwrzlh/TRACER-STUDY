@@ -311,7 +311,7 @@ class KaprodiQuestionnairController extends BaseController
         ]);
 
         // Tetap di halaman edit agar user bisa lihat hasilnya
-        return redirect()->to('/kaprodi/kuesioner/' . $questionnaire_id . '/edit')
+        return redirect()->to('/kaprodi/kuesioner')
             ->with('success', 'Kuesioner berhasil diperbarui!');
     }
 

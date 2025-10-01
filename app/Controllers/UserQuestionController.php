@@ -68,7 +68,7 @@ class UserQuestionController extends BaseController
             // FIXED: Map internal status to expected view status
             $internalStatus = $this->answerModel->getStatus($q['id'], $userId) ?: 'draft';
             $statusPengisian = $this->mapStatusForView($internalStatus, $q['id'], $userId);
-            
+
             // FIXED: Calculate progress based on status and logical completion
             $progress = $this->calculateProgressForView($statusPengisian, $q['id'], $userId, $userData);
 
@@ -104,7 +104,7 @@ class UserQuestionController extends BaseController
                     'questionnaire_id' => $questionnaireId,
                     'user_id' => $userId
                 ])->countAllResults() > 0;
-                
+
                 return $hasAnswers ? 'On Going' : 'Belum Mengisi';
             default:
                 return 'Belum Mengisi';
@@ -122,11 +122,11 @@ class UserQuestionController extends BaseController
             // Use enhanced logical progress calculation
             $previousAnswers = $this->answerModel->getUserAnswers($questionnaireId, $userId);
             $structure = $this->questionnaireModel->getQuestionnaireStructure($questionnaireId, $userData, $previousAnswers);
-            
+
             if (!empty($structure)) {
                 return $this->calculateLogicalProgressForUser($structure, $previousAnswers);
             }
-            
+
             // Fallback to simple progress
             return $this->answerModel->getProgress($questionnaireId, $userId);
         } else {
@@ -139,32 +139,47 @@ class UserQuestionController extends BaseController
         if (empty($content)) {
             return '';
         }
-        
+
         // List of allowed HTML tags for announcement content
         $allowedTags = [
-            'p', 'br', 'strong', 'b', 'em', 'i', 'u', 
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-            'ul', 'ol', 'li', 'blockquote', 'span'
+            'p',
+            'br',
+            'strong',
+            'b',
+            'em',
+            'i',
+            'u',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'ul',
+            'ol',
+            'li',
+            'blockquote',
+            'span'
         ];
-        
+
         // Convert allowed tags array to string format for strip_tags
         $allowedTagsString = '<' . implode('><', $allowedTags) . '>';
-        
+
         // Strip unwanted tags while keeping allowed ones
         $cleanContent = strip_tags($content, $allowedTagsString);
-        
+
         // Remove empty paragraphs that only contain &nbsp; or whitespace
         $cleanContent = preg_replace('/<p[^>]*>(\s|&nbsp;)*<\/p>/i', '', $cleanContent);
-        
+
         // Clean up multiple consecutive <br> tags
         $cleanContent = preg_replace('/(<br\s*\/?>\s*){3,}/i', '<br><br>', $cleanContent);
-        
+
         // Remove any remaining empty paragraphs
         $cleanContent = preg_replace('/<p[^>]*><\/p>/i', '', $cleanContent);
-        
+
         // Trim whitespace
         $cleanContent = trim($cleanContent);
-        
+
         return $cleanContent;
     }
 
@@ -387,7 +402,7 @@ class UserQuestionController extends BaseController
     /**
      * KEEP: Your enhanced saveAnswer method (this was working correctly)
      */
-   public function saveAnswer()
+    public function saveAnswer()
     {
         if (!session()->get('logged_in')) {
             return redirect()->to('/login');
@@ -414,7 +429,7 @@ class UserQuestionController extends BaseController
             if ($answers) {
                 foreach ($answers as $question_id => $answer) {
                     if (empty($answer) && !is_array($answer)) continue;
-                    
+
                     $processedAnswer = is_array($answer) ? json_encode($answer) : $answer;
                     $this->answerModel->saveAnswer($userId, $q_id, $question_id, $processedAnswer);
                     log_message('debug', '[saveAnswer] Saved answer for question ' . $question_id);
@@ -429,10 +444,10 @@ class UserQuestionController extends BaseController
                     if ($file && $file->isValid() && !$file->hasMoved()) {
                         $uploadPath = WRITEPATH . 'uploads/answers/';
                         if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
-                        
+
                         $newName = $file->getRandomName();
                         $file->move($uploadPath, $newName);
-                        
+
                         $filePath = 'uploaded_file:' . $uploadPath . $newName;
                         $this->answerModel->saveAnswer($userId, $q_id, $question_id, $filePath);
                         log_message('debug', '[saveAnswer] Saved file for question ' . $question_id);
@@ -445,18 +460,18 @@ class UserQuestionController extends BaseController
             if ($saveSuccess && $isLogicallyComplete) {
                 $this->answerModel->setStatus($q_id, $userId, 'completed');
                 log_message('info', '[saveAnswer] Set questionnaire as completed due to logical completion');
-                
+
                 // NEW: Check for announcement and redirect accordingly
                 $questionnaire = $this->questionnaireModel->find($q_id);
                 $announcement = $questionnaire['announcement'] ?? '';
-                
+
                 if (!empty(trim($announcement))) {
                     log_message('debug', '[saveAnswer] Announcement found, redirecting to show announcement');
                     // Store announcement data in session for display
                     session()->setFlashdata('show_announcement', true);
                     session()->setFlashdata('announcement_content', $announcement);
                     session()->setFlashdata('questionnaire_title', $questionnaire['title'] ?? 'Kuesioner');
-                    
+
                     return redirect()->to("/alumni/questionnaires/mulai/$q_id?show_announcement=1");
                 }
             }
@@ -470,7 +485,6 @@ class UserQuestionController extends BaseController
 
             log_message('info', '[saveAnswer] Process completed successfully');
             return redirect()->to("/alumni/questionnaires")->with('success', 'Jawaban berhasil disimpan!');
-
         } catch (\Exception $e) {
             log_message('error', '[saveAnswer] Error during process: ' . $e->getMessage());
             return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Gagal menyimpan jawaban: ' . $e->getMessage())->withInput();
@@ -485,32 +499,32 @@ class UserQuestionController extends BaseController
         if (empty($structure['pages'])) {
             return 0;
         }
-        
+
         $totalRelevantPages = 0;
         $completedRelevantPages = 0;
-        
+
         foreach ($structure['pages'] as $pageIndex => $page) {
             $isPageRelevant = $this->evaluatePageConditionsForUser($page, $previousAnswers);
-            
+
             if ($isPageRelevant) {
                 $totalRelevantPages++;
-                
+
                 $hasAnswers = $this->pageHasAnswersForUser($page, $previousAnswers);
                 if ($hasAnswers) {
                     $completedRelevantPages++;
                 }
             }
         }
-        
+
         log_message('debug', '[calculateLogicalProgress] Total relevant: ' . $totalRelevantPages . ', Completed: ' . $completedRelevantPages);
-        
+
         return $totalRelevantPages > 0 ? ($completedRelevantPages / $totalRelevantPages) * 100 : 0;
     }
 
     /**
      * Helper untuk evaluasi kondisi halaman
      */
-   private function evaluatePageConditionsForUser($page, $answers)
+    private function evaluatePageConditionsForUser($page, $answers)
     {
         $decoded = json_decode($page['conditional_logic'] ?? '{}', true);
         $conditions = $decoded['conditions'] ?? [];
@@ -541,25 +555,25 @@ class UserQuestionController extends BaseController
                     $match = !in_array($value, $userAnswerArray);
                     break;
                 case 'contains':
-                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                    $match = array_filter($userAnswerArray, function ($ans) use ($value) {
                         return strpos(strtolower($ans), strtolower($value)) !== false;
                     });
                     $match = !empty($match);
                     break;
                 case 'not_contains':
-                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                    $match = array_filter($userAnswerArray, function ($ans) use ($value) {
                         return strpos(strtolower($ans), strtolower($value)) === false;
                     });
                     $match = !empty($match);
                     break;
                 case 'greater':
-                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                    $match = array_filter($userAnswerArray, function ($ans) use ($value) {
                         return is_numeric($ans) && is_numeric($value) && floatval($ans) > floatval($value);
                     });
                     $match = !empty($match);
                     break;
                 case 'less':
-                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                    $match = array_filter($userAnswerArray, function ($ans) use ($value) {
                         return is_numeric($ans) && is_numeric($value) && floatval($ans) < floatval($value);
                     });
                     $match = !empty($match);
