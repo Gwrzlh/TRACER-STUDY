@@ -49,52 +49,47 @@
             </div>
         </div>
 
-        <div class="dashboard-header loading">
-            <div class="header-content">
-                <div class="dashboard-logo">
-                   <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2" style="height: 60px;">
-                </div>
-                <div class="header-text">
-                    <h1 class="dashboard-title">Akun</h1>
-                </div>
-            </div>
-        </div>
-
         <!-- STATISTICS GRID -->
         <div class="stats-grid">
            
 
             <div class="stat-card loading">
+                <div class="stat-title">Account</div>
                 <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
                 <div class="stat-title">Alumni</div>
                 <div class="stat-value"><?= $totalAlumni ?></div>
             </div>
 
             <div class="stat-card loading">
+                <div class="stat-title">Account</div>
                 <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
                 <div class="stat-title">Admin</div>
                 <div class="stat-value"><?= $totalAdmin ?></div>
             </div>
 
             <div class="stat-card loading">
+                <div class="stat-title">Account</div>
                 <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
                 <div class="stat-title">Kaprodi</div>
                 <div class="stat-value"><?= $totalKaprodi ?></div>
             </div>
 
             <div class="stat-card loading">
+                <div class="stat-title">Account</div>
                 <div class="stat-icon"><i class="fas fa-building"></i></div>
                 <div class="stat-title">Perusahaan</div>
                 <div class="stat-value"><?= $totalPerusahaan ?></div>
             </div>
 
             <div class="stat-card loading">
+                <div class="stat-title">Account</div>
                 <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
                 <div class="stat-title">Atasan</div>
                 <div class="stat-value"><?= $totalAtasan ?></div>
             </div>
 
             <div class="stat-card loading">
+                <div class="stat-title">Account</div>
                 <div class="stat-icon"><i class="fas fa-users"></i></div>
                 <div class="stat-title">Jabatan Lainnya</div>
                 <div class="stat-value"><?= $totalJabatanLainnya ?></div>
