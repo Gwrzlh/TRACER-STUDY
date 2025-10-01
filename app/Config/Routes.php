@@ -571,16 +571,19 @@ $routes->group('admin/profil', ['filter' => 'auth'], function ($routes) {
     $routes->post('update-foto/(:num)', 'AdminController::updateFoto/$1');
 
     // ubah password (kalau ada)
-     $routes->get('ubah-password', 'AdminController::ubahPassword');
+    $routes->get('ubah-password', 'AdminController::ubahPassword');
     $routes->post('update-password', 'AdminController::updatePassword');
 });
 
 $routes->group('jabatan', ['filter' => 'jabatanAuth'], function ($routes) {
     // Dashboard perusahaan
     $routes->get('dashboard', 'JabatanController::dashboard');
-    // AMI & Akreditasi Kaprodi
-    $routes->get('ami-akreditasi', 'JabatanController::amiAkreditasi');
-    $routes->post('filter-ami-akreditasi', 'JabatanController::filterAmiAkreditasi');
+
+    // Control Panel
+    $routes->get('control-panel', 'JabatanController::controlPanel');
+    $routes->post('filter-control-panel', 'JabatanController::filterControlPanel');
+    $routes->get('get-prodi-by-jurusan', 'JabatanController::getProdiByJurusan');
+
 
     // Detail Ami / Akreditasi
     $routes->get('detail-ami', 'JabatanController::detailAmi');

@@ -20,9 +20,9 @@
             <a href="<?= site_url('jabatan/dashboard') ?>"
                 class="block px-4 py-2 rounded hover:bg-blue-600"> Dashboard</a>
 
-            <a href="<?= site_url('jabatan/ami-akreditasi') ?>"
+            <a href="<?= site_url('jabatan/control-panel') ?>"
                 class="block px-4 py-2 rounded hover:bg-blue-600">
-                Ami dan Akreditasi Kaprodi
+                Control Panel
             </a>
 
 

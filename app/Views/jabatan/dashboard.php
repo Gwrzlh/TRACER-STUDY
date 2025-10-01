@@ -6,7 +6,7 @@
     <p class="text-gray-600 mb-6">Halo, <span class="font-semibold"><?= esc(session('username')) ?></span> 👋</p>
 
     <!-- Ringkasan -->
-    <div class="grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-2 gap-6 mb-6">
         <!-- AMI -->
         <div class="bg-white shadow rounded-xl p-6">
             <h3 class="text-lg font-semibold mb-2">📑 AMI</h3>
@@ -23,7 +23,7 @@
     </div>
 
     <!-- Grafik -->
-    <div class="mt-8 bg-white shadow rounded-xl p-6">
+    <div class="bg-white shadow rounded-xl p-6 mb-6">
         <div class="flex justify-between items-center mb-4">
             <h3 id="grafik-title" class="text-lg font-semibold">Grafik AMI</h3>
             <div class="space-x-2">
@@ -37,6 +37,31 @@
             <canvas id="grafikCanvas"></canvas>
         </div>
     </div>
+
+    <!-- Ringkasan Jurusan & Prodi (Jumlah Alumni & Kaprodi) -->
+    <div class="bg-white shadow rounded-xl p-6">
+        <h3 class="text-lg font-semibold mb-4">🏫 Data Jurusan & Prodi (Jumlah)</h3>
+
+        <?php foreach ($dashboardData as $jurusanData): ?>
+            <div class="mb-4">
+                <h4 class="font-bold text-blue-600 mb-2"><?= esc($jurusanData['jurusan']['nama_jurusan']) ?></h4>
+
+                <?php foreach ($jurusanData['prodis'] as $prodiData): ?>
+                    <div class="mb-2 pl-4 border-l-2 border-gray-300 flex items-center justify-between">
+                        <span class="font-semibold text-gray-700"><?= esc($prodiData['prodi']['nama_prodi']) ?></span>
+                        <div class="flex space-x-4">
+                            <span class="bg-green-200 text-green-800 px-2 py-1 rounded">
+                                Alumni: <?= count($prodiData['alumni']) ?>
+                            </span>
+                            <span class="bg-blue-200 text-blue-800 px-2 py-1 rounded">
+                                Kaprodi: <?= count($prodiData['kaprodi']) ?>
+                            </span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
 </div>
 
 <!-- Chart.js -->
@@ -44,7 +69,6 @@
 <script>
     const grafikAmi = <?= json_encode($grafikAmi) ?>;
     const grafikAkreditasi = <?= json_encode($grafikAkreditasi) ?>;
-
     let chart;
 
     function renderChart(dataset, label, color) {
@@ -58,7 +82,7 @@
                 datasets: [{
                     label: label,
                     data: dataset.map(d => d.total),
-                    backgroundColor: color.replace('1)', '0.2)'), // transparan
+                    backgroundColor: color.replace('1)', '0.2)'),
                     borderColor: color,
                     borderWidth: 2,
                     pointBackgroundColor: color
@@ -87,15 +111,14 @@
 
     function showGrafik(type) {
         if (type === 'ami') {
-            renderChart(grafikAmi, 'Jawaban AMI', 'rgba(37, 99, 235, 1)');
+            renderChart(grafikAmi, 'Jawaban AMI', 'rgba(37,99,235,1)');
             document.getElementById('grafik-title').innerText = "Grafik AMI";
         } else {
-            renderChart(grafikAkreditasi, 'Jawaban Akreditasi', 'rgba(16, 185, 129, 1)');
+            renderChart(grafikAkreditasi, 'Jawaban Akreditasi', 'rgba(16,185,129,1)');
             document.getElementById('grafik-title').innerText = "Grafik Akreditasi";
         }
     }
 
-    // default tampilkan AMI
     showGrafik('ami');
 </script>
 
