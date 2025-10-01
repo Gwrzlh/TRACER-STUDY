@@ -109,6 +109,43 @@ class AdminRespon extends BaseController
 
         return view('adminpage/respon/index', $data);
     }
+    // ================== HAPUS JAWABAN ==================
+    public function deleteAnswer($id)
+    {
+        $answerModel = new \App\Models\AnswerModel();
+        $deleted = $answerModel->deleteAnswerAndCheckResponse($id);
+
+        if ($deleted) {
+            return redirect()->back()->with('success', 'Jawaban berhasil dihapus (beserta response jika kosong)');
+        } else {
+            return redirect()->back()->with('error', 'Jawaban tidak ditemukan');
+        }
+    }
+
+    // ================== LANDING PAGE RESPON ==================
+    public function responseLanding()
+    {
+        $responseModel = new \App\Models\ResponseModel();
+
+        $yearsRaw = $responseModel->getAvailableYears() ?? [];
+        $allYears = array_column($yearsRaw, 'tahun');
+
+        $selectedYear = $this->request->getGet('tahun');
+        if (!$selectedYear && !empty($allYears)) {
+            $selectedYear = $allYears[0];
+        }
+        if (!$selectedYear) {
+            $selectedYear = date('Y');
+        }
+
+        $data = [
+            'selectedYear' => $selectedYear,
+            'allYears'     => $allYears,
+            'data'         => $responseModel->getSummaryByYear($selectedYear)
+        ];
+
+        return view('LandingPage/respon', $data);
+    }
 
 
 

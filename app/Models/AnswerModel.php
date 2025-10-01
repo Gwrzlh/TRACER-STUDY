@@ -201,6 +201,46 @@ class AnswerModel extends Model
 
         return $builder->get()->getResultArray();
     }
+    public function deleteAnswerAndCheckResponse($answerId)
+    {
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        $answer = $this->find($answerId);
+
+        if (!$answer) {
+            $db->transComplete();
+            return false;
+        }
+
+        $questionnaireId = $answer['questionnaire_id'];
+        $accountId       = $answer['user_id']; // di tabel answers namanya user_id
+
+        // Hapus jawaban
+        $this->delete($answerId);
+
+        // Cek apakah masih ada jawaban untuk user & questionnaire ini
+        $remaining = $this->where([
+            'questionnaire_id' => $questionnaireId,
+            'user_id'          => $accountId
+        ])->countAllResults();
+
+        if ($remaining === 0) {
+            // Kalau tidak ada jawaban, hapus juga response
+            $responseModel = new \App\Models\ResponseModel();
+            $responseModel->where([
+                'questionnaire_id' => $questionnaireId,
+                'account_id'       => $accountId // di tabel responses pakai account_id
+            ])->delete();
+        }
+
+        $db->transComplete();
+
+        return $db->transStatus();
+    }
+
+
+
 
 
 

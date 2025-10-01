@@ -11,7 +11,7 @@
         </div>
     </div>
 
-    <form action="<?= base_url('/admin/questionnaire/' . $questionnaire['id'] . '/update/') ?>" method="post" class="space-y-5">
+    <form action="<?= base_url('/kaprodi/kuesioner/' . $questionnaire['id'] . '/update/') ?>" method="post" class="space-y-5">
 
         <!-- Judul Kuesioner -->
         <div>

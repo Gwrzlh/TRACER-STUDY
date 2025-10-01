@@ -34,12 +34,13 @@ class ResponseModel extends Model
     {
         return $this->db->table('responses r')
             ->select('r.*, a.question_id, a.answer_text, q.question_text')
-            ->join('answers a', 'r.questionnaire_id = a.questionnaire_id AND r.account_id = a.user_id')
-            ->join('questions q', 'a.question_id = q.id')
+            ->join('answers a', 'r.questionnaire_id = a.questionnaire_id AND r.account_id = a.account_id', 'left')
+            ->join('questions q', 'a.question_id = q.id', 'left')
             ->where('r.id', $responseId)
             ->get()
             ->getResultArray();
     }
+
 
     public function hasResponded($questionnaireId, $accountId): bool
     {
