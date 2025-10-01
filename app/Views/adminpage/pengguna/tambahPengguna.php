@@ -758,6 +758,7 @@
             var jurusanId = $(this).val();
             var prodiDropdown = $('#alumni_prodi');
 
+            // Reset dropdown
             prodiDropdown.empty().append('<option value="">-- Pilih Prodi --</option>');
 
             if (jurusanId) {
@@ -766,9 +767,11 @@
                     type: "GET",
                     dataType: "json",
                     success: function(res) {
+                        console.log(res); // opsional, cek data yang diterima
                         if (res.length > 0) {
                             $.each(res, function(i, prodi) {
-                                prodiDropdown.append('<option value="' + prodi.id_prodi + '">' + prodi.nama_prodi + '</option>');
+                                // Ganti id_prodi menjadi id sesuai model
+                                prodiDropdown.append('<option value="' + prodi.id + '">' + prodi.nama_prodi + '</option>');
                             });
                         }
                     },
