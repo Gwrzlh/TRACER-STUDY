@@ -890,4 +890,11 @@ class PenggunaController extends BaseController
 
         return redirect()->to('/admin/pengguna')->with('success', 'Data dihapus.');
     }
+    public function getProdiByJurusan($id_jurusan)
+    {
+        $prodiModel = new Prodi();
+        $data = $prodiModel->where('id_jurusan', $id_jurusan)->findAll();
+
+        return $this->response->setJSON($data);
+    }
 }

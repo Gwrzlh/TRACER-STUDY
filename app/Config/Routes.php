@@ -462,6 +462,7 @@ $routes->group('admin/respon', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('exportPdf/(:num)', 'AdminRespon::exportPdf/$1');
 });
 
+$routes->get('api/getProdiByJurusan/(:num)', 'PenggunaController::getProdiByJurusan/$1');
 
 
 // Landing page tetap
