@@ -625,21 +625,32 @@ class UserQuestionController extends BaseController
     {
         $responseModel = new \App\Models\ResponseModel();
 
+        // Ambil semua tahun tersedia
         $yearsRaw = $responseModel->getAvailableYears() ?? [];
         $allYears = array_column($yearsRaw, 'tahun');
 
-        $selectedYear = $this->request->getGet('tahun');
-        if (!$selectedYear && !empty($allYears)) {
-            $selectedYear = $allYears[0];
-        }
-        if (!$selectedYear) {
-            $selectedYear = date('Y');
-        }
+        // Ambil filter dari GET request
+        $selectedYear = $this->request->getGet('tahun') ?? ($allYears[0] ?? date('Y'));
+        $selectedProdi  = $this->request->getGet('prodi');
+        $selectedJurusan = $this->request->getGet('jurusan');
+        $selectedAngkatan = $this->request->getGet('angkatan');
 
+        // Siapkan array filter untuk model
+        $filters = [
+            'tahun' => $selectedYear,
+            'prodi' => $selectedProdi,
+            'jurusan' => $selectedJurusan,
+            'angkatan' => $selectedAngkatan
+        ];
+
+        // Ambil summary per alumni sesuai filter
         $data = [
             'selectedYear' => $selectedYear,
+            'selectedProdi' => $selectedProdi,
+            'selectedJurusan' => $selectedJurusan,
+            'selectedAngkatan' => $selectedAngkatan,
             'allYears'     => $allYears,
-            'data'         => $responseModel->getSummaryByYear($selectedYear)
+            'data'         => $responseModel->getSummaryByFilters($filters)
         ];
 
         return view('LandingPage/respon', $data);
