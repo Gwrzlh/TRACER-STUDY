@@ -1,4 +1,4 @@
-<!-- desain index.php page -->
+<!-- desain navbar index.php page -->
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 <link href="<?= base_url('css/questioner/page/index.css') ?>" rel="stylesheet">
