@@ -1,30 +1,38 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
+<link href="<?= base_url('css/respon/detail.css') ?>" rel="stylesheet">
 
-<div class="container mt-4">
-    <h3>Detail Jawaban Alumni</h3>
-    <a href="<?= base_url('admin/respon') ?>" class="btn btn-secondary mb-3">Kembali</a>
-    <a href="<?= base_url('admin/respon/exportPdf/' . $response['id']) ?>"
-        class="btn btn-danger mb-3" target="_blank">
-        Download PDF
-    </a>
+<div class="container">
+    <!-- Header Section -->
+    <div class="detail-header">
+        <h3 class="detail-title">Detail Jawaban Alumni</h3>
+        <div class="action-buttons">
+            <a href="<?= base_url('admin/respon') ?>" class="btn btn-secondary">
+                Kembali
+            </a>
+            <a href="<?= base_url('admin/respon/exportPdf/' . $response['id']) ?>"
+               class="btn btn-danger" target="_blank">
+                Download PDF
+            </a>
+        </div>
+    </div>
 
-
-    <div class="card mb-3">
+    <!-- Content Card -->
+    <div class="content-card">
         <?php foreach ($structure['pages'] as $page): ?>
-            <div class="card-header bg-light">
+            <div class="card-header">
                 <h5><?= esc($page['page_title'] ?? 'Halaman') ?></h5>
             </div>
             <div class="card-body">
                 <?php if (!empty($page['sections'])): ?>
                     <?php foreach ($page['sections'] as $section): ?>
                         <?php if ($section['show_section_title']): ?>
-                            <h6 class="mt-2"><?= esc($section['section_title']) ?></h6>
+                            <h6><?= esc($section['section_title']) ?></h6>
                         <?php endif; ?>
 
                         <?php if (!empty($section['questions'])): ?>
                             <?php foreach ($section['questions'] as $q): ?>
-                                <div class="mb-3">
+                                <div class="question-item">
                                     <label class="form-label">
                                         <?= esc($q['question_text']) ?>
                                         <?= $q['is_required'] ? ' <span class="text-danger">*</span>' : '' ?>
@@ -35,20 +43,27 @@
                                     $decoded = json_decode($answer, true);
                                     $answersArr = is_array($decoded) ? $decoded : (strlen($answer) ? [$answer] : []);
                                     ?>
+                                    
                                     <?php if (in_array(strtolower($q['question_type']), ['text', 'email'])): ?>
                                         <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
+                                    
                                     <?php elseif (in_array(strtolower($q['question_type']), ['dropdown', 'select', 'radio'])): ?>
                                         <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
+                                    
                                     <?php elseif (strtolower($q['question_type']) === 'checkbox'): ?>
                                         <p class="form-control-static"><?= esc(implode(', ', $answersArr) ?: 'Belum dijawab') ?></p>
+                                    
                                     <?php elseif (in_array(strtolower($q['question_type']), ['scale', 'matrix_scale'])): ?>
                                         <p class="form-control-static">
                                             <?= esc($answer ?: 'Belum dijawab') ?>
                                             (Skala: <?= esc($q['scale_min'] ?? 1) ?> - <?= esc($q['scale_max'] ?? 10) ?>)
                                         </p>
+                                    
                                     <?php elseif (strtolower($q['question_type']) === 'matrix'): ?>
                                         <?php if (empty($q['matrix_rows']) || empty($q['matrix_columns'])): ?>
-                                            <div class="text-danger">Data matrix tidak lengkap (ID: <?= $q['id'] ?>)</div>
+                                            <div class="text-danger">
+                                                Data matrix tidak lengkap (ID: <?= $q['id'] ?>)
+                                            </div>
                                         <?php else: ?>
                                             <table class="table table-bordered">
                                                 <thead>
@@ -65,9 +80,7 @@
                                                             <td><?= esc($row['row_text']) ?></td>
                                                             <?php foreach ($q['matrix_columns'] as $col): ?>
                                                                 <td>
-                                                                    <?php
-                                                                    $row_answer = $answersArr[$row['id']] ?? '';
-                                                                    ?>
+                                                                    <?php $row_answer = $answersArr[$row['id']] ?? ''; ?>
                                                                     <?= $row_answer === $col['column_text']
                                                                         ? '<span class="badge bg-success">✓</span>'
                                                                         : '' ?>
@@ -78,6 +91,7 @@
                                                 </tbody>
                                             </table>
                                         <?php endif; ?>
+                                    
                                     <?php elseif (strtolower($q['question_type']) === 'file'): ?>
                                         <p class="form-control-static">
                                             <?php if ($answer && strpos($answer, 'uploaded_file:') === 0): ?>
@@ -89,8 +103,12 @@
                                                 Belum ada file diunggah
                                             <?php endif; ?>
                                         </p>
+                                    
                                     <?php else: ?>
-                                        <div class="text-danger">Jenis pertanyaan tidak dikenali: <?= esc($q['question_type']) ?></div>
+                                        <div class="text-danger">
+                                            Jenis pertanyaan tidak dikenali: <?= esc($q['question_type']) ?>
+                                        </div>
+                                    
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
