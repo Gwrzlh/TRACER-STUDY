@@ -1,4 +1,4 @@
-<!-- desain daftar kuesioner -->
+<!-- desain navbar daftar kuesioner -->
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 <link href="<?= base_url('css/questioner/index.css') ?>" rel="stylesheet">
