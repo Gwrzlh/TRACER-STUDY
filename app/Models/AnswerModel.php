@@ -137,6 +137,115 @@ class AnswerModel extends Model
             }
         }
     }
+    // public function getAnswersWithDetail($prodiId = null, $jenis = null)
+    // {
+    //     $builder = $this->db->table('answers a');
+    //     $builder->select('
+    //     a.id,
+    //     q.question_text,
+    //     a.answer_text,
+    //     da.nama_lengkap,
+    //     j.nama_jurusan,
+    //     p.nama_prodi
+    // ');
+    //     $builder->join('questions q', 'q.id = a.question_id');
+    //     $builder->join('detailaccount_alumni da', 'da.id_account = a.user_id');
+    //     $builder->join('jurusan j', 'j.id = da.id_jurusan', 'left');
+    //     $builder->join('prodi p', 'p.id = da.id_prodi', 'left');
+    //     $builder->where('a.STATUS', 'completed'); // 🔹 fix disini
+
+    //     if ($prodiId) {
+    //         $builder->where('da.id_prodi', $prodiId);
+    //     }
+
+    //     if ($jenis === 'ami') {
+    //         $builder->where('q.is_for_ami', 1);
+    //     } elseif ($jenis === 'akreditasi') {
+    //         $builder->where('q.is_for_accreditation', 1);
+    //     }
+
+    //     return $builder->get()->getResultArray();
+    // }
+    public function getAnswersRaw($prodiId = null, $questionId = null)
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('detailaccount_alumni al');
+
+        // LEFT JOIN answers agar semua alumni tetap muncul
+        $builder->select("
+        al.nama_lengkap as alumni_name,
+        al.nim,
+        al.tahun_kelulusan,
+        j.nama_jurusan as jurusan_name,
+        p.nama_prodi as prodi_name,
+        a.answer_text,
+        a.STATUS,
+        q.id as question_id,
+        q.question_text
+    ");
+
+        $builder->join('jurusan j', 'j.id = al.id_jurusan', 'left');
+        $builder->join('prodi p', 'p.id = al.id_prodi', 'left');
+        $builder->join('answers a', 'a.user_id = al.id_account AND a.status="completed"', 'left');
+        $builder->join('questions q', 'q.id = a.question_id', 'left');
+
+        if (!empty($prodiId)) {
+            $builder->where('p.id', $prodiId);
+        }
+
+        if (!empty($questionId)) {
+            $builder->where('q.id', $questionId);
+        }
+
+        $builder->orderBy('al.nama_lengkap', 'ASC');
+
+        return $builder->get()->getResultArray();
+    }
+    public function deleteAnswerAndCheckResponse($answerId)
+    {
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        $answer = $this->find($answerId);
+
+        if (!$answer) {
+            $db->transComplete();
+            return false;
+        }
+
+        $questionnaireId = $answer['questionnaire_id'];
+        $accountId       = $answer['user_id']; // di tabel answers namanya user_id
+
+        // Hapus jawaban
+        $this->delete($answerId);
+
+        // Cek apakah masih ada jawaban untuk user & questionnaire ini
+        $remaining = $this->where([
+            'questionnaire_id' => $questionnaireId,
+            'user_id'          => $accountId
+        ])->countAllResults();
+
+        if ($remaining === 0) {
+            // Kalau tidak ada jawaban, hapus juga response
+            $responseModel = new \App\Models\ResponseModel();
+            $responseModel->where([
+                'questionnaire_id' => $questionnaireId,
+                'account_id'       => $accountId // di tabel responses pakai account_id
+            ])->delete();
+        }
+
+        $db->transComplete();
+
+        return $db->transStatus();
+    }
+
+
+
+
+
+
+
+
 
 
 

@@ -130,6 +130,10 @@
                         <button class="btn-action btn-edit move-down-btn" title="Move Down" data-section-id="<?= $section['id'] ?>">
                           <i class="fas fa-arrow-down"></i>
                         </button>
+                        <!-- Duplicate -->
+                        <a href="#" class="btn-action btn-duplicate" data-section-id="<?= $section['id'] ?>" title="Duplicate Section">
+                            <i class="fas fa-copy"></i>
+                        </a>
                         <!-- Manage Questions -->
                         <a href="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section['id']}/questions") ?>" 
                            class="btn-action btn-edit" title="Manage Questions">
@@ -214,6 +218,33 @@ $('.move-up-btn').on('click', function() {
             }
         });
     });
+    $('.btn-duplicate').on('click', function() {
+    if (!confirm('Apakah Anda yakin ingin menduplikasi section ini beserta semua pertanyaannya?')) {
+        return;
+    }
+    
+    const sectionId = $(this).data('section-id');
+    
+    $.ajax({
+        url: '<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections") ?>/' + sectionId + '/duplicate',
+        type: 'POST',
+        data: {
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                alert('Section berhasil diduplikasi!');
+                window.location.reload();
+            } else {
+                alert('Gagal: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            alert('Error: ' + xhr.responseText);
+        }
+    });
+});
 </script>
 
 <?= $this->endSection() ?>

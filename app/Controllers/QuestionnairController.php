@@ -564,10 +564,6 @@ class QuestionnairController extends BaseController
         'max_file_size' => 'permit_empty|integer',
         'matrix_rows' => 'permit_empty',
         'matrix_columns' => 'permit_empty',
-        'enable_conditional' => 'permit_empty|in_list[0,1]',
-        'parent_question_id' => 'permit_empty|integer',
-        'condition_operator' => 'permit_empty|in_list[is,is not]',
-        'condition_value' => 'permit_empty',
         'user_field_name' => 'permit_empty|alpha_dash',
     ]);
 
@@ -583,19 +579,19 @@ class QuestionnairController extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'User field name is required for user_field type']]);
             }
             // Validate against available fields (hardcoded for simplicity)
-            $availableFields = ['nama_lengkap', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
+            $availableFields = ['nama_lengkap','email', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
             if (!in_array($userFieldName, $availableFields)) {
                 return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'Invalid user field name']]);
             }
         }
-    
+
     $questionModel = new QuestionModel();
     $maxOrder = $questionModel->where([
         'questionnaires_id' => $questionnaire_id,
         'page_id' => $page_id,
         'section_id' => $section_id
     ])->selectMax('order_no')->first()['order_no'] ?? 0;
-    
+
     $db = \Config\Database::connect();
     $db->transStart();
 
@@ -617,20 +613,8 @@ class QuestionnairController extends BaseController
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
 
-            // Conditional logic to condition_json
-            $enableConditional = $this->request->getPost('enable_conditional') ? 1 : 0;
-            $parentId = $this->request->getPost('parent_question_id');
-            if ($enableConditional && $parentId) {
-                $condition = [
-                    'field' => 'question_' . $parentId,
-                    'operator' => $this->request->getPost('condition_operator') ?: 'is',
-                    'value' => $this->request->getPost('condition_value')
-                ];
-                $data['condition_json'] = json_encode([$condition]);
-                log_message('debug', 'Saving condition_json: ' . $data['condition_json']);
-            } else {
-                $data['condition_json'] = null;
-            }
+            $data['condition_json'] = null;
+
             // Special type handling
             $type = $data['question_type'];
             log_message('debug', 'Processing special type: ' . $type);
@@ -735,8 +719,8 @@ class QuestionnairController extends BaseController
 
     // edit method
 
-public function updateQuestion($questionnaire_id, $page_id, $section_id, $question_id)
-{
+    public function updateQuestion($questionnaire_id, $page_id, $section_id, $question_id)
+    {
     $validation = \Config\Services::validation();
     $validation->setRules([
         'question_id' => 'required|integer',
@@ -754,10 +738,6 @@ public function updateQuestion($questionnaire_id, $page_id, $section_id, $questi
         'max_file_size' => 'permit_empty|integer',
         'matrix_rows' => 'permit_empty',
         'matrix_columns' => 'permit_empty',
-        'enable_conditional' => 'permit_empty|in_list[0,1]',
-        'parent_question_id' => 'permit_empty|integer',
-        'condition_operator' => 'permit_empty|in_list[is,is not]',
-        'condition_value' => 'permit_empty',
         'user_field_name' => 'permit_empty|alpha_dash',
     ]);
 
@@ -801,21 +781,7 @@ public function updateQuestion($questionnaire_id, $page_id, $section_id, $questi
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
 
-            // Conditional logic
-            $enableConditional = $this->request->getPost('enable_conditional') ? 1 : 0;
-            $parentId = $this->request->getPost('parent_question_id');
-            if ($enableConditional && $parentId) {
-                $condition = [
-                    'field' => 'question_' . $parentId,
-                    'operator' => $this->request->getPost('condition_operator') ?: 'is',
-                    'value' => $this->request->getPost('condition_value')
-                ];
-                $data['condition_json'] = json_encode([$condition]);
-                log_message('debug', 'Saving condition_json: ' . $data['condition_json']);
-            } else {
-                $data['condition_json'] = null;
-                log_message('debug', 'No conditional logic enabled, condition_json set to null');
-            }
+            $data['condition_json'] = null;
 
         // Special type handling
         $type = $data['question_type'];
