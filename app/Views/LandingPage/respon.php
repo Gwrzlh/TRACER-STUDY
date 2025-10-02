@@ -69,6 +69,31 @@ $allYears     = $allYears ?? [];
             padding: 20px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.08);
         }
+
+        /* Warna untuk persentase */
+        .persentase-low {
+            background-color: #fee2e2;
+            color: #991b1b;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .persentase-medium {
+            background-color: #fef3c7;
+            color: #92400e;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .persentase-high {
+            background-color: #d1fae5;
+            color: #065f46;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body>
@@ -154,13 +179,29 @@ $allYears     = $allYears ?? [];
                 </thead>
                 <tbody>
                     <?php foreach ($data as $d): ?>
+                        <?php
+                            // Ambil nilai persentase tanpa simbol %
+                            $persentaseValue = floatval($d['persentase']);
+                            
+                            // Tentukan class berdasarkan nilai persentase
+                            $persentaseClass = '';
+                            if ($persentaseValue > 0 && $persentaseValue < 75) {
+                                $persentaseClass = 'persentase-medium';
+                            } elseif ($persentaseValue >= 75) {
+                                $persentaseClass = 'persentase-high';
+                            }
+                        ?>
                         <tr>
                             <td><?= esc($d['prodi']); ?></td>
                             <td><?= esc($d['finish']); ?></td>
                             <td><?= esc($d['ongoing']); ?></td>
                             <td><?= esc($d['belum']); ?></td>
                             <td><?= esc($d['jumlah']); ?></td>
-                            <td><?= esc($d['persentase']); ?>%</td>
+                            <td>
+                                <span class="<?= $persentaseClass ?>">
+                                    <?= esc($d['persentase']); ?>%
+                                </span>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
