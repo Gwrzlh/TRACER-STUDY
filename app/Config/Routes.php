@@ -238,6 +238,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('(:num)/delete', 'SectionController::delete/$1/$2/$3');
         $routes->post('(:num)/moveDown', 'SectionController::moveDown/$1/$2/$3');
         $routes->post('(:num)/moveUp', 'SectionController::moveUp/$1/$2/$3');
+        $routes->post('(:num)/duplicate', 'SectionController::duplicate/$1/$2/$3');
 
         // Questions per section
 
@@ -461,6 +462,7 @@ $routes->group('admin/respon', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('exportPdf/(:num)', 'AdminRespon::exportPdf/$1');
 });
 
+$routes->get('api/getProdiByJurusan/(:num)', 'PenggunaController::getProdiByJurusan/$1');
 
 
 // Landing page tetap
@@ -542,6 +544,11 @@ $routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
     $routes->get('akreditasi', 'KaprodiController::akreditasi');
     $routes->get('akreditasi/detail/(:any)', 'KaprodiController::detailAkreditasi/$1');
 
+    // Hapus pertanyaan
+    $routes->get('questioner/delete/(:num)', 'KaprodiController::delete/$1');
+
+
+
     // AMI
     $routes->get('ami', 'KaprodiController::ami');
     $routes->get('ami/detail/(:any)', 'KaprodiController::detailAmi/$1');
@@ -565,11 +572,21 @@ $routes->group('admin/profil', ['filter' => 'auth'], function ($routes) {
     $routes->post('update-foto/(:num)', 'AdminController::updateFoto/$1');
 
     // ubah password (kalau ada)
-     $routes->get('ubah-password', 'AdminController::ubahPassword');
+    $routes->get('ubah-password', 'AdminController::ubahPassword');
     $routes->post('update-password', 'AdminController::updatePassword');
 });
 
-$routes->group('perusahaan', ['filter' => 'perusahaanAuth'], function ($routes) {
+$routes->group('jabatan', ['filter' => 'jabatanAuth'], function ($routes) {
     // Dashboard perusahaan
-    $routes->get('dashboard', 'PerusahaanController::dashboard');
+    $routes->get('dashboard', 'JabatanController::dashboard');
+
+    // Control Panel
+    $routes->get('control-panel', 'JabatanController::controlPanel');
+    $routes->post('filter-control-panel', 'JabatanController::filterControlPanel');
+    $routes->get('get-prodi-by-jurusan', 'JabatanController::getProdiByJurusan');
+
+
+    // Detail Ami / Akreditasi
+    $routes->get('detail-ami', 'JabatanController::detailAmi');
+    $routes->get('detail-akreditasi', 'JabatanController::detailAkreditasi');
 });

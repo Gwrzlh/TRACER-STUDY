@@ -34,12 +34,13 @@ class ResponseModel extends Model
     {
         return $this->db->table('responses r')
             ->select('r.*, a.question_id, a.answer_text, q.question_text')
-            ->join('answers a', 'r.questionnaire_id = a.questionnaire_id AND r.account_id = a.user_id')
-            ->join('questions q', 'a.question_id = q.id')
+            ->join('answers a', 'r.questionnaire_id = a.questionnaire_id AND r.account_id = a.account_id', 'left')
+            ->join('questions q', 'a.question_id = q.id', 'left')
             ->where('r.id', $responseId)
             ->get()
             ->getResultArray();
     }
+
 
     public function hasResponded($questionnaireId, $accountId): bool
     {
@@ -152,58 +153,137 @@ class ResponseModel extends Model
     // ================== SUMMARY PER PRODI ==================
     public function getSummaryByYear($tahun)
     {
-        return $this->db->table('detailaccount_alumni da')
-            ->select("
-                p.nama_prodi AS prodi,
-                SUM(CASE WHEN r.status = 'completed' THEN 1 ELSE 0 END) as finish,
-                SUM(CASE WHEN r.status = 'draft' THEN 1 ELSE 0 END) as ongoing,
-                SUM(CASE WHEN r.id IS NULL THEN 1 ELSE 0 END) as belum,
-                COUNT(da.id) as jumlah,
-                ROUND(
-                    (SUM(CASE WHEN r.status = 'completed' THEN 1 ELSE 0 END) / COUNT(da.id)) * 100, 2
-                ) as persentase
-            ")
-            ->join('account a', 'a.id = da.id_account', 'left')
-            ->join('responses r', 'r.account_id = a.id', 'left')
+        // Ambil semua alumni di tahun tertentu beserta prodi dan account_id
+        $alumniData = $this->db->table('detailaccount_alumni da')
+            ->select("da.id_account, p.nama_prodi")
             ->join('prodi p', 'p.id = da.id_prodi', 'left')
             ->where('da.tahun_kelulusan', $tahun)
-            ->groupBy('p.id, p.nama_prodi')
-            ->orderBy('p.nama_prodi', 'ASC')
             ->get()
             ->getResultArray();
+
+        // Ambil jumlah kuesioner total
+        $totalQuestionnaires = $this->db->table('questionnaires')->countAllResults();
+
+        // Ambil jumlah responses completed per alumni
+        $responses = $this->db->table('responses')
+            ->select("account_id, COUNT(id) as completed_count")
+            ->where('status', 'completed')
+            ->groupBy('account_id')
+            ->get()
+            ->getResultArray();
+
+        $responsesMap = [];
+        foreach ($responses as $r) {
+            $responsesMap[$r['account_id']] = $r['completed_count'];
+        }
+
+        // Inisialisasi summary per prodi
+        $summary = [];
+        foreach ($alumniData as $alumni) {
+            $prodi = $alumni['nama_prodi'];
+            $accountId = $alumni['id_account'];
+
+            $completed = $responsesMap[$accountId] ?? 0;
+
+            if ($completed == 0) {
+                $status = 'belum';
+            } elseif ($completed < $totalQuestionnaires) {
+                $status = 'ongoing';
+            } else {
+                $status = 'finish';
+            }
+
+            if (!isset($summary[$prodi])) {
+                $summary[$prodi] = [
+                    'prodi' => $prodi,
+                    'finish' => 0,
+                    'ongoing' => 0,
+                    'belum' => 0,
+                    'jumlah' => 0
+                ];
+            }
+
+            $summary[$prodi][$status]++;
+            $summary[$prodi]['jumlah']++;
+        }
+
+        // Hitung persentase finish
+        foreach ($summary as &$s) {
+            $s['persentase'] = $s['jumlah'] > 0 ? round(($s['finish'] / $s['jumlah']) * 100, 2) : 0;
+        }
+
+        return array_values($summary);
     }
 
+
+    // ================== SUMMARY DENGAN FILTER ==================
     public function getSummaryByFilters(array $filters = [])
     {
+        // Ambil alumni sesuai filter
         $builder = $this->db->table('detailaccount_alumni da')
-            ->select("
-                p.nama_prodi,
-                SUM(CASE WHEN r.status = 'completed' THEN 1 ELSE 0 END) as total_completed,
-                SUM(CASE WHEN r.status = 'draft' THEN 1 ELSE 0 END) as total_draft,
-                SUM(CASE WHEN r.id IS NULL THEN 1 ELSE 0 END) as total_belum
-            ")
-            ->join('account a', 'a.id = da.id_account', 'left')
-            ->join('responses r', 'r.account_id = a.id', 'left')
+            ->select("da.id_account, p.nama_prodi")
             ->join('prodi p', 'p.id = da.id_prodi', 'left');
 
-        // Filter dinamis
         if (!empty($filters['tahun']))      $builder->where('da.tahun_kelulusan', $filters['tahun']);
-        if (!empty($filters['status'])) {
-            if ($filters['status'] === 'Belum') {
-                $builder->where('r.id IS NULL');
-            } else {
-                $builder->where('r.status', $filters['status']);
-            }
+        if (!empty($filters['jurusan']))    $builder->where('da.id_jurusan', $filters['jurusan']);
+        if (!empty($filters['prodi']))      $builder->where('da.id_prodi', $filters['prodi']);
+        if (!empty($filters['angkatan']))   $builder->where('da.angkatan', $filters['angkatan']);
+
+        $alumniData = $builder->get()->getResultArray();
+
+        // Ambil jumlah kuesioner total
+        $totalQuestionnaires = $this->db->table('questionnaires')->countAllResults();
+
+        // Ambil jumlah responses completed per alumni
+        $responses = $this->db->table('responses')
+            ->select("account_id, COUNT(id) as completed_count")
+            ->where('status', 'completed')
+            ->groupBy('account_id')
+            ->get()
+            ->getResultArray();
+
+        $responsesMap = [];
+        foreach ($responses as $r) {
+            $responsesMap[$r['account_id']] = $r['completed_count'];
         }
-        if (!empty($filters['jurusan'])) $builder->where('da.id_jurusan', $filters['jurusan']);
-        if (!empty($filters['prodi']))   $builder->where('da.id_prodi', $filters['prodi']);
-        if (!empty($filters['angkatan'])) $builder->where('da.angkatan', $filters['angkatan']);
 
-        $builder->groupBy('p.nama_prodi')
-            ->orderBy('p.nama_prodi', 'ASC');
+        // Hitung summary per prodi
+        $summary = [];
+        foreach ($alumniData as $alumni) {
+            $prodi = $alumni['nama_prodi'];
+            $accountId = $alumni['id_account'];
+            $completed = $responsesMap[$accountId] ?? 0;
 
-        return $builder->get()->getResultArray();
+            if ($completed == 0) {
+                $status = 'belum';
+            } elseif ($completed < $totalQuestionnaires) {
+                $status = 'ongoing';
+            } else {
+                $status = 'finish';
+            }
+
+            if (!isset($summary[$prodi])) {
+                $summary[$prodi] = [
+                    'prodi' => $prodi,
+                    'finish' => 0,
+                    'ongoing' => 0,
+                    'belum' => 0,
+                    'jumlah' => 0
+                ];
+            }
+
+            $summary[$prodi][$status]++;
+            $summary[$prodi]['jumlah']++;
+        }
+
+        // Hitung persentase finish
+        foreach ($summary as &$s) {
+            $s['persentase'] = $s['jumlah'] > 0 ? round(($s['finish'] / $s['jumlah']) * 100, 2) : 0;
+        }
+
+        return array_values($summary);
     }
+
     // ================== FILTERED RESPONSES BUILDER (untuk pagination) ==================
     public function getFilteredResponsesBuilder(array $filters = [])
     {

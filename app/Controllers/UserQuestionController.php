@@ -17,12 +17,15 @@ use App\Models\Provincies;
 use App\Models\Cities;
 
 
+
 class UserQuestionController extends BaseController
 {
     protected $questionnaireModel;
     protected $answerModel;
     protected $conditionModel;
     protected $logActivityModel;
+    protected $accountModel;
+    protected $detailAccountAlumniModel;
 
     public function __construct()
     {
@@ -30,6 +33,8 @@ class UserQuestionController extends BaseController
         $this->answerModel = new AnswerModel();
         $this->conditionModel = new QuestionnairConditionModel();
         $this->logActivityModel = new LogActivityModel();
+        $this->accountModel = new AccountModel();
+        $this->detailAccountAlumniModel = new DetailaccountAlumni();
     }
 
     /**
@@ -63,7 +68,7 @@ class UserQuestionController extends BaseController
             // FIXED: Map internal status to expected view status
             $internalStatus = $this->answerModel->getStatus($q['id'], $userId) ?: 'draft';
             $statusPengisian = $this->mapStatusForView($internalStatus, $q['id'], $userId);
-            
+
             // FIXED: Calculate progress based on status and logical completion
             $progress = $this->calculateProgressForView($statusPengisian, $q['id'], $userId, $userData);
 
@@ -99,7 +104,7 @@ class UserQuestionController extends BaseController
                     'questionnaire_id' => $questionnaireId,
                     'user_id' => $userId
                 ])->countAllResults() > 0;
-                
+
                 return $hasAnswers ? 'On Going' : 'Belum Mengisi';
             default:
                 return 'Belum Mengisi';
@@ -117,11 +122,11 @@ class UserQuestionController extends BaseController
             // Use enhanced logical progress calculation
             $previousAnswers = $this->answerModel->getUserAnswers($questionnaireId, $userId);
             $structure = $this->questionnaireModel->getQuestionnaireStructure($questionnaireId, $userData, $previousAnswers);
-            
+
             if (!empty($structure)) {
                 return $this->calculateLogicalProgressForUser($structure, $previousAnswers);
             }
-            
+
             // Fallback to simple progress
             return $this->answerModel->getProgress($questionnaireId, $userId);
         } else {
@@ -134,101 +139,112 @@ class UserQuestionController extends BaseController
         if (empty($content)) {
             return '';
         }
-        
+
         // List of allowed HTML tags for announcement content
         $allowedTags = [
-            'p', 'br', 'strong', 'b', 'em', 'i', 'u', 
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-            'ul', 'ol', 'li', 'blockquote', 'span'
+            'p',
+            'br',
+            'strong',
+            'b',
+            'em',
+            'i',
+            'u',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'ul',
+            'ol',
+            'li',
+            'blockquote',
+            'span'
         ];
-        
+
         // Convert allowed tags array to string format for strip_tags
         $allowedTagsString = '<' . implode('><', $allowedTags) . '>';
-        
+
         // Strip unwanted tags while keeping allowed ones
         $cleanContent = strip_tags($content, $allowedTagsString);
-        
+
         // Remove empty paragraphs that only contain &nbsp; or whitespace
         $cleanContent = preg_replace('/<p[^>]*>(\s|&nbsp;)*<\/p>/i', '', $cleanContent);
-        
+
         // Clean up multiple consecutive <br> tags
         $cleanContent = preg_replace('/(<br\s*\/?>\s*){3,}/i', '<br><br>', $cleanContent);
-        
+
         // Remove any remaining empty paragraphs
         $cleanContent = preg_replace('/<p[^>]*><\/p>/i', '', $cleanContent);
-        
+
         // Trim whitespace
         $cleanContent = trim($cleanContent);
-        
+
         return $cleanContent;
     }
 
     /**
      * ENHANCED: Mulai isi kuesioner dengan better debugging
      */
-   public function mulai($q_id)
+    public function mulai($q_id)
     {
         if (!session()->get('logged_in')) {
             return redirect()->to('/login');
         }
 
+        // Ambil user ID dari session (konsisten dengan id_account)
         $userId = session()->get('id_account');
-        $detailModel = new DetailaccountAlumni();
+        $userData = session()->get();
+
+        // Inisialisasi model
         $jurusanModel = new Jurusan();
         $prodiModel = new Prodi();
         $provinciesModel = new Provincies();
         $citiesModel = new Cities();
 
-        $userProfile = $detailModel->where('id_account', $userId)->first() ?? [];
+        // Ambil data user dari tabel account dan detailaccount_alumni
+        $userAccount = $this->accountModel->find($userId);
+        $userDetail = $this->detailAccountAlumniModel->where('id_account', $userId)->first() ?? [];
 
-        $userProfileDisplay = $userProfile;
+        // Siapkan data profil pengguna
+        $userProfile = $userDetail; // Mulai dengan data dari detailaccount_alumni
+        $userProfileDisplay = $userDetail;
+
+        // Tambahkan email dari tabel account
+        if ($userAccount) {
+            $userProfile['email'] = $userAccount['email'];
+            $userProfileDisplay['email'] = $userAccount['email']; // Nilai display sama dengan aslinya untuk non-foreign key
+        } else {
+            log_message('warning', '[mulai] User account not found for ID: ' . $userId);
+            $userProfile['email'] = ''; // Fallback untuk menghindari error
+            $userProfileDisplay['email'] = ''; // Fallback
+        }
+
+        // Proses display value untuk foreign key (jurusan, cities, dll.)
         if (!empty($userProfile['id_jurusan'])) {
             $jurusan = $jurusanModel->find($userProfile['id_jurusan']);
-            $userProfileDisplay['id_jurusan_name'] = $jurusan['nama_jurusan'] ?? 'Unknown';
+            $userProfileDisplay['id_jurusan_name'] = $jurusan['nama_jurusan'] ?? 'Tidak diketahui';
         }
         if (!empty($userProfile['id_cities'])) {
             $city = $citiesModel->find($userProfile['id_cities']);
-            $userProfileDisplay['id_cities_name'] = $city['name'] ?? 'Unknown';
+            $userProfileDisplay['id_cities_name'] = $city['name'] ?? 'Tidak diketahui';
         }
         if (!empty($userProfile['id_prodi'])) {
             $prodi = $prodiModel->find($userProfile['id_prodi']);
-            $userProfileDisplay['id_prodi_name'] = $prodi['nama_prodi'] ?? 'Unknown';
+            $userProfileDisplay['id_prodi_name'] = $prodi['nama_prodi'] ?? 'Tidak diketahui';
         }
         if (!empty($userProfile['id_provinsi'])) {
             $provinsi = $provinciesModel->find($userProfile['id_provinsi']);
-            $userProfileDisplay['id_provinsi_name'] = $provinsi['name'] ?? 'Unknown';
+            $userProfileDisplay['id_provinsi_name'] = $provinsi['name'] ?? 'Tidak diketahui';
         }
 
+        // Ambil opsi untuk foreign key
         $jurusanOptions = $jurusanModel->findAll();
         $citiesOptions = $citiesModel->findAll();
         $prodiOptions = $prodiModel->findAll();
         $provinsiOptions = $provinciesModel->findAll();
 
-        $userId = session()->get('id');
-        $userData = session()->get();
-        $q_id = (int)$q_id;
-
-        log_message('debug', '[mulai] Starting questionnaire ' . $q_id . ' for user ' . $userId);
-        log_message('debug', '[mulai] UserData: ' . print_r($userData, true));
-
-        // NEW: Check if we should show announcement
-        $showAnnouncement = $this->request->getGet('show_announcement') === '1' || session()->getFlashdata('show_announcement');
-        $announcementContent = session()->getFlashdata('announcement_content');
-        $questionnaireTitle = session()->getFlashdata('questionnaire_title');
-        
-        if ($showAnnouncement && !empty($announcementContent)) {
-            log_message('debug', '[mulai] Showing announcement for questionnaire ' . $q_id);
-            
-            // Clean and sanitize HTML content from TinyMCE
-            $cleanedContent = $this->sanitizeAnnouncementContent($announcementContent);
-            
-            return view('alumni/questioner/announcement', [
-                'q_id' => $q_id,
-                'questionnaire_title' => $questionnaireTitle,
-                'announcement_content' => $cleanedContent
-            ]);
-        }
-
+        // Mapping friendly names dan types (termasuk email)
         $fieldFriendlyNames = [
             'nama_lengkap' => 'Nama Lengkap',
             'nim' => 'NIM',
@@ -244,7 +260,9 @@ class UserQuestionController extends BaseController
             'notlp' => 'No. Telepon',
             'id_provinsi' => 'ID Provinsi',
             'id_cities' => 'ID Kota',
+            'email' => 'Email',
         ];
+
         $fieldTypes = [
             'nama_lengkap' => 'text',
             'id_jurusan' => 'foreign_key:jurusan',
@@ -260,7 +278,33 @@ class UserQuestionController extends BaseController
             'kodepos' => 'number',
             'notlp' => 'text',
             'nim' => 'number',
+            'email' => 'email',
         ];
+
+        $q_id = (int)$q_id;
+
+        log_message('debug', '[mulai] Starting questionnaire ' . $q_id . ' for user ' . $userId);
+        log_message('debug', '[mulai] UserData: ' . print_r($userData, true));
+        log_message('debug', '[mulai] UserProfile: ' . print_r($userProfile, true));
+        log_message('debug', '[mulai] UserProfileDisplay: ' . print_r($userProfileDisplay, true));
+
+        // Check if we should show announcement
+        $showAnnouncement = $this->request->getGet('show_announcement') === '1' || session()->getFlashdata('show_announcement');
+        $announcementContent = session()->getFlashdata('announcement_content');
+        $questionnaireTitle = session()->getFlashdata('questionnaire_title');
+
+        if ($showAnnouncement && !empty($announcementContent)) {
+            log_message('debug', '[mulai] Showing announcement for questionnaire ' . $q_id);
+
+            // Clean and sanitize HTML content from TinyMCE
+            $cleanedContent = $this->sanitizeAnnouncementContent($announcementContent);
+
+            return view('alumni/questioner/announcement', [
+                'q_id' => $q_id,
+                'questionnaire_title' => $questionnaireTitle,
+                'announcement_content' => $cleanedContent
+            ]);
+        }
 
         $questionnaire = $this->questionnaireModel->find($q_id);
         if (!$questionnaire) {
@@ -271,7 +315,7 @@ class UserQuestionController extends BaseController
         // Enhanced access check with debugging
         $hasAccess = $this->questionnaireModel->checkConditions($questionnaire['conditional_logic'] ?? '', $userData);
         log_message('debug', '[mulai] Access check result: ' . ($hasAccess ? 'GRANTED' : 'DENIED'));
-        
+
         if (!$hasAccess) {
             log_message('warning', '[mulai] Access denied for questionnaire ' . $q_id . ' user ' . $userId);
             return redirect()->back()->with('error', 'Anda tidak memiliki akses ke kuesioner ini.');
@@ -282,7 +326,7 @@ class UserQuestionController extends BaseController
         $viewStatus = $this->mapStatusForView($internalStatus, $q_id, $userId);
 
         log_message('debug', '[mulai] Status check - Internal: ' . $internalStatus . ', View: ' . $viewStatus);
-        
+
         if ($viewStatus === 'Finish') {
             return redirect()->to("/alumni/questioner/lihat/$q_id");
         }
@@ -313,10 +357,10 @@ class UserQuestionController extends BaseController
             'previous_answers' => $previous_answers,
             'user_profile'     => $userProfile,
             'field_friendly_names' => $fieldFriendlyNames,
-            'field_types' => $fieldTypes,
-            'jurusan_options' => $jurusanOptions,
-            'cities_options' => $citiesOptions,
-            'prodi_options' => $prodiOptions,
+            'field_types'      => $fieldTypes,
+            'jurusan_options'  => $jurusanOptions,
+            'cities_options'   => $citiesOptions,
+            'prodi_options'    => $prodiOptions,
             'provinsi_options' => $provinsiOptions,
             'user_profile_display' => $userProfileDisplay,
         ]);
@@ -358,7 +402,7 @@ class UserQuestionController extends BaseController
     /**
      * KEEP: Your enhanced saveAnswer method (this was working correctly)
      */
-   public function saveAnswer()
+    public function saveAnswer()
     {
         if (!session()->get('logged_in')) {
             return redirect()->to('/login');
@@ -385,7 +429,7 @@ class UserQuestionController extends BaseController
             if ($answers) {
                 foreach ($answers as $question_id => $answer) {
                     if (empty($answer) && !is_array($answer)) continue;
-                    
+
                     $processedAnswer = is_array($answer) ? json_encode($answer) : $answer;
                     $this->answerModel->saveAnswer($userId, $q_id, $question_id, $processedAnswer);
                     log_message('debug', '[saveAnswer] Saved answer for question ' . $question_id);
@@ -400,10 +444,10 @@ class UserQuestionController extends BaseController
                     if ($file && $file->isValid() && !$file->hasMoved()) {
                         $uploadPath = WRITEPATH . 'uploads/answers/';
                         if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
-                        
+
                         $newName = $file->getRandomName();
                         $file->move($uploadPath, $newName);
-                        
+
                         $filePath = 'uploaded_file:' . $uploadPath . $newName;
                         $this->answerModel->saveAnswer($userId, $q_id, $question_id, $filePath);
                         log_message('debug', '[saveAnswer] Saved file for question ' . $question_id);
@@ -416,18 +460,18 @@ class UserQuestionController extends BaseController
             if ($saveSuccess && $isLogicallyComplete) {
                 $this->answerModel->setStatus($q_id, $userId, 'completed');
                 log_message('info', '[saveAnswer] Set questionnaire as completed due to logical completion');
-                
+
                 // NEW: Check for announcement and redirect accordingly
                 $questionnaire = $this->questionnaireModel->find($q_id);
                 $announcement = $questionnaire['announcement'] ?? '';
-                
+
                 if (!empty(trim($announcement))) {
                     log_message('debug', '[saveAnswer] Announcement found, redirecting to show announcement');
                     // Store announcement data in session for display
                     session()->setFlashdata('show_announcement', true);
                     session()->setFlashdata('announcement_content', $announcement);
                     session()->setFlashdata('questionnaire_title', $questionnaire['title'] ?? 'Kuesioner');
-                    
+
                     return redirect()->to("/alumni/questionnaires/mulai/$q_id?show_announcement=1");
                 }
             }
@@ -441,7 +485,6 @@ class UserQuestionController extends BaseController
 
             log_message('info', '[saveAnswer] Process completed successfully');
             return redirect()->to("/alumni/questionnaires")->with('success', 'Jawaban berhasil disimpan!');
-
         } catch (\Exception $e) {
             log_message('error', '[saveAnswer] Error during process: ' . $e->getMessage());
             return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Gagal menyimpan jawaban: ' . $e->getMessage())->withInput();
@@ -456,32 +499,32 @@ class UserQuestionController extends BaseController
         if (empty($structure['pages'])) {
             return 0;
         }
-        
+
         $totalRelevantPages = 0;
         $completedRelevantPages = 0;
-        
+
         foreach ($structure['pages'] as $pageIndex => $page) {
             $isPageRelevant = $this->evaluatePageConditionsForUser($page, $previousAnswers);
-            
+
             if ($isPageRelevant) {
                 $totalRelevantPages++;
-                
+
                 $hasAnswers = $this->pageHasAnswersForUser($page, $previousAnswers);
                 if ($hasAnswers) {
                     $completedRelevantPages++;
                 }
             }
         }
-        
+
         log_message('debug', '[calculateLogicalProgress] Total relevant: ' . $totalRelevantPages . ', Completed: ' . $completedRelevantPages);
-        
+
         return $totalRelevantPages > 0 ? ($completedRelevantPages / $totalRelevantPages) * 100 : 0;
     }
 
     /**
      * Helper untuk evaluasi kondisi halaman
      */
-   private function evaluatePageConditionsForUser($page, $answers)
+    private function evaluatePageConditionsForUser($page, $answers)
     {
         $decoded = json_decode($page['conditional_logic'] ?? '{}', true);
         $conditions = $decoded['conditions'] ?? [];
@@ -512,25 +555,25 @@ class UserQuestionController extends BaseController
                     $match = !in_array($value, $userAnswerArray);
                     break;
                 case 'contains':
-                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                    $match = array_filter($userAnswerArray, function ($ans) use ($value) {
                         return strpos(strtolower($ans), strtolower($value)) !== false;
                     });
                     $match = !empty($match);
                     break;
                 case 'not_contains':
-                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                    $match = array_filter($userAnswerArray, function ($ans) use ($value) {
                         return strpos(strtolower($ans), strtolower($value)) === false;
                     });
                     $match = !empty($match);
                     break;
                 case 'greater':
-                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                    $match = array_filter($userAnswerArray, function ($ans) use ($value) {
                         return is_numeric($ans) && is_numeric($value) && floatval($ans) > floatval($value);
                     });
                     $match = !empty($match);
                     break;
                 case 'less':
-                    $match = array_filter($userAnswerArray, function($ans) use ($value) {
+                    $match = array_filter($userAnswerArray, function ($ans) use ($value) {
                         return is_numeric($ans) && is_numeric($value) && floatval($ans) < floatval($value);
                     });
                     $match = !empty($match);
@@ -582,21 +625,72 @@ class UserQuestionController extends BaseController
     {
         $responseModel = new \App\Models\ResponseModel();
 
+        // Ambil semua tahun tersedia
         $yearsRaw = $responseModel->getAvailableYears() ?? [];
         $allYears = array_column($yearsRaw, 'tahun');
 
-        $selectedYear = $this->request->getGet('tahun');
-        if (!$selectedYear && !empty($allYears)) {
-            $selectedYear = $allYears[0];
-        }
-        if (!$selectedYear) {
-            $selectedYear = date('Y');
+        // Ambil filter dari GET request
+        $selectedYear    = $this->request->getGet('tahun') ?? ($allYears[0] ?? date('Y'));
+        $selectedProdi   = $this->request->getGet('prodi');
+        $selectedJurusan = $this->request->getGet('jurusan');
+        $selectedAngkatan = $this->request->getGet('angkatan');
+
+        // Siapkan array filter untuk model
+        $filters = [
+            'tahun'   => $selectedYear,
+            'prodi'   => $selectedProdi,
+            'jurusan' => $selectedJurusan,
+            'angkatan' => $selectedAngkatan
+        ];
+
+        // Ambil summary per alumni sesuai filter
+        $rawData = $responseModel->getSummaryByFilters($filters);
+
+        $dataSummary = [];
+        foreach ($rawData as $row) {
+            $finish  = $row['finish'];
+            $ongoing = $row['ongoing'];
+            $belum   = $row['belum'];
+            $jumlah  = $finish + $ongoing + $belum;
+
+            $persentase = 0;
+
+            if ($jumlah > 0) {
+                if ($finish == $jumlah) {
+                    $persentase = 100;
+                } elseif ($ongoing > 0) {
+                    // Hitung persentase ongoing proporsional
+                    $persentase = round(($ongoing / $jumlah) * 100);
+
+                    // Minimal 10% jika ada ongoing tapi sedikit
+                    if ($persentase < 10) {
+                        $persentase = 10;
+                    }
+
+                    // Maksimal 99% jika hampir semua ongoing
+                    if ($persentase >= 100) {
+                        $persentase = 99;
+                    }
+                }
+            }
+
+            $dataSummary[] = [
+                'prodi'      => $row['prodi'],
+                'finish'     => $finish,
+                'ongoing'    => $ongoing,
+                'belum'      => $belum,
+                'jumlah'     => $jumlah,
+                'persentase' => $persentase
+            ];
         }
 
         $data = [
-            'selectedYear' => $selectedYear,
-            'allYears'     => $allYears,
-            'data'         => $responseModel->getSummaryByYear($selectedYear)
+            'selectedYear'    => $selectedYear,
+            'selectedProdi'   => $selectedProdi,
+            'selectedJurusan' => $selectedJurusan,
+            'selectedAngkatan' => $selectedAngkatan,
+            'allYears'        => $allYears,
+            'data'            => $dataSummary
         ];
 
         return view('LandingPage/respon', $data);

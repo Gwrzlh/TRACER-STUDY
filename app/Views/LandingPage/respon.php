@@ -6,6 +6,7 @@ $allYears     = $allYears ?? [];
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Respon Tracer Study <?= esc($selectedYear) ?></title>
@@ -21,7 +22,7 @@ $allYears     = $allYears ?? [];
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <!-- Animate.css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <style>
         body {
@@ -60,14 +61,14 @@ $allYears     = $allYears ?? [];
             background: #fff;
             border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
         }
 
         .table-wrapper {
             background: #fff;
             border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
         }
 
         /* Warna untuk persentase */
@@ -96,129 +97,139 @@ $allYears     = $allYears ?? [];
         }
     </style>
 </head>
+
 <body>
+    <!-- Navbar -->
+    <?= view('layout/navbar') ?>
 
-<!-- Navbar -->
-<?= view('layout/navbar') ?>
+    <!-- Hero -->
+    <section class="hero animate__animated animate__fadeIn">
+        <h1 class="animate__animated animate__fadeInDown">Respon Tracer Study <?= esc($selectedYear) ?></h1>
+        <p class="animate__animated animate__fadeInUp animate__delay-1s"><?= date("d F Y"); ?></p>
+    </section>
 
-<!-- Hero -->
-<section class="hero animate__animated animate__fadeIn">
-  <h1 class="animate__animated animate__fadeInDown">Respon Tracer Study <?= esc($selectedYear) ?></h1>
-  <p class="animate__animated animate__fadeInUp animate__delay-1s"><?= date("d F Y"); ?></p>
-</section>
+    <!-- Konten -->
+    <main>
+        <div class="container animate__animated animate__fadeInUp animate__delay-1s">
 
-<!-- Konten -->
-<main>
-  <div class="container animate__animated animate__fadeInUp animate__delay-1s">
+            <!-- Dropdown Tahun -->
+            <form method="get" class="mb-4">
+                <label for="tahun" class="form-label fw-semibold">Pilih Tahun:</label>
+                <select id="tahun" name="tahun" class="form-select shadow-sm" onchange="this.form.submit()">
+                    <?php if (!empty($allYears)): ?>
+                        <?php foreach ($allYears as $tahun): ?>
+                            <option value="<?= esc($tahun) ?>" <?= ($tahun == $selectedYear) ? 'selected' : ''; ?>>
+                                <?= esc($tahun) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <option value="">(Belum ada data tahun)</option>
+                    <?php endif; ?>
+                </select>
+            </form>
 
-    <!-- Dropdown Tahun -->
-    <form method="get" class="mb-4">
-        <label for="tahun" class="form-label fw-semibold">Pilih Tahun:</label>
-        <select id="tahun" name="tahun" class="form-select shadow-sm" onchange="this.form.submit()">
-            <?php if (!empty($allYears)): ?>
-                <?php foreach ($allYears as $tahun): ?>
-                    <option value="<?= esc($tahun) ?>" <?= ($tahun == $selectedYear) ? 'selected' : ''; ?>>
-                        <?= esc($tahun) ?>
-                    </option>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <option value="">(Belum ada data tahun)</option>
-            <?php endif; ?>
-        </select>
-    </form>
+            <!-- Chart -->
+            <div class="chart-container mb-5">
+                <canvas id="myChart"></canvas>
+            </div>
+            <script>
+                const chartData = <?= json_encode($data); ?>;
 
-    <!-- Chart -->
-    <div class="chart-container mb-5">
-        <canvas id="myChart"></canvas>
-    </div>
-    <script>
-        const chartData = <?= json_encode($data); ?>;
+                const labels = chartData.map(d => d.prodi);
+                const finish = chartData.map(d => d.finish);
+                const ongoing = chartData.map(d => d.ongoing);
+                const belum = chartData.map(d => d.belum);
 
-        const labels = chartData.map(d => d.prodi);
-        const finish = chartData.map(d => d.finish);
-        const ongoing = chartData.map(d => d.ongoing);
-        const belum = chartData.map(d => d.belum);
-
-        new Chart(document.getElementById('myChart'), {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: 'Jumlah Finish', data: finish, backgroundColor: '#22c55e' },
-                    { label: 'Jumlah Ongoing', data: ongoing, backgroundColor: '#facc15' },
-                    { label: 'Jumlah Belum Memulai', data: belum, backgroundColor: '#ef4444' }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'top' } },
-                scales: {
-                    x: { stacked: true, ticks: { maxRotation: 45, minRotation: 45 } },
-                    y: { stacked: true, beginAtZero: true }
-                }
-            }
-        });
-    </script>
-
-    <!-- Tabel -->
-    <div class="table-wrapper mt-4">
-      <h3 class="mb-3">Detail Progress Per Prodi</h3>
-      <?php if (!empty($data)): ?>
-          <div class="table-responsive">
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>PRODI</th>
-                        <th>FINISH</th>
-                        <th>ONGOING</th>
-                        <th>BELUM</th>
-                        <th>JUMLAH</th>
-                        <th>PERSENTASE</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($data as $d): ?>
-                        <?php
-                            // Ambil nilai persentase tanpa simbol %
-                            $persentaseValue = floatval($d['persentase']);
-                            
-                            // Tentukan class berdasarkan nilai persentase
-                            $persentaseClass = '';
-                            if ($persentaseValue > 0 && $persentaseValue < 75) {
-                                $persentaseClass = 'persentase-medium';
-                            } elseif ($persentaseValue >= 75) {
-                                $persentaseClass = 'persentase-high';
+                new Chart(document.getElementById('myChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                                label: 'Jumlah Finish',
+                                data: finish,
+                                backgroundColor: '#22c55e'
+                            },
+                            {
+                                label: 'Jumlah Ongoing',
+                                data: ongoing,
+                                backgroundColor: '#facc15'
+                            },
+                            {
+                                label: 'Jumlah Belum Memulai',
+                                data: belum,
+                                backgroundColor: '#ef4444'
                             }
-                        ?>
-                        <tr>
-                            <td><?= esc($d['prodi']); ?></td>
-                            <td><?= esc($d['finish']); ?></td>
-                            <td><?= esc($d['ongoing']); ?></td>
-                            <td><?= esc($d['belum']); ?></td>
-                            <td><?= esc($d['jumlah']); ?></td>
-                            <td>
-                                <span class="<?= $persentaseClass ?>">
-                                    <?= esc($d['persentase']); ?>%
-                                </span>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-          </div>
-      <?php else: ?>
-          <div class="alert alert-warning">Belum ada data respon untuk tahun ini.</div>
-      <?php endif; ?>
-    </div>
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            </script>
 
-  </div>
-</main>
+            <!-- Tabel -->
+            <div class="table-wrapper mt-4">
+                <h3 class="mb-3">Detail Progress Per Prodi</h3>
+                <?php if (!empty($data)): ?>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>PRODI</th>
+                                    <th>FINISH</th>
+                                    <th>ONGOING</th>
+                                    <th>BELUM</th>
+                                    <th>JUMLAH</th>
+                                    <th>PERSENTASE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($data as $d): ?>
+                                    <tr>
+                                        <td><?= esc($d['prodi']); ?></td>
+                                        <td><?= esc($d['finish']); ?></td>
+                                        <td><?= esc($d['ongoing']); ?></td>
+                                        <td><?= esc($d['belum']); ?></td>
+                                        <td><?= esc($d['jumlah']); ?></td>
+                                        <td><?= esc($d['persentase']) ?>%</td>
 
-<!-- Footer -->
-<?= view('layout/footer') ?>
 
-<!-- Bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-warning">Belum ada data respon untuk tahun ini.</div>
+                <?php endif; ?>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <?= view('layout/footer') ?>
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
