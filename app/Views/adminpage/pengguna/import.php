@@ -118,7 +118,7 @@
 
 .import-page .alert-warning {
     background: #fef3c7;
-    color: #92400e;
+    color: #92400e; 
     border-left: 5px solid #f59e0b;
 }
 

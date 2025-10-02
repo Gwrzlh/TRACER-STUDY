@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controllers\User;
 
 use App\Controllers\BaseController;
@@ -9,7 +8,7 @@ use App\Models\Questionnaire\QuestionnairModel;
 use App\Models\Questionnaire\QuestionModel; // Tambahkan model pertanyaan
 use App\Models\Questionnaire\QuestionOptionModel;
 use App\Models\Questionnaire\SectionModel;
-use App\Models\Support\MatrixColumnModels;
+use App\Models\Support\MatrixColumnModel;
 use App\Models\Support\MatrixRowModel;
 
 class KaprodiPageController extends BaseController
@@ -278,7 +277,7 @@ class KaprodiPageController extends BaseController
         $questionModel   = new QuestionModel();
         $optionModel     = new QuestionOptionModel();
         $matrixRowModel  = new MatrixRowModel();
-        $matrixColModel  = new MatrixColumnModels();
+        $matrixColModel  = new MatrixColumnModel();
 
         // cari semua pertanyaan di halaman ini
         $questions = $questionModel->where('page_id', $page_id)->findAll();

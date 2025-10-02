@@ -49,7 +49,7 @@
                 </div>
             </div>
             <div class="card-content">
-                <h3 class="card-title">Jumlah Alumni <?= esc($kaprodi['nama_prodi'] ?? '-') ?></h3>
+                <h3 class="card-title">Jumlah Alumni <?= esc($kaprodi['nama_prodi']) ?></h3>
                 <p class="card-value"><?= esc($alumniCount ?? 0) ?></p>
                 <div class="card-progress">
                     <div class="progress-bar alumni-progress"></div>

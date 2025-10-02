@@ -76,8 +76,10 @@
             $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
 
             // Import
-            $routes->get('import', '\App\Controllers\Auth\ImportAccount::form', ['filter' => 'auth']);
-            $routes->post('import', '\App\Controllers\Auth\ImportAccount::process', ['filter' => 'auth']);
+           // Import Akun
+$routes->get('import', '\App\Controllers\Auth\ImportAccount::index', ['filter' => 'auth']);
+$routes->post('import', '\App\Controllers\Auth\ImportAccount::import', ['filter' => 'auth']);
+
         });
 // --------------------
 // ROUTES: Questionnaire
@@ -151,12 +153,12 @@ $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers\Organisasi',
     $routes->post('jurusan/store', 'Jurusan::store');
     $routes->get('jurusan/edit/(:num)', 'Jurusan::edit/$1');
     $routes->post('jurusan/update/(:num)', 'Jurusan::update/$1');
-    $routes->get('jurusan/delete/(:num)', 'Jurusan::delete/$1');
+    $routes->post('jurusan/delete/(:num)', 'Jurusan::delete/$1');
 $routes->get('getProdiByJurusan/(:num)', 'SatuanOrganisasi::getProdiByJurusan/$1');
 
     // Prodi
     $routes->get('prodi', 'ProdiController::index');
-    $routes->get('prodi/create', 'ProdiController::c    reate');
+    $routes->get('prodi/create', 'ProdiController::create');
     $routes->post('prodi/store', 'ProdiController::store');
     $routes->get('prodi/edit/(:num)', 'ProdiController::edit/$1');
     $routes->post('prodi/update/(:num)', 'ProdiController::update/$1');
@@ -233,9 +235,6 @@ $routes->post('questionnaires/save-answer', 'User\UserQuestionController::saveAn
 });
 
 
-// --------------------
-// ROUTES: Kaprodi
-// --------------------
 $routes->group('kaprodi', [
     'namespace' => 'App\Controllers\User',
     'filter'    => 'auth'
@@ -249,7 +248,7 @@ $routes->group('kaprodi', [
     $routes->get('profil/edit', 'KaprodiController::editProfil');
     $routes->post('profil/update', 'KaprodiController::updateProfil');
 
-    // Kuesioner
+    // Questioner (Controller: KaprodiController)
     $routes->get('questioner', 'KaprodiController::questioner');
     $routes->get('questioner/pertanyaan/(:num)', 'KaprodiController::pertanyaan/$1');
     $routes->get('questioner/download/(:num)', 'KaprodiController::downloadPertanyaan/$1');
@@ -257,6 +256,20 @@ $routes->group('kaprodi', [
     $routes->post('questioner/add-to-ami', 'KaprodiController::addToAmi');
     $routes->post('questioner/save-flags', 'KaprodiController::saveFlags');
 
+   
+    // Kuesioner (Controller: KaprodiQuestionnairController)
+    $routes->get('kuesioner', 'KaprodiQuestionnairController::index');
+    $routes->get('kuesioner/create', 'KaprodiQuestionnairController::create');
+    $routes->post('kuesioner/store', 'KaprodiQuestionnairController::store');
+
+    // gaya RESTful
+    $routes->get('kuesioner/(:num)', 'KaprodiQuestionnairController::show/$1'); 
+    $routes->get('kuesioner/(:num)/edit', 'KaprodiQuestionnairController::edit/$1');
+    $routes->post('kuesioner/(:num)/update', 'KaprodiQuestionnairController::update/$1');
+    $routes->get('kuesioner/(:num)/delete', 'KaprodiQuestionnairController::delete/$1');
+
+    // halaman pages di dalam kuesioner tertentu
+    $routes->get('kuesioner/(:num)/pages', 'KaprodiQuestionnairController::pages/$1');
     // Akreditasi
     $routes->get('akreditasi', 'KaprodiController::akreditasi');
     $routes->get('akreditasi/detail/(:any)', 'KaprodiController::detailAkreditasi/$1');

@@ -32,12 +32,33 @@ $currentRoute = service('request')->uri->getPath();
             <span>Dashboard</span>
           </a>
 
-           <!-- Kuesioner -->
-          <a href="<?= base_url('kaprodi/questioner') ?>"
-            class="sidebar-link <?= str_contains($currentRoute, 'kuesioner') ? 'active' : '' ?>">
-            <i class="fa fa-file-alt w-5"></i>
-            <span>Kuesioner</span>
-          </a>
+          <!-- Kuesioner -->
+<details class="group" <?= (str_contains($currentRoute, 'questioner') || str_contains($currentRoute, 'kuesioner')) ? 'open' : '' ?>>
+  <summary class="sidebar-link <?= (str_contains($currentRoute, 'questioner') || str_contains($currentRoute, 'kuesioner')) ? 'active' : '' ?>">
+    <div class="flex items-center gap-2">
+      <i class="fa fa-file-alt w-5"></i>
+      <span>Kuesioner</span>
+    </div>
+    <svg class="w-4 h-4 transition-transform duration-300 group-open:rotate-180" 
+         fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </summary>
+
+  <div class="ml-8 mt-1 space-y-1">
+    <a href="<?= base_url('kaprodi/questioner') ?>" 
+       class="submenu <?= str_contains($currentRoute, 'questioner') ? 'active' : '' ?>">
+       Daftar Kuesioner
+    </a>
+    <a href="<?= base_url('kaprodi/kuesioner') ?>" 
+       class="submenu <?= str_contains($currentRoute, 'create') ? 'active' : '' ?>">
+       Tambah Kuesioner
+    </a>
+  </div>
+</details>
+
+
+
 
           <!-- Akreditasi -->
           <a href="<?= base_url('kaprodi/akreditasi') ?>"
@@ -66,7 +87,7 @@ $currentRoute = service('request')->uri->getPath();
       <div class="mt-6 px-4 space-y-2">
         <div class="flex items-center gap-4">
           <div class="relative">
-            <?php 
+            <?php
             $foto = session()->get('foto') ?? 'default.png';
             $fotoUrl = base_url('uploads/kaprodi/' . $foto);
             ?>
@@ -93,4 +114,5 @@ $currentRoute = service('request')->uri->getPath();
     </main>
   </div>
 </body>
+
 </html>

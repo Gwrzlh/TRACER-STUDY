@@ -16,7 +16,7 @@ use App\Models\Support\Provincies;
 use App\Models\Support\Roles;
 use App\Models\Questionnaire\QuestionnairConditionModel;
 use App\Models\Support\MatrixRowModel;
-use App\Models\Support\MatrixColumnModels;
+use App\Models\Support\MatrixColumnModel;
 use Config\App;
 use App\Models\Questionnaire\AnswerModel;
 
@@ -57,7 +57,7 @@ class KaprodiQuestionnairController extends BaseController
     }
 
 
-
+        
 
     public function create()
     {
@@ -201,12 +201,14 @@ class KaprodiQuestionnairController extends BaseController
     {
         $questionnaireModel = new \App\Models\Questionnaire\QuestionnairModel();
 
-        $title = $this->request->getPost('title');
+        $title      = $this->request->getPost('title');
         $description = $this->request->getPost('deskripsi');
-        $is_active = $this->request->getPost('is_active'); // enum string
+        $is_active   = $this->request->getPost('is_active'); // enum string
         $conditionalLogic = null;
 
-        // Handle conditional logic
+        $id_prodi_kaprodi = $this->kaprodi['id_prodi'] ?? null;
+
+        // Jika kaprodi tidak mengisi conditional logic, buat otomatis
         if ($this->request->getPost('conditional_logic')) {
             $fields    = $this->request->getPost('field_name');
             $operators = $this->request->getPost('operator');
@@ -215,11 +217,9 @@ class KaprodiQuestionnairController extends BaseController
             $conditions = [];
             for ($i = 0; $i < count($fields); $i++) {
                 if (!empty($fields[$i]) && !empty($operators[$i]) && !empty($values[$i])) {
-                    // Jika field adalah prodi/jurusan, pastikan value sesuai kaprodi
-                    if (in_array($fields[$i], ['id_prodi', 'id_jurusan'])) {
-                        if ($values[$i] != $this->kaprodi['id_prodi']) {
-                            $values[$i] = $this->kaprodi['id_prodi']; // paksa sesuai prodi kaprodi
-                        }
+                    // Paksa value id_prodi sesuai kaprodi
+                    if ($fields[$i] === 'id_prodi') {
+                        $values[$i] = $id_prodi_kaprodi;
                     }
 
                     $conditions[] = [
@@ -233,19 +233,29 @@ class KaprodiQuestionnairController extends BaseController
             if (!empty($conditions)) {
                 $conditionalLogic = json_encode($conditions);
             }
+        } else {
+            // Otomatis buat conditional logic untuk kaprodi
+            if ($id_prodi_kaprodi) {
+                $conditionalLogic = json_encode([
+                    [
+                        'field' => 'id_prodi',
+                        'operator' => 'is',
+                        'value' => $id_prodi_kaprodi
+                    ]
+                ]);
+            }
         }
 
         $questionnaireModel->insert([
             'title'             => $title,
             'deskripsi'         => $description,
             'is_active'         => $is_active,
-            'id_prodi'          => $this->kaprodi['id_prodi'], // otomatis dari kaprodi
+            'id_prodi'          => $id_prodi_kaprodi, // otomatis dari kaprodi
             'conditional_logic' => $conditionalLogic,
             'created_at'        => date('Y-m-d H:i:s'),
             'updated_at'        => date('Y-m-d H:i:s')
         ]);
 
-        // Redirect ke create lagi, agar tetap di halaman tambah kuesioner
         return redirect()->to(base_url('/kaprodi/kuesioner'))
             ->with('success', 'Kuesioner berhasil dibuat!');
     }
@@ -403,7 +413,7 @@ class KaprodiQuestionnairController extends BaseController
         $questionModel = new QuestionModel();
         $optionModel = new QuestionOptionModel();
         $matrixRowModel = new MatrixRowModel();
-        $matrixColumnModel = new MatrixColumnModels(); // Sesuaikan nama model
+        $matrixColumnModel = new MatrixColumnModel(); // Sesuaikan nama model
 
         // Loop hapus relasi setiap pertanyaan, termasuk answers
         foreach ($questions as $q) {
@@ -532,7 +542,7 @@ class KaprodiQuestionnairController extends BaseController
             if ($q['question_type'] === 'matrix') {
                 $rows = new MatrixRowModel();
                 $rows = $rows->where('question_id', $q['id'])->orderBy('order_no')->get()->getResultArray();
-                $columns = new MatrixColumnModels();
+                $columns = new MatrixColumnModel();
                 $columns = $columns->where('question_id', $q['id'])->orderBy('order_no')->get()->getResultArray();
 
                 $questions[$key]['matrix_rows'] = $rows;
@@ -703,7 +713,7 @@ class KaprodiQuestionnairController extends BaseController
             $questionModel = new QuestionModel();
             $optionModel = new QuestionOptionModel();
             $matrixRowModel = new \App\Models\Support\MatrixRowModel();
-            $matrixColumnModel = new \App\Models\Support\MatrixColumnModels();
+            $matrixColumnModel = new \App\Models\Support\MatrixColumnModel();
 
             $data = [
                 'questionnaires_id' => $questionnaire_id,
@@ -869,7 +879,7 @@ class KaprodiQuestionnairController extends BaseController
             $questionModel = new QuestionModel();
             $optionModel = new QuestionOptionModel();
             $rowModel = new \App\Models\Support\MatrixRowModel();
-            $colModel = new \App\Models\Support\MatrixColumnModels();
+            $colModel = new \App\Models\Support\MatrixColumnModel();
 
             $question = $questionModel->find($question_id);
             if (!$question) {
@@ -1036,7 +1046,7 @@ class KaprodiQuestionnairController extends BaseController
         $questionModel = new QuestionModel();
         $optionModel = new QuestionOptionModel();
         $rowModel = new \App\Models\Support\MatrixRowModel();
-        $colModel = new \App\Models\Support\MatrixColumnModels();
+        $colModel = new \App\Models\Support\MatrixColumnModel();
 
         $db = \Config\Database::connect();
         $db->transStart();
@@ -1077,7 +1087,7 @@ class KaprodiQuestionnairController extends BaseController
         $questionModel = new QuestionModel();
         $optionModel = new QuestionOptionModel();
         $rowModel = new \App\Models\Support\MatrixRowModel();
-        $colModel = new \App\Models\Support\MatrixColumnModels();
+        $colModel = new \App\Models\Support\MatrixColumnModel();
 
         $question = $questionModel
             ->where('id', $question_id)

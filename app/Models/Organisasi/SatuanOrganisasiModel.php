@@ -9,19 +9,21 @@ class SatuanOrganisasiModel extends Model
     protected $table = 'satuan_organisasi';
     protected $primaryKey = 'id';
     protected $allowedFields = [
-        'nama_satuan',
-        'nama_singkatan',
-        'nama_slug',
-        'deskripsi',
-        'id_tipe',
-        'id_jurusan',   
-        'id_prodi',     
-        'urutan',
-        'satuan_induk',
-        'created_at',
-        'updated_at'
-    ];
-    protected $useTimestamps = true;
+    'nama_satuan',
+    'nama_singkatan',
+    'nama_slug',
+    'deskripsi',
+    'id_tipe',
+    'id_jurusan',   
+    'id_prodi',     
+    'urutan',
+    'satuan_induk'
+];
+
+protected $useTimestamps = true;
+protected $createdField  = 'created_at';
+protected $updatedField  = 'updated_at';
+
 
     public function getWithTipe()
     {

@@ -26,12 +26,13 @@
             </div>
 
             <!-- Prodi (hanya tampil sesuai jurusan) -->
-            <div class="mb-3">
-    <label for="id_prodi" class="form-label required">Prodi</label>
-    <select name="id_prodi" id="id_prodi" class="form-control" required>
-        <option value="">-- Pilih Jurusan dahulu --</option>
-    </select>
+         <!-- Prodi (terisi otomatis sesuai jurusan) -->
+<div class="mb-3">
+    <label for="nama_prodi" class="form-label required">Prodi</label>
+    <input type="text" id="nama_prodi" class="form-control" readonly>
+    <input type="hidden" name="id_prodi" id="id_prodi">
 </div>
+
 
 
             <!-- Nama Satuan -->
@@ -69,11 +70,12 @@
                 </select>
             </div>
 
-            <!-- Tombol -->
-            <div class="mt-3">
-                <button type="submit" class="btn btn-primary">Simpan</button>
-                <a href="<?= base_url('satuanorganisasi') ?>" class="btn btn-warning">Batal</a>
-            </div>
+        <!-- Tombol -->
+<div class="form-actions">
+    <button type="submit" class="btn-custom save-btn">Simpan</button>
+    <a href="<?= base_url('satuanorganisasi') ?>" class="btn-custom cancel-btn">Batal</a>
+</div>
+
         </form>
     </div>
 </div>
@@ -96,28 +98,35 @@ $('#nama_satuan').on('input', function() {
     $('#nama_singkatan').val(singkatan);
 });
 
-// Tampilkan Prodi sesuai Jurusan dan buat hidden input otomatis
+// Ketika jurusan dipilih, langsung ambil prodi dari database
 $('#id_jurusan').change(function() {
     const jurusanId = $(this).val();
-    $('#id_prodi').html('<option value="">Memuat...</option>');
-    
+    $('#nama_prodi').val('');
+    $('#id_prodi').val('');
+
     if (jurusanId) {
-        $.getJSON("<?= base_url('satuanorganisasi/getProdiByJurusan') ?>/" + jurusanId
-, function(data) {
+        $.getJSON("<?= base_url('satuanorganisasi/getProdiByJurusan') ?>/" + jurusanId, function(data) {
             if (data && data.length > 0) {
-                let options = '<option value="">-- Pilih Prodi --</option>';
-                data.forEach(p => {
-                    options += `<option value="${p.id}">${p.nama_prodi}</option>`;
-                });
-                $('#id_prodi').html(options);
+                if (data.length === 1) {
+                    // Kalau hanya ada 1 prodi, langsung isi otomatis
+                    $('#nama_prodi').val(data[0].nama_prodi);
+                    $('#id_prodi').val(data[0].id);
+                } else {
+                    // Kalau ada lebih dari 1 prodi, gabungkan ke string
+                    let namaList = data.map(p => p.nama_prodi).join(', ');
+                    $('#nama_prodi').val(namaList);
+
+                    // Kalau butuh id spesifik, bisa pilih id pertama / atau buat dropdown baru
+                    $('#id_prodi').val(data[0].id);
+                }
             } else {
-                $('#id_prodi').html('<option value="">Tidak ada prodi</option>');
+                $('#nama_prodi').val('Tidak ada prodi');
             }
         }).fail(function() {
-            $('#id_prodi').html('<option value="">Gagal memuat data</option>');
+            $('#nama_prodi').val('Gagal memuat data');
         });
     } else {
-        $('#id_prodi').html('<option value="">-- Pilih Jurusan dahulu --</option>');
+        $('#nama_prodi').val('Pilih Jurusan dahulu');
     }
 });
 

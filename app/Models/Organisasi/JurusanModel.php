@@ -12,10 +12,11 @@ class JurusanModel extends Model
     protected $allowedFields = ['nama_jurusan'];
 
       // ✅ Tambahkan method untuk ambil data lengkap (JOIN)
-   public function getWithTipe()
+   public function getWithRole()
 {
-    return $this->select('satuan_organisasi.*, tipe_organisasi.nama_tipe')
-                ->join('tipe_organisasi', 'tipe_organisasi.id = satuan_organisasi.id_tipe')
+    return $this->select('tipe_organisasi.*, role.nama as role_nama')
+                ->join('role', 'role.id = tipe_organisasi.id_group')
                 ->findAll();
 }
+
 }
