@@ -95,31 +95,34 @@
        <div>
             <label class="flex items-center">
                 <input type="checkbox" 
-                    name="conditional_logic" 
-                    id="conditional_logic" 
-                    value="1" 
-                    <?= !empty($conditionalLogic) ? 'checked' : '' ?>
-                    class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        name="conditional_logic" 
+                        id="conditional_logic" 
+                        value="1" 
+                        <?= !empty($conditionalLogic) ? 'checked' : '' ?>
+                        class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                 <span class="ml-2 text-sm font-medium text-gray-700">Aktifkan Conditional Logic</span>
             </label>
 
-            <div id="conditional-form" style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>;" class="mt-3">
-                <div class="flex items-center gap-2 mb-3 text-sm text-gray-600">
-                    <span>Show this section if</span>
-                    <select name="logic_type" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
+            <div id="conditional-form" style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>;" class="mt-4">
+                <div class="flex items-center mb-3 text-sm text-gray-700">
+                    <span class="mr-2">Show this section if</span>
+                    <select name="logic_type" 
+                            class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm mr-2" 
+                            style="width: auto;">
                         <option value="any" <?= (is_array($conditionalLogic) && isset($conditionalLogic['logic_type']) && $conditionalLogic['logic_type'] === 'any') || (!is_array($conditionalLogic) && empty($conditionalLogic)) ? 'selected' : '' ?>>Any</option>
                         <option value="all" <?= (is_array($conditionalLogic) && isset($conditionalLogic['logic_type']) && $conditionalLogic['logic_type'] === 'all') || !isset($conditionalLogic['logic_type']) ? 'selected' : '' ?>>All</option>
                     </select>
                     <span>of this/these following match:</span>
                 </div>
 
-                <div id="conditional-container" class="space-y-3">
+                <div id="conditional-container" class="mb-4">
                     <?php 
                     $conditions = is_array($conditionalLogic) && isset($conditionalLogic['conditions']) ? $conditionalLogic['conditions'] : (is_array($conditionalLogic) ? $conditionalLogic : []);
                     if (!empty($conditions)): ?>
                         <?php foreach ($conditions as $index => $condition): ?>
-                            <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border">
-                                <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <div class="condition-row grid grid-cols-4 gap-2 mb-3 p-3 bg-gray-50 rounded-md border items-center min-h-[56px]" role="group" aria-label="Conditional Logic Row">
+                                <select name="condition_question_id[]" 
+                                        class="question-selector w-full truncate text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" data-tooltip="true" aria-describedby="tooltip">
                                     <option value="">Pilih Pertanyaan</option>
                                     <?php foreach ($questions as $q): ?>
                                         <option value="<?= esc($q['id']) ?>" 
@@ -129,7 +132,8 @@
                                     <?php endforeach; ?>
                                 </select>
 
-                                <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
+                                <select name="operator[]" 
+                                        class="w-full text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Operator">
                                     <?php foreach ($operators as $key => $label): ?>
                                         <option value="<?= esc($key) ?>" <?= isset($condition['operator']) && $key == $condition['operator'] ? 'selected' : '' ?>>
                                             <?= esc($label) ?>
@@ -137,46 +141,47 @@
                                     <?php endforeach; ?>
                                 </select>
 
-                                <span class="value-input-container flex-1">
+                                <span class="value-input-container">
                                     <input type="text" 
-                                           name="condition_value[]" 
-                                           placeholder="Value" 
-                                           class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                           value="<?= isset($condition['value']) ? esc($condition['value']) : '' ?>" 
-                                           required>
+                                            name="condition_value[]" 
+                                            placeholder="Value" 
+                                            class="w-full min-w-[200px] text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Value"
+                                            value="<?= isset($condition['value']) ? esc($condition['value']) : '' ?>">
                                 </span>
 
                                 <button type="button" 
-                                        class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
+                                        class="remove-condition-btn w-full text-sm bg-red-500 text-white rounded-md p-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Remove Condition">
                                     Hapus
                                 </button>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <!-- Template kosong -->
-                        <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border" style="display:none;">
-                            <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <div class="condition-row grid grid-cols-4 gap-2 mb-3 p-3 bg-gray-50 rounded-md border items-center min-h-[56px]" role="group" aria-label="Conditional Logic Row" style="display:none;">
+                            <select name="condition_question_id[]" 
+                                    class="question-selector w-full truncate text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" data-tooltip="true" aria-describedby="tooltip">
                                 <option value="">Pilih Pertanyaan</option>
                                 <?php foreach ($questions as $q): ?>
                                     <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;">
+                            <select name="operator[]" 
+                                    class="w-full text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Operator">
                                 <?php foreach ($operators as $key => $label): ?>
                                     <option value="<?= $key ?>"><?= $label ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <span class="value-input-container flex-1">
-                                <input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            <span class="value-input-container">
+                                <input type="text" name="condition_value[]" placeholder="Value" class="w-full min-w-[200px] text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Value">
                             </span>
-                            <button type="button" class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium" style="display:none;">
+                            <button type="button" class="remove-condition-btn w-full text-sm bg-red-500 text-white rounded-md p-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Remove Condition" style="display:none;">
                                 Hapus
                             </button>
                         </div>
                     <?php endif; ?>
                 </div>
                 
-                <button type="button" id="add-condition-btn" class="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                <button type="button" id="add-condition-btn" 
+                        class="mt-3 btn-blue">
                     Tambah Kondisi
                 </button>
             </div>
@@ -192,13 +197,13 @@
                    onmouseout="this.style.backgroundColor='#06b6d4'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                     Kelola Pertanyaan
                 </a>
-                <button type="button" 
+                <!-- <button type="button" 
                         onclick="duplicateSection()"
                         style="background-color: #6b7280; color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;"
                         onmouseover="this.style.backgroundColor='#4b5563'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(107, 114, 128, 0.25)'"
                         onmouseout="this.style.backgroundColor='#6b7280'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                     Duplikasi Section
-                </button>
+                </button> -->
             </div>
         </div>
 
@@ -297,22 +302,22 @@
 
         $('#add-condition-btn').on('click', function() {
             const templateRow = `
-                <div class="condition-row flex items-center gap-2 p-3 bg-gray-50 rounded-md border">
-                    <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                <div class="condition-row grid grid-cols-4 gap-2 mb-3 p-3 bg-gray-50 rounded-md border items-center min-h-[56px]" role="group" aria-label="Conditional Logic Row">
+                    <select name="condition_question_id[]" class="question-selector w-full truncate text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" data-tooltip="true" aria-describedby="tooltip" required>
                         <option value="">Pilih Pertanyaan</option>
                         <?php foreach ($questions as $q): ?>
-                            <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
+                            <option value="<?= esc($q['id']) ?>"><?= esc($q['question_text']) ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <select name="operator[]" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" style="width: auto;" required>
+                    <select name="operator[]" class="w-full text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Operator" required>
                         <?php foreach ($operators as $key => $label): ?>
-                            <option value="<?= $key ?>"><?= $label ?></option>
+                            <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <span class="value-input-container flex-1">
-                        <input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                    <span class="value-input-container">
+                        <input type="text" name="condition_value[]" placeholder="Value" class="w-full min-w-[200px] text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Value" required>
                     </span>
-                    <button type="button" class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
+                    <button type="button" class="remove-condition-btn w-full text-sm bg-red-500 text-white rounded-md p-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Remove Condition">
                         Hapus
                     </button>
                 </div>
