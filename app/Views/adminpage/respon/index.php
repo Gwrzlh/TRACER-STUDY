@@ -142,12 +142,13 @@
                                 <td class="status-cell">
                                     <?php if (($res['status'] ?? '') === 'completed'): ?>
                                         <span class="status-badge status-success">Sudah</span>
-                                    <?php elseif (($res['status'] ?? '') === 'ongoing'): ?>
+                                    <?php elseif (($res['status'] ?? '') === 'draft'): ?>
                                         <span class="status-badge status-primary">Ongoing</span>
                                     <?php else: ?>
                                         <span class="status-badge status-danger">Belum Mengisi</span>
                                     <?php endif; ?>
                                 </td>
+
                                 <td class="date-cell"><?= esc($res['submitted_at'] ?? '-') ?></td>
                                 <td class="action-cell">
                                     <?php if (!empty($res['response_id'])): ?>
