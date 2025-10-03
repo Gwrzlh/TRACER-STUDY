@@ -462,6 +462,7 @@ $routes->group('admin/respon', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('detail/(:num)', 'AdminRespon::detail/$1'); // untuk tombol "Jawaban"
     // Tambahan PDF
     $routes->get('exportPdf/(:num)', 'AdminRespon::exportPdf/$1');
+    $routes->get('allow_edit/(:num)/(:num)', 'AdminRespon::allowEdit/$1/$2');
 });
 
 $routes->get('api/getProdiByJurusan/(:num)', 'PenggunaController::getProdiByJurusan/$1');
