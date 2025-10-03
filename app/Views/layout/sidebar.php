@@ -172,7 +172,7 @@ $currentRoute = service('request')->uri->getPath();
       ?>
 
       <!-- Profile + Logout -->
-      <div class="mt-6 px-4 space-y-2">
+      <div class="sticky bottom-0 bg-white pt-4 pb-2 px-4 space-y-2 border-t">
         <div class="flex items-center gap-4 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition" id="profileSidebarBtn">
           <div class="relative">
             <img id="sidebarFoto" src="<?= $fotoUrl ?>" class="w-12 h-12 rounded-full shadow-md border object-cover">
@@ -198,6 +198,7 @@ $currentRoute = service('request')->uri->getPath();
           </button>
         </form>
       </div>
+
 
       <!-- Modal Foto -->
       <div id="profileModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
