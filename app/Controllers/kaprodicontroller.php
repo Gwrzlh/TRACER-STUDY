@@ -137,9 +137,9 @@ class KaprodiController extends Controller
         $idAccount = session()->get('id_account');
         $data = [];
 
-        // // Update nama lengkap dan notlp
-        // $data['nama_lengkap'] = $this->request->getPost('nama_lengkap');
-        // $data['notlp']        = $this->request->getPost('notlp');
+        // Update nama lengkap dan notlp
+        $data['nama_lengkap'] = $this->request->getPost('nama_lengkap');
+        $data['notlp']        = $this->request->getPost('notlp');
 
         // Upload file manual
         $file = $this->request->getFile('foto');
@@ -430,9 +430,10 @@ class KaprodiController extends Controller
     {
         $db = $this->db;
 
-        // Ambil semua pertanyaan untuk akreditasi
+        // Ambil semua pertanyaan akreditasi
         $questions = $db->table('questions')
             ->where('is_for_accreditation', 1)
+            ->orderBy('created_at', 'ASC')
             ->get()
             ->getResultArray();
 
@@ -447,7 +448,7 @@ class KaprodiController extends Controller
                 ->get()
                 ->getResultArray();
 
-            // Ubah format jawaban supaya key 'opsi' sesuai dengan view
+            // Format jawaban
             $jawaban = [];
             foreach ($answers as $a) {
                 $jawaban[] = [
@@ -465,6 +466,8 @@ class KaprodiController extends Controller
 
         return view('kaprodi/akreditasi/index', ['pertanyaan' => $data]);
     }
+
+
 
 
     public function detailAkreditasi($opsi)
@@ -491,14 +494,17 @@ class KaprodiController extends Controller
     {
         $db = $this->db;
 
+        // Ambil semua pertanyaan AMI
         $questions = $db->table('questions')
             ->where('is_for_ami', 1)
+            ->orderBy('created_at', 'ASC')
             ->get()
             ->getResultArray();
 
         $data = [];
 
         foreach ($questions as $q) {
+            // Ambil jawaban per pertanyaan
             $answers = $db->table('answers')
                 ->select('answer_text, COUNT(*) as jumlah')
                 ->where('question_id', $q['id'])
@@ -506,7 +512,7 @@ class KaprodiController extends Controller
                 ->get()
                 ->getResultArray();
 
-            // Buat jawaban dalam format ['opsi' => ..., 'jumlah' => ...]
+            // Format jawaban
             $jawaban = [];
             foreach ($answers as $a) {
                 $jawaban[] = [
@@ -524,6 +530,8 @@ class KaprodiController extends Controller
 
         return view('kaprodi/ami/index', ['pertanyaan' => $data]);
     }
+
+
 
 
 
@@ -553,17 +561,38 @@ class KaprodiController extends Controller
         $db = $this->db;
         $builder = $db->table('questions');
 
-        // Ambil semua pertanyaan untuk Kaprodi
-        $questions = $builder->get()->getResultArray();
-
-        foreach ($questions as $q) {
-            $update = [];
-            $update['is_for_accreditation'] = in_array($q['id'], $akreditasi) ? 1 : 0;
-            $update['is_for_ami']           = in_array($q['id'], $ami) ? 1 : 0;
-            $builder->where('id', $q['id'])->update($update);
+        // 🔹 Update flag Akreditasi
+        if (!empty($akreditasi)) {
+            $builder->whereIn('id', $akreditasi)->update(['is_for_accreditation' => 1]);
         }
+
+        // 🔹 Update flag AMI
+        if (!empty($ami)) {
+            $builder->whereIn('id', $ami)->update(['is_for_ami' => 1]);
+        }
+
+        // Catatan: pertanyaan lain tetap tidak berubah, jadi pertanyaan lama tetap ada.
 
         return redirect()->to(base_url('kaprodi/questioner'))
             ->with('success', 'Data berhasil disimpan.');
+    }
+    public function delete($id)
+    {
+        $db = $this->db;
+        $builder = $db->table('questions');
+
+        // cek apakah pertanyaan ada
+        $question = $builder->where('id', $id)->get()->getRowArray();
+        if (!$question) {
+            return redirect()->back()->with('error', 'Pertanyaan tidak ditemukan.');
+        }
+
+        // hapus jawaban terkait dulu
+        $db->table('answers')->where('question_id', $id)->delete();
+
+        // hapus pertanyaan
+        $builder->where('id', $id)->delete();
+
+        return redirect()->back()->with('success', 'Pertanyaan berhasil dihapus.');
     }
 }

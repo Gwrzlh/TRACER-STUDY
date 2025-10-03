@@ -41,15 +41,17 @@
 }
 
 .btn-back {
-    background: #6b7280;
+    background: #ef4444; /* Diubah dari #6b7280 ke merah seperti .btn-back di detail */
     color: white;
+    white-space: nowrap; /* Ditambahkan untuk konsistensi dengan detail */
 }
 
 .btn-back:hover {
-    background: #4b5563;
+    background: #dc2626; /* Diubah dari #4b5563 ke merah gelap */
     transform: translateY(-1px);
     text-decoration: none;
     color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); /* Ditambahkan shadow merah seperti di detail */
 }
 
 .btn-export {

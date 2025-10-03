@@ -8,7 +8,11 @@ use App\Models\Prodi;
 use App\Models\AlumniModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use CodeIgniter\I18n\Time;
+use App\Models\AnswerModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
 
 class AdminRespon extends BaseController
 {
@@ -16,6 +20,7 @@ class AdminRespon extends BaseController
     protected $alumniModel;
     protected $jurusanModel;
     protected $prodiModel;
+    protected $answersModel;
 
     public function __construct()
     {
@@ -23,61 +28,136 @@ class AdminRespon extends BaseController
         $this->alumniModel   = new AlumniModel();
         $this->jurusanModel  = new JurusanModel();
         $this->prodiModel    = new Prodi();
-    }
+        $this->answersModel  = new AnswerModel();
 
+    }
     public function index()
     {
-        // Ambil filter dari request
         $filters = $this->getFiltersFromRequest();
         $perPage = 10;
         $currentPage = (int) ($this->request->getVar('page') ?? 1);
         if ($currentPage < 1) $currentPage = 1;
 
-        // Ambil semua Prodi beserta Jurusan
+        // Ambil semua Prodi + Jurusan
         $allProdi = $this->prodiModel
             ->select('prodi.id, prodi.nama_prodi, jurusan.nama_jurusan')
             ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left')
             ->findAll();
 
-        // Gunakan Builder untuk pagination
-        $builder = $this->alumniModel->getWithResponsesBuilder($filters);
+        // 🔹 Subquery untuk ambil response terakhir per user + questionnaire
+        $subQuery = "
+        (SELECT rr.* 
+         FROM responses rr
+         INNER JOIN (
+            SELECT account_id, questionnaire_id, MAX(id) as max_id
+            FROM responses
+            GROUP BY account_id, questionnaire_id
+         ) x ON rr.id = x.max_id
+        ) r
+    ";
 
-        // Hitung total data
-        $totalData = $builder->countAllResults(false);
+        // Builder utama (summary counter)
+        $builder = $this->alumniModel->db->table('detailaccount_alumni da')
+            ->select("
+            da.id_account,
+            da.nim,
+            da.nama_lengkap,
+            da.angkatan,
+            da.tahun_kelulusan,
+            j.nama_jurusan,
+            p.nama_prodi,
+            r.id as response_id,
+            r.questionnaire_id,
+            r.submitted_at,
+            r.status as response_status,
+            q.title as judul_kuesioner
+        ")
+            ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
+            ->join('prodi p', 'p.id = da.id_prodi', 'left')
+            ->join($subQuery, 'r.account_id = da.id_account', 'left')
+            ->join('questionnaires q', 'q.id = r.questionnaire_id', 'left');
 
-        // Ambil semua data dulu untuk summary counter
+        // apply filter
+        if (!empty($filters['prodi'])) $builder->where('da.id_prodi', $filters['prodi']);
+        if (!empty($filters['jurusan'])) $builder->where('da.id_jurusan', $filters['jurusan']);
+        if (!empty($filters['angkatan'])) $builder->where('da.angkatan', $filters['angkatan']);
+        if (!empty($filters['tahun'])) $builder->where('da.tahun_kelulusan', $filters['tahun']);
+        if (!empty($filters['nim'])) $builder->like('da.nim', $filters['nim']);
+        if (!empty($filters['nama'])) $builder->like('da.nama_lengkap', $filters['nama']);
+        if (!empty($filters['status'])) {
+            if ($filters['status'] === 'Belum') {
+                $builder->where('r.status IS NULL');
+            } else {
+                $builder->where('r.status', $filters['status']);
+            }
+        }
+
+        // Ambil semua data untuk summary counter
         $allResponses = $builder->get()->getResultArray();
 
-        // Hitung summary counter
-        $totalCompleted = count(array_filter($allResponses, fn($r) => ($r['status'] ?? '') === 'completed'));
-        $totalOngoing   = count(array_filter($allResponses, fn($r) => ($r['status'] ?? '') === 'ongoing'));
-        $totalDraft     = count(array_filter($allResponses, fn($r) => ($r['status'] ?? '') === 'draft'));
-        $totalBelum     = count(array_filter($allResponses, fn($r) => empty($r['status'])));
+        $totalCompleted = count(array_filter($allResponses, fn($r) => ($r['response_status'] ?? '') === 'completed'));
+        $totalDraft     = count(array_filter($allResponses, fn($r) => ($r['response_status'] ?? '') === 'draft'));
+        $totalBelum     = count(array_filter($allResponses, fn($r) => empty($r['response_status'])));
+        $totalOngoing   = $totalDraft;
+
+        // Hitung total setelah filter
+        $totalData = count($allResponses);
 
         // Ambil data untuk halaman sekarang
         $offset = ($currentPage - 1) * $perPage;
-        $responses = $this->alumniModel->getWithResponsesBuilder($filters)
+        $responses = $this->alumniModel->db->table('detailaccount_alumni da')
+            ->select("
+            da.id_account,
+            da.nim,
+            da.nama_lengkap,
+            da.angkatan,
+            da.tahun_kelulusan,
+            j.nama_jurusan,
+            p.nama_prodi,
+            r.id as response_id,
+            r.questionnaire_id,
+            r.submitted_at,
+            r.status as response_status,
+            q.title as judul_kuesioner
+        ")
+            ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
+            ->join('prodi p', 'p.id = da.id_prodi', 'left')
+            ->join($subQuery, 'r.account_id = da.id_account', 'left')
+            ->join('questionnaires q', 'q.id = r.questionnaire_id', 'left')
             ->limit($perPage, $offset)
             ->get()
             ->getResultArray();
 
-        // Format tanggal submit ke timezone Jakarta
         foreach ($responses as &$res) {
-            if (!empty($res['submitted_at'])) {
-                $res['submitted_at'] = Time::parse($res['submitted_at'], 'Asia/Jakarta')->toDateTimeString();
-            } else {
-                $res['submitted_at'] = '-';
-            }
+            $res['status'] = $res['response_status'] ?: 'belum';
+            $res['submitted_at'] = $res['submitted_at']
+                ? Time::parse($res['submitted_at'], 'Asia/Jakarta')->toDateTimeString()
+                : '-';
         }
 
-        // Hitung total halaman
         $totalPages = ceil($totalData / $perPage);
         if ($currentPage > $totalPages && $totalPages > 0) {
             $currentPage = $totalPages;
         }
 
         $data = [
-            'filters'               => $filters,
+            'filters'        => $filters,
+            'responses'      => $responses,
+            'perPage'        => $perPage,
+            'currentPage'    => $currentPage,
+            'totalData'      => $totalData,
+            'totalPages'     => $totalPages,
+            'allYears'       => $this->alumniModel->getDistinctTahunKelulusan(),
+            'allQuestionnaires' => $this->responseModel->getAllQuestionnaires(),
+            'allJurusan'     => $this->jurusanModel->findAll(),
+            'allProdi'       => $allProdi,
+            'allAngkatan'    => $this->alumniModel->getDistinctAngkatan(),
+            'totalCompleted' => $totalCompleted,
+            'totalOngoing'   => $totalOngoing,
+            'totalDraft'     => $totalDraft,
+            'totalBelum'     => $totalBelum,
+
+            // filter di view
             'selectedYear'          => $filters['tahun'] ?? '',
             'selectedStatus'        => $filters['status'] ?? '',
             'selectedQuestionnaire' => $filters['questionnaire'] ?? '',
@@ -86,26 +166,52 @@ class AdminRespon extends BaseController
             'selectedJurusan'       => $filters['jurusan'] ?? '',
             'selectedProdi'         => $filters['prodi'] ?? '',
             'selectedAngkatan'      => $filters['angkatan'] ?? '',
-
-            'allYears'              => $this->alumniModel->getDistinctTahunKelulusan(),
-            'allQuestionnaires'     => $this->responseModel->getAllQuestionnaires(),
-            'allJurusan'            => $this->jurusanModel->findAll(),
-            'allProdi'              => $allProdi,
-            'allAngkatan'           => $this->alumniModel->getDistinctAngkatan(),
-
-            'responses'             => $responses,
-            'perPage'               => $perPage,
-            'currentPage'           => $currentPage,
-            'totalData'             => $totalData,
-            'totalPages'            => $totalPages,
-
-            'totalCompleted'        => $totalCompleted,
-            'totalOngoing'          => $totalOngoing,
-            'totalDraft'            => $totalDraft,
-            'totalBelum'            => $totalBelum,
         ];
 
         return view('adminpage/respon/index', $data);
+    }
+
+
+
+
+
+
+    // ================== HAPUS JAWABAN ==================
+    public function deleteAnswer($id)
+    {
+        $answerModel = new \App\Models\AnswerModel();
+        $deleted = $answerModel->deleteAnswerAndCheckResponse($id);
+
+        if ($deleted) {
+            return redirect()->back()->with('success', 'Jawaban berhasil dihapus (beserta response jika kosong)');
+        } else {
+            return redirect()->back()->with('error', 'Jawaban tidak ditemukan');
+        }
+    }
+
+    // ================== LANDING PAGE RESPON ==================
+    public function responseLanding()
+    {
+        $responseModel = new \App\Models\ResponseModel();
+
+        $yearsRaw = $responseModel->getAvailableYears() ?? [];
+        $allYears = array_column($yearsRaw, 'tahun');
+
+        $selectedYear = $this->request->getGet('tahun');
+        if (!$selectedYear && !empty($allYears)) {
+            $selectedYear = $allYears[0];
+        }
+        if (!$selectedYear) {
+            $selectedYear = date('Y');
+        }
+
+        $data = [
+            'selectedYear' => $selectedYear,
+            'allYears'     => $allYears,
+            'data'         => $responseModel->getSummaryByYear($selectedYear)
+        ];
+
+        return view('LandingPage/respon', $data);
     }
 
 
@@ -222,13 +328,11 @@ class AdminRespon extends BaseController
     {
         $filters = $this->request->getGet();
 
-        // Ambil data untuk dropdown
         $allYears     = $this->alumniModel->getDistinctTahunKelulusan();
         $allAngkatan  = $this->alumniModel->getDistinctAngkatan();
         $allJurusan   = (new \App\Models\JurusanModel())->findAll();
         $allProdi     = (new \App\Models\Prodi())->findAll();
 
-        // Builder untuk grafik
         $builder = $this->alumniModel->db->table('detailaccount_alumni da')
             ->select("
             p.nama_prodi,
@@ -239,44 +343,13 @@ class AdminRespon extends BaseController
             ->join('prodi p', 'p.id = da.id_prodi', 'left')
             ->join('responses r', 'r.account_id = da.id_account', 'left');
 
-        // Filter prodi
-        if (!empty($filters['prodi'])) {
-            $builder->where('da.id_prodi', $filters['prodi']);
-        }
-
-        // Filter jurusan
-        if (!empty($filters['jurusan'])) {
-            $builder->where('da.id_jurusan', $filters['jurusan']);
-        }
-
-        // Filter angkatan
-        if (!empty($filters['angkatan'])) {
-            $builder->where('da.angkatan', $filters['angkatan']);
-        }
-
-        // Filter tahun kelulusan
-        if (!empty($filters['tahun'])) {
-            $builder->where('da.tahun_kelulusan', $filters['tahun']);
-        }
-
-        // Filter NIM
-        if (!empty($filters['nim'])) {
-            $builder->like('da.nim', $filters['nim']);
-        }
-
-        // Filter nama
-        if (!empty($filters['nama'])) {
-            $builder->like('da.nama_lengkap', $filters['nama']);
-        }
-
-        // Filter status
-        if (!empty($filters['status'])) {
-            if ($filters['status'] === 'Belum') {
-                $builder->where('r.id IS NULL');
-            } else {
-                $builder->where('r.status', $filters['status']);
-            }
-        }
+        if (!empty($filters['prodi'])) $builder->where('da.id_prodi', $filters['prodi']);
+        if (!empty($filters['jurusan'])) $builder->where('da.id_jurusan', $filters['jurusan']);
+        if (!empty($filters['angkatan'])) $builder->where('da.angkatan', $filters['angkatan']);
+        if (!empty($filters['tahun'])) $builder->where('da.tahun_kelulusan', $filters['tahun']);
+        if (!empty($filters['nim'])) $builder->like('da.nim', $filters['nim']);
+        if (!empty($filters['nama'])) $builder->like('da.nama_lengkap', $filters['nama']);
+        if (!empty($filters['status'])) $builder->where('r.status', $filters['status']);
 
         $builder->groupBy('p.nama_prodi')
             ->orderBy('p.nama_prodi', 'ASC');
@@ -289,7 +362,172 @@ class AdminRespon extends BaseController
             'allYears'     => $allYears,
             'allAngkatan'  => $allAngkatan,
             'allJurusan'   => $allJurusan,
-            'allProdi'     => $allProdi
+            'allProdi'     => $allProdi,
+            'selectedYear'     => $filters['tahun'] ?? '',
+            'selectedStatus'   => $filters['status'] ?? '',
+            'selectedNim'      => $filters['nim'] ?? '',
+            'selectedNama'     => $filters['nama'] ?? '',
+            'selectedJurusan'  => $filters['jurusan'] ?? '',
+            'selectedProdi'    => $filters['prodi'] ?? '',
+            'selectedAngkatan' => $filters['angkatan'] ?? '',
         ]);
     }
+
+
+
+    public function exportPdf($id)
+    {
+        $response = $this->responseModel->find($id);
+        if (!$response) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound(
+                "Respon dengan ID $id tidak ditemukan"
+            );
+        }
+
+        $questionnaireId = $response['questionnaire_id'];
+        $accountId       = $response['account_id'];
+
+        $questionnaireModel = new \App\Models\QuestionnairModel();
+        $answerModel        = new \App\Models\AnswerModel();
+
+        // 🔹 Ambil nama_lengkap + jurusan + prodi dari detailaccount_alumni
+        $db = \Config\Database::connect();
+        $builder = $db->table('detailaccount_alumni da')
+            ->select('da.nama_lengkap, j.nama_jurusan, p.nama_prodi')
+            ->join('account a', 'a.id = da.id_account', 'left')
+            ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
+            ->join('prodi p', 'p.id = da.id_prodi', 'left')
+            ->where('a.id', $accountId)
+            ->get()
+            ->getRowArray();
+
+        $namaLengkap = $builder['nama_lengkap'] ?? 'Alumni';
+        $jurusan     = $builder['nama_jurusan'] ?? '-';
+        $prodi       = $builder['nama_prodi'] ?? '-';
+
+        // 🔹 Ambil jawaban
+        $answers = $answerModel->getUserAnswers($questionnaireId, $accountId);
+        $structure = $questionnaireModel->getQuestionnaireStructure(
+            $questionnaireId,
+            ['id' => $accountId],
+            $answers
+        );
+
+        if (empty($structure) || empty($structure['pages'])) {
+            return redirect()->to('/admin/respon')
+                ->with('error', 'Struktur kuesioner tidak ditemukan atau kosong.');
+        }
+
+        // 🔹 Load view ke HTML
+        $html = view('adminpage/respon/detail_pdf', [
+            'structure' => $structure,
+            'answers'   => $answers,
+            'response'  => $response,
+            'nama'      => $namaLengkap,
+            'jurusan'   => $jurusan,
+            'prodi'     => $prodi,
+        ]);
+
+        // 🔹 Konfigurasi Dompdf
+        $options = new \Dompdf\Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        // 🔹 Nama file pakai nama lengkap
+        $safeName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $namaLengkap);
+        $filename = "Jawaban_Alumni_" . $safeName . ".pdf";
+
+        $dompdf->stream($filename, ["Attachment" => true]);
+        exit;
+    }
+
+    public function allowEdit($questionnaire_id, $id_account)
+    {
+        log_message('debug', "allowEdit called with questionnaire_id: {$questionnaire_id}, id_account: {$id_account}");
+
+        if (!is_numeric($questionnaire_id) || $questionnaire_id <= 0 || !is_numeric($id_account) || $id_account <= 0) {
+            log_message('error', 'Invalid parameters');
+            throw PageNotFoundException::forPageNotFound('Invalid parameters');
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        try {
+            log_message('debug', 'Checking response for questionnaire_id: ' . $questionnaire_id . ', account_id: ' . $id_account);
+            $response = $this->responseModel->where([
+                'questionnaire_id' => $questionnaire_id,
+                'account_id' => $id_account
+            ])->first();
+
+            if (!$response) {
+                log_message('error', 'Response not found');
+                throw new \Exception('Data response tidak ditemukan.');
+            }
+
+            log_message('debug', 'Response found: ' . json_encode($response));
+
+            if ($response['status'] === 'draft') {
+                log_message('info', 'Response already in draft mode');
+                $db->transRollback();
+                session()->setFlashdata('info', 'Status sudah dalam mode draft.');
+                return redirect()->back();
+            }
+
+            // Update responses
+            log_message('debug', 'Updating responses status to draft');
+            $updatedResponse = $this->responseModel->updateStatus($questionnaire_id, $id_account, 'draft');
+            if (!$updatedResponse) {
+                log_message('error', 'Failed to update responses table');
+                throw new \Exception('Gagal update status di table responses.');
+            }
+            $affectedResponse = $db->affectedRows();
+            log_message('debug', 'Responses updated, affected rows: ' . $affectedResponse);
+
+            // Check answers
+            $answerCount = $this->answersModel->where([
+                'questionnaire_id' => $questionnaire_id,
+                'user_id' => $id_account
+            ])->countAllResults();
+            log_message('debug', "Found {$answerCount} answers for questionnaire_id: {$questionnaire_id}, user_id: {$id_account}");
+
+            if ($answerCount === 0) {
+                log_message('warning', 'No answers found to update. Proceeding with response update only.');
+            } else {
+                // Update answers
+                log_message('debug', 'Updating answers status to draft');
+                $updatedAnswers = $this->answersModel->batchUpdateStatus($questionnaire_id, $id_account, 'draft');
+                if (!$updatedAnswers) {
+                    log_message('error', 'Failed to update answers table (query error)');
+                    throw new \Exception('Gagal update status di table answers.');
+                }
+                $affectedAnswers = $db->affectedRows();
+                log_message('debug', 'Answers updated, affected rows: ' . $affectedAnswers);
+                if ($affectedAnswers === 0) {
+                    log_message('warning', 'Answers update successful but no rows affected (status already draft?).');
+                }
+            }
+
+            $db->transComplete();
+            if ($db->transStatus() === false) {
+                log_message('error', 'Transaction failed');
+                throw new \Exception('Transaction gagal.');
+            }
+
+            log_message('debug', 'Transaction committed successfully');
+            session()->setFlashdata('success', 'Status jawaban berhasil diubah menjadi draft.');
+        } catch (\Exception $e) {
+            log_message('error', 'Exception in allowEdit: ' . $e->getMessage());
+            $db->transRollback();
+            session()->setFlashdata('error', 'Gagal mengubah status: ' . $e->getMessage());
+        }
+
+        return redirect()->back();
+    }
+
 }

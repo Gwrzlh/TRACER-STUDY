@@ -12,17 +12,14 @@ class QuestionnairModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['title', 'deskripsi', 'is_active', 'conditional_logic', 'created_at', 'updated_at', 'id_prodi'];
+    protected $allowedFields    = ['title', 'deskripsi', 'is_active', 'conditional_logic', 'created_at', 'updated_at', 'id_prodi','announcement'];
 
     protected bool $allowEmptyInserts = false;
 
 
     public function checkConditions($conditions, $user_data, $previous_answers = [], $forRole = 'alumni')
-
-    // Di QuestionnairModel.php, replace method checkConditions()
-
     {
-        if (empty($conditions) || $conditions === null || $conditions === '') {
+        if (empty($conditions) || $conditions === null || $conditions === '' || $conditions === '[]') {
             log_message('debug', '[checkConditions] No conditions provided or empty, return true');
             return true;
         }
@@ -32,6 +29,8 @@ class QuestionnairModel extends Model
             log_message('debug', '[checkConditions] Invalid JSON conditions or empty array, return true');
             return true;
         }
+
+        log_message('debug', '[checkConditions] Evaluating conditions count: ' . count($conditions));
 
         $user_fields = [
             'email',
@@ -52,15 +51,13 @@ class QuestionnairModel extends Model
             'notlp'
         ];
 
-        $all_fields = array_merge($user_fields, array_keys($previous_answers));
+        $all_fields = array_merge($user_fields, array_keys($previous_answers ?? []));
 
         foreach ($conditions as $condition) {
-            $field = trim($condition['field'] ?? $condition['question_id'] ?? '');
+            $field = trim($condition['field'] ?? '');
             $operator = $condition['operator'] ?? '';
             $value = trim($condition['value'] ?? '');
 
-
-            // Untuk Kaprodi → skip kondisi id_prodi karena otomatis
             if ($forRole === 'kaprodi' && $field === 'id_prodi') {
                 log_message('debug', "[checkConditions] Skipping id_prodi check for Kaprodi");
                 continue;
@@ -68,19 +65,15 @@ class QuestionnairModel extends Model
 
             if (empty($field) || !in_array($field, $all_fields)) {
                 log_message('debug', "[checkConditions] Invalid or missing field: $field, skip");
-
-
                 continue;
             }
 
-            // FIX: Handle field tanpa prefix 'q_' untuk question ID
             $data_value = null;
-            if (preg_match('/^\d+$/', $field)) { // Jika field adalah numeric (question ID)
+            if (preg_match('/^\d+$/', $field)) {
                 $q_field = 'q_' . $field;
                 $data_value = $user_data[$q_field] ?? $previous_answers[$q_field] ?? null;
                 log_message('debug', "[checkConditions] Assumed question field: $field → $q_field");
             } else {
-                // Field biasa (user_data atau previous)
                 $data_value = $user_data[$field] ?? $previous_answers[$field] ?? null;
             }
 
@@ -89,7 +82,7 @@ class QuestionnairModel extends Model
                 return false;
             }
 
-            $userValue = trim(is_array($data_value) ? implode(',', $data_value) : $data_value); // Handle array (checkbox)
+            $userValue = trim(is_array($data_value) ? implode(',', $data_value) : $data_value);
             log_message('debug', "[checkConditions] Comparing field=$field, userValue='$userValue', value='$value', operator=$operator");
 
             $match = false;
@@ -100,13 +93,20 @@ class QuestionnairModel extends Model
                 case 'is_not':
                     $match = ($userValue !== $value);
                     break;
-                case 'contains': // Bonus: Tambah operator jika perlu
+                case 'contains':
                     $match = (strpos($userValue, $value) !== false);
                     break;
-                // Tambah operator lain jika ada di DB (e.g., 'greater_than')
+                case 'not_contains':
+                    $match = (strpos($userValue, $value) === false);
+                    break;
+                case 'greater':
+                    $match = (floatval($userValue) > floatval($value));
+                    break;
+                case 'less':
+                    $match = (floatval($userValue) < floatval($value));
+                    break;
                 default:
                     log_message('debug', "[checkConditions] Unknown operator $operator, assume false");
-                    $match = false;
             }
 
             if (!$match) {
@@ -118,53 +118,82 @@ class QuestionnairModel extends Model
         log_message('debug', '[checkConditions] All conditions passed, return true');
         return true;
     }
+    private function getNamaProdi($id_prodi)
+    {
+        if (empty($id_prodi)) return '-';
+
+        $prodi = $this->db->table('prodi')
+            ->select('nama_prodi')
+            ->where('id', $id_prodi)
+            ->get()
+            ->getRowArray();
+
+        return $prodi['nama_prodi'] ?? '-';
+    }
+
     public function getAccessibleQuestionnaires($user_data, $role = null)
     {
         $builder = $this->db->table($this->table);
-
-        // ✅ ambil hanya kuesioner aktif
         $builder->where('is_active', 'active');
-
         $all_q = $builder->get()->getResultArray();
         $accessible = [];
 
         foreach ($all_q as $q) {
-            // === Role Kaprodi ===
+            $id_prodi_user = $user_data['id_prodi'] ?? null;
+            $conditional = $q['conditional_logic'] ?? '';
+
             if ($role === 'kaprodi') {
-                // Kasus 1: Kuesioner khusus prodi
-                if (!empty($q['id_prodi']) && $q['id_prodi'] == $user_data['id_prodi']) {
+                // 1️⃣ Kuesioner khusus prodi kaprodi
+                if (!empty($q['id_prodi']) && $q['id_prodi'] == $id_prodi_user) {
+                    $q['nama_prodi'] = $this->getNamaProdi($q['id_prodi']);
                     $accessible[] = $q;
                     continue;
                 }
 
-                // Kasus 2: Kuesioner admin (id_prodi null + cek conditional)
-                if (empty($q['id_prodi'])) {
-                    $conditional = $q['conditional_logic'] ?? '';
-                    if (!empty($conditional) && $this->checkConditions($conditional, $user_data, [], $role)) {
-                        $accessible[] = $q;
+                // 2️⃣ Kuesioner admin (id_prodi NULL) dengan conditional logic sesuai prodi kaprodi
+                if (empty($q['id_prodi']) && !empty($conditional)) {
+                    if ($this->checkConditions($conditional, $user_data, [], $role)) {
+                        $cond = json_decode($conditional, true);
+                        $id_prodi_cond = $cond[0]['value'] ?? null;
+                        if ($id_prodi_cond == $id_prodi_user) {
+                            $q['nama_prodi'] = $this->getNamaProdi($id_prodi_cond);
+                            $accessible[] = $q;
+                        }
                     }
                 }
 
-                continue; // lanjut ke kuesioner berikutnya
-            }
-
-            // === Role Lain (misal Alumni) ===
-            $conditional = $q['conditional_logic'] ?? '';
-
-            // Jika conditional kosong → bisa diakses semua
-            if (empty($conditional) || $conditional === '[]') {
-                $accessible[] = $q;
                 continue;
             }
 
-            // Jika conditional cocok
-            if ($this->checkConditions($conditional, $user_data, [], $role)) {
+            // Role alumni / admin / lainnya
+            if (empty($conditional) || $conditional === '[]') {
+                // Kuesioner umum (admin) muncul untuk semua alumni
+                $q['nama_prodi'] = $this->getNamaProdi($q['id_prodi']);
                 $accessible[] = $q;
+            } else {
+                // Conditional logic ada, cek prodi alumni
+                if ($this->checkConditions($conditional, $user_data, [], $role)) {
+                    $cond = json_decode($conditional, true);
+                    $id_prodi_cond = $cond[0]['value'] ?? null;
+                    if ($role === 'alumni' && $id_prodi_cond != $id_prodi_user) {
+                        // Alumni hanya boleh melihat jika prodi sesuai
+                        continue;
+                    }
+                    $q['nama_prodi'] = $this->getNamaProdi($id_prodi_cond);
+                    $accessible[] = $q;
+                }
             }
         }
 
         return $accessible;
     }
+
+
+
+
+
+
+
 
 
 

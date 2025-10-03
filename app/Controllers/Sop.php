@@ -2,7 +2,7 @@
 namespace App\Controllers\LandingPage;
 
 use App\Controllers\BaseController;
-use App\Models\LandingPage\TentangModel;
+use App\Models\TentangModel;
 
 class Sop extends BaseController
 {
@@ -15,7 +15,7 @@ class Sop extends BaseController
 
     public function index()
     {
-$tentang = [
+     $tentang = [
         'judul'  => 'SOP Tracer Study',
         'isi'    => 'Isi dari SOP ...',
         'gambar' => 'sop.jpg',
