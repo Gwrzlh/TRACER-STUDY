@@ -1,0 +1,186 @@
+/* Container utama untuk centering dan padding */
+.container {
+    max-width: 1300px; /* Lebih lebar untuk kesan full */
+}
+
+/* Card wrapper untuk seluruh konten */
+.bg-white {
+    background-color: #ffffff;
+}
+
+.rounded-lg {
+    border-radius: 0.75rem; /* Rounded corners lebih besar */
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Shadow lebih tegas */
+}
+
+.p-8 {
+    padding: 2rem; /* Padding lebih besar */
+}
+
+/* Header styling */
+.flex {
+    display: flex;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.mb-8 {
+    margin-bottom: 2rem;
+}
+
+.text-3xl {
+    font-size: 1.875rem;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+/* Dropdown styling */
+.font-semibold {
+    font-weight: 600;
+}
+
+.block {
+    display: block;
+}
+
+.mb-3 {
+    margin-bottom: 0.75rem;
+}
+
+.text-lg {
+    font-size: 1.125rem;
+}
+
+.border {
+    border-width: 1px;
+    border-color: #d1d5db;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.md\:w-auto {
+    @media (min-width: 768px) {
+        width: auto;
+    }
+}
+
+.focus\:outline-none {
+    &:focus {
+        outline: none;
+    }
+}
+
+.focus\:ring-2 {
+    &:focus {
+        --tw-ring-offset-width: 2px;
+    }
+}
+
+.focus\:ring-blue-500 {
+    &:focus {
+        --tw-ring-color: #3b82f6;
+    }
+}
+
+.text-base {
+    font-size: 1rem;
+}
+
+/* Tabel styling mirip foto Tipe Organisasi */
+.overflow-x-auto {
+    overflow-x: auto;
+}
+
+.min-w-full {
+    min-width: 100%;
+}
+
+.border {
+    border-width: 1px;
+}
+
+.border-gray-300 {
+    border-color: #d1d5db;
+}
+
+.rounded-lg {
+    border-radius: 0.75rem;
+}
+
+.bg-gray-200 {
+    background-color: #e5e7eb;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-base {
+    font-size: 1rem;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.px-8 {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.border-b {
+    border-bottom-width: 1px;
+    border-color: #d1d5db;
+}
+
+.hover\:bg-gray-50:hover {
+    background-color: #f9fafb;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-gray-500 {
+    color: #6b7280;
+}
+
+.text-lg {
+    font-size: 1.125rem;
+}
