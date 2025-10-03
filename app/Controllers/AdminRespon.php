@@ -26,7 +26,6 @@ class AdminRespon extends BaseController
         $this->jurusanModel  = new JurusanModel();
         $this->prodiModel    = new Prodi();
     }
-
     public function index()
     {
         $filters = $this->getFiltersFromRequest();
@@ -40,7 +39,19 @@ class AdminRespon extends BaseController
             ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left')
             ->findAll();
 
-        // Builder utama
+        // 🔹 Subquery untuk ambil response terakhir per user + questionnaire
+        $subQuery = "
+        (SELECT rr.* 
+         FROM responses rr
+         INNER JOIN (
+            SELECT account_id, questionnaire_id, MAX(id) as max_id
+            FROM responses
+            GROUP BY account_id, questionnaire_id
+         ) x ON rr.id = x.max_id
+        ) r
+    ";
+
+        // Builder utama (summary counter)
         $builder = $this->alumniModel->db->table('detailaccount_alumni da')
             ->select("
             da.id_account,
@@ -58,7 +69,7 @@ class AdminRespon extends BaseController
         ")
             ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
             ->join('prodi p', 'p.id = da.id_prodi', 'left')
-            ->join('responses r', 'r.account_id = da.id_account', 'left')
+            ->join($subQuery, 'r.account_id = da.id_account', 'left')
             ->join('questionnaires q', 'q.id = r.questionnaire_id', 'left');
 
         // apply filter
@@ -76,16 +87,16 @@ class AdminRespon extends BaseController
             }
         }
 
-        // Hitung total
-        $totalData = $builder->countAllResults(false);
-
         // Ambil semua data untuk summary counter
         $allResponses = $builder->get()->getResultArray();
 
         $totalCompleted = count(array_filter($allResponses, fn($r) => ($r['response_status'] ?? '') === 'completed'));
         $totalDraft     = count(array_filter($allResponses, fn($r) => ($r['response_status'] ?? '') === 'draft'));
         $totalBelum     = count(array_filter($allResponses, fn($r) => empty($r['response_status'])));
-        $totalOngoing   = $totalDraft; // alias saja
+        $totalOngoing   = $totalDraft;
+
+        // Hitung total setelah filter
+        $totalData = count($allResponses);
 
         // Ambil data untuk halaman sekarang
         $offset = ($currentPage - 1) * $perPage;
@@ -106,7 +117,7 @@ class AdminRespon extends BaseController
         ")
             ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
             ->join('prodi p', 'p.id = da.id_prodi', 'left')
-            ->join('responses r', 'r.account_id = da.id_account', 'left')
+            ->join($subQuery, 'r.account_id = da.id_account', 'left')
             ->join('questionnaires q', 'q.id = r.questionnaire_id', 'left')
             ->limit($perPage, $offset)
             ->get()
@@ -141,7 +152,7 @@ class AdminRespon extends BaseController
             'totalDraft'     => $totalDraft,
             'totalBelum'     => $totalBelum,
 
-            // 🔹 untuk filter di view
+            // filter di view
             'selectedYear'          => $filters['tahun'] ?? '',
             'selectedStatus'        => $filters['status'] ?? '',
             'selectedQuestionnaire' => $filters['questionnaire'] ?? '',
@@ -154,6 +165,9 @@ class AdminRespon extends BaseController
 
         return view('adminpage/respon/index', $data);
     }
+
+
+
 
 
 
