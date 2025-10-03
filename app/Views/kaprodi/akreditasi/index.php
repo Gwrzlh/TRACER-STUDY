@@ -7,13 +7,22 @@
     <div class="page-wrapper">
         <div class="page-container">
             <h2 class="page-title">Hasil Akreditasi</h2>
-            
+
             <?php if (!empty($pertanyaan)): ?>
                 <?php $colors = ['#4CAF50', '#FFC107', '#2196F3', '#FF5722', '#9C27B0', '#00BCD4', '#8BC34A', '#FF9800']; ?>
 
                 <?php foreach ($pertanyaan as $p): ?>
                     <div class="content-card mb-5">
                         <div class="card-header-custom">
+                            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                <h5 class="question-title"><?= esc($p['teks'] ?? '-') ?></h5>
+                                <a href="<?= base_url('kaprodi/questioner/delete/' . $p['id']) ?>"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?');">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </a>
+                            </div>
+
                             <h5 class="question-title"><?= esc($p['teks'] ?? '-') ?></h5>
                         </div>
                         <div class="card-body-custom">

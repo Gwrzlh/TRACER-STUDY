@@ -8,6 +8,8 @@ use App\Models\Prodi;
 use App\Models\AlumniModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use CodeIgniter\I18n\Time;
 
 class AdminRespon extends BaseController
@@ -106,6 +108,43 @@ class AdminRespon extends BaseController
         ];
 
         return view('adminpage/respon/index', $data);
+    }
+    // ================== HAPUS JAWABAN ==================
+    public function deleteAnswer($id)
+    {
+        $answerModel = new \App\Models\AnswerModel();
+        $deleted = $answerModel->deleteAnswerAndCheckResponse($id);
+
+        if ($deleted) {
+            return redirect()->back()->with('success', 'Jawaban berhasil dihapus (beserta response jika kosong)');
+        } else {
+            return redirect()->back()->with('error', 'Jawaban tidak ditemukan');
+        }
+    }
+
+    // ================== LANDING PAGE RESPON ==================
+    public function responseLanding()
+    {
+        $responseModel = new \App\Models\ResponseModel();
+
+        $yearsRaw = $responseModel->getAvailableYears() ?? [];
+        $allYears = array_column($yearsRaw, 'tahun');
+
+        $selectedYear = $this->request->getGet('tahun');
+        if (!$selectedYear && !empty($allYears)) {
+            $selectedYear = $allYears[0];
+        }
+        if (!$selectedYear) {
+            $selectedYear = date('Y');
+        }
+
+        $data = [
+            'selectedYear' => $selectedYear,
+            'allYears'     => $allYears,
+            'data'         => $responseModel->getSummaryByYear($selectedYear)
+        ];
+
+        return view('LandingPage/respon', $data);
     }
 
 
@@ -291,5 +330,75 @@ class AdminRespon extends BaseController
             'allJurusan'   => $allJurusan,
             'allProdi'     => $allProdi
         ]);
+    }
+    public function exportPdf($id)
+    {
+        $response = $this->responseModel->find($id);
+        if (!$response) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound(
+                "Respon dengan ID $id tidak ditemukan"
+            );
+        }
+
+        $questionnaireId = $response['questionnaire_id'];
+        $accountId       = $response['account_id'];
+
+        $questionnaireModel = new \App\Models\QuestionnairModel();
+        $answerModel        = new \App\Models\AnswerModel();
+
+        // 🔹 Ambil nama_lengkap + jurusan + prodi dari detailaccount_alumni
+        $db = \Config\Database::connect();
+        $builder = $db->table('detailaccount_alumni da')
+            ->select('da.nama_lengkap, j.nama_jurusan, p.nama_prodi')
+            ->join('account a', 'a.id = da.id_account', 'left')
+            ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
+            ->join('prodi p', 'p.id = da.id_prodi', 'left')
+            ->where('a.id', $accountId)
+            ->get()
+            ->getRowArray();
+
+        $namaLengkap = $builder['nama_lengkap'] ?? 'Alumni';
+        $jurusan     = $builder['nama_jurusan'] ?? '-';
+        $prodi       = $builder['nama_prodi'] ?? '-';
+
+        // 🔹 Ambil jawaban
+        $answers = $answerModel->getUserAnswers($questionnaireId, $accountId);
+        $structure = $questionnaireModel->getQuestionnaireStructure(
+            $questionnaireId,
+            ['id' => $accountId],
+            $answers
+        );
+
+        if (empty($structure) || empty($structure['pages'])) {
+            return redirect()->to('/admin/respon')
+                ->with('error', 'Struktur kuesioner tidak ditemukan atau kosong.');
+        }
+
+        // 🔹 Load view ke HTML
+        $html = view('adminpage/respon/detail_pdf', [
+            'structure' => $structure,
+            'answers'   => $answers,
+            'response'  => $response,
+            'nama'      => $namaLengkap,
+            'jurusan'   => $jurusan,
+            'prodi'     => $prodi,
+        ]);
+
+        // 🔹 Konfigurasi Dompdf
+        $options = new \Dompdf\Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        // 🔹 Nama file pakai nama lengkap
+        $safeName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $namaLengkap);
+        $filename = "Jawaban_Alumni_" . $safeName . ".pdf";
+
+        $dompdf->stream($filename, ["Attachment" => true]);
+        exit;
     }
 }

@@ -1,0 +1,333 @@
+/* CSS untuk halaman announcement - konsisten dengan desain kuesioner */
+
+/* Base Layout */
+body, html {
+    height: 100%;
+    margin: 0;
+    background-color: #f8fafc;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Main Container */
+.announcement-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f8fafc;
+}
+
+/* Announcement Card */
+.announcement-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    max-width: 700px;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+/* Header Section */
+.announcement-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    padding: 40px 30px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.announcement-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 28px;
+    font-weight: bold;
+    backdrop-filter: blur(10px);
+}
+
+.announcement-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: white;
+    letter-spacing: -0.5px;
+}
+
+.announcement-subtitle {
+    font-size: 16px;
+    opacity: 0.9;
+    font-weight: 400;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Content Section */
+.announcement-content {
+    padding: 32px;
+    color: #374151;
+    line-height: 1.6;
+}
+
+.announcement-content h1,
+.announcement-content h2,
+.announcement-content h3,
+.announcement-content h4,
+.announcement-content h5,
+.announcement-content h6 {
+    color: #1f2937;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.announcement-content p {
+    margin-bottom: 16px;
+    font-size: 16px;
+    color: #374151;
+}
+
+.announcement-content p:last-child {
+    margin-bottom: 0;
+}
+
+.announcement-content ul,
+.announcement-content ol {
+    margin-bottom: 16px;
+    padding-left: 20px;
+}
+
+.announcement-content li {
+    margin-bottom: 4px;
+    color: #374151;
+}
+
+.announcement-content strong {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.announcement-content em {
+    font-style: italic;
+}
+
+/* Questionnaire Info Box */
+.questionnaire-info {
+    background: #f0f9ff;
+    border-left: 4px solid #3b82f6;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    border-radius: 0 8px 8px 0;
+}
+
+.questionnaire-info h6 {
+    color: #1d4ed8;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.questionnaire-info p {
+    color: #1e40af;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Message Content */
+.announcement-message {
+    color: #374151;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Actions Section */
+.announcement-actions {
+    padding: 24px 32px;
+    background: #f9fafb;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Continue Button */
+.btn-continue {
+    background-color: #ef4444;
+    color: #fff;
+    padding: 0.625rem 1.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 200px;
+}
+
+.btn-continue:hover {
+    background-color: #dc2626;
+    color: #fff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
+}
+
+.btn-continue:focus {
+    outline: 2px solid rgba(239, 68, 68, 0.3);
+    outline-offset: 2px;
+}
+
+.btn-continue:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
+}
+
+/* Animation Classes */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .announcement-container {
+        padding: 16px;
+    }
+    
+    .announcement-header {
+        padding: 32px 24px;
+    }
+    
+    .announcement-title {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+    
+    .announcement-subtitle {
+        font-size: 14px;
+    }
+    
+    .announcement-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 24px;
+        margin-bottom: 16px;
+    }
+    
+    .announcement-content {
+        padding: 24px 20px;
+    }
+    
+    .announcement-actions {
+        padding: 20px;
+    }
+    
+    .btn-continue {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 16px;
+        min-width: unset;
+    }
+    
+    .questionnaire-info {
+        padding: 12px 16px;
+        margin-bottom: 20px;
+    }
+    
+    .questionnaire-info h6 {
+        font-size: 11px;
+    }
+    
+    .questionnaire-info p {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .announcement-container {
+        padding: 12px;
+    }
+    
+    .announcement-header {
+        padding: 24px 16px;
+    }
+    
+    .announcement-title {
+        font-size: 20px;
+    }
+    
+    .announcement-content {
+        padding: 20px 16px;
+    }
+    
+    .announcement-actions {
+        padding: 16px;
+    }
+    
+    .announcement-content p,
+    .announcement-message {
+        font-size: 15px;
+    }
+}
+
+/* Loading State */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Success State Animation */
+.success-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Focus Management */
+.announcement-card:focus-within {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05), 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Print Styles */
+@media print {
+    .announcement-container {
+        padding: 0;
+        background: white;
+    }
+    
+    .announcement-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .announcement-actions {
+        display: none;
+    }
+}

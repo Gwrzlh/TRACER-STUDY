@@ -13,33 +13,6 @@
       <input type="text" name="nama_lengkap" value="<?= esc($kaprodi['nama_lengkap'] ?? '') ?>"
         class="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300" required>
     </div>
-
-    <!-- Jurusan -->
-    <div>
-      <label class="block font-medium mb-1">Jurusan</label>
-      <select name="id_jurusan" class="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300" required>
-        <option value="">-- Pilih Jurusan --</option>
-        <?php foreach ($jurusanList as $jurusan): ?>
-          <option value="<?= $jurusan['id'] ?>" <?= ($kaprodi['id_jurusan'] == $jurusan['id']) ? 'selected' : '' ?>>
-            <?= esc($jurusan['nama_jurusan']) ?>
-          </option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-
-    <!-- Prodi -->
-    <div>
-      <label class="block font-medium mb-1">Prodi</label>
-      <select name="id_prodi" class="w-full border rounded-lg px-4 py-2 focus:ring focus:ring-blue-300" required>
-        <option value="">-- Pilih Prodi --</option>
-        <?php foreach ($prodiList as $prodi): ?>
-          <option value="<?= $prodi['id'] ?>" <?= ($kaprodi['id_prodi'] == $prodi['id']) ? 'selected' : '' ?>>
-            <?= esc($prodi['nama_prodi']) ?>
-          </option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-
     <!-- No HP -->
     <div>
       <label class="block font-medium mb-1">No HP</label>
