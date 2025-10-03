@@ -6,7 +6,7 @@ $orgHover = get_setting('org_button_hover_color', '#218838');
 ?>
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
-
+<?= $pager->links() ?>
 <link rel="stylesheet" href="<?= base_url('css/organisasi/satuanorganisasi.css') ?>">
 
 <!-- Main Container -->
@@ -16,9 +16,12 @@ $orgHover = get_setting('org_button_hover_color', '#218838');
         <div class="page-header">
             <h1 class="page-title">Satuan Organisasi</h1>
             <div class="header-actions">
-                <a href="<?= base_url('satuanorganisasi/create') ?>" class="btn-primary">
-                   <span class="btn-icon">+</span> <?= esc($orgText) ?>
-                </a>
+              <a href="<?= base_url('satuanorganisasi/create') ?>" 
+   class="btn-org"
+   style="background-color: <?= esc($orgColor) ?>;
+          color: <?= esc($orgTextColor) ?>;">
+   <span class="btn-icon">+</span> <?= esc($orgText) ?>
+</a>
             </div>
         </div>
 
@@ -137,7 +140,32 @@ $orgHover = get_setting('org_button_hover_color', '#218838');
 
     </div>
 </div>
+<style>
+.btn-org {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
 
+.btn-org:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+.btn-org:active {
+    transform: translateY(0);
+}
+.btn-org .btn-icon {
+    font-size: 16px;
+    font-weight: bold;
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 <?php if(session()->getFlashdata('success')): ?>
