@@ -1,7 +1,19 @@
 <?php
 use App\Models\WelcomePageModel;
+use App\Models\SiteSettingModel;
+
+// Ambil konten welcome page
 $model = new WelcomePageModel();
 $data = $model->first();
+
+// Ambil setting tombol dari DB
+$settingModel = new SiteSettingModel();
+$settings = [
+    'survey_button_text'        => get_setting('survey_button_text', 'Mulai Survey'),
+    'survey_button_color'       => get_setting('survey_button_color', '#ef4444'),
+    'survey_button_text_color'  => get_setting('survey_button_text_color', '#ffffff'),
+    'survey_button_hover_color' => get_setting('survey_button_hover_color', '#dc2626'),
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,31 +62,15 @@ $data = $model->first();
 
       /* Teks lebih kecil */
       .hero-overlay h1 {
-        font-size: 2rem; /* sebelumnya 2.8rem */
+        font-size: 2rem;
         font-weight: 700;
         margin-bottom: 12px;
       }
 
       .hero-overlay p {
-        font-size: 1rem; /* sebelumnya 1.2rem */
+        font-size: 1rem;
         margin-bottom: 20px;
         color: #e5e7eb;
-      }
-
-      .btn-cta {
-        background: #ef4444;
-        border: none;
-        padding: 10px 26px;
-        border-radius: 30px;
-        font-weight: 600;
-        font-size: 1rem;
-        color: #fff;
-        transition: transform .3s ease, background .3s ease;
-      }
-
-      .btn-cta:hover {
-        background: #dc2626;
-        transform: scale(1.05);
       }
 
       /* Section */
@@ -144,7 +140,20 @@ $data = $model->first();
           <div>
             <h1 class="animate__animated animate__fadeInDown animate__slow"><?= esc($data['title_1']) ?></h1>
             <p class="animate__animated animate__fadeInLeft animate__delay-1s animate__slow"><?= $data['desc_1'] ?></p>
-            <a href="<?= base_url('/login') ?>" class="btn btn-cta animate__animated animate__bounceIn animate__delay-2s animate__slow">Mulai Survey</a>
+            <a href="<?= base_url('/login') ?>"
+               class="animate__animated animate__bounceIn animate__delay-2s animate__slow"
+               style="background-color: <?= esc($settings['survey_button_color']) ?>;
+                      color: <?= esc($settings['survey_button_text_color']) ?>;
+                      padding: 10px 26px;
+                      border-radius: 30px;
+                      font-weight: 600;
+                      font-size: 1rem;
+                      text-decoration: none;
+                      display: inline-block;"
+               onmouseover="this.style.backgroundColor='<?= esc($settings['survey_button_hover_color']) ?>'"
+               onmouseout="this.style.backgroundColor='<?= esc($settings['survey_button_color']) ?>'">
+               <?= esc($settings['survey_button_text']) ?>
+            </a>
           </div>
         </div>
       </div>

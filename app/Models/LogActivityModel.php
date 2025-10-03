@@ -16,16 +16,17 @@ class LogActivityModel extends Model
 
     protected bool $allowEmptyInserts = false;
 
+    // ✅ Method untuk mencatat log
     public function logAction($action_type, $description = null)
     {
         $request = \Config\Services::request();
         $data = [
-            'user_id' => session()->get('id') ?? null,
+            'user_id'     => session()->get('id') ?? null,
             'action_type' => $action_type,
             'description' => is_array($description) ? json_encode($description) : $description,
-            'ip_adress' => $request->getIPAddress() === '::1' ? 'localhost (::1)' : $request->getIPAddress(),
-            'user_agent' => $request->getUserAgent()->getAgentString(),
-            'created_at' => date('Y-m-d H:i:s'),
+            'ip_adress'   => $request->getIPAddress() === '::1' ? 'localhost (::1)' : $request->getIPAddress(),
+            'user_agent'  => $request->getUserAgent()->getAgentString(),
+            'created_at'  => date('Y-m-d H:i:s'),
         ];
         try {
             $this->insert($data);
@@ -35,21 +36,28 @@ class LogActivityModel extends Model
         }
     }
 
-    public function getLogs($search = null, $date_range = null, $limit = 0, $offset = 0)
+    // ✅ Builder untuk pagination (kembalikan query builder, bukan array)
+    public function getLogsQuery($search = null, $date_range = null)
     {
-        $builder = $this->select('log_activities.*, COALESCE(da.nama_lengkap, dk.nama_lengkap, account.username, "Guest") as nama_lengkap, log_activities.ip_adress')
-                       ->join('account', 'account.id = log_activities.user_id', 'left')
-                       ->join('detailaccount_alumni da', 'da.id_account = log_activities.user_id', 'left')
-                       ->join('detailaccount_kaprodi dk', 'dk.id_account = log_activities.user_id', 'left');
+        $builder = $this->select(
+                'log_activities.*, 
+                 COALESCE(da.nama_lengkap, dk.nama_lengkap, account.username, "Guest") as nama_lengkap,
+                 log_activities.ip_adress'
+            )
+            ->join('account', 'account.id = log_activities.user_id', 'left')
+            ->join('detailaccount_alumni da', 'da.id_account = log_activities.user_id', 'left')
+            ->join('detailaccount_kaprodi dk', 'dk.id_account = log_activities.user_id', 'left');
+
         if ($search) {
             $builder->groupStart()
-                    ->like('action_type', $search)
-                    ->orLike('log_activities.ip_adress', $search)
-                    ->orLike('account.username', $search)
-                    ->orLike('da.nama_lengkap', $search)
-                    ->orLike('dk.nama_lengkap', $search)
-                    ->groupEnd();
+                ->like('action_type', $search)
+                ->orLike('log_activities.ip_adress', $search)
+                ->orLike('account.username', $search)
+                ->orLike('da.nama_lengkap', $search)
+                ->orLike('dk.nama_lengkap', $search)
+            ->groupEnd();
         }
+
         if ($date_range) {
             $dates = explode(' to ', $date_range);
             if (count($dates) === 2 && !empty($dates[0]) && !empty($dates[1])) {
@@ -59,10 +67,17 @@ class LogActivityModel extends Model
                 $builder->where('DATE(log_activities.created_at)', trim($dates[0]));
             }
         }
-        return $builder->orderBy('created_at', 'DESC')
-                      ->limit($limit, $offset)
-                      ->get()
-                      ->getResultArray();
+
+        return $builder->orderBy('created_at', 'DESC'); // tanpa getResultArray()
+    }
+
+    // ✅ Versi array (untuk export CSV dll, tidak pakai paginate)
+    public function getLogs($search = null, $date_range = null, $limit = 0, $offset = 0)
+    {
+        return $this->getLogsQuery($search, $date_range)
+                    ->limit($limit, $offset)
+                    ->get()
+                    ->getResultArray();
     }
 
     // Dates
@@ -71,21 +86,4 @@ class LogActivityModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
-
-    // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
-    protected $skipValidation       = false;
-    protected $cleanValidationRules = true;
-
-    // Callbacks
-    protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
 }

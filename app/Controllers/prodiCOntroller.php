@@ -20,12 +20,15 @@ class ProdiController extends Controller
     // Ambil keyword dari GET
     $keyword = $this->request->getGet('keyword');
 
+    // Ambil setting jumlah per halaman (default 10)
+    $perPage = get_setting('org_perpage_default', 10);
+
     // Query untuk badge (hitung total tanpa filter)
     $data['count_satuan']  = $satuanModel->countAll();
     $data['count_jurusan'] = $jurusanModel->countAll();
     $data['count_prodi']   = $prodiModel->countAll();
 
-    // Ambil data Prodi + Join ke Jurusan
+    // Builder: Prodi + Join ke Jurusan
     $builder = $prodiModel->select('prodi.id, prodi.nama_prodi, jurusan.nama_jurusan')
         ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left');
 
@@ -37,14 +40,22 @@ class ProdiController extends Controller
             ->groupEnd();
     }
 
-    // Tambahkan ORDER BY biar data baru tampil di atas
-    $builder->orderBy('prodi.id', 'DESC');
+    // Ambil data dengan pagination
+    $prodi = $builder
+        ->orderBy('prodi.id', 'DESC')
+        ->paginate($perPage);
 
-    $data['prodi']   = $builder->findAll();
-    $data['keyword'] = $keyword;
+    // Data untuk view
+    $data['prodi']        = $prodi;
+    $data['pager']        = $prodiModel->pager;
+    $data['perPage']      = $perPage;
+    $data['currentPage']  = (int) ($this->request->getGet('page') ?? 1);
+    $data['pagerLinks']   = $prodiModel->pager->links();
+    $data['keyword']      = $keyword;
 
     return view('adminpage/organisasi/satuanorganisasi/prodi/index', $data);
 }
+
 
 
     public function create()
