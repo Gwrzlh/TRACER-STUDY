@@ -402,44 +402,44 @@ class UserQuestionController extends BaseController
     /**
      * KEEP: Your enhanced saveAnswer method (this was working correctly)
      */
-    public function saveAnswer()
-    {
-        if (!session()->get('logged_in')) {
-            return redirect()->to('/login');
-        }
+    
+public function saveAnswer()
+{
+    if (!session()->get('logged_in')) {
+        return redirect()->to('/login');
+    }
 
-        $q_id = $this->request->getPost('q_id');
-        $answers = $this->request->getPost('answer') ?? [];
-        $files = $this->request->getFiles() ?? [];
-        $isLogicallyComplete = $this->request->getPost('is_logically_complete') === '1';
-        $userId = session()->get('id');
+    $q_id = $this->request->getPost('q_id');
+    $answers = $this->request->getPost('answer') ?? [];
+    $files = $this->request->getFiles() ?? [];
+    $isLogicallyComplete = $this->request->getPost('is_logically_complete') === '1';
+    $userId = session()->get('id');
 
-        log_message('debug', '[saveAnswer] Received request. Q_ID: ' . $q_id . ', User ID: ' . $userId);
-        log_message('debug', '[saveAnswer] Is Logically Complete: ' . ($isLogicallyComplete ? 'true' : 'false'));
+    log_message('debug', '[saveAnswer] Received request. Q_ID: ' . $q_id . ', User: ' . $userId . ', Logical Complete: ' . ($isLogicallyComplete ? 'true' : 'false'));
 
-        if (empty($answers) && empty($files)) {
-            log_message('error', '[saveAnswer] No answers or files provided');
-            return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Tidak ada jawaban yang disimpan.');
-        }
+    if (empty($answers) && empty($files)) {
+        log_message('error', '[saveAnswer] No answers or files provided.');
+        return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Tidak ada jawaban yang disimpan.');
+    }
 
-        try {
-            $saveSuccess = false;
+    try {
+        $saveSuccess = false;
 
-            // Process answers
-            if ($answers) {
-                foreach ($answers as $question_id => $answer) {
-                    if (empty($answer) && !is_array($answer)) continue;
+        // Process answers
+        if (!empty($answers)) {
+            foreach ($answers as $question_id => $answer) {
+                if (empty($answer) && !is_array($answer)) continue;
 
-                    $processedAnswer = is_array($answer) ? json_encode($answer) : $answer;
-                    $this->answerModel->saveAnswer($userId, $q_id, $question_id, $processedAnswer);
-                    log_message('debug', '[saveAnswer] Saved answer for question ' . $question_id);
-                    $saveSuccess = true;
-                }
+                $processedAnswer = is_array($answer) ? json_encode($answer) : $answer;
+                $this->answerModel->saveAnswer($userId, $q_id, $question_id, $processedAnswer);
+                log_message('debug', '[saveAnswer] Saved text answer for question ' . $question_id);
+                $saveSuccess = true;
             }
+        }
 
-            // Process files
+        // Process files
         foreach ($files as $key => $file) {
-        log_message('debug', '[saveAnswer] Processing file key: ' . $key . ', Client name: ' . ($file->getClientName() ?? 'N/A'));
+            log_message('debug', '[saveAnswer] Processing file: ' . $key . ', Client name: ' . ($file->getClientName() ?? 'N/A'));
             
             if (preg_match('/answer_(\d+)/', $key, $matches)) {
                 $question_id = $matches[1];
@@ -494,40 +494,46 @@ class UserQuestionController extends BaseController
             }
         }
 
-            // ENHANCED: Set proper completion status and handle announcement
-            if ($saveSuccess && $isLogicallyComplete) {
-                $this->answerModel->setStatus($q_id, $userId, 'completed');
-                log_message('info', '[saveAnswer] Set questionnaire as completed due to logical completion');
+        log_message('debug', '[saveAnswer] Save success: ' . ($saveSuccess ? 'true' : 'false'));
 
-                // NEW: Check for announcement and redirect accordingly
+        // Handle completion
+        $validateBackend = false; // Set false untuk tes; ubah ke true setelah validation diimplement
+        if ($saveSuccess && $isLogicallyComplete) {
+            $completed = $this->answerModel->setQuestionnaireCompleted($q_id, $userId, $validateBackend);
+            if ($completed) {
+                log_message('info', '[saveAnswer] Questionnaire set to completed.');
+
+                // Announcement check
                 $questionnaire = $this->questionnaireModel->find($q_id);
                 $announcement = $questionnaire['announcement'] ?? '';
 
                 if (!empty(trim($announcement))) {
-                    log_message('debug', '[saveAnswer] Announcement found, redirecting to show announcement');
-                    // Store announcement data in session for display
+                    log_message('debug', '[saveAnswer] Redirecting to announcement.');
                     session()->setFlashdata('show_announcement', true);
                     session()->setFlashdata('announcement_content', $announcement);
                     session()->setFlashdata('questionnaire_title', $questionnaire['title'] ?? 'Kuesioner');
-
                     return redirect()->to("/alumni/questionnaires/mulai/$q_id?show_announcement=1");
                 }
+            } else {
+                log_message('warning', '[saveAnswer] Failed to set completed (validation or error).');
+                return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Gagal menyelesaikan: Periksa log untuk detail (validation mungkin gagal).');
             }
-
-            // Log activity
-            try {
-                $this->logActivityModel->logAction('submit_questionnaire', 'User ' . $userId . ' submitted questionnaire ID ' . $q_id);
-            } catch (\Exception $logException) {
-                log_message('warning', '[saveAnswer] Failed to log activity: ' . $logException->getMessage());
-            }
-
-            log_message('info', '[saveAnswer] Process completed successfully');
-            return redirect()->to("/alumni/questionnaires")->with('success', 'Jawaban berhasil disimpan!');
-        } catch (\Exception $e) {
-            log_message('error', '[saveAnswer] Error during process: ' . $e->getMessage());
-            return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Gagal menyimpan jawaban: ' . $e->getMessage())->withInput();
         }
+
+        // Log activity
+        try {
+            $this->logActivityModel->logAction('submit_questionnaire', 'User ' . $userId . ' submitted questionnaire ID ' . $q_id);
+        } catch (\Exception $logException) {
+            log_message('warning', '[saveAnswer] Log activity failed: ' . $logException->getMessage());
+        }
+
+        log_message('info', '[saveAnswer] Process completed.');
+        return redirect()->to("/alumni/questionnaires")->with('success', 'Jawaban berhasil disimpan!');
+    } catch (\Exception $e) {
+        log_message('error', '[saveAnswer] Exception: ' . $e->getMessage());
+        return redirect()->to("/alumni/questionnaires/mulai/$q_id")->with('error', 'Gagal menyimpan: ' . $e->getMessage())->withInput();
     }
+}
 
     /**
      * Method untuk menghitung logical progress
