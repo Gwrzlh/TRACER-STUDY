@@ -423,23 +423,61 @@ class UserQuestionController extends BaseController
             }
 
             // Process files
-            foreach ($files as $key => $file) {
-                if (preg_match('/answer_(\d+)/', $key, $matches)) {
-                    $question_id = $matches[1];
-                    if ($file && $file->isValid() && !$file->hasMoved()) {
-                        $uploadPath = WRITEPATH . 'uploads/answers/';
-                        if (!is_dir($uploadPath)) mkdir($uploadPath, 0777, true);
-                        
-                        $newName = $file->getRandomName();
-                        $file->move($uploadPath, $newName);
-                        
-                        $filePath = 'uploaded_file:' . $uploadPath . $newName;
-                        $this->answerModel->saveAnswer($userId, $q_id, $question_id, $filePath);
-                        log_message('debug', '[saveAnswer] Saved file for question ' . $question_id);
-                        $saveSuccess = true;
+        foreach ($files as $key => $file) {
+        log_message('debug', '[saveAnswer] Processing file key: ' . $key . ', Client name: ' . ($file->getClientName() ?? 'N/A'));
+            
+            if (preg_match('/answer_(\d+)/', $key, $matches)) {
+                $question_id = $matches[1];
+                log_message('debug', '[saveAnswer] Matched question_id: ' . $question_id);
+                
+                if ($file && $file->isValid() && !$file->hasMoved()) {
+                    log_message('debug', '[saveAnswer] File is valid. Size: ' . $file->getSize() . ' bytes, Extension: ' . $file->getExtension());
+                    
+                    // FIXED: Path ke public/uploads/answers/ (FCPATH = public root)
+                    $uploadPath = FCPATH . 'uploads/answers/';
+                    log_message('debug', '[saveAnswer] Target upload path: ' . $uploadPath);
+                    
+                    // Cek & buat direktori
+                    if (!is_dir($uploadPath)) {
+                        log_message('info', '[saveAnswer] Creating directory: ' . $uploadPath);
+                        if (!mkdir($uploadPath, 0777, true)) {
+                            log_message('error', '[saveAnswer] Failed to create directory: ' . $uploadPath . ' (Check permissions!)');
+                            throw new \Exception('Gagal membuat folder upload. Periksa permission direktori.');
+                        }
+                        log_message('info', '[saveAnswer] Directory created successfully.');
+                    } else {
+                        log_message('debug', '[saveAnswer] Directory already exists.');
                     }
+                    
+                    // Cek writable
+                    if (!is_writable($uploadPath)) {
+                        log_message('error', '[saveAnswer] Directory not writable: ' . $uploadPath);
+                        throw new \Exception('Folder upload tidak bisa ditulis. Periksa permission.');
+                    }
+                    
+                    $newName = $file->getRandomName();  // e.g., abc123.pdf
+                    log_message('debug', '[saveAnswer] Generated new filename: ' . $newName);
+                    
+                    // Move file
+                    if (!$file->move($uploadPath, $newName)) {
+                        $error = $file->getErrorString();
+                        log_message('error', '[saveAnswer] Move failed for ' . $newName . ': ' . $error);
+                        throw new \Exception('Gagal menyimpan file: ' . $error);
+                    }
+                    
+                    // FIXED: Simpan RELATIVE path ke DB (untuk URL: /uploads/answers/...)
+                    $relativePath = 'uploaded_file:uploads/answers/' . $newName;
+                    $this->answerModel->saveAnswer($userId, $q_id, $question_id, $relativePath);
+                    log_message('info', '[saveAnswer] File saved successfully for question ' . $question_id . ' with relative path: ' . $relativePath);
+                    $saveSuccess = true;
+                } else {
+                    $error = $file->getErrorString() ?? 'Unknown error';
+                    log_message('error', '[saveAnswer] File invalid or already moved for question ' . $question_id . ': ' . $error);
                 }
+            } else {
+                log_message('warning', '[saveAnswer] File key does not match pattern "answer_{id}": ' . $key);
             }
+        }
 
             // ENHANCED: Set proper completion status and handle announcement
             if ($saveSuccess && $isLogicallyComplete) {

@@ -38,6 +38,8 @@
                                 ?>
                                 <?php if (in_array(strtolower($q['question_type']), ['text', 'email'])): ?>
                                     <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
+                                <?php elseif (in_array(strtolower($q['question_type']), ['date', 'date'])): ?>
+                                    <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
                                 <?php elseif (in_array(strtolower($q['question_type']), ['text','user_field'])): ?>
                                     <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
                                 <?php elseif (in_array(strtolower($q['question_type']), ['text', 'number'])): ?>
@@ -78,17 +80,45 @@
                                             </tbody>
                                         </table>
                                     <?php endif; ?>
-                                <?php elseif (strtolower($q['question_type']) === 'file'): ?>
-                                    <p class="form-control-static">
-                                        <?php if ($answer && strpos($answer, 'uploaded_file:') === 0): ?>
-                                            <a href="<?= base_url(str_replace('uploaded_file:', 'uploads/answers/', $answer)) ?>" target="_blank">
-                                                Lihat file: <?= esc(basename($answer)) ?>
-                                            </a>
-                                        <?php else: ?>
-                                            Belum ada file diunggah
-                                        <?php endif; ?>
-                                    </p>
-                                <?php else: ?>
+                                    <?php elseif (strtolower($q['question_type']) === 'file'): ?>
+                                        <p class="form-control-static">
+                                            <?php if ($answer && strpos($answer, 'uploaded_file:') === 0): ?>
+                                                <?php 
+                                                // FIXED: Sanitasi - ambil filename
+                                                $cleanPath = str_replace('uploaded_file:', '', $answer);
+                                                $filename = basename($cleanPath);
+                                                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                                                
+                                                // Direct URL: /uploads/answers/filename.ext (karena di public/)
+                                                $fileUrl = base_url('uploads/answers/' . $filename);
+                                                
+                                                // Detect: Gambar → preview inline; Lainnya → download link
+                                                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']);  // Tambah webp jika perlu
+                                                ?>
+                                                <?php if ($isImage): ?>
+                                                    <!-- Preview Gambar + Download Button -->
+                                                    <div class="file-preview d-flex align-items-center gap-2">
+                                                        <img src="<?= $fileUrl ?>" alt="<?= esc($filename) ?>" 
+                                                            style="max-width: 150px; max-height: 150px; border: 1px solid #ddd; border-radius: 4px;" 
+                                                            class="img-thumbnail" 
+                                                            onerror="this.style.display='none'; this.parentNode.querySelector('.download-btn').style.display='block';">
+                                                        <div class="ms-2">
+                                                            <a href="<?= $fileUrl ?>" download="<?= $filename ?>" class="btn btn-sm btn-outline-primary download-btn" title="Download <?= $filename ?>">
+                                                                <i class="fas fa-download"></i> Download
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <!-- Non-Gambar: Download Link -->
+                                                    <a href="<?= $fileUrl ?>" download="<?= $filename ?>" class="btn btn-sm btn-secondary" title="Download <?= $filename ?>">
+                                                        <i class="fas fa-download"></i> Download <?= esc($filename) ?>
+                                                    </a>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <span class="text-muted">Belum ada file diunggah</span>
+                                            <?php endif; ?>
+                                        </p>
+                                    <?php else: ?>
                                     <div class="text-danger">Jenis pertanyaan tidak dikenali: <?= esc($q['question_type']) ?> (ID: <?= $q['id'] ?>)</div>
                                 <?php endif; ?>
                             </div>
