@@ -144,8 +144,8 @@ $routes->post('admin/tentang/update', 'Tentang::update');
     });
 
 
-// --- Perusahaan ---
-$routes->get('perusahaan/dashboard', 'PerusahaanController::dashboard');
+// // --- Perusahaan ---
+// $routes->get('perusahaan/dashboard', 'PerusahaanController::dashboard');
 
 
 
@@ -567,4 +567,22 @@ $routes->group('admin/profil', ['filter' => 'auth'], function ($routes) {
 $routes->group('perusahaan', ['filter' => 'perusahaanAuth'], function ($routes) {
     // Dashboard perusahaan
     $routes->get('dashboard', 'PerusahaanController::dashboard');
+});
+$routes->group('atasan', function ($routes) {
+    // Dashboard perusahaan
+    $routes->get('dashboard', 'AtasanController::dashboard');
+});
+
+// --- Atasan ---
+$routes->get('atasan/dashboard', 'AtasanController::dashboard');
+$routes->get('atasan/kuesioner', 'AtasanKuesionerController::index');
+
+// --- Kuesioner Atasan ---
+$routes->group('atasan/kuesioner', ['namespace' => 'App\Controllers'], function($routes){
+    $routes->get('', 'AtasanKuesionerController::index');
+    $routes->get('mulai/(:num)', 'AtasanKuesionerController::mulai/$1');
+    $routes->get('lanjutkan/(:num)', 'AtasanKuesionerController::lanjutkan/$1');
+    $routes->get('lihat/(:num)', 'AtasanKuesionerController::lihat/$1');
+    $routes->post('save/(:num)', 'AtasanKuesionerController::save/$1');
+    $routes->get('responseLanding', 'AtasanKuesionerController::responseLanding');
 });
