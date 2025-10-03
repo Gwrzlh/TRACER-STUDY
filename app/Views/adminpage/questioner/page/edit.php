@@ -1,7 +1,7 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
-<link rel="stylesheet" href="<?= base_url('css/questioner/page/edit.css') ?>">
+ <link rel="stylesheet" href="<?= base_url('css/questioner/page/edit.css') ?>">
 <div class="bg-white rounded-xl shadow-md p-8 w-full mx-auto">
     <div class="-mx-8 mb-6 border-b border-gray-300 pb-3 px-8">
         <div class="flex items-center">
@@ -79,9 +79,9 @@
                 <div id="conditional-container" class="mb-4">
                     <?php if (!empty($conditionalLogic)): ?>
                         <?php foreach ($conditionalLogic as $index => $condition): ?>
-                            <div class="condition-row flex items-center gap-2 mb-3 p-3 bg-gray-50 rounded-md border">
+                            <div class="condition-row grid grid-cols-4 gap-2 mb-3 p-3 bg-gray-50 rounded-md border items-center min-h-[56px]" role="group" aria-label="Conditional Logic Row">
                                 <select name="condition_question_id[]" 
-                                        class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        class="question-selector w-full truncate text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" data-tooltip="true" aria-describedby="tooltip"
                                         <?= !empty($conditionalLogic) ? 'required' : '' ?>>
                                     <option value="">Pilih Pertanyaan</option>
                                     <?php foreach ($questions as $q): ?>
@@ -92,8 +92,7 @@
                                     <?php endforeach; ?>
                                 </select>
                                 <select name="operator[]" 
-                                        class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                        style="width: auto;"
+                                        class="w-full text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Operator"
                                         <?= !empty($conditionalLogic) ? 'required' : '' ?>>
                                     <?php foreach ($operators as $key => $label): ?>
                                         <option value="<?= esc($key) ?>" <?= isset($condition['operator']) && $key === $condition['operator'] ? 'selected' : '' ?>>
@@ -101,52 +100,49 @@
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <span class="value-input-container flex-1">
+                                <span class="value-input-container">
                                     <input type="text" 
                                            name="condition_value[]" 
                                            placeholder="Value" 
-                                           class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                                           class="w-full min-w-[200px] text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Value"
                                            value="<?= isset($condition['value']) ? esc($condition['value']) : '' ?>" 
                                            <?= !empty($conditionalLogic) ? 'required' : '' ?>>
                                 </span>
                                 <button type="button" 
-                                        class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
+                                        class="remove-condition-btn w-full text-sm bg-red-500 text-white rounded-md p-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Remove Condition">
                                     Hapus
                                 </button>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <div class="condition-row flex items-center gap-2 mb-3 p-3 bg-gray-50 rounded-md border" style="display:none;">
+                        <div class="condition-row grid grid-cols-4 gap-2 mb-3 p-3 bg-gray-50 rounded-md border items-center min-h-[56px]" role="group" aria-label="Conditional Logic Row" style="display:none;">
                             <select name="condition_question_id[]" 
-                                    class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                    class="question-selector w-full truncate text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" data-tooltip="true" aria-describedby="tooltip">
                                 <option value="">Pilih Pertanyaan</option>
                                 <?php foreach ($questions as $q): ?>
                                     <option value="<?= esc($q['id']) ?>"><?= esc($q['question_text']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <select name="operator[]" 
-                                    class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
-                                    style="width: auto;">
+                                    class="w-full text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Operator">
                                 <?php foreach ($operators as $key => $label): ?>
-                                    <option value="<?= esc($key) ?>"><?= esc($label) ?>
-                                </option>
-                            <?php endforeach; ?>
+                                    <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
+                                <?php endforeach; ?>
                             </select>
-                            <span class="value-input-container flex-1">
+                            <span class="value-input-container">
                                 <input type="text" 
                                        name="condition_value[]" 
                                        placeholder="Value" 
-                                       class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                       class="w-full min-w-[200px] text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Value">
                             </span>
                             <button type="button" 
-                                    class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium" 
+                                    class="remove-condition-btn w-full text-sm bg-red-500 text-white rounded-md p-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Remove Condition"
                                     style="display:none;">
                                 Hapus
                             </button>
                         </div>
                     <?php endif; ?>
                 </div>
-                
                 <button type="button" 
                         id="add-condition-btn" 
                         style="display: <?= !empty($conditionalLogic) ? 'block' : 'none' ?>; background-color: #3b82f6; color: #fff; padding: 0.625rem 1.5rem; border: none; border-radius: 0.375rem; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;"
@@ -240,8 +236,8 @@ $(document).ready(function() {
 
     $('#add-condition-btn').on('click', function() {
         const templateRow = `
-            <div class="condition-row flex items-center gap-2 mb-3 p-3 bg-gray-50 rounded-md border">
-                <select name="condition_question_id[]" class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+            <div class="condition-row grid grid-cols-4 gap-2 mb-3 p-3 bg-gray-50 rounded-md border items-center min-h-[56px]" role="group" aria-label="Conditional Logic Row">
+                <select name="condition_question_id[]" class="question-selector w-full truncate text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" data-tooltip="true" aria-describedby="tooltip" required>
                     <option value="">Pilih Pertanyaan</option>
                     <?php foreach ($questions as $q): ?>
                         <option value="<?= esc($q['id']) ?>"><?= esc($q['question_text']) ?></option>
@@ -253,9 +249,9 @@ $(document).ready(function() {
                     <?php endforeach; ?>
                 </select>
                 <span class="value-input-container flex-1">
-                    <input type="text" name="condition_value[]" placeholder="Value" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                    <input type="text" name="condition_value[]" placeholder="Value" class="w-full min-w-[200px] text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Value" required>
                 </span>
-                <button type="button" class="remove-condition-btn px-3 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors font-medium">
+                <button type="button" class="remove-condition-btn w-full text-sm bg-red-500 text-white rounded-md p-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Remove Condition">
                     Hapus
                 </button>
             </div>

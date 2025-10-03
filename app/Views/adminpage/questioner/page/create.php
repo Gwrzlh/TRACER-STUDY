@@ -60,9 +60,9 @@
                 </div>
 
                 <div id="conditional-container" class="mb-3">
-                    <div class="condition-row flex items-center gap-2 mb-2" style="display:none;">
+                    <div class="condition-row grid grid-cols-4 gap-2 mb-3 p-3 bg-gray-50 rounded-md border items-center min-h-[56px]" role="group" aria-label="Conditional Logic Row" style="display:none;">
                         <select name="condition_question_id[]" 
-                                class="question-selector flex-1 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                class="question-selector w-full truncate text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" data-tooltip="true" aria-describedby="tooltip">
                             <option value="">Pilih Pertanyaan</option>
                             <?php foreach ($questions as $q): ?>
                                 <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
@@ -79,10 +79,10 @@
                             <input type="text" 
                                    name="condition_value[]" 
                                    placeholder="Value" 
-                                   class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                   class="w-full min-w-[200px] text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Value">
                         </div>
                         <button type="button" 
-                                class="remove-condition-btn px-2 py-1 bg-red-500 text-white text-xs rounded-md hover:bg-red-600 transition-colors" 
+                                class="remove-condition-btn w-full text-sm bg-red-500 text-white rounded-md p-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Remove Condition"
                                 style="display:none;">
                             Hapus
                         </button>
@@ -163,8 +163,8 @@
 
         $('#add-condition-btn').on('click', function() {
             const templateRow = `
-                <div class="condition-row d-flex align-items-center gap-2 mb-2">
-                    <select name="condition_question_id[]" class="question-selector form-control" required>
+                <div class="condition-row grid grid-cols-4 gap-2 mb-3 p-3 bg-gray-50 rounded-md border items-center min-h-[56px]" role="group" aria-label="Conditional Logic Row">
+                    <select name="condition_question_id[]" class="question-selector w-full truncate text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" data-tooltip="true" aria-describedby="tooltip" required>
                         <option value="">Pilih Pertanyaan</option>
                         <?php foreach ($questions as $q): ?>
                             <option value="<?= $q['id'] ?>"><?= esc($q['question_text']) ?></option>
@@ -176,7 +176,7 @@
                         <?php endforeach; ?>
                     </select>
                     <span class="value-input-container w-100">
-                        <input type="text" name="condition_value[]" placeholder="Value" class="form-control" required>
+                        <input type="text" name="condition_value[]" placeholder="Value" class="w-full min-w-[200px] text-sm bg-white border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Value"required>
                     </span>
                     <button type="button" class="remove-condition-btn btn btn-danger btn-sm">Hapus</button>
                 </div>

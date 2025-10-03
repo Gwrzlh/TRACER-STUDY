@@ -540,3 +540,15 @@ body {
         gap: 4px;
     }
 }
+
+/* Optimasi Layout Minimalis (Tambah ke existing CSS) */
+.page-wrapper { padding: 16px; }  /* Rapatkan dari 24px */
+.top-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px; }
+.button-container { display: flex; gap: 12px; }
+.table-container { border-radius: 8px; border: 1px solid #e5e7eb; overflow: hidden; margin-bottom: 0; }
+.table-wrapper { overflow-x: auto; }
+.user-table td, .user-table th { padding: 12px 16px; }  /* Rapatkan dari 16px 20px */
+.action-buttons { gap: 4px; }  /* Rapatkan btn gap */
+.questionnaire-info { gap: 4px; }  /* Rapatkan title-desc */
+.empty-state { padding: 40px 16px; }  /* Rapatkan dari 80px */
+@media (max-width: 768px) { .top-controls { flex-direction: column; gap: 12px; } .button-container { flex-direction: row; justify-content: center; } }

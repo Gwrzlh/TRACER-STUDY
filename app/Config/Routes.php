@@ -195,6 +195,8 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->get('(:num)/preview', 'QuestionnairController::preview/$1');
         $routes->get('(:num)/download-pdf', 'QuestionnairController::downloadPDF/$1');
         $routes->get('pages/getQuestionOptions', 'QuestionnairePageController::getQuestionOptions');
+        $routes->get('(:num)/export', 'QuestionnairController::export/$1');
+        $routes->post('import', 'QuestionnairController::import');
     });
 
 
@@ -249,7 +251,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->get('(:num)/questions/get/(:num)', 'QuestionnairController::getQuestion/$1/$2/$3/$4');
         $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
         $routes->post('(:num)/questions/(:num)/update', 'QuestionnairController::updateQuestion/$1/$2/$3/$4');
-        $routes->post('(:num)/questions/(:num)/duplicate', 'QuestionnairController::duplicate/$1/$2/$3/$4');
+        $routes->post('(:num)/questions/duplicate/(:num)', 'QuestionnairController::duplicate/$1/$2/$3/$4');
 
         // $routes->post('(:num)/questions/delete/(:num)', 'QuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
     });
