@@ -1,0 +1,380 @@
+/* CSS untuk halaman review kuesioner - konsisten dengan desain fill.php */
+
+/* Base Layout */
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f8fafc;
+}
+
+/* Main Container */
+.container {
+    padding: 20px;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+/* Header Section */
+.review-header {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.review-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+}
+
+/* Progress Bar Container */
+.progress {
+    height: 8px;
+    border-radius: 8px;
+    background-color: #f1f5f9;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+}
+
+.progress-bar {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 8px;
+    text-align: center;
+    border-radius: 8px;
+    transition: width 0.3s ease;
+}
+
+/* Card Styling */
+.card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+    padding: 20px 24px;
+    margin: 0;
+}
+
+.card-header h5 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+
+.card-body {
+    padding: 24px;
+}
+
+/* Section Headers */
+.card-body h6 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 20px;
+    margin-top: 32px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.card-body h6:first-child {
+    margin-top: 0;
+}
+
+/* Question Container */
+.card-body .mb-3 {
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: #fafbfc;
+    border: 1px solid #f1f3f4;
+    border-radius: 8px;
+}
+
+.card-body .mb-3:last-child {
+    margin-bottom: 0;
+}
+
+/* Form Labels */
+.form-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.text-danger {
+    color: #dc2626;
+}
+
+/* Form Control Static (Answer Display) */
+.form-control-static {
+    background-color: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #374151;
+    margin: 0;
+    line-height: 1.5;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+}
+
+/* Matrix Table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+    background-color: white;
+}
+
+.table-bordered {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th {
+    background-color: #f9fafb;
+    padding: 12px 16px;
+    text-align: center;
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+    border-bottom: 2px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+}
+
+.table th:last-child {
+    border-right: none;
+}
+
+.table td {
+    padding: 12px 16px;
+    text-align: center;
+    border-bottom: 1px solid #f3f4f6;
+    border-right: 1px solid #e5e7eb;
+    color: #374151;
+}
+
+.table td:first-child {
+    text-align: left;
+    font-weight: 500;
+}
+
+.table td:last-child {
+    border-right: none;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Badge Styling */
+.badge {
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.bg-success {
+    background-color: #059669;
+    color: white;
+}
+
+/* Links */
+a {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* Error Messages */
+.text-danger {
+    color: #dc2626;
+    font-weight: 500;
+    padding: 8px 12px;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+/* Button Styling */
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary {
+    background-color: #ef4444;
+    color: #fff;
+    padding: 0.625rem 1.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #dc2626;
+    color: #fff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
+}
+
+/* Back Button Container */
+.back-button-container {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 16px;
+    }
+    
+    .review-header {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .review-title {
+        font-size: 24px;
+        margin-bottom: 16px;
+    }
+    
+    .card-header {
+        padding: 16px 20px;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .card-body .mb-3 {
+        padding: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .form-control-static {
+        padding: 10px 14px;
+        font-size: 13px;
+        min-height: 40px;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 20px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 12px;
+    }
+    
+    .review-header {
+        padding: 16px;
+    }
+    
+    .review-title {
+        font-size: 20px;
+    }
+    
+    .card-header h5 {
+        font-size: 18px;
+    }
+    
+    .form-control-static {
+        padding: 8px 12px;
+        font-size: 12px;
+        min-height: 36px;
+    }
+    
+    .table {
+        font-size: 12px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 6px 8px;
+    }
+}
+
+/* Utility Classes */
+.mb-0 { margin-bottom: 0 !important; }
+.mb-1 { margin-bottom: 0.25rem !important; }
+.mb-2 { margin-bottom: 0.5rem !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.mt-2 { margin-top: 0.5rem !important; }
+.mt-3 { margin-top: 1rem !important; }
+.mt-4 { margin-top: 1.5rem !important; }
+
+/* Empty State Styling */
+.form-control-static:empty::before {
+    content: "Belum dijawab";
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* File Link Styling */
+.form-control-static a {
+    color: #059669;
+    font-weight: 500;
+}
+
+.form-control-static a:hover {
+    color: #047857;
+}

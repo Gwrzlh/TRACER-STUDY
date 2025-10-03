@@ -15,54 +15,50 @@ class SatuanOrganisasi extends Controller
     /**
      * List semua satuan organisasi
      */
-    public function index()
-    {
-        $satuanModel = new SatuanOrganisasiModel();
-        $jurusanModel = new JurusanModel();
-        $prodiModel   = new Prodi();
-        $tipeModel    = new TipeOrganisasiModel();
+   public function index()
+{
+    $satuanModel = new SatuanOrganisasiModel();
+    $jurusanModel = new JurusanModel();
+    $prodiModel   = new Prodi();
+    $tipeModel    = new TipeOrganisasiModel();
 
-        $keyword = $this->request->getGet('keyword');
+    $keyword = $this->request->getGet('keyword');
 
-        // Hitung jumlah
-        $data['count_satuan']  = $satuanModel->countAll();
-        $data['count_jurusan'] = $jurusanModel->countAll();
-        $data['count_prodi']   = $prodiModel->countAll();
+    // Hitung jumlah
+    $data['count_satuan']  = $satuanModel->countAll();
+    $data['count_jurusan'] = $jurusanModel->countAll();
+    $data['count_prodi']   = $prodiModel->countAll();
 
-        // Query satuan organisasi + tipe
-       $builder = $satuanModel
-    ->select('satuan_organisasi.*, tipe_organisasi.nama_tipe')
-    ->join('tipe_organisasi', 'tipe_organisasi.id = satuan_organisasi.id_tipe', 'left');
+    // Query satuan organisasi + tipe
+    $builder = $satuanModel
+        ->select('satuan_organisasi.*, tipe_organisasi.nama_tipe')
+        ->join('tipe_organisasi', 'tipe_organisasi.id = satuan_organisasi.id_tipe', 'left');
 
-if (!empty($keyword)) {
-    $builder->groupStart()
-        ->like('satuan_organisasi.nama_satuan', $keyword)
-        ->orLike('satuan_organisasi.nama_singkatan', $keyword)
-        ->orLike('tipe_organisasi.nama_tipe', $keyword)
-        ->groupEnd();
+    if (!empty($keyword)) {
+        $builder->groupStart()
+            ->like('satuan_organisasi.nama_satuan', $keyword)
+            ->orLike('satuan_organisasi.nama_singkatan', $keyword)
+            ->orLike('tipe_organisasi.nama_tipe', $keyword)
+            ->groupEnd();
+    }
+
+    // urutkan data terbaru di atas
+    $builder->orderBy('satuan_organisasi.id', 'DESC');
+
+    // ambil default perPage dari setting
+    $perPage = get_setting('org_perpage_default', 10);
+
+    // paginate data
+    $satuanList = $builder->paginate($perPage);
+
+    $data['pager']   = $satuanModel->pager;
+    $data['satuan']  = $satuanList;
+    $data['keyword'] = $keyword;
+    $data['perpage'] = $perPage;
+
+    return view('adminpage/organisasi/satuanorganisasi/index', $data);
 }
 
-// tambahkan orderBy DESC biar data baru muncul di atas
-$builder->orderBy('satuan_organisasi.id', 'DESC');
-
-$satuanList = $builder->findAll();
-
-        // Ambil prodi dari tabel pivot
-        $db = \Config\Database::connect();
-        foreach ($satuanList as &$row) {
-            $row['prodi_list'] = $db->table('satuan_prodi')
-                ->select('prodi.id, prodi.nama_prodi')
-                ->join('prodi', 'prodi.id = satuan_prodi.prodi_id')
-                ->where('satuan_prodi.satuan_id', $row['id'])
-                ->get()
-                ->getResultArray();
-        }
-
-        $data['satuan']  = $satuanList;
-        $data['keyword'] = $keyword;
-
-        return view('adminpage/organisasi/satuanorganisasi/index', $data);
-    }
 
     /**
      * Form create

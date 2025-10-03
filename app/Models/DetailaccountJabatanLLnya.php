@@ -12,11 +12,12 @@ class DetailaccountJabatanLLnya extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['nama_lengkap','id_prodi','id_jurusan','notlp','id_account','id_jabatan'];
+    protected $allowedFields    = ['nama_lengkap', 'id_prodi', 'id_jurusan', 'notlp', 'id_account', 'id_jabatan'];
 
     protected bool $allowEmptyInserts = false;
 
-    public function getrelationjabatanll(){
+    public function getrelationjabatanll()
+    {
         $builder = $this->db->table($this->table);
         $builder->select('detailaccount_jabatan_lainnya.*, account.*, prodi.nama_prodi as prodi, jurusan.nama_jurusan as jurusan, jabatan.jabatan as nama_jabatan');
         $builder->join('account', 'account.id = detailaccount_jabatan_lainnya.id_account');

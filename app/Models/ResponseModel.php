@@ -41,6 +41,30 @@ class ResponseModel extends Model
             ->getResultArray();
     }
 
+    public function updateStatus($questionnaire_id, $account_id, $status)
+    {
+        log_message('debug', "ResponseModel::updateStatus called with questionnaire_id: {$questionnaire_id}, account_id: {$account_id}, status: {$status}");
+
+        if (!in_array($status, ['draft', 'completed'])) {
+            return false;
+        }
+
+        $builder = $this->where([
+            'questionnaire_id' => $questionnaire_id,
+            'account_id' => $account_id
+        ]);
+        $affectedCount = $builder->countAllResults(false);
+        log_message('debug', "ResponseModel::updateStatus found {$affectedCount} rows to update");
+
+        $builder->set('status', $status);
+        $result = $builder->update();
+
+        $affectedRows = $this->db->affectedRows();
+        log_message('debug', "ResponseModel::updateStatus result: " . ($result ? 'success' : 'failure') . ", affected rows: {$affectedRows}");
+
+        return $result;
+    }
+
     public function hasResponded($questionnaireId, $accountId): bool
     {
         return $this->where('questionnaire_id', $questionnaireId)
@@ -149,22 +173,26 @@ class ResponseModel extends Model
             ->getResultArray();
     }
 
-    // ================== SUMMARY PER PRODI ==================
     public function getSummaryByYear($tahun)
     {
+        // Subquery: ambil status terakhir per alumni (account_id)
+        $sub = $this->db->table('responses')
+            ->select('account_id, MAX(status) as status') // ambil status terakhir
+            ->groupBy('account_id');
+
         return $this->db->table('detailaccount_alumni da')
             ->select("
-                p.nama_prodi AS prodi,
-                SUM(CASE WHEN r.status = 'completed' THEN 1 ELSE 0 END) as finish,
-                SUM(CASE WHEN r.status = 'draft' THEN 1 ELSE 0 END) as ongoing,
-                SUM(CASE WHEN r.id IS NULL THEN 1 ELSE 0 END) as belum,
-                COUNT(da.id) as jumlah,
-                ROUND(
-                    (SUM(CASE WHEN r.status = 'completed' THEN 1 ELSE 0 END) / COUNT(da.id)) * 100, 2
-                ) as persentase
-            ")
+            p.nama_prodi AS prodi,
+            COUNT(DISTINCT da.id) as jumlah,
+            SUM(CASE WHEN r.status = 'completed' THEN 1 ELSE 0 END) as finish,
+            SUM(CASE WHEN r.status = 'draft' THEN 1 ELSE 0 END) as ongoing,
+            SUM(CASE WHEN r.status IS NULL THEN 1 ELSE 0 END) as belum,
+            ROUND(
+                (SUM(CASE WHEN r.status = 'completed' THEN 1 ELSE 0 END) / NULLIF(COUNT(DISTINCT da.id),0)) * 100, 2
+            ) as persentase
+        ")
             ->join('account a', 'a.id = da.id_account', 'left')
-            ->join('responses r', 'r.account_id = a.id', 'left')
+            ->join("({$sub->getCompiledSelect()}) r", 'r.account_id = a.id', 'left')
             ->join('prodi p', 'p.id = da.id_prodi', 'left')
             ->where('da.tahun_kelulusan', $tahun)
             ->groupBy('p.id, p.nama_prodi')
@@ -172,6 +200,8 @@ class ResponseModel extends Model
             ->get()
             ->getResultArray();
     }
+
+
 
     public function getSummaryByFilters(array $filters = [])
     {
