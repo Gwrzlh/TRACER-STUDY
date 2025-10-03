@@ -1,0 +1,344 @@
+/* Control Panel Container */
+.control-panel-container {
+    padding: 1.5rem;
+    min-height: calc(100vh - 4rem);
+}
+
+/* Card Styling */
+.control-panel-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    height: calc(100vh - 7rem);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    padding: 1.5rem 1.75rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(to right, #f9fafb, #ffffff);
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Filter Form */
+.filter-form {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem 1.75rem;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+.form-select {
+    padding: 0.625rem 0.875rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #111827;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    min-width: 250px;
+}
+
+.form-select:hover {
+    border-color: #9ca3af;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-group-button {
+    display: flex;
+    align-items: flex-end;
+}
+
+.btn-filter {
+    padding: 0.625rem 1.5rem;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.btn-filter:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-filter:active {
+    transform: translateY(0);
+}
+
+/* Table Container */
+.table-container {
+    flex: 1;
+    overflow: hidden;
+    padding: 1.75rem;
+    background: #ffffff;
+}
+
+.table-wrapper {
+    overflow: auto;
+    height: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+/* Table Styling */
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.875rem;
+}
+
+.data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f9fafb;
+}
+
+.data-table thead tr th {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+    background: #f9fafb;
+    white-space: nowrap;
+}
+
+.data-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f3f4f6;
+}
+
+.data-table tbody tr td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    color: #1f2937;
+    vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Column Specific Widths */
+.th-no {
+    width: 60px;
+    text-align: center;
+}
+
+.th-nama {
+    min-width: 200px;
+}
+
+.th-nim {
+    min-width: 150px;
+}
+
+.th-angkatan,
+.th-tahun,
+.th-ipk {
+    width: 120px;
+    text-align: center;
+}
+
+.th-alamat,
+.th-alamat2 {
+    min-width: 200px;
+}
+
+.th-jk {
+    width: 140px;
+    text-align: center;
+}
+
+.th-provinsi,
+.th-kota {
+    min-width: 180px;
+}
+
+.th-username {
+    min-width: 150px;
+}
+
+.th-jurusan,
+.th-prodi {
+    min-width: 200px;
+}
+
+.th-role {
+    width: 120px;
+    text-align: center;
+}
+
+/* Table Data Alignment */
+.td-center {
+    text-align: center;
+}
+
+/* Badge Styling */
+.badge-alumni,
+.badge-kaprodi {
+    display: inline-block;
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.badge-alumni {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-kaprodi {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* Empty State */
+.td-empty {
+    padding: 3rem 1.5rem !important;
+    text-align: center !important;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.empty-icon {
+    width: 64px;
+    height: 64px;
+    color: #9ca3af;
+    opacity: 0.5;
+}
+
+.empty-text {
+    margin: 0;
+    font-size: 1rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Scrollbar Styling */
+.table-wrapper::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 5px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 5px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .form-group {
+        width: 100%;
+    }
+    
+    .form-select {
+        min-width: 100%;
+    }
+    
+    .form-group-button {
+        width: 100%;
+    }
+    
+    .btn-filter {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .control-panel-container {
+        padding: 1rem;
+    }
+    
+    .control-panel-card {
+        height: calc(100vh - 6rem);
+    }
+    
+    .card-header {
+        padding: 1rem 1.25rem;
+    }
+    
+    .card-title {
+        font-size: 1.25rem;
+    }
+    
+    .table-container {
+        padding: 1rem;
+    }
+    
+    .data-table thead tr th,
+    .data-table tbody tr td {
+        padding: 0.75rem 1rem;
+        font-size: 0.8125rem;
+    }
+}
