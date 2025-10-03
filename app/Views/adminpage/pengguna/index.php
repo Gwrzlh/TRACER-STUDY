@@ -89,15 +89,26 @@
                                         <td>
                                             <input type="checkbox" class="table-checkbox">
                                         </td>
-                                        <td class="user-info">
-                                            <<div class="user-avatar" data-initial="<?= strtoupper(substr($acc['username'], 0, 1)) ?>">
-                                              <span><?= strtoupper(substr($acc['username'], 0, 1)) ?></span>
-                                            </div>
-                                            <div class="user-details">
-                                                <div class="user-name"><?= esc($acc['username']) ?></div>
-                                                <div class="user-email"><?= esc($acc['email']) ?></div>
-                                            </div>
-                                        </td>
+                                       <td class="user-info">
+    <?php if (!empty($acc['foto'])): ?>
+        <!-- Foto profil -->
+        <div class="user-avatar">
+            <img src="<?= base_url('uploads/foto_admin/' . esc($acc['foto'])) ?>" 
+                 alt="<?= esc($acc['username']) ?>" class="avatar-img">
+        </div>
+    <?php else: ?>
+        <!-- Avatar inisial (fallback) -->
+        <div class="user-avatar" data-initial="<?= strtoupper(substr($acc['username'], 0, 1)) ?>">
+            <span><?= strtoupper(substr($acc['username'], 0, 1)) ?></span>
+        </div>
+    <?php endif; ?>
+
+    <div class="user-details">
+        <div class="user-name"><?= esc($acc['username']) ?></div>
+        <div class="user-email"><?= esc($acc['email']) ?></div>
+    </div>
+</td>
+
                                         <td>
                                             <span class="status-badge <?= (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1') ? 'status-active' : 'status-inactive' ?>">
                                                 <?= (strtolower($acc['status']) == 'active' || strtolower($acc['status']) == 'aktif' || $acc['status'] == '1') ? 'Active' : 'Inactive' ?>

@@ -62,14 +62,6 @@
                         <option value="Belum" <?= $selectedStatus == 'Belum' ? 'selected' : '' ?>>Belum Mengisi</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <select name="questionnaire_id" class="filter-select">
-                        <option value="">-- Semua Kuesioner --</option>
-                        <?php foreach ($allQuestionnaires as $q): ?>
-                            <option value="<?= $q['id'] ?>" <?= $selectedQuestionnaire == $q['id'] ? 'selected' : '' ?>><?= esc($q['title']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
 
                 <!-- Row 3 -->
                 <div class="filter-group">

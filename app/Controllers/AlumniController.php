@@ -88,29 +88,27 @@ class AlumniController extends BaseController
 
     // =============================
     // 📊 PROFIL ALUMNI (BISA UNTUK BIASA & SURVEYOR)
-    // =============================
     public function profil($role = 'alumni')
     {
         $session     = session();
         $alumniModel = new \App\Models\DetailaccountAlumni();
         $idAccount   = $session->get('id_account');
 
-        // Ambil data alumni berdasarkan id_account
+        // Ambil data alumni
         $alumni = $alumniModel
             ->select('detailaccount_alumni.id,
-                  detailaccount_alumni.nama_lengkap,
-                  detailaccount_alumni.nim,
-                  detailaccount_alumni.foto,
-                  detailaccount_alumni.alamat,
-                  prodi.nama_prodi,
-                  jurusan.nama_jurusan')
+              detailaccount_alumni.nama_lengkap,
+              detailaccount_alumni.nim,
+              detailaccount_alumni.foto,
+              detailaccount_alumni.alamat,
+              prodi.nama_prodi,
+              jurusan.nama_jurusan')
             ->join('prodi', 'prodi.id = detailaccount_alumni.id_prodi', 'left')
             ->join('jurusan', 'jurusan.id = detailaccount_alumni.id_jurusan', 'left')
             ->where('detailaccount_alumni.id_account', $idAccount)
             ->first();
 
         if (!$alumni) {
-            // kasih default object supaya view tidak error
             $alumni = (object) [
                 'id'           => null,
                 'nama_lengkap' => '',
@@ -124,32 +122,35 @@ class AlumniController extends BaseController
             $alumni = (object) $alumni;
         }
 
-        // Ambil pekerjaan saat ini
-        $currentJob = $this->riwayatModel
-            ->where('id_alumni', $alumni->id)
+        $currentJobs = $this->riwayatModel
+            ->where('id_alumni', $idAccount) // pakai id_account, bukan alumni->id
             ->where('is_current', 1)
-            ->first();
+            ->findAll();
 
-        // Ambil riwayat pekerjaan lama
+
+        // Debug
+        // log_message('debug', '[DEBUG profil] Alumni ID: ' . $alumni->id);
+        // log_message('debug', '[DEBUG profil] Current Jobs: ' . print_r($currentJobs, true));
+
         $riwayat = $this->riwayatModel
-            ->where('id_alumni', $alumni->id)
+            ->where('id_alumni', $idAccount)
             ->where('is_current', 0)
             ->orderBy('tahun_masuk', 'DESC')
             ->findAll();
 
-        // Tentukan layout
-        $layout = ($role === 'surveyor')
-            ? 'layout/sidebar_alumni2'
-            : 'layout/sidebar_alumni';
+
+        $layout = ($role === 'surveyor') ? 'layout/sidebar_alumni2' : 'layout/sidebar_alumni';
 
         return view('alumni/profil/index', [
-            'alumni'     => $alumni,
-            'layout'     => $layout,
-            'role'       => $role,
-            'currentJob' => $currentJob ? (object) $currentJob : null,
-            'riwayat'    => array_map(fn($r) => (object) $r, $riwayat),
+            'alumni'      => $alumni,
+            'layout'      => $layout,
+            'role'        => $role,
+            'currentJobs' => array_map(fn($r) => (object) $r, $currentJobs),
+            'riwayat'     => array_map(fn($r) => (object) $r, $riwayat),
         ]);
     }
+
+
 
 
 
@@ -180,19 +181,26 @@ class AlumniController extends BaseController
         $session = session();
         $idAccount = $session->get('id_account');
 
-        // Ambil pekerjaan saat ini
-        $currentJob = $this->riwayatModel
-            ->where('id_alumni', $idAccount)
-            ->where('is_current', 1)
-            ->first();
+        // Ambil detail alumni dulu
+        $alumni = $this->alumniModel->where('id_account', $idAccount)->first();
+
+        $currentJobs = [];
+        if ($alumni) {
+            // Ambil semua pekerjaan saat ini
+            $currentJobs = $this->riwayatModel
+                ->where('id_alumni', $alumni['id'])
+                ->where('is_current', 1)
+                ->findAll();
+        }
 
         $layout = ($role === 'surveyor') ? 'layout/sidebar_alumni2' : 'layout/sidebar_alumni';
 
         return view('alumni/profil/pekerjaan', [
-            'currentJob' => $currentJob,
-            'layout'     => $layout,
+            'currentJobs' => array_map(fn($r) => (object) $r, $currentJobs),
+            'layout'      => $layout,
         ]);
     }
+
 
     public function savePekerjaan()
     {
@@ -588,17 +596,32 @@ class AlumniController extends BaseController
         }
 
         // =====================
-        // Tambah riwayat pekerjaan (jika ada)
+        // Tambah atau update riwayat pekerjaan (jika ada)
         // =====================
         if ($this->request->getPost('perusahaan')) {
+
+            // Tandai pekerjaan lama sebagai non-current
+            $riwayatModel->where('id_alumni', $idAccount)->where('is_current', 1)->set(['is_current' => 0])->update();
+
+            // Tentukan data baru
+            $status_kerja = $this->request->getPost('status_kerja'); // "masih" / "hingga"
+
             $riwayatData = [
                 'id_alumni'         => $idAccount,
                 'perusahaan'        => $this->request->getPost('perusahaan'),
                 'jabatan'           => $this->request->getPost('jabatan'),
                 'tahun_masuk'       => $this->request->getPost('tahun_masuk'),
-                'tahun_keluar'      => $this->request->getPost('tahun_keluar'),
                 'alamat_perusahaan' => $this->request->getPost('alamat_perusahaan'),
+                'is_current'        => 1,
             ];
+
+            if ($status_kerja === 'masih') {
+                $riwayatData['masih'] = 1;
+                $riwayatData['tahun_keluar'] = '0000';
+            } else {
+                $riwayatData['masih'] = 0;
+                $riwayatData['tahun_keluar'] = $this->request->getPost('tahun_keluar');
+            }
 
             $riwayatModel->insert($riwayatData);
         }
@@ -612,6 +635,7 @@ class AlumniController extends BaseController
 
         return redirect()->to($redirectUrl)->with('success', 'Profil & riwayat pekerjaan berhasil diperbarui.');
     }
+
 
 
     // public function editProfil($role = 'alumni')
