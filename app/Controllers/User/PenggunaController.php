@@ -13,17 +13,18 @@ use App\Models\Organisasi\Prodi;
 use App\Models\Support\Cities;
 use App\Models\Support\Provincies;
 use App\Models\User\DetailaccountAlumni;
-use App\Models\User\DetailaccountCompany;
+use App\Models\DetailaccountCompany;
 use App\Models\Organisasi\JabatanModels;
 use App\Models\Organisasi\JurusanModel;
-use App\Models\User\DetailaccountPerusahaan;
+use App\Models\User\DetailaccoountPerusahaan;
 use App\Models\User\DetailaccountKaprodi;
 use App\Models\User\DetailaccountAtasan;
 use App\Models\User\DetailaccountJabatanLLnya;
+use App\Models\Support\LogActivityModel;
 use Exception;
 
 class PenggunaController extends BaseController
-{
+ {
     public function index()
     {
         // Ambil parameter filter
@@ -222,7 +223,7 @@ class PenggunaController extends BaseController
     public function store()
     {
         $validation = \Config\Services::validation();
-        $detailPerusahaan = new DetailaccountPerusahaan();
+        $detailPerusahaan = new DetailaccoountPerusahaan();
         $detailAtasan = new DetailaccountAtasan();
         $detailKaprodi = new DetailaccountKaprodi();
         $detailJabatanll = new DetailaccountJabatanLLnya();
@@ -269,8 +270,8 @@ class PenggunaController extends BaseController
             $rules = array_merge($rules, [
                 'lainnya_nama_lengkap' => 'required|min_length[3]',
                 'lainnya_jabatan'      => 'required|numeric',
-                'lainnya_jurusan'      => 'required|numeric',
-                'lainnya_prodi'        => 'required|numeric',
+                // 'lainnya_jurusan'      => 'required|numeric',
+                // 'lainnya_prodi'        => 'required|numeric',
                 'lainnya_notlp'        => 'required|min_length[10]',
             ]);
         }
@@ -361,8 +362,8 @@ class PenggunaController extends BaseController
                     $detailJabatanll->insert([
                         'nama_lengkap' => $this->request->getPost('lainnya_nama_lengkap'),
                         'id_jabatan'   => $this->request->getPost('lainnya_jabatan'),
-                        'id_jurusan'   => $this->request->getPost('lainnya_jurusan'),
-                        'id_prodi'     => $this->request->getPost('lainnya_prodi'),
+                        // 'id_jurusan'   => $this->request->getPost('lainnya_jurusan'),
+                        // 'id_prodi'     => $this->request->getPost('lainnya_prodi'),
                         'notlp'        => $this->request->getPost('lainnya_notlp'),
                         'id_account'   => $accountId,
                     ]);
@@ -398,7 +399,7 @@ class PenggunaController extends BaseController
         $accountModel = new Accounts();
         $detailAlumni = new DetailaccountAlumni();
         $detailAdmin = new DetailaccountAdmins();
-        $detailPerusahaan = new DetailaccountPerusahaan();
+        $detailPerusahaan = new DetailaccoountPerusahaan();
         // Tambahkan model untuk role baru
         $detailKaprodi = new DetailaccountKaprodi(); // Pastikan model ini ada
         $detailAtasan = new DetailaccountAtasan(); // Pastikan model ini ada  
@@ -493,7 +494,7 @@ class PenggunaController extends BaseController
         $accountModel    = new Accounts();
         $detailAlumni    = new DetailaccountAlumni();
         $detailAdmin     = new DetailaccountAdmins();
-        $detailPerusahaan = new DetailaccountPerusahaan();
+        $detailPerusahaan = new DetailaccoountPerusahaan();
         $detailKaprodi   = new DetailaccountKaprodi();
         $detailAtasan    = new DetailaccountAtasan();
         $detailLainnya   = new DetailaccountJabatanLLnya();
@@ -561,8 +562,8 @@ class PenggunaController extends BaseController
                 $rules = array_merge($rules, [
                     'lainnya_nama_lengkap' => 'required',
                     'lainnya_jabatan'      => 'required',
-                    'lainnya_jurusan'      => 'required',
-                    'lainnya_prodi'        => 'required',
+                    // 'lainnya_jurusan'      => 'required',
+                    // 'lainnya_prodi'        => 'required',
                     'lainnya_notlp'        => 'required|numeric',
                 ]);
                 break;
@@ -751,8 +752,8 @@ class PenggunaController extends BaseController
                     'id_account' => $accountId,
                     'nama_lengkap' => $this->request->getPost('lainnya_nama_lengkap'),
                     'jabatan' => $this->request->getPost('lainnya_jabatan'),
-                    'id_jurusan' => $this->request->getPost('lainnya_jurusan'),
-                    'id_prodi' => $this->request->getPost('lainnya_prodi'),
+                    // 'id_jurusan' => $this->request->getPost('lainnya_jurusan'),
+                    // 'id_prodi' => $this->request->getPost('lainnya_prodi'),
                     'notlp' => $this->request->getPost('lainnya_notlp'),
                     'alamat' => $this->request->getPost('lainnya_alamat'),
                     'alamat2' => $this->request->getPost('lainnya_alamat2'),
@@ -842,8 +843,8 @@ class PenggunaController extends BaseController
                 $lainnyaData = [
                     'nama_lengkap' => $this->request->getPost('lainnya_nama_lengkap'),
                     'id_jurusan'   => $this->request->getPost('lainnya_jurusan'),
-                    'id_prodi'     => $this->request->getPost('lainnya_prodi'),
-                    'id_jabatan'   => $this->request->getPost('lainnya_jabatan'),
+                    // 'id_prodi'     => $this->request->getPost('lainnya_prodi'),
+                    // 'id_jabatan'   => $this->request->getPost('lainnya_jabatan'),
                     'notlp'       => $this->request->getPost('lainnya_notlp'),
                 ];
                 if (!$detailLainnya->where('id_account', $accountId)->set($lainnyaData)->update()) {
@@ -857,11 +858,13 @@ class PenggunaController extends BaseController
         $model = new DetailaccountAlumni();
         $modeladmin = new DetailaccountAdmins();
         $accountModel = new Accounts();
-        $detailPerusahaan = new DetailaccountPerusahaan();
+        $detailPerusahaan = new DetailaccoountPerusahaan();
         $detailKaprodi = new DetailaccountKaprodi();
         $detailAtasan = new DetailaccountAtasan();
         $accountJabatanLainnya = new DetailaccountJabatanLLnya();
         $account = $accountModel->find($id);
+        $logModel = new LogActivityModel(); // tambahin model log activities
+
 
         if ($account['id_role'] == 1) {
             $model->where('id_account', $id)->delete();
@@ -877,7 +880,21 @@ class PenggunaController extends BaseController
             $accountJabatanLainnya->where('id_account', $id)->delete();
         }
 
-        $accountModel->delete($id); // Jangan lupa hapus juga akun utama
+
+
+        // 🔥 Hapus dulu semua log aktivitas terkait user ini
+        $logModel->where('user_id', $id)->delete();
+
+        // Baru hapus akun utama
+        $accountModel->delete($id);
+
         return redirect()->to('/admin/pengguna')->with('success', 'Data dihapus.');
+    }
+    public function getProdiByJurusan($id_jurusan)
+    {
+        $prodiModel = new Prodi();
+        $data = $prodiModel->where('id_jurusan', $id_jurusan)->findAll();
+
+        return $this->response->setJSON($data);
     }
 }

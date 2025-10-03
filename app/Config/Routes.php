@@ -81,13 +81,15 @@ $routes->get('import', '\App\Controllers\Auth\ImportAccount::index', ['filter' =
 $routes->post('import', '\App\Controllers\Auth\ImportAccount::import', ['filter' => 'auth']);
 
         });
+        
+
 // --------------------
 // ROUTES: Questionnaire
 // --------------------
 $routes->group('questionnaire', ['namespace' => 'App\Controllers\Questionnaire'], function ($routes) {
 
     // ==== Questionnaire CRUD ====
-    $routes->get('/', 'QuestionnaireController::index');
+    $routes->get('/', 'QuestionnairController::index');
     $routes->get('create', 'QuestionnaireController::create');
     $routes->post('store', 'QuestionnaireController::store');
     $routes->get('(:num)', 'QuestionnaireController::show/$1');
@@ -189,14 +191,16 @@ $routes->get('getProdiByJurusan/(:num)', 'SatuanOrganisasi::getProdiByJurusan/$1
     $routes->get('laporan/(:num)', 'LandingPage\Laporan::index/$1'); // laporan berdasarkan tahun
 
 
-    // --------------------
-    // ROUTES: API (AJAX)
-    // --------------------
-    $routes->group('api', ['namespace' => 'App\Controllers'], function ($routes) {
-        $routes->get('cities/province/(:num)', 'User\PenggunaController::getCitiesByProvince/$1');
-        $routes->get('admin/questionnaire/(:num)/questions/(:num)/options', 'Questionnaire\QuestionnaireController::getQuestionOptions/$1/$2');
-        $routes->get('admin/questionnaire/(:num)/pages/(:num)/sections/(:num)/questions-with-options', 'Questionnaire\QuestionnaireController::getQuestionsWithOptions/$1/$2/$3');
-    });
+   // --------------------
+// ROUTES: API (AJAX)
+// --------------------
+$routes->group('api', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('cities/province/(:num)', 'User\PenggunaController::getCitiesByProvince/$1');
+    $routes->get('getProdiByJurusan/(:num)', 'User\PenggunaController::getProdiByJurusan/$1');
+    $routes->get('admin/questionnaire/(:num)/questions/(:num)/options', 'Questionnaire\QuestionnaireController::getQuestionOptions/$1/$2');
+    $routes->get('admin/questionnaire/(:num)/pages/(:num)/sections/(:num)/questions-with-options', 'Questionnaire\QuestionnaireController::getQuestionsWithOptions/$1/$2/$3');
+});
+
                                                                                                                     
 $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('profil', 'Admin\AdminController::profil');

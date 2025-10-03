@@ -5,15 +5,17 @@ namespace App\Controllers\Questionnaire;
 use App\Controllers\BaseController;
 use App\Models\Questionnaire\SectionModel;
 use App\Models\Questionnaire\QuestionnairePageModel;
-use App\Models\Questionnaire\QuestionnairModel;
-use App\Models\Questionnaire\QuestionModel; 
+use App\Models\Questionnaire\QuestionnairModel;   
+use App\Models\Questionnaire\QuestionModel;
 use App\Models\Questionnaire\QuestionOptionModel;
 use App\Models\Support\MatrixRowModel;
 use App\Models\Support\MatrixColumnModel;
 use App\Models\Questionnaire\AnswerModel;
 use App\Models\Questionnaire\ResponseModel;
 
-class QuestionnaireSectionController extends BaseController
+
+
+class SectionController extends BaseController
 {
     public function index($questionnaire_id, $page_id)
     {
@@ -101,6 +103,7 @@ class QuestionnaireSectionController extends BaseController
         $conditionalLogic = null;
 
         if ($conditionalLogicEnabled) {
+            $logic_type = $this->request->getPost('logic_type');
             $conditionQuestionIds = $this->request->getPost('condition_question_id') ?? [];
             $operators = $this->request->getPost('operator') ?? [];
             $conditionValues = $this->request->getPost('condition_value') ?? [];
@@ -125,7 +128,10 @@ class QuestionnaireSectionController extends BaseController
             }
 
             if (!empty($conditions)) {
-                $conditionalLogic = json_encode($conditions);
+                $conditionalLogic = json_encode([
+                    'conditions' => $conditions,
+                    'logic_type' => $logic_type
+                ]);
             }
         }
 
@@ -218,6 +224,7 @@ class QuestionnaireSectionController extends BaseController
         $conditionalLogic = null;
 
         if ($conditionalLogicEnabled) {
+            $logic_type = $this->request->getPost('logic_type');   
             $conditionQuestionIds = $this->request->getPost('condition_question_id') ?? [];
             $operators = $this->request->getPost('operator') ?? [];
             $conditionValues = $this->request->getPost('condition_value') ?? [];
@@ -239,12 +246,15 @@ class QuestionnaireSectionController extends BaseController
                         'value' => $value
                     ];
                 }
-            }
 
-            if (!empty($conditions)) {
-                $conditionalLogic = json_encode($conditions);
             }
-        }
+                if (!empty($conditions)) {
+                    $conditionalLogic = json_encode([
+                        'conditions' => $conditions,
+                        'logic_type' => $logic_type
+                    ]);
+                }
+          }
 
         $sectionModel = new SectionModel();
         $db = \Config\Database::connect();
@@ -305,27 +315,6 @@ class QuestionnaireSectionController extends BaseController
             ->with('success', 'Section beserta semua relasinya berhasil dihapus.');
     }
 
-
-
-    // Tambah method baru untuk duplicate
-    public function duplicate($questionnaire_id, $page_id, $section_id)
-    {
-        $sectionModel = new SectionModel();
-        $section = $sectionModel->find($section_id);
-
-        if (!$section) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Section not found']);
-        }
-
-        $newSection = $section;
-        unset($newSection['id']);
-        $newSection['section_title'] = 'Copy of ' . $section['section_title'];
-        $newSection['order_no'] = $sectionModel->getNextOrderNo($page_id);
-        $sectionModel->insert($newSection);
-
-        return $this->response->setJSON(['success' => true]);
-    }
-
     // Tambah method untuk move up
     public function moveUp($questionnaire_id, $page_id, $section_id)
     {
@@ -383,6 +372,147 @@ class QuestionnaireSectionController extends BaseController
         } catch (\Exception $e) {
             log_message('error', 'MoveDown Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
             return $this->response->setJSON(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+        }
+    }
+    public function duplicate($questionnaire_id, $page_id, $section_id)
+    {
+        if (!$this->request->isAJAX()) {
+            return redirect()->back();
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        try {
+            $sectionModel = new \App\Models\Questionnaire\SectionModel();
+            $questionModel = new \App\Models\Questionnaire\QuestionModel();
+            $questionOptionModel = new \App\Models\Questionnaire\QuestionOptionModel();
+            $matrixRowModel = new \App\Models\Support\MatrixRowModel();
+            $matrixColumnModel = new MatrixColumnModel(); // Corrected from MatrixColumnModels
+
+            // Fetch original section
+            $originalSection = $sectionModel->find($section_id);
+            if (!$originalSection) {
+                throw new \Exception('Section not found');
+            }
+
+            // Prepare new section data
+            $newSectionData = [
+                'questionnaire_id' => $originalSection['questionnaire_id'],
+                'page_id' => $originalSection['page_id'],
+                'section_title' => 'Copy of ' . $originalSection['section_title'],
+                'section_description' => $originalSection['section_description'],
+                'show_section_title' => $originalSection['show_section_title'],
+                'show_section_description' => $originalSection['show_section_description'],
+                'order_no' => $sectionModel->getNextOrderNo($page_id), // Assuming method exists as per prompt
+                'conditional_logic' => null, // Reset
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+
+            // Insert new section
+            $newSectionId = $sectionModel->insert($newSectionData);
+            if (!$newSectionId) {
+                throw new \Exception('Failed to duplicate section');
+            }
+            log_message('info', 'Duplicated section: Original ID ' . $section_id . ' to New ID ' . $newSectionId);
+
+            // Fetch questions for original section
+            $originalQuestions = $questionModel->where('section_id', $section_id)->orderBy('order_no', 'ASC')->findAll();
+
+            foreach ($originalQuestions as $originalQuestion) {
+                // Prepare new question data (updated to match actual schema, reset conditions, set parent to null)
+                $newQuestionData = [
+                    'questionnaires_id' => $originalQuestion['questionnaires_id'],
+                    'page_id' => $originalQuestion['page_id'],
+                    'section_id' => $newSectionId,
+                    'question_text' => $originalQuestion['question_text'],
+                    'question_type' => $originalQuestion['question_type'],
+                    'is_required' => $originalQuestion['is_required'],
+                    'order_no' => $originalQuestion['order_no'], // Maintain relative order
+                    'parent_question_id' => null, // Reset (assuming no nested handling needed)
+                    'condition_value' => null, // Reset (condition-related)
+                    'condition_json' => null, // Reset as per prompt
+                    'scale_min' => $originalQuestion['scale_min'],
+                    'scale_max' => $originalQuestion['scale_max'],
+                    'scale_step' => $originalQuestion['scale_step'],
+                    'scale_min_label' => $originalQuestion['scale_min_label'],
+                    'scale_max_label' => $originalQuestion['scale_max_label'],
+                    'allowed_types' => $originalQuestion['allowed_types'],
+                    'max_file_size' => $originalQuestion['max_file_size'],
+                    'user_field_name' => $originalQuestion['user_field_name'],
+                    'is_for_ami' => $originalQuestion['is_for_ami'],
+                    'is_for_accreditation' => $originalQuestion['is_for_accreditation'],
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+
+                // Insert new question
+                $newQuestionId = $questionModel->insert($newQuestionData);
+                if (!$newQuestionId) {
+                    throw new \Exception('Failed to duplicate question ID ' . $originalQuestion['id']);
+                }
+                log_message('info', 'Duplicated question: Original ID ' . $originalQuestion['id'] . ' to New ID ' . $newQuestionId . ' in section ' . $newSectionId);
+
+                // Duplicate question options
+                $originalOptions = $questionOptionModel->where('question_id', $originalQuestion['id'])->findAll();
+                foreach ($originalOptions as $originalOption) {
+                    $newOptionData = [
+                        'question_id' => $newQuestionId,
+                        'option_text' => $originalOption['option_text'],
+                        'option_value' => $originalOption['option_value'],
+                        'next_question_id' => null, // Reset
+                        'order_number' => $originalOption['order_number']
+                    ];
+                    if (!$questionOptionModel->insert($newOptionData)) {
+                        throw new \Exception('Failed to duplicate option for question ID ' . $newQuestionId);
+                    }
+                    log_message('info', 'Duplicated option for new question ID ' . $newQuestionId);
+                }
+
+                // Duplicate matrix rows (if applicable, e.g., for matrix-type questions)
+                $originalRows = $matrixRowModel->where('question_id', $originalQuestion['id'])->findAll();
+                foreach ($originalRows as $originalRow) {
+                    $newRowData = [
+                        'question_id' => $newQuestionId,
+                        'row_text' => $originalRow['row_text'],
+                        'order_no' => $originalRow['order_no']
+                    ];
+                    if (!$matrixRowModel->insert($newRowData)) {
+                        throw new \Exception('Failed to duplicate matrix row for question ID ' . $newQuestionId);
+                    }
+                    log_message('info', 'Duplicated matrix row for new question ID ' . $newQuestionId);
+                }
+
+                // Duplicate matrix columns (if applicable)
+                $originalColumns = $matrixColumnModel->where('question_id', $originalQuestion['id'])->findAll();
+                foreach ($originalColumns as $originalColumn) {
+                    $newColumnData = [
+                        'question_id' => $newQuestionId,
+                        'column_text' => $originalColumn['column_text'],
+                        'order_no' => $originalColumn['order_no'],
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ];
+                    if (!$matrixColumnModel->insert($newColumnData)) {
+                        throw new \Exception('Failed to duplicate matrix column for question ID ' . $newQuestionId);
+                    }
+                    log_message('info', 'Duplicated matrix column for new question ID ' . $newQuestionId);
+                }
+            }
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                log_message('error', 'Transaction failed during section duplication');
+                return $this->response->setJSON(['success' => false, 'message' => 'Transaction failed']);
+            }
+
+            return $this->response->setJSON(['success' => true, 'message' => 'Section duplicated successfully']);
+        } catch (\Exception $e) {
+            $db->transRollback();
+            log_message('error', 'Exception during duplication: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 }

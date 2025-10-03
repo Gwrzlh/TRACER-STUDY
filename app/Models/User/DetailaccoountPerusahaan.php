@@ -4,9 +4,9 @@ namespace App\Models\User;
 
 use CodeIgniter\Model;
 
-class DetailaccountPerusahaan extends Model
+class DetailaccoountPerusahaan extends Model
 {
-    protected $table = 'detailaccount_perusahaan';
+    protected $table = 'detailaccoount_perusahaan';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
@@ -17,7 +17,7 @@ class DetailaccountPerusahaan extends Model
     protected bool $allowEmptyInserts = false;
 
     public function getaccountidPerusahaan(){
-        return $this->select('detailaccount_perusahaan.*, account.*')
+        return $this->select('detailaccoount_perusahaan.*, account.*')
                     ->join('account', 'account.id = detailaccount_perusahaan.id_account')
                     ->findAll();
     }

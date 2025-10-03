@@ -9,7 +9,7 @@ use App\Models\Questionnaire\QuestionnairModel;
 use App\Models\Questionnaire\QuestionModel; // Tambahkan model pertanyaan
 use App\Models\Questionnaire\QuestionOptionModel;
 use App\Models\Questionnaire\SectionModel;
-use App\Models\Support\MatrixColumnModels;
+use App\Models\Support\MatrixColumnModel;
 use App\Models\Support\MatrixRowModel;
 use App\Models\Questionnaire\AnswerModel;
 use App\Models\Questionnaire\ResponseModel;
@@ -35,8 +35,8 @@ class QuestionnairePageController extends BaseController
         $questionnaire = $questionnaireModel->find($questionnaire_id);
 
         return view('adminpage/questioner/page/index', [
-            'pages' => $pages, // Sekarang akan kosong jika belum ada halaman sama sekali
-            'questionnaire' => $questionnaire
+            'pages' => $pages, // Jika kuesioner baru, $pages = []
+            'questionnaire' => $questionnaire,
         ]);
     }
 
@@ -47,6 +47,8 @@ class QuestionnairePageController extends BaseController
     public function create($questionnaire_id)
     {
         // Ambil semua pertanyaan untuk dropdown conditional logic
+        $pageModel = new QuestionnairePageModel();
+        $pageOrderNo = $pageModel->GetNextOrderNo_page($questionnaire_id);
         $questionModel = new QuestionModel();
         $questions = $questionModel->where('questionnaires_id', $questionnaire_id)->findAll();
 
@@ -62,7 +64,9 @@ class QuestionnairePageController extends BaseController
         return view('adminpage/questioner/page/create', [
             'questionnaire_id' => $questionnaire_id,
             'questions' => $questions,
-            'operators' => $operators
+            'operators' => $operators,
+            'pageOrderNo' => $pageOrderNo,
+
         ]);
     }
 
@@ -124,7 +128,7 @@ class QuestionnairePageController extends BaseController
         $pageModel = new QuestionnairePageModel();
         $page = $pageModel->find($page_id);
 
-        if (!$page) {
+        if (!$page || $page['questionnaire_id'] != $questionnaire_id) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Page not found');
         }
 
@@ -140,9 +144,19 @@ class QuestionnairePageController extends BaseController
             'less' => 'Less Than'
         ];
 
+        // Parse conditional logic: Transform to flat array for view
         $conditionalLogic = [];
+        $logicType = 'all'; // Default
         if ($page['conditional_logic']) {
-            $conditionalLogic = json_decode($page['conditional_logic'], true) ?? [];
+            $decoded = json_decode($page['conditional_logic'], true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $conditionalLogic = $decoded['conditions'] ?? [];
+                $logicType = $decoded['logic_type'] ?? 'all';
+                log_message('debug', "[QuestionnairePageController::edit] Transformed conditional logic: " . json_encode($conditionalLogic));
+                log_message('debug', "[QuestionnairePageController::edit] Logic type: " . $logicType);
+            } else {
+                log_message('error', "[QuestionnairePageController::edit] Invalid JSON in conditional_logic: " . $page['conditional_logic']);
+            }
         }
 
         return view('adminpage/questioner/page/edit', [
@@ -150,7 +164,8 @@ class QuestionnairePageController extends BaseController
             'questionnaire_id' => $questionnaire_id,
             'questions' => $questions,
             'operators' => $operators,
-            'conditionalLogic' => $conditionalLogic
+            'conditionalLogic' => $conditionalLogic, // Flat array: [0 => ['field' => '160', ...]]
+            'logicType' => $logicType // Pass separately for select
         ]);
     }
 
@@ -161,6 +176,7 @@ class QuestionnairePageController extends BaseController
         $conditionalLogic = null;
 
         if ($conditionalLogicEnabled) {
+            $logicType = $this->request->getPost('logic_type') ?? 'all';
             $conditionQuestionIds = $this->request->getPost('condition_question_id') ?? [];
             $operators = $this->request->getPost('operator') ?? [];
             $conditionValues = $this->request->getPost('condition_value') ?? [];
@@ -170,14 +186,17 @@ class QuestionnairePageController extends BaseController
             for ($i = 0; $i < count($conditionQuestionIds); $i++) {
                 if (!empty($conditionQuestionIds[$i]) && !empty($operators[$i]) && isset($conditionValues[$i])) {
                     $value = $conditionValues[$i];
-                    // Translate option ID ke option_text
-                    if (preg_match('/^\d+$/', $value)) {
-                        $option = $optionModel->where(['question_id' => $conditionQuestionIds[$i], 'id' => $value])->first();
-                        $value = $option ? $option['option_text'] : $value;
-                        log_message('debug', "[QuestionnairePageController::update] Translated option ID $conditionValues[$i] to text: $value");
+                    // Translate option ID to option_text for select-type questions
+                    $question = (new QuestionModel())->find($conditionQuestionIds[$i]);
+                    if ($question && in_array($question['question_type'], ['radio', 'checkbox', 'dropdown'])) {
+                        if (preg_match('/^\d+$/', $value)) {
+                            $option = $optionModel->where(['question_id' => $conditionQuestionIds[$i], 'id' => $value])->first();
+                            $value = $option ? $option['option_text'] : $value;
+                            log_message('debug', "[QuestionnairePageController::update] Translated option ID {$conditionValues[$i]} to text: {$value}");
+                        }
                     }
                     $conditions[] = [
-                        'field' => $conditionQuestionIds[$i], // Ganti question_id jadi field
+                        'field' => $conditionQuestionIds[$i],
                         'operator' => $operators[$i],
                         'value' => $value
                     ];
@@ -185,7 +204,10 @@ class QuestionnairePageController extends BaseController
             }
 
             if (!empty($conditions)) {
-                $conditionalLogic = json_encode($conditions);
+                $conditionalLogic = json_encode([
+                    'conditions' => $conditions,
+                    'logic_type' => $logicType
+                ]);
             }
         }
 
@@ -208,7 +230,7 @@ class QuestionnairePageController extends BaseController
         $questionModel     = new QuestionModel();
         $optionModel       = new QuestionOptionModel();
         $matrixRowModel    = new MatrixRowModel();
-        $matrixColumnModel = new MatrixColumnModels();
+        $matrixColumnModel = new MatrixColumnModel();
         $answerModel       = new AnswerModel();
         $responseModel     = new ResponseModel(); // Hapus responses terkait questionnaire
 
@@ -278,4 +300,5 @@ class QuestionnairePageController extends BaseController
             'options' => $formatted_options
         ]);
     }
+    
 }
