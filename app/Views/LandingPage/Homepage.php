@@ -1,16 +1,31 @@
 <?php
+
 use App\Models\WelcomePageModel;
+use App\Models\SiteSettingModel;
+
+// Ambil konten welcome page
 $model = new WelcomePageModel();
 $data = $model->first();
+
+// Ambil setting tombol dari DB
+$settingModel = new SiteSettingModel();
+$settings = [
+    'survey_button_text'        => get_setting('survey_button_text', 'Mulai Survey'),
+    'survey_button_color'       => get_setting('survey_button_color', '#ef4444'),
+    'survey_button_text_color'  => get_setting('survey_button_text_color', '#ffffff'),
+    'survey_button_hover_color' => get_setting('survey_button_hover_color', '#dc2626'),
+];
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Landing Page</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/landingpage/Homepage.css">
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Font Inter -->
@@ -50,31 +65,15 @@ $data = $model->first();
 
       /* Teks lebih kecil */
       .hero-overlay h1 {
-        font-size: 2rem; /* sebelumnya 2.8rem */
+        font-size: 2rem;
         font-weight: 700;
         margin-bottom: 12px;
       }
 
       .hero-overlay p {
-        font-size: 1rem; /* sebelumnya 1.2rem */
+        font-size: 1rem;
         margin-bottom: 20px;
         color: #e5e7eb;
-      }
-
-      .btn-cta {
-        background: #ef4444;
-        border: none;
-        padding: 10px 26px;
-        border-radius: 30px;
-        font-weight: 600;
-        font-size: 1rem;
-        color: #fff;
-        transition: transform .3s ease, background .3s ease;
-      }
-
-      .btn-cta:hover {
-        background: #dc2626;
-        transform: scale(1.05);
       }
 
       /* Section */
@@ -129,9 +128,9 @@ $data = $model->first();
       }
     </style>
 </head>
+
 <body>
 
-<?= view('layout/navbar') ?>
 
 <!-- Hero Carousel -->
 <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
@@ -144,60 +143,56 @@ $data = $model->first();
           <div>
             <h1 class="animate__animated animate__fadeInDown animate__slow"><?= esc($data['title_1']) ?></h1>
             <p class="animate__animated animate__fadeInLeft animate__delay-1s animate__slow"><?= $data['desc_1'] ?></p>
-            <a href="<?= base_url('/login') ?>" class="btn btn-cta animate__animated animate__bounceIn animate__delay-2s animate__slow">Mulai Survey</a>
+            <a href="<?= base_url('/login') ?>"
+               class="animate__animated animate__bounceIn animate__delay-2s animate__slow"
+               style="background-color: <?= esc($settings['survey_button_color']) ?>;
+                      color: <?= esc($settings['survey_button_text_color']) ?>;
+                      padding: 10px 26px;
+                      border-radius: 30px;
+                      font-weight: 600;
+                      font-size: 1rem;
+                      text-decoration: none;
+                      display: inline-block;"
+               onmouseover="this.style.backgroundColor='<?= esc($settings['survey_button_hover_color']) ?>'"
+               onmouseout="this.style.backgroundColor='<?= esc($settings['survey_button_color']) ?>'">
+               <?= esc($settings['survey_button_text']) ?>
+            </a>
           </div>
         </div>
-      </div>
-    </div>
+    </section>
 
-    <!-- Slide 2 -->
-    <div class="carousel-item">
-      <div class="w-100 h-100 animate__animated animate__fadeIn animate__slow" 
-           style="background-image: url('<?= base_url($data['image_path_2']) ?>'); background-size: cover; background-position: center;">
-        <div class="hero-overlay">
-          <div>
-            <h1 class="animate__animated animate__fadeInDown animate__slow"><?= esc($data['title_2']) ?></h1>
-            <p class="animate__animated animate__fadeInRight animate__delay-1s animate__slow"><?= $data['desc_2'] ?></p>
-          </div>
+    <!-- Section 2: Teks + Video -->
+    <section class="section bg-light">
+        <div class="container">
+            <div class="row align-items-top g-5">
+                <div class="col-md-6">
+                    <h2><?= esc($data['title_2']) ?></h2>
+                    <p><?= $data['desc_2'] ?></p>
+                    <a href="<?= base_url('/login') ?>"
+                        class="btn mt-3"
+                        style="background-color: <?= $loginColor ?>; color: <?= $loginTextColor ?>;"
+                        onmouseover="this.style.backgroundColor='<?= $loginHover ?>';"
+                        onmouseout="this.style.backgroundColor='<?= $loginColor ?>';">
+                        <?= esc($loginText) ?>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <div class="ratio ratio-16x9 video-custom">
+                        <iframe
+                            src="<?= esc($data['youtube_url']) ?>"
+                            title="YouTube video"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- Indicators -->
-  <div class="carousel-indicators">
-    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
-    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
-  </div>
+    <?= view('layout/footer') ?>
 
-  <!-- Controls -->
-  <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon"></span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon"></span>
-  </button>
-</div>
-
-<!-- Section 2 -->
-<section class="bg-white">
-  <div class="container text-center">
-    <h2 class="section-title animate__animated animate__lightSpeedInLeft animate__slow"><?= esc($data['title_3']) ?></h2>
-    <p class="section-desc animate__animated animate__fadeInUp animate__delay-1s animate__slow"><?= $data['desc_3'] ?></p>
-    <div class="ratio ratio-16x9 mx-auto mt-4 animate__animated animate__zoomInUp animate__delay-2s animate__slow" style="max-width: 800px;">
-      <iframe 
-          src="<?= esc($data['youtube_url']) ?>" 
-          title="YouTube video"
-          allowfullscreen
-          class="rounded shadow">
-      </iframe>
-    </div>
-  </div>
-</section>
-
-<?= view('layout/footer') ?>
-
-<!-- Bootstrap Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

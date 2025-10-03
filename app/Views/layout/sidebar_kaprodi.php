@@ -32,41 +32,31 @@ $currentRoute = service('request')->uri->getPath();
             <span>Dashboard</span>
           </a>
 
-          <!-- Kuesioner (dropdown) -->
-          <div class="sidebar-dropdown">
-            <button
-              class="sidebar-link w-full flex items-center justify-between 
-    <?= (str_contains($currentRoute, 'questioner') || str_contains($currentRoute, 'kuesioner')) ? 'active' : '' ?>"
-              onclick="this.nextElementSibling.classList.toggle('hidden')">
-              <div class="flex items-center gap-2">
-                <i class="fa fa-file-alt w-5"></i>
-                <span>Kuesioner</span>
-              </div>
-              <i class="fa fa-chevron-down text-xs"></i>
-            </button>
+          <!-- Kuesioner -->
+<details class="group" <?= (str_contains($currentRoute, 'questioner') || str_contains($currentRoute, 'kuesioner')) ? 'open' : '' ?>>
+  <summary class="sidebar-link <?= (str_contains($currentRoute, 'questioner') || str_contains($currentRoute, 'kuesioner')) ? 'active' : '' ?>">
+    <div class="flex items-center gap-2">
+      <i class="fa fa-file-alt w-5"></i>
+      <span>Kuesioner</span>
+    </div>
+    <svg class="w-4 h-4 transition-transform duration-300 group-open:rotate-180" 
+         fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </summary>
 
-            <!-- Submenu -->
-            <ol class="ml-8 mt-1 space-y-1 
-      <?= (str_contains($currentRoute, 'questioner') || str_contains($currentRoute, 'kuesioner')) ? '' : 'hidden' ?>">
+  <div class="ml-8 mt-1 space-y-1">
+    <a href="<?= base_url('kaprodi/questioner') ?>" 
+       class="submenu <?= str_contains($currentRoute, 'questioner') ? 'active' : '' ?>">
+       Daftar Kuesioner
+    </a>
+    <a href="<?= base_url('kaprodi/kuesioner') ?>" 
+       class="submenu <?= str_contains($currentRoute, 'create') ? 'active' : '' ?>">
+       Tambah Kuesioner
+    </a>
+  </div>
+</details>
 
-              <li>
-                <a
-                  href="<?= base_url('kaprodi/questioner') ?>"
-                  class="block sidebar-sublink <?= str_contains($currentRoute, 'questioner') ? 'active' : '' ?>">
-                  Daftar Kuesioner
-                </a>
-              </li>
-
-              <li>
-                <a
-                  href="<?= base_url('kaprodi/kuesioner/') ?>"
-                  class="block sidebar-sublink <?= str_contains($currentRoute, 'create') ? 'active' : '' ?>">
-                  Tambah Kuesioner
-                </a>
-              </li>
-
-            </ol>
-          </div>
 
 
 

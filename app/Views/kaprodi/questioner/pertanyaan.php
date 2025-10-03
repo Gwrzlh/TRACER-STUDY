@@ -1,5 +1,6 @@
 <?= $this->extend('layout/sidebar_kaprodi') ?>
 <?= $this->section('content') ?>
+<link href="<?= base_url('css/kaprodi/questioner/pertanyaan.css') ?>" rel="stylesheet">
 
 <div class="container mt-5">
 

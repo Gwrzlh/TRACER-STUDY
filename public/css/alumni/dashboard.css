@@ -11,10 +11,12 @@ body {
     min-height: 100vh;
 }
 
+/* Tambahkan jarak agar konten tidak ketimpa sidebar */
 .dashboard-container {
     background: white;
     padding: 32px;
-    margin: 20px;
+    margin: 0px;
+    margin-left: 60px; /* >>> sesuaikan dengan lebar sidebar kamu <<< */
     border-radius: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     border: 1px solid #e5e7eb;
@@ -293,4 +295,32 @@ body {
         font-size: 0.8rem;
         margin-bottom: 14px;
     }
+    /* Tambahkan jarak agar konten tidak ketimpa sidebar */
+.dashboard-container {
+    background: white;
+    padding: 32px;
+    margin: 20px;
+    margin-left: 260px; /* >>> sesuaikan dengan lebar sidebar kamu <<< */
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+}
+}
+/* Tombol dashboard alumni */
+.btn-dashboard {
+    display: inline-block;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Hover efek */
+.btn-dashboard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
