@@ -70,35 +70,11 @@ $allYears     = $allYears ?? [];
             padding: 20px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
         }
-
-        /* Warna untuk persentase */
-        .persentase-low {
-            background-color: #fee2e2;
-            color: #991b1b;
-            font-weight: 600;
-            padding: 8px 12px;
-            border-radius: 6px;
-        }
-
-        .persentase-medium {
-            background-color: #fef3c7;
-            color: #92400e;
-            font-weight: 600;
-            padding: 8px 12px;
-            border-radius: 6px;
-        }
-
-        .persentase-high {
-            background-color: #d1fae5;
-            color: #065f46;
-            font-weight: 600;
-            padding: 8px 12px;
-            border-radius: 6px;
-        }
     </style>
 </head>
 
 <body>
+
     <!-- Navbar -->
     <?= view('layout/navbar') ?>
 
@@ -210,9 +186,7 @@ $allYears     = $allYears ?? [];
                                         <td><?= esc($d['ongoing']); ?></td>
                                         <td><?= esc($d['belum']); ?></td>
                                         <td><?= esc($d['jumlah']); ?></td>
-                                        <td><?= esc($d['persentase']) ?>%</td>
-
-
+                                        <td><?= esc($d['persentase']); ?>%</td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -232,4 +206,5 @@ $allYears     = $allYears ?? [];
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
