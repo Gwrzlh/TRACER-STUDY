@@ -417,6 +417,8 @@ $routes->post('pengaturan-situs/save', 'PengaturanSitus::save');
 
 // Pengaturan Situs
 $routes->get('/pengaturan-situs', 'PengaturanSitus::index');
+$routes->get('pengaturan-alumni', 'PengaturanAlumni::index');
+$routes->post('pengaturan-alumni/save', 'PengaturanAlumni::save');
 
 // ajax conditional_logic 
 
