@@ -25,95 +25,99 @@ use Exception;
 
 class PenggunaController extends BaseController
 {
-    public function index()
-    {
-        // Ambil parameter filter
-        $roleId  = $this->request->getGet('role');
-        $keyword = $this->request->getGet('keyword');
+   public function index()
+{
+    // Ambil parameter filter
+    $roleId  = $this->request->getGet('role');
+    $keyword = $this->request->getGet('keyword');
 
-        // 🔹 Ambil perPage dari Pengaturan Situs, default = 5
-        $perPage = get_setting('pengguna_perpage_default', 5);
+    // 🔹 Ambil perPage dari Pengaturan Situs, default = 5
+    $perPage = get_setting('pengguna_perpage_default', 5);
 
-        // Ambil semua role
-        $rolesModel = new \App\Models\Roles();
-        $roles      = $rolesModel->findAll();
+    // Ambil semua role
+    $rolesModel = new \App\Models\Roles();
+    $roles      = $rolesModel->findAll();
 
-        // Model akun
-        $accountModel = new \App\Models\Accounts();
+    // Model akun
+    $accountModel = new \App\Models\Accounts();
 
-        // Build query dengan join
-        $builder = $accountModel->builder();
-        $builder->select('account.*, role.nama AS nama_role')
+    // Build query utama
+    $builder = $accountModel->builder();
+    $builder->select('account.*, role.nama AS nama_role')
             ->join('role', 'role.id = account.id_role', 'left');
 
-        // Filter role
-        if ($roleId && is_numeric($roleId)) {
-            $builder->where('account.id_role', $roleId);
-        }
+    // Filter role
+    if ($roleId && is_numeric($roleId)) {
+        $builder->where('account.id_role', $roleId);
+    }
 
-        // Filter pencarian keyword
-        if (!empty($keyword)) {
-            $builder->groupStart()
+    // Filter keyword
+    if (!empty($keyword)) {
+        $builder->groupStart()
                 ->like('account.username', $keyword)
                 ->orLike('account.email', $keyword)
                 ->orLike('account.status', $keyword)
                 ->orLike('role.nama', $keyword)
                 ->groupEnd();
-        }
-
-        // Urutkan terbaru
-        $builder->orderBy('account.id', 'DESC');
-
-        // Hitung total records
-        $totalRecords = $builder->countAllResults(false);
-
-        // Ambil data dengan limit dan offset
-        $currentPage = $this->request->getVar('page_accounts') ?? 1;
-        $offset = ($currentPage - 1) * $perPage;
-
-        $accounts = $builder->limit($perPage, $offset)->get()->getResultArray();
-
-        // Setup manual pagination
-        $pager = \Config\Services::pager();
-        $pager->makeLinks($currentPage, $perPage, $totalRecords, 'default_full', 0);
-
-        // Hitung jumlah akun per role
-        $counts = [];
-        foreach ($roles as $r) {
-            $counts[$r['id']] = $accountModel->where('id_role', $r['id'])->countAllResults();
-            $accountModel->builder()->resetQuery();
-        }
-        $counts['all'] = $accountModel->countAllResults();
-
-        // Ambil detail akun
-        $detailaccountAdmin  = new \App\Models\DetailaccountAdmins();
-        $detailaccountAlumni = new \App\Models\DetailaccountAlumni();
-
-        $adminDetails = method_exists($detailaccountAdmin, 'getaccountid')
-            ? $detailaccountAdmin->getaccountid()
-            : [];
-
-        $alumniDetails = method_exists($detailaccountAlumni, 'getDetailWithRelations')
-            ? $detailaccountAlumni->getDetailWithRelations()
-            : [];
-
-        // Data untuk view
-        $data = [
-            'roles'               => $roles,
-            'counts'              => $counts,
-            'accounts'            => $accounts,
-            'pager'               => $pager,
-            'detailaccountAdmin'  => $adminDetails,
-            'detailaccountAlumni' => $alumniDetails,
-            'roleId'              => $roleId,
-            'keyword'             => $keyword,
-            'perPage'             => $perPage,
-            'currentPage'         => $currentPage,
-            'totalRecords'        => $totalRecords,
-        ];
-
-        return view('adminpage/pengguna/index', $data);
     }
+
+    // Urutkan terbaru
+    $builder->orderBy('account.id', 'DESC');
+
+    // 🔹 Hitung total data
+    $totalRecords = $builder->countAllResults(false);
+
+    // Setup pagination
+    $currentPage = (int) ($this->request->getVar('page') ?? 1);
+
+    $offset      = ($currentPage - 1) * $perPage;
+
+    // Ambil data sesuai halaman
+    $accounts = $builder->limit($perPage, $offset)->get()->getResultArray();
+
+    // Buat pagination links
+    $pager = \Config\Services::pager();
+    $pagerLinks = $pager->makeLinks($currentPage, $perPage, $totalRecords, 'bootstrap5');
+
+
+    // Hitung jumlah akun per role
+    $counts = [];
+    foreach ($roles as $r) {
+        $counts[$r['id']] = $accountModel->where('id_role', $r['id'])->countAllResults();
+        $accountModel->builder()->resetQuery();
+    }
+    $counts['all'] = $accountModel->countAllResults();
+
+    // Ambil detail tambahan
+    $detailaccountAdmin  = new \App\Models\DetailaccountAdmins();
+    $detailaccountAlumni = new \App\Models\DetailaccountAlumni();
+
+    $adminDetails = method_exists($detailaccountAdmin, 'getaccountid')
+        ? $detailaccountAdmin->getaccountid()
+        : [];
+
+    $alumniDetails = method_exists($detailaccountAlumni, 'getDetailWithRelations')
+        ? $detailaccountAlumni->getDetailWithRelations()
+        : [];
+
+    // Kirim ke view
+    $data = [
+        'roles'               => $roles,
+        'counts'              => $counts,
+        'accounts'            => $accounts,
+        'pager'               => $pager,
+        'pagerLinks'          => $pagerLinks,
+        'detailaccountAdmin'  => $adminDetails,
+        'detailaccountAlumni' => $alumniDetails,
+        'roleId'              => $roleId,
+        'keyword'             => $keyword,
+        'perPage'             => $perPage,
+        'currentPage'         => $currentPage,
+        'totalRecords'        => $totalRecords,
+    ];
+
+    return view('adminpage/pengguna/index', $data);
+}
 
 
 
