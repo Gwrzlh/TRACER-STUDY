@@ -150,9 +150,16 @@
                                 </td>
 
                                 <td class="date-cell"><?= esc($res['submitted_at'] ?? '-') ?></td>
-                                <td class="action-cell">
-                                    <?php if (!empty($res['response_id'])): ?>
-                                        <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>" class="action-btn">Jawaban</a>
+                               <td class="action-cell">
+                                    <?php if (!empty($res['response_id']) && ($res['status'] ?? '') === 'completed'): ?>
+                                        <!-- Debug: Output $res to check available keys -->
+                                        <?php // Remove this after debugging ?>
+                                        <?php // echo '<pre>'; var_dump($res); echo '</pre>'; ?>
+                                        <a href="<?= base_url('admin/respon/allow_edit/' . $res['questionnaire_id'] . '/' . $res['id_account']) ?>" 
+                                        class="action-btn" 
+                                        onclick="return confirm('Izinkan alumni mengedit jawaban ini?')">Edit Jawaban</a>
+                                        <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>" 
+                                        class="action-btn">Jawaban</a>
                                     <?php else: ?>
                                         <span class="no-action">-</span>
                                     <?php endif; ?>
@@ -168,6 +175,30 @@
             </table>
         </div>
     </div>
+
+    <<?php if (session()->getFlashdata('success')): ?>
+    <div class="alert alert-success">
+        <?= session()->getFlashdata('success') ?>
+    </div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('error')): ?>
+    <div class="alert alert-danger">
+        <?= session()->getFlashdata('error') ?>
+    </div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('info')): ?>
+    <div class="alert alert-info">
+        <?= session()->getFlashdata('info') ?>
+    </div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('warning')): ?>
+    <div class="alert alert-warning">
+        <?= session()->getFlashdata('warning') ?>
+    </div>
+<?php endif; ?>
 
     <!-- Pagination -->
     <?php if ($totalPages > 1): ?>

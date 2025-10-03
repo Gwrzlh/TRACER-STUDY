@@ -54,7 +54,10 @@
                                 
                                 <?php if (in_array(strtolower($q['question_type']), ['text', 'email'])): ?>
                                     <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
-                              
+                                  
+                                <?php elseif (in_array(strtolower($q['question_type']), ['date', 'date'])): ?>
+                                    <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
+
                                 <?php elseif (in_array(strtolower($q['question_type']), ['date', 'date'])): ?>
                                     <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
                               

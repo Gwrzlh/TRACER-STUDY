@@ -41,6 +41,30 @@ class ResponseModel extends Model
             ->getResultArray();
     }
 
+    public function updateStatus($questionnaire_id, $account_id, $status)
+    {
+        log_message('debug', "ResponseModel::updateStatus called with questionnaire_id: {$questionnaire_id}, account_id: {$account_id}, status: {$status}");
+
+        if (!in_array($status, ['draft', 'completed'])) {
+            return false;
+        }
+
+        $builder = $this->where([
+            'questionnaire_id' => $questionnaire_id,
+            'account_id' => $account_id
+        ]);
+        $affectedCount = $builder->countAllResults(false);
+        log_message('debug', "ResponseModel::updateStatus found {$affectedCount} rows to update");
+
+        $builder->set('status', $status);
+        $result = $builder->update();
+
+        $affectedRows = $this->db->affectedRows();
+        log_message('debug', "ResponseModel::updateStatus result: " . ($result ? 'success' : 'failure') . ", affected rows: {$affectedRows}");
+
+        return $result;
+    }
+
     public function hasResponded($questionnaireId, $accountId): bool
     {
         return $this->where('questionnaire_id', $questionnaireId)

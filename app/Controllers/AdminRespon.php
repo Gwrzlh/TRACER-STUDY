@@ -11,6 +11,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use CodeIgniter\I18n\Time;
+use App\Models\AnswerModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
 
 class AdminRespon extends BaseController
 {
@@ -18,6 +20,7 @@ class AdminRespon extends BaseController
     protected $alumniModel;
     protected $jurusanModel;
     protected $prodiModel;
+    protected $answersModel;
 
     public function __construct()
     {
@@ -25,6 +28,8 @@ class AdminRespon extends BaseController
         $this->alumniModel   = new AlumniModel();
         $this->jurusanModel  = new JurusanModel();
         $this->prodiModel    = new Prodi();
+        $this->answersModel  = new AnswerModel();
+
     }
     public function index()
     {
@@ -440,4 +445,89 @@ class AdminRespon extends BaseController
         $dompdf->stream($filename, ["Attachment" => true]);
         exit;
     }
+
+    public function allowEdit($questionnaire_id, $id_account)
+    {
+        log_message('debug', "allowEdit called with questionnaire_id: {$questionnaire_id}, id_account: {$id_account}");
+
+        if (!is_numeric($questionnaire_id) || $questionnaire_id <= 0 || !is_numeric($id_account) || $id_account <= 0) {
+            log_message('error', 'Invalid parameters');
+            throw PageNotFoundException::forPageNotFound('Invalid parameters');
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        try {
+            log_message('debug', 'Checking response for questionnaire_id: ' . $questionnaire_id . ', account_id: ' . $id_account);
+            $response = $this->responseModel->where([
+                'questionnaire_id' => $questionnaire_id,
+                'account_id' => $id_account
+            ])->first();
+
+            if (!$response) {
+                log_message('error', 'Response not found');
+                throw new \Exception('Data response tidak ditemukan.');
+            }
+
+            log_message('debug', 'Response found: ' . json_encode($response));
+
+            if ($response['status'] === 'draft') {
+                log_message('info', 'Response already in draft mode');
+                $db->transRollback();
+                session()->setFlashdata('info', 'Status sudah dalam mode draft.');
+                return redirect()->back();
+            }
+
+            // Update responses
+            log_message('debug', 'Updating responses status to draft');
+            $updatedResponse = $this->responseModel->updateStatus($questionnaire_id, $id_account, 'draft');
+            if (!$updatedResponse) {
+                log_message('error', 'Failed to update responses table');
+                throw new \Exception('Gagal update status di table responses.');
+            }
+            $affectedResponse = $db->affectedRows();
+            log_message('debug', 'Responses updated, affected rows: ' . $affectedResponse);
+
+            // Check answers
+            $answerCount = $this->answersModel->where([
+                'questionnaire_id' => $questionnaire_id,
+                'user_id' => $id_account
+            ])->countAllResults();
+            log_message('debug', "Found {$answerCount} answers for questionnaire_id: {$questionnaire_id}, user_id: {$id_account}");
+
+            if ($answerCount === 0) {
+                log_message('warning', 'No answers found to update. Proceeding with response update only.');
+            } else {
+                // Update answers
+                log_message('debug', 'Updating answers status to draft');
+                $updatedAnswers = $this->answersModel->batchUpdateStatus($questionnaire_id, $id_account, 'draft');
+                if (!$updatedAnswers) {
+                    log_message('error', 'Failed to update answers table (query error)');
+                    throw new \Exception('Gagal update status di table answers.');
+                }
+                $affectedAnswers = $db->affectedRows();
+                log_message('debug', 'Answers updated, affected rows: ' . $affectedAnswers);
+                if ($affectedAnswers === 0) {
+                    log_message('warning', 'Answers update successful but no rows affected (status already draft?).');
+                }
+            }
+
+            $db->transComplete();
+            if ($db->transStatus() === false) {
+                log_message('error', 'Transaction failed');
+                throw new \Exception('Transaction gagal.');
+            }
+
+            log_message('debug', 'Transaction committed successfully');
+            session()->setFlashdata('success', 'Status jawaban berhasil diubah menjadi draft.');
+        } catch (\Exception $e) {
+            log_message('error', 'Exception in allowEdit: ' . $e->getMessage());
+            $db->transRollback();
+            session()->setFlashdata('error', 'Gagal mengubah status: ' . $e->getMessage());
+        }
+
+        return redirect()->back();
+    }
+
 }
