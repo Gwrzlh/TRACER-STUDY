@@ -6,12 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Profil Admin -->
-<div class="profile-container">
-  <div class="profile-header">
-    <img src="<?= base_url('images/logo.png') ?>" alt="Tracer Study" class="logo">
-    <h2>Profil Admin</h2>
-  </div>
-
+<div class="bg-white rounded-xl shadow-md p-8 w-full max-w-7xl mx-auto">
   <div class="profile-body">
     <!-- FOTO ADMIN -->
     <div class="profile-sidebar">
@@ -20,7 +15,7 @@
                 ? base_url('uploads/foto_admin/' . $admin['foto']) . '?t=' . time()
                 : base_url('uploads/default.png') ?>"
         alt="Foto Profil">
-      <p>Klik foto untuk mengganti</p>
+      <p class="foto-change-text">Klik Untuk Mengganti Foto</p>
     </div>
 
     <!-- INFO AKUN -->
@@ -66,14 +61,26 @@
   </div>
 </div>
 
-<!-- MODAL FOTO (Cropper.js) -->
+<!-- MODAL FOTO -->
 <div id="modal" class="modal">
   <div class="modal-content">
     <h3>Ubah Foto Profil</h3>
+
+    <!-- Upload File -->
     <input type="file" id="fileInput" accept="image/*">
 
     <div class="crop-container">
       <img id="cropImage" class="hidden" />
+    </div>
+
+    <!-- Kamera -->
+    <div class="camera-section">
+      <button type="button" onclick="openCamera()" class="btn-camera">📷 Buka Kamera</button>
+      <div id="cameraWrapper" class="hidden">
+        <video id="camera" autoplay playsinline class="camera-preview"></video>
+        <button type="button" onclick="takeSnapshot()" class="btn-capture">📸 Ambil Foto</button>
+        <canvas id="snapshot" class="hidden"></canvas>
+      </div>
     </div>
 
     <div class="modal-actions">
@@ -95,25 +102,69 @@
     const fotoPreview = document.getElementById('fotoPreview');
     const fileInput = document.getElementById('fileInput');
     const cropImage = document.getElementById('cropImage');
-    const toast = document.getElementById('toast');
     let cropper = null;
 
+    let cameraStream = null;
+    let fotoDariKamera = null;
+
+    // ====== Open Modal ======
     function openModal() {
       modal.classList.add('show');
       fileInput.value = '';
       cropImage.classList.add('hidden');
       if (cropper) { cropper.destroy(); cropper = null; }
+
+      // reset kamera & snapshot
+      fotoDariKamera = null;
+      const video = document.getElementById('camera');
+      const canvas = document.getElementById('snapshot');
+      const wrapper = document.getElementById('cameraWrapper');
+      const btnKamera = document.querySelector('.btn-camera');
+
+      // Tampilkan kembali tombol Buka Kamera
+      if (btnKamera) btnKamera.classList.remove('hidden');
+
+      video.classList.remove('hidden');
+      video.srcObject = null;
+      canvas.classList.add('hidden');
+      canvas.classList.remove('snapshot-preview');
+      wrapper.classList.add('hidden');
+
+      // kembalikan tombol capture kalau hilang
+      let btnCapture = wrapper.querySelector('.btn-capture');
+      if (!btnCapture) {
+        const newBtn = document.createElement('button');
+        newBtn.type = "button";
+        newBtn.className = "btn-capture";
+        newBtn.textContent = "📸 Ambil Foto";
+        newBtn.onclick = takeSnapshot;
+        wrapper.insertBefore(newBtn, canvas);
+      } else {
+        btnCapture.classList.remove('hidden');
+      }
     }
 
+    // ====== Close Modal (global) ======
     window.closeModal = function() {
       modal.classList.remove('show');
+
+      // stop kamera
+      const video = document.getElementById('camera');
+      if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+      }
+      cameraStream = null;
     };
 
     modal.addEventListener('click', (e) => {
       if (e.target === modal) window.closeModal();
     });
 
-    fileInput.addEventListener('change', () => {  
+    fotoPreview.addEventListener('click', openModal);
+
+    // ====== Upload File ======
+    fileInput.addEventListener('change', () => {
       const file = fileInput.files[0];
       if (file) {
         const reader = new FileReader();
@@ -126,56 +177,128 @@
             viewMode: 1,
             autoCropArea: 1,
           });
-          showToast('🔍 Silakan crop foto sesuai keinginan', 'blue');
         };
         reader.readAsDataURL(file);
       }
     });
 
-    function showToast(msg, color = 'dark') {
-      toast.textContent = msg;
-      toast.className = `toast ${color} show`;
-      setTimeout(() => { toast.classList.remove('show'); }, 3000);
-    }
-
-    window.submitFoto = function() {
-      if (!cropper) {
-        showToast('❌ Pilih foto dulu', 'red');
-        return;
-      }
-      cropper.getCroppedCanvas({
-        width: 400,
-        height: 400
-      }).toBlob(blob => {
-        const formData = new FormData();
-        formData.append('foto', blob, 'cropped.png');
-        formData.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
-
-        fetch('<?= base_url("admin/profil/update-foto/" . session()->get("id_account")) ?>', {
-            method: 'POST',
-            body: formData
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.status === 'success') {
-              showToast('✅ Foto berhasil disimpan', 'green');
-              window.closeModal();
-              fotoPreview.src = data.fotoUrl + '?t=' + new Date().getTime();
-              const sidebarFoto = document.getElementById('sidebarFoto');
-              if (sidebarFoto) sidebarFoto.src = data.fotoUrl + '?t=' + new Date().getTime();
-            } else {
-              showToast('❌ Gagal menyimpan: ' + (data.message || 'Error'), 'red');
-            }
-          })
-          .catch(err => showToast('❌ Terjadi error: ' + err, 'red'));
-      });
+    // ====== Kamera ======
+    window.openCamera = function() {
+      const wrapper = document.getElementById('cameraWrapper');
+      const btnKamera = document.querySelector('.btn-camera');
+      
+      // SEMBUNYIKAN tombol Buka Kamera
+      if (btnKamera) btnKamera.classList.add('hidden');
+      
+      // Tampilkan wrapper
+      wrapper.classList.remove('hidden');
+      
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          cameraStream = stream;
+          document.getElementById('camera').srcObject = stream;
+        })
+        .catch(err => {
+          Swal.fire('Error', 'Tidak bisa akses kamera: ' + err, 'error');
+          // Tampilkan kembali tombol jika gagal
+          if (btnKamera) btnKamera.classList.remove('hidden');
+          wrapper.classList.add('hidden');
+        });
     };
 
-    fotoPreview.addEventListener('click', openModal);
+    window.takeSnapshot = function() {
+      const video = document.getElementById('camera');
+      const canvas = document.getElementById('snapshot');
+      const btnCapture = document.querySelector('.btn-capture');
+      const wrapper = document.getElementById('cameraWrapper');
+
+      // Ambil frame dari video ke canvas
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+
+      // Hentikan stream kamera
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+
+      // Sembunyikan video dan tombol capture, tampilkan canvas sementara
+      video.classList.add('hidden');
+      if (btnCapture) btnCapture.classList.add('hidden');
+      canvas.classList.remove('hidden');
+      canvas.classList.add('snapshot-preview');
+
+      // Langsung inisialisasi Cropper: Convert canvas ke dataURL dan set ke cropImage
+      cropImage.src = canvas.toDataURL('image/png');
+      cropImage.classList.remove('hidden');
+      if (cropper) cropper.destroy();
+      cropper = new Cropper(cropImage, {
+        aspectRatio: 1,
+        viewMode: 1,
+        autoCropArea: 1,
+      });
+
+      // Sembunyikan camera wrapper setelah init cropper
+      wrapper.classList.add('hidden');
+
+      // Tampilkan alert setelah cropper siap
+      Swal.fire('Berhasil!', 'Foto berhasil diambil. Crop foto sesuai keinginan, lalu klik Simpan untuk menyimpan.', 'success');
+    };
+
+    // ====== Simpan Foto ======
+    window.submitFoto = function() {
+      const formData = new FormData();
+      if (cropper) {
+        // Jika ada cropper (dari file atau kamera), ambil cropped blob
+        cropper.getCroppedCanvas({ width: 400, height: 400 })
+          .toBlob(blob => {
+            formData.append('foto', blob, 'cropped.png');
+            formData.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
+            uploadFoto(formData);
+          });
+        return;
+      } else if (fotoDariKamera) {
+        // Fallback jika tidak crop
+        formData.append('foto', fotoDariKamera, 'camera.png');
+      } else {
+        Swal.fire('Oops', 'Pilih atau ambil foto dulu', 'warning');
+        return;
+      }
+
+      formData.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
+      uploadFoto(formData);
+    };
+
+    function uploadFoto(formData) {
+      fetch('<?= base_url("admin/profil/update-foto/" . session()->get("id_account")) ?>', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            Swal.fire('Sukses', 'Foto berhasil diperbarui!', 'success');
+            window.closeModal();
+            fotoPreview.src = data.fotoUrl + '?t=' + new Date().getTime();
+            const sidebarFoto = document.getElementById('sidebarFoto');
+            if (sidebarFoto) sidebarFoto.src = data.fotoUrl + '?t=' + new Date().getTime();
+          } else {
+            Swal.fire('Error', data.message || 'Gagal upload foto', 'error');
+          }
+        })
+        .catch(err => Swal.fire('Error', 'Terjadi kesalahan: ' + err, 'error'))
+        .finally(() => {
+          if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+          }
+        });
+    }
   });
 </script>
 
-<!-- SweetAlert untuk flashdata (ubah password) -->
+<!-- SweetAlert untuk flashdata -->
 <?php if (session()->getFlashdata('success')): ?>
 <script>
 Swal.fire({

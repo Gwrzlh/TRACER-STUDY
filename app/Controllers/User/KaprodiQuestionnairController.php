@@ -14,7 +14,7 @@ use App\Models\Organisasi\Jurusan;
 // use App\Models\Cities;
 use App\Models\Support\Provincies;
 use App\Models\Support\Roles;
-use App\Models\Questionnaire\QuestionnairConditionModel;
+use App\Models\QuestionnairConditionModel;
 use App\Models\Support\MatrixRowModel;
 use App\Models\Support\MatrixColumnModel;
 use Config\App;
@@ -57,7 +57,7 @@ class KaprodiQuestionnairController extends BaseController
     }
 
 
-        
+
 
     public function create()
     {
@@ -311,7 +311,7 @@ class KaprodiQuestionnairController extends BaseController
         ]);
 
         // Tetap di halaman edit agar user bisa lihat hasilnya
-        return redirect()->to('/kaprodi/kuesioner/' . $questionnaire_id . '/edit')
+        return redirect()->to('/kaprodi/kuesioner')
             ->with('success', 'Kuesioner berhasil diperbarui!');
     }
 

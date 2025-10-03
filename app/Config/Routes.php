@@ -260,7 +260,6 @@ $routes->group('kaprodi', [
     $routes->post('questioner/add-to-ami', 'KaprodiController::addToAmi');
     $routes->post('questioner/save-flags', 'KaprodiController::saveFlags');
 
-   
     // Kuesioner (Controller: KaprodiQuestionnairController)
     $routes->get('kuesioner', 'KaprodiQuestionnairController::index');
     $routes->get('kuesioner/create', 'KaprodiQuestionnairController::create');
@@ -272,8 +271,28 @@ $routes->group('kaprodi', [
     $routes->post('kuesioner/(:num)/update', 'KaprodiQuestionnairController::update/$1');
     $routes->get('kuesioner/(:num)/delete', 'KaprodiQuestionnairController::delete/$1');
 
-    // halaman pages di dalam kuesioner tertentu
-    $routes->get('kuesioner/(:num)/pages', 'KaprodiQuestionnairController::pages/$1');
+   $routes->group('kuesioner/(:num)/pages', function ($routes) {
+
+    // Pages
+    $routes->get('/', 'KaprodiPageController::index/$1');
+    $routes->get('create', 'KaprodiPageController::create/$1');
+    $routes->post('store', 'KaprodiPageController::store/$1');
+    $routes->get('(:num)/edit', 'KaprodiPageController::edit/$1/$2');
+    $routes->post('(:num)/update', 'KaprodiPageController::update/$1/$2');
+    $routes->get('(:num)/delete', 'KaprodiPageController::delete/$1/$2');
+
+    // ✅ Sections
+    $routes->group('(:num)/sections', function ($routes) {
+        $routes->get('/', 'KaprodiSectionController::index/$1/$2');
+        $routes->get('create', 'KaprodiSectionController::create/$1/$2');
+        $routes->post('store', 'KaprodiSectionController::store/$1/$2');
+        $routes->get('(:num)/edit', 'KaprodiSectionController::edit/$1/$2/$3');
+        $routes->post('(:num)/update', 'KaprodiSectionController::update/$1/$2/$3');
+        $routes->get('(:num)/delete', 'KaprodiSectionController::delete/$1/$2/$3');
+    });
+});
+
+
     // Akreditasi
     $routes->get('akreditasi', 'KaprodiController::akreditasi');
     $routes->get('akreditasi/detail/(:any)', 'KaprodiController::detailAkreditasi/$1');
@@ -281,9 +300,8 @@ $routes->group('kaprodi', [
     // AMI
     $routes->get('ami', 'KaprodiController::ami');
     $routes->get('ami/detail/(:any)', 'KaprodiController::detailAmi/$1');
-
-    // (tambahkan route lain jika nanti kamu aktifkan method create/store/pages dsb.)
 });
+
 
 // --------------------
 // ROUTES: Atasan
