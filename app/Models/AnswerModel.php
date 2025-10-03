@@ -87,10 +87,11 @@ class AnswerModel extends Model
             'created_at'       => $now,
         ];
 
+        // Insert atau update jawaban
         $existing = $this->where([
-            'user_id' => $user_id,
+            'user_id'          => $user_id,
             'questionnaire_id' => $questionnaire_id,
-            'question_id' => $question_id
+            'question_id'      => $question_id
         ])->first();
 
         if ($existing) {
@@ -99,44 +100,78 @@ class AnswerModel extends Model
             $this->insert($data);
         }
 
+        // ==== Update responses jadi draft ====
+        $responseModel = new \App\Models\ResponseModel();
+        $existingResponse = $responseModel->where('account_id', $user_id)
+            ->where('questionnaire_id', $questionnaire_id)
+            ->first();
+
+        if ($existingResponse) {
+            if ($existingResponse['status'] !== 'completed') {
+                $responseModel->update($existingResponse['id'], [
+                    'status'      => 'draft',
+                    'updated_at'  => $now,
+                    'ip_address'  => \Config\Services::request()->getIPAddress()
+                ]);
+            }
+        } else {
+            $responseModel->insert([
+                'account_id'       => $user_id,
+                'questionnaire_id' => $questionnaire_id,
+                'status'           => 'draft',
+                'created_at'       => $now,
+                'ip_address'       => \Config\Services::request()->getIPAddress()
+            ]);
+        }
+
+        // ==== Cek apakah semua pertanyaan sudah dijawab ====
         $questionModel = new \App\Models\QuestionModel();
         $totalQuestions = $questionModel->where('questionnaires_id', $questionnaire_id)->countAllResults();
-        $answered = $this->where(['user_id' => $user_id, 'questionnaire_id' => $questionnaire_id])->countAllResults();
+        $answered = $this->where([
+            'user_id'          => $user_id,
+            'questionnaire_id' => $questionnaire_id
+        ])->countAllResults();
 
         if ($answered >= $totalQuestions && $totalQuestions > 0) {
-            $toUpdate = $this->where(['user_id' => $user_id, 'questionnaire_id' => $questionnaire_id])->findAll();
+            // Update semua jawaban ke completed
+            $toUpdate = $this->where([
+                'user_id'          => $user_id,
+                'questionnaire_id' => $questionnaire_id
+            ])->findAll();
+
             foreach ($toUpdate as $ans) {
                 if (!empty($ans['id'])) {
                     $this->update($ans['id'], ['STATUS' => 'completed']);
                 }
             }
 
-            $lastAnswer = $this->where(['user_id' => $user_id, 'questionnaire_id' => $questionnaire_id])
-                ->orderBy('created_at', 'DESC')
-                ->first();
+            // Ambil jawaban terakhir sebagai submitted_at
+            $lastAnswer = $this->where([
+                'user_id'          => $user_id,
+                'questionnaire_id' => $questionnaire_id
+            ])->orderBy('created_at', 'DESC')->first();
 
             $submittedAt = $lastAnswer['created_at'] ?? $now;
 
-            $responseModel = new \App\Models\ResponseModel();
-            $existingResponse = $responseModel->where('account_id', $user_id)
-                ->where('questionnaire_id', $questionnaire_id)
-                ->first();
-
+            // Update response ke completed
             $responseData = [
-                'account_id'       => $user_id,
-                'questionnaire_id' => $questionnaire_id,
-                'submitted_at'     => $submittedAt,
-                'status'           => 'completed',
-                'ip_address'       => \Config\Services::request()->getIPAddress()
+                'submitted_at' => $submittedAt,
+                'status'       => 'completed',
+                'ip_address'   => \Config\Services::request()->getIPAddress(),
+                'updated_at'   => $now
             ];
 
             if ($existingResponse) {
                 $responseModel->update($existingResponse['id'], $responseData);
             } else {
+                $responseData['account_id'] = $user_id;
+                $responseData['questionnaire_id'] = $questionnaire_id;
+                $responseData['created_at'] = $now;
                 $responseModel->insert($responseData);
             }
         }
     }
+
     // public function getAnswersWithDetail($prodiId = null, $jenis = null)
     // {
     //     $builder = $this->db->table('answers a');
