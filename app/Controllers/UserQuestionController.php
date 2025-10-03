@@ -620,77 +620,25 @@ class UserQuestionController extends BaseController
         $pageModel = new QuestionnairePageModel();
         return $pageModel->where('questionnaire_id', $questionnaireId)->countAllResults();
     }
-
     public function responseLanding()
     {
         $responseModel = new \App\Models\ResponseModel();
 
-        // Ambil semua tahun tersedia
         $yearsRaw = $responseModel->getAvailableYears() ?? [];
         $allYears = array_column($yearsRaw, 'tahun');
 
-        // Ambil filter dari GET request
-        $selectedYear    = $this->request->getGet('tahun') ?? ($allYears[0] ?? date('Y'));
-        $selectedProdi   = $this->request->getGet('prodi');
-        $selectedJurusan = $this->request->getGet('jurusan');
-        $selectedAngkatan = $this->request->getGet('angkatan');
-
-        // Siapkan array filter untuk model
-        $filters = [
-            'tahun'   => $selectedYear,
-            'prodi'   => $selectedProdi,
-            'jurusan' => $selectedJurusan,
-            'angkatan' => $selectedAngkatan
-        ];
-
-        // Ambil summary per alumni sesuai filter
-        $rawData = $responseModel->getSummaryByFilters($filters);
-
-        $dataSummary = [];
-        foreach ($rawData as $row) {
-            $finish  = $row['finish'];
-            $ongoing = $row['ongoing'];
-            $belum   = $row['belum'];
-            $jumlah  = $finish + $ongoing + $belum;
-
-            $persentase = 0;
-
-            if ($jumlah > 0) {
-                if ($finish == $jumlah) {
-                    $persentase = 100;
-                } elseif ($ongoing > 0) {
-                    // Hitung persentase ongoing proporsional
-                    $persentase = round(($ongoing / $jumlah) * 100);
-
-                    // Minimal 10% jika ada ongoing tapi sedikit
-                    if ($persentase < 10) {
-                        $persentase = 10;
-                    }
-
-                    // Maksimal 99% jika hampir semua ongoing
-                    if ($persentase >= 100) {
-                        $persentase = 99;
-                    }
-                }
-            }
-
-            $dataSummary[] = [
-                'prodi'      => $row['prodi'],
-                'finish'     => $finish,
-                'ongoing'    => $ongoing,
-                'belum'      => $belum,
-                'jumlah'     => $jumlah,
-                'persentase' => $persentase
-            ];
+        $selectedYear = $this->request->getGet('tahun');
+        if (!$selectedYear && !empty($allYears)) {
+            $selectedYear = $allYears[0];
+        }
+        if (!$selectedYear) {
+            $selectedYear = date('Y');
         }
 
         $data = [
-            'selectedYear'    => $selectedYear,
-            'selectedProdi'   => $selectedProdi,
-            'selectedJurusan' => $selectedJurusan,
-            'selectedAngkatan' => $selectedAngkatan,
-            'allYears'        => $allYears,
-            'data'            => $dataSummary
+            'selectedYear' => $selectedYear,
+            'allYears'     => $allYears,
+            'data'         => $responseModel->getSummaryByYear($selectedYear)
         ];
 
         return view('LandingPage/respon', $data);
