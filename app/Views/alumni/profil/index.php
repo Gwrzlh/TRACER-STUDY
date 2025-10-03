@@ -39,28 +39,26 @@
     <h3 class="text-lg font-bold">Pekerjaan Saat Ini</h3>
     <div class="flex gap-2">
       <a href="<?= base_url('alumni/profil/riwayat') ?>" class="btn btn-success">Riwayat Pekerjaan</a>
-      <a href="<?= base_url('alumni/profil/pekerjaan') ?>" class="btn btn-primary">Tentang Pekerjaan</a>
+      <a href="<?= base_url('alumni/profil/pekerjaan') ?>" class="btn btn-primary">Tambah Pekerjaan</a>
     </div>
   </div>
 
-  <?php if (!empty($currentJob)): ?>
-    <div class="grid grid-cols-2 gap-4">
-      <p><strong>Perusahaan:</strong> <?= esc($currentJob->perusahaan) ?></p>
-      <p><strong>Jabatan:</strong> <?= esc($currentJob->jabatan) ?></p>
-      <p><strong>Tahun Masuk:</strong> <?= esc($currentJob->tahun_masuk) ?></p>
-      <p>
-        <strong>Tahun Keluar:</strong>
-        <?= ($currentJob->masih == 1 || $currentJob->tahun_keluar === '0000')
-          ? 'Masih bekerja'
-          : esc($currentJob->tahun_keluar) ?>
-      </p>
-
-
-      <p class="col-span-2"><strong>Alamat Perusahaan:</strong> <?= esc($currentJob->alamat_perusahaan) ?></p>
-    </div>
+  <?php if (!empty($currentJobs)): ?>
+    <?php foreach ($currentJobs as $job): ?>
+      <div class="grid grid-cols-2 gap-4 border p-4 rounded mb-2">
+        <p><strong>Perusahaan:</strong> <?= esc($job->perusahaan) ?></p>
+        <p><strong>Jabatan:</strong> <?= esc($job->jabatan) ?></p>
+        <p><strong>Tahun Masuk:</strong> <?= esc($job->tahun_masuk) ?></p>
+        <p><strong>Tahun Keluar:</strong>
+          <?= ($job->masih == 1 || $job->tahun_keluar === '0000') ? 'Masih bekerja' : esc($job->tahun_keluar) ?>
+        </p>
+        <p class="col-span-2"><strong>Alamat Perusahaan:</strong> <?= esc($job->alamat_perusahaan) ?></p>
+      </div>
+    <?php endforeach; ?>
   <?php else: ?>
     <p class="text-gray-500">Belum ada pekerjaan saat ini.</p>
   <?php endif; ?>
+
 </div>
 
 <!-- MODAL FOTO (Ubah Foto Profil) -->

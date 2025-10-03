@@ -11,7 +11,7 @@
         </div>
     </div>
 
-    <form action="<?= base_url('/kaprodi/questionnaire/' . $questionnaire['id'] . '/update/') ?>" method="post" class="space-y-5">
+    <form action="<?= base_url('/kaprodi/kuesioner/' . $questionnaire['id'] . '/update/') ?>" method="post" class="space-y-5">
 
         <!-- Judul Kuesioner -->
         <div>
@@ -89,16 +89,16 @@
                                 if (in_array($condition['field'], ['academic_faculty', 'academic_program', 'academic_year', 'academic_graduate_year', 'city', 'group_id', 'jenis_kel'])) {
                                     $input_type = 'select';
                                     if ($condition['field'] == 'academic_faculty') {
-                                        $model = new \App\Models\Organisasi\Jurusan();
+                                        $model = new \App\Models\Jurusan();
                                         $options = $model->select('id, nama_jurusan as name')->findAll();
                                     } elseif ($condition['field'] == 'academic_program') {
-                                        $model = new \App\Models\Organisasi\Prodi();
+                                        $model = new \App\Models\Prodi();
                                         $options = $model->select('id, nama_prodi as name')->findAll();
                                     } elseif ($condition['field'] == 'city') {
-                                        $model = new \App\Models\Support\Cities();
+                                        $model = new \App\Models\Cities();
                                         $options = $model->select('id, name')->findAll();
                                     } elseif ($condition['field'] == 'group_id') {
-                                        $model = new \App\Models\Support\Roles();
+                                        $model = new \App\Models\Roles();
                                         $options = $model->select('id, nama as name')->findAll();
                                     } elseif ($condition['field'] == 'jenis_kel') {
                                         $options = [['id' => 'L', 'name' => 'Laki-laki'], ['id' => 'P', 'name' => 'Perempuan']];

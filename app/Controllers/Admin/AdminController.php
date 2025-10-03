@@ -10,7 +10,7 @@ use App\Models\Support\Roles;
 use App\Models\User\DetailaccountAlumni;
 use App\Models\User\DetailaccountAdmins;
 use App\Models\User\DetailaccountKaprodi;
-use App\Models\User\DetailaccountPerusahaan;
+use App\Models\User\DetailaccoountPerusahaan;
 use App\Models\User\DetailaccountAtasan;
 use App\Models\User\DetailaccountJabatanLLnya;
 
@@ -29,7 +29,7 @@ class AdminController extends BaseController
         $detailAlumniModel = new DetailaccountAlumni();
         $detailAdminModel = new DetailaccountAdmins();
         $detailKaprodiModel = new DetailaccountKaprodi();
-        $detailPerusahaanModel = new DetailaccountPerusahaan();
+        $detailPerusahaanModel = new DetailaccoountPerusahaan();
         $detailAtasanModel = new DetailaccountAtasan();
         $detailJabatanLainnyaModel = new DetailaccountJabatanLLnya();
 
