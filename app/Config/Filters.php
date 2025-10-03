@@ -28,7 +28,7 @@ class Filters extends BaseConfig
         'adminAuth'    => \App\Filters\AdminAuth::class,
         'alumniAuth'   => \App\Filters\AlumniAuth::class,
         'kaprodiAuth'  => \App\Filters\KaprodiAuth::class,
-        'perusahaanAuth' => \App\Filters\PerusahaanAuth::class,
+        'jabatanAuth' => \App\Filters\jabatanAuth::class,
         'alumniSurveyor'   => \App\Filters\AlumniSurveyor::class,
         'logActivity' => \App\Filters\LogActivityMiddleware::class,
     ];

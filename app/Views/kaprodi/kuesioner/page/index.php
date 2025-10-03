@@ -1,4 +1,3 @@
-<!-- desain index.php page -->
 <?= $this->extend('layout/sidebar_kaprodi') ?>
 <?= $this->section('content') ?>
 <link href="<?= base_url('css/pengguna/index.css') ?>" rel="stylesheet">
@@ -7,15 +6,14 @@
     <div class="page-wrapper">
         <div class="page-container">
             <!-- Judul -->
-            <h2 class="page-title"> 📑 Halaman Kuesioner: <?= esc($questionnaire['title']) ?></h2>
+            <h2 class="page-title">📑 Halaman Kuesioner: <?= esc($questionnaire['title']) ?></h2>
             <p class="text-muted"><?= esc($questionnaire['deskripsi']) ?></p>
 
             <!-- Top Controls -->
             <div class="top-controls">
                 <div class="controls-container"></div>
                 <div class="button-container">
-                    <a href="<?= base_url("kaprodi/kuesioner/{$questionnaire['id']}/pages/create") ?>"
-                        class="btn-add">
+                    <a href="<?= base_url("kaprodi/kuesioner/{$questionnaire['id']}/pages/create") ?>" class="btn-add">
                         <i class="fas fa-plus"></i> Tambah Halaman
                     </a>
                 </div>
@@ -38,35 +36,46 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($pages as $page): ?>
+                                    <?php
+                                    $canEdit = !empty($page['canEdit']);
+                                    $canAddChild = !empty($page['canAddChild']);
+                                    $sessionId = session()->get('id_account');
+
+                                    // Debug per halaman
+                                    echo "<tr style='background:#fff8dc;'><td colspan='4'>
+    <strong>DEBUG:</strong> Page ID={$page['id']}, created_by={$page['created_by']}, 
+    session_id={$sessionId}, canEdit=" . ($canEdit ? 'true' : 'false') . ",
+    canAddChild=" . ($canAddChild ? 'true' : 'false') . "
+    </td></tr>";
+                                    ?>
+
+
                                     <tr>
-                                        <td>
-                                            <span class="status-badge status-inactive">
-                                                <?= esc($page['order_no']) ?>
-                                            </span>
-                                        </td>
-                                        <td class="questionnaire-info">
-                                            <div class="questionnaire-title"><?= esc($page['page_title']) ?></div>
-                                        </td>
-                                        <td class="questionnaire-info">
-                                            <div class="questionnaire-description"><?= esc($page['page_description']) ?></div>
-                                        </td>
+                                        <td><?= esc($page['order_no']) ?></td>
+                                        <td><?= esc($page['page_title']) ?></td>
+                                        <td><?= esc($page['page_description']) ?></td>
                                         <td class="action-cell">
                                             <div class="action-buttons">
-                                                <!-- Atur Pertanyaan -->
-                                                <a href="<?= base_url("kaprodi/kuesioner/{$questionnaire['id']}/pages/{$page['id']}/sections") ?>"
-                                                    class="btn-action btn-edit" title="Atur Pertanyaan">
-                                                    <i class="fas fa-file-alt"></i>
-                                                </a>
-                                                <!-- Edit -->
-                                                <a href="<?= base_url("kaprodi/kuesioner/{$questionnaire['id']}/pages/{$page['id']}/edit") ?>"
-                                                    class="btn-action btn-edit" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <!-- Hapus -->
-                                                <button class="btn-action btn-delete delete-page"
-                                                    data-id="<?= $page['id'] ?>" title="Hapus">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                <?php if ($canEdit): ?>
+                                                    <!-- Halaman kaprodi sendiri → bisa edit dan hapus -->
+                                                    <a href="<?= base_url("kaprodi/kuesioner/{$questionnaire['id']}/pages/{$page['id']}/sections") ?>" class="btn-action btn-edit" title="Atur Pertanyaan">
+                                                        <i class="fas fa-file-alt"></i>
+                                                    </a>
+                                                    <a href="<?= base_url("kaprodi/kuesioner/{$questionnaire['id']}/pages/{$page['id']}/edit") ?>" class="btn-action btn-edit" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button class="btn-action btn-delete delete-page" data-id="<?= $page['id'] ?>" title="Hapus">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                <?php elseif ($canAddChild): ?>
+                                                    <!-- Halaman admin dengan conditional logic prodi kaprodi → bisa tambah child -->
+                                                    <a href="<?= base_url("kaprodi/kuesioner/{$questionnaire['id']}/pages/create?parent={$page['id']}") ?>" class="btn-add">
+                                                        Tambah Halaman
+                                                    </a>
+                                                <?php else: ?>
+                                                    <!-- Halaman admin lain → tidak bisa diubah -->
+                                                    <span class="text-gray-500">Tidak bisa diubah</span>
+                                                <?php endif; ?>
                                             </div>
                                         </td>
                                     </tr>
@@ -80,7 +89,7 @@
     </div>
 </div>
 
-<!-- SweetAlert untuk konfirmasi hapus -->
+<!-- SweetAlert konfirmasi hapus -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -98,7 +107,6 @@
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // redirect to the page delete endpoint
                         window.location.href = '<?= base_url("kaprodi/kuesioner/{$questionnaire['id']}/pages") ?>/' + pageId + '/delete';
                     }
                 });

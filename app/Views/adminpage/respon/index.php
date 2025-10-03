@@ -62,14 +62,6 @@
                         <option value="Belum" <?= $selectedStatus == 'Belum' ? 'selected' : '' ?>>Belum Mengisi</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <select name="questionnaire_id" class="filter-select">
-                        <option value="">-- Semua Kuesioner --</option>
-                        <?php foreach ($allQuestionnaires as $q): ?>
-                            <option value="<?= $q['id'] ?>" <?= $selectedQuestionnaire == $q['id'] ? 'selected' : '' ?>><?= esc($q['title']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
 
                 <!-- Row 3 -->
                 <div class="filter-group">
@@ -150,16 +142,24 @@
                                 <td class="status-cell">
                                     <?php if (($res['status'] ?? '') === 'completed'): ?>
                                         <span class="status-badge status-success">Sudah</span>
-                                    <?php elseif (($res['status'] ?? '') === 'ongoing'): ?>
+                                    <?php elseif (($res['status'] ?? '') === 'draft'): ?>
                                         <span class="status-badge status-primary">Ongoing</span>
                                     <?php else: ?>
                                         <span class="status-badge status-danger">Belum Mengisi</span>
                                     <?php endif; ?>
                                 </td>
+
                                 <td class="date-cell"><?= esc($res['submitted_at'] ?? '-') ?></td>
-                                <td class="action-cell">
-                                    <?php if (!empty($res['response_id'])): ?>
-                                        <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>" class="action-btn">Jawaban</a>
+                               <td class="action-cell">
+                                    <?php if (!empty($res['response_id']) && ($res['status'] ?? '') === 'completed'): ?>
+                                        <!-- Debug: Output $res to check available keys -->
+                                        <?php // Remove this after debugging ?>
+                                        <?php // echo '<pre>'; var_dump($res); echo '</pre>'; ?>
+                                        <a href="<?= base_url('admin/respon/allow_edit/' . $res['questionnaire_id'] . '/' . $res['id_account']) ?>" 
+                                        class="action-btn" 
+                                        onclick="return confirm('Izinkan alumni mengedit jawaban ini?')">Edit Jawaban</a>
+                                        <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>" 
+                                        class="action-btn">Jawaban</a>
                                     <?php else: ?>
                                         <span class="no-action">-</span>
                                     <?php endif; ?>
@@ -175,6 +175,30 @@
             </table>
         </div>
     </div>
+
+    <<?php if (session()->getFlashdata('success')): ?>
+    <div class="alert alert-success">
+        <?= session()->getFlashdata('success') ?>
+    </div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('error')): ?>
+    <div class="alert alert-danger">
+        <?= session()->getFlashdata('error') ?>
+    </div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('info')): ?>
+    <div class="alert alert-info">
+        <?= session()->getFlashdata('info') ?>
+    </div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('warning')): ?>
+    <div class="alert alert-warning">
+        <?= session()->getFlashdata('warning') ?>
+    </div>
+<?php endif; ?>
 
     <!-- Pagination -->
     <?php if ($totalPages > 1): ?>
