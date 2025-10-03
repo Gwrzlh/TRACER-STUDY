@@ -29,57 +29,119 @@ class AdminRespon extends BaseController
 
     public function index()
     {
-        // Ambil filter dari request
         $filters = $this->getFiltersFromRequest();
         $perPage = 10;
         $currentPage = (int) ($this->request->getVar('page') ?? 1);
         if ($currentPage < 1) $currentPage = 1;
 
-        // Ambil semua Prodi beserta Jurusan
+        // Ambil semua Prodi + Jurusan
         $allProdi = $this->prodiModel
             ->select('prodi.id, prodi.nama_prodi, jurusan.nama_jurusan')
             ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left')
             ->findAll();
 
-        // Gunakan Builder untuk pagination
-        $builder = $this->alumniModel->getWithResponsesBuilder($filters);
+        // Builder utama
+        $builder = $this->alumniModel->db->table('detailaccount_alumni da')
+            ->select("
+            da.id_account,
+            da.nim,
+            da.nama_lengkap,
+            da.angkatan,
+            da.tahun_kelulusan,
+            j.nama_jurusan,
+            p.nama_prodi,
+            r.id as response_id,
+            r.questionnaire_id,
+            r.submitted_at,
+            r.status as response_status,
+            q.title as judul_kuesioner
+        ")
+            ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
+            ->join('prodi p', 'p.id = da.id_prodi', 'left')
+            ->join('responses r', 'r.account_id = da.id_account', 'left')
+            ->join('questionnaires q', 'q.id = r.questionnaire_id', 'left');
 
-        // Hitung total data
+        // apply filter
+        if (!empty($filters['prodi'])) $builder->where('da.id_prodi', $filters['prodi']);
+        if (!empty($filters['jurusan'])) $builder->where('da.id_jurusan', $filters['jurusan']);
+        if (!empty($filters['angkatan'])) $builder->where('da.angkatan', $filters['angkatan']);
+        if (!empty($filters['tahun'])) $builder->where('da.tahun_kelulusan', $filters['tahun']);
+        if (!empty($filters['nim'])) $builder->like('da.nim', $filters['nim']);
+        if (!empty($filters['nama'])) $builder->like('da.nama_lengkap', $filters['nama']);
+        if (!empty($filters['status'])) {
+            if ($filters['status'] === 'Belum') {
+                $builder->where('r.status IS NULL');
+            } else {
+                $builder->where('r.status', $filters['status']);
+            }
+        }
+
+        // Hitung total
         $totalData = $builder->countAllResults(false);
 
-        // Ambil semua data dulu untuk summary counter
+        // Ambil semua data untuk summary counter
         $allResponses = $builder->get()->getResultArray();
 
-        // Hitung summary counter
-        $totalCompleted = count(array_filter($allResponses, fn($r) => ($r['status'] ?? '') === 'completed'));
-        $totalOngoing   = count(array_filter($allResponses, fn($r) => ($r['status'] ?? '') === 'ongoing'));
-        $totalDraft     = count(array_filter($allResponses, fn($r) => ($r['status'] ?? '') === 'draft'));
-        $totalBelum     = count(array_filter($allResponses, fn($r) => empty($r['status'])));
+        $totalCompleted = count(array_filter($allResponses, fn($r) => ($r['response_status'] ?? '') === 'completed'));
+        $totalDraft     = count(array_filter($allResponses, fn($r) => ($r['response_status'] ?? '') === 'draft'));
+        $totalBelum     = count(array_filter($allResponses, fn($r) => empty($r['response_status'])));
+        $totalOngoing   = $totalDraft; // alias saja
 
         // Ambil data untuk halaman sekarang
         $offset = ($currentPage - 1) * $perPage;
-        $responses = $this->alumniModel->getWithResponsesBuilder($filters)
+        $responses = $this->alumniModel->db->table('detailaccount_alumni da')
+            ->select("
+            da.id_account,
+            da.nim,
+            da.nama_lengkap,
+            da.angkatan,
+            da.tahun_kelulusan,
+            j.nama_jurusan,
+            p.nama_prodi,
+            r.id as response_id,
+            r.questionnaire_id,
+            r.submitted_at,
+            r.status as response_status,
+            q.title as judul_kuesioner
+        ")
+            ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
+            ->join('prodi p', 'p.id = da.id_prodi', 'left')
+            ->join('responses r', 'r.account_id = da.id_account', 'left')
+            ->join('questionnaires q', 'q.id = r.questionnaire_id', 'left')
             ->limit($perPage, $offset)
             ->get()
             ->getResultArray();
 
-        // Format tanggal submit ke timezone Jakarta
         foreach ($responses as &$res) {
-            if (!empty($res['submitted_at'])) {
-                $res['submitted_at'] = Time::parse($res['submitted_at'], 'Asia/Jakarta')->toDateTimeString();
-            } else {
-                $res['submitted_at'] = '-';
-            }
+            $res['status'] = $res['response_status'] ?: 'belum';
+            $res['submitted_at'] = $res['submitted_at']
+                ? Time::parse($res['submitted_at'], 'Asia/Jakarta')->toDateTimeString()
+                : '-';
         }
 
-        // Hitung total halaman
         $totalPages = ceil($totalData / $perPage);
         if ($currentPage > $totalPages && $totalPages > 0) {
             $currentPage = $totalPages;
         }
 
         $data = [
-            'filters'               => $filters,
+            'filters'        => $filters,
+            'responses'      => $responses,
+            'perPage'        => $perPage,
+            'currentPage'    => $currentPage,
+            'totalData'      => $totalData,
+            'totalPages'     => $totalPages,
+            'allYears'       => $this->alumniModel->getDistinctTahunKelulusan(),
+            'allQuestionnaires' => $this->responseModel->getAllQuestionnaires(),
+            'allJurusan'     => $this->jurusanModel->findAll(),
+            'allProdi'       => $allProdi,
+            'allAngkatan'    => $this->alumniModel->getDistinctAngkatan(),
+            'totalCompleted' => $totalCompleted,
+            'totalOngoing'   => $totalOngoing,
+            'totalDraft'     => $totalDraft,
+            'totalBelum'     => $totalBelum,
+
+            // 🔹 untuk filter di view
             'selectedYear'          => $filters['tahun'] ?? '',
             'selectedStatus'        => $filters['status'] ?? '',
             'selectedQuestionnaire' => $filters['questionnaire'] ?? '',
@@ -88,27 +150,13 @@ class AdminRespon extends BaseController
             'selectedJurusan'       => $filters['jurusan'] ?? '',
             'selectedProdi'         => $filters['prodi'] ?? '',
             'selectedAngkatan'      => $filters['angkatan'] ?? '',
-
-            'allYears'              => $this->alumniModel->getDistinctTahunKelulusan(),
-            'allQuestionnaires'     => $this->responseModel->getAllQuestionnaires(),
-            'allJurusan'            => $this->jurusanModel->findAll(),
-            'allProdi'              => $allProdi,
-            'allAngkatan'           => $this->alumniModel->getDistinctAngkatan(),
-
-            'responses'             => $responses,
-            'perPage'               => $perPage,
-            'currentPage'           => $currentPage,
-            'totalData'             => $totalData,
-            'totalPages'            => $totalPages,
-
-            'totalCompleted'        => $totalCompleted,
-            'totalOngoing'          => $totalOngoing,
-            'totalDraft'            => $totalDraft,
-            'totalBelum'            => $totalBelum,
         ];
 
         return view('adminpage/respon/index', $data);
     }
+
+
+
     // ================== HAPUS JAWABAN ==================
     public function deleteAnswer($id)
     {
@@ -261,13 +309,11 @@ class AdminRespon extends BaseController
     {
         $filters = $this->request->getGet();
 
-        // Ambil data untuk dropdown
         $allYears     = $this->alumniModel->getDistinctTahunKelulusan();
         $allAngkatan  = $this->alumniModel->getDistinctAngkatan();
         $allJurusan   = (new \App\Models\JurusanModel())->findAll();
         $allProdi     = (new \App\Models\Prodi())->findAll();
 
-        // Builder untuk grafik
         $builder = $this->alumniModel->db->table('detailaccount_alumni da')
             ->select("
             p.nama_prodi,
@@ -278,44 +324,13 @@ class AdminRespon extends BaseController
             ->join('prodi p', 'p.id = da.id_prodi', 'left')
             ->join('responses r', 'r.account_id = da.id_account', 'left');
 
-        // Filter prodi
-        if (!empty($filters['prodi'])) {
-            $builder->where('da.id_prodi', $filters['prodi']);
-        }
-
-        // Filter jurusan
-        if (!empty($filters['jurusan'])) {
-            $builder->where('da.id_jurusan', $filters['jurusan']);
-        }
-
-        // Filter angkatan
-        if (!empty($filters['angkatan'])) {
-            $builder->where('da.angkatan', $filters['angkatan']);
-        }
-
-        // Filter tahun kelulusan
-        if (!empty($filters['tahun'])) {
-            $builder->where('da.tahun_kelulusan', $filters['tahun']);
-        }
-
-        // Filter NIM
-        if (!empty($filters['nim'])) {
-            $builder->like('da.nim', $filters['nim']);
-        }
-
-        // Filter nama
-        if (!empty($filters['nama'])) {
-            $builder->like('da.nama_lengkap', $filters['nama']);
-        }
-
-        // Filter status
-        if (!empty($filters['status'])) {
-            if ($filters['status'] === 'Belum') {
-                $builder->where('r.id IS NULL');
-            } else {
-                $builder->where('r.status', $filters['status']);
-            }
-        }
+        if (!empty($filters['prodi'])) $builder->where('da.id_prodi', $filters['prodi']);
+        if (!empty($filters['jurusan'])) $builder->where('da.id_jurusan', $filters['jurusan']);
+        if (!empty($filters['angkatan'])) $builder->where('da.angkatan', $filters['angkatan']);
+        if (!empty($filters['tahun'])) $builder->where('da.tahun_kelulusan', $filters['tahun']);
+        if (!empty($filters['nim'])) $builder->like('da.nim', $filters['nim']);
+        if (!empty($filters['nama'])) $builder->like('da.nama_lengkap', $filters['nama']);
+        if (!empty($filters['status'])) $builder->where('r.status', $filters['status']);
 
         $builder->groupBy('p.nama_prodi')
             ->orderBy('p.nama_prodi', 'ASC');
@@ -328,9 +343,19 @@ class AdminRespon extends BaseController
             'allYears'     => $allYears,
             'allAngkatan'  => $allAngkatan,
             'allJurusan'   => $allJurusan,
-            'allProdi'     => $allProdi
+            'allProdi'     => $allProdi,
+            'selectedYear'     => $filters['tahun'] ?? '',
+            'selectedStatus'   => $filters['status'] ?? '',
+            'selectedNim'      => $filters['nim'] ?? '',
+            'selectedNama'     => $filters['nama'] ?? '',
+            'selectedJurusan'  => $filters['jurusan'] ?? '',
+            'selectedProdi'    => $filters['prodi'] ?? '',
+            'selectedAngkatan' => $filters['angkatan'] ?? '',
         ]);
     }
+
+
+
     public function exportPdf($id)
     {
         $response = $this->responseModel->find($id);
