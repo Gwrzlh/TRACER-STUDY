@@ -191,30 +191,21 @@ class ImportAccount extends BaseController
 {
     if (!$nama) return null;
 
-    // Daftar alias jurusan
-    $aliases = [
-        'BI'     => 'Bahasa Inggris',
-        'JTK'     => 'Teknik Informatika',
-        'KA'     => 'Keuangan dan Perbankan',
-        'AN'     => 'Manajemen Pemasaran',
-        'AK'     => 'Akuntansi',
-        'TK'    => 'Teknik Kimia',
-        'TKE'  => 'Teknik Konversi Energi',
-    ];
-
-    // Ubah ke nama jurusan asli kalau ada di alias
-    $searchNama = $aliases[strtoupper(trim($nama))] ?? $nama;
-
     $model = new \App\Models\Organisasi\Jurusan();
 
-    // Cari exact match
-    $data = $model->where('nama_jurusan', $searchNama)->first();
+    // Cari berdasarkan singkatan
+    $data = $model->where('singkatan', strtoupper(trim($nama)))->first();
     if ($data) return $data['id'];
 
-    // Cari LIKE match (fallback lebih fleksibel)
-    $data = $model->like('nama_jurusan', $searchNama)->first();
+    // Cari berdasarkan nama jurusan full
+    $data = $model->where('nama_jurusan', $nama)->first();
+    if ($data) return $data['id'];
+
+    // Fallback LIKE
+    $data = $model->like('nama_jurusan', $nama)->first();
     return $data['id'] ?? null;
 }
+
 
 
     private function mapProdi($nama)

@@ -40,16 +40,22 @@ class Jurusan extends Controller
         return view('adminpage/organisasi/satuanorganisasi/jurusan/create');
     }
 
-    public function store()
-    {
-        $model = new JurusanModel();
+   public function store()
+{
+    $jurusanModel = new \App\Models\Organisasi\Jurusan();
 
-        $model->insert([
-            'nama_jurusan' => $this->request->getPost('nama_jurusan')
-        ]);
+    $data = [
+        'nama_jurusan' => $this->request->getPost('nama_jurusan'),
+        'singkatan'    => strtoupper(trim($this->request->getPost('singkatan')))
+    ];
 
-        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
+    if (!$jurusanModel->insert($data)) {
+        return redirect()->back()->with('errors', $jurusanModel->errors());
     }
+
+    return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Jurusan berhasil ditambahkan');
+}
+
 
     public function edit($id)
     {
@@ -59,20 +65,26 @@ class Jurusan extends Controller
     }
 
     public function update($id)
-    {
-        $model = new JurusanModel();
-        $model->update($id, [
-            'nama_jurusan' => $this->request->getPost('nama_jurusan')
-        ]);
+{
+    $model = new JurusanModel();
 
-        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
-    }
+    $data = [
+        'nama_jurusan' => $this->request->getPost('nama_jurusan'),
+        'singkatan'    => strtoupper(trim($this->request->getPost('singkatan')))
+    ];
+
+    $model->update($id, $data);
+
+    return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil diperbarui.');
+}
+
 
     public function delete($id)
-    {
-        $model = new JurusanModel();
-        $model->delete($id);
+{
+    $model = new JurusanModel();
+    $model->delete($id);
 
-        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
-    }
+    return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil dihapus.');
+}
+
 }

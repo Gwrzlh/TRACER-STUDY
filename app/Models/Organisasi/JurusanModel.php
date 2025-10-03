@@ -9,7 +9,7 @@ class JurusanModel extends Model
 {
     protected $table = 'jurusan';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['nama_jurusan'];
+    protected $allowedFields = ['nama_jurusan', 'singkatan'];
 
       // ✅ Tambahkan method untuk ambil data lengkap (JOIN)
    public function getWithRole()
