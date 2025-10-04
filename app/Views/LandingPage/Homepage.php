@@ -1,5 +1,4 @@
 <?php
-
 use App\Models\WelcomePageModel;
 use App\Models\SiteSettingModel;
 
@@ -16,16 +15,14 @@ $settings = [
     'survey_button_hover_color' => get_setting('survey_button_hover_color', '#dc2626'),
 ];
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Landing Page</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/css/landingpage/Homepage.css">
-    <!-- Bootstrap CSS -->
+
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Font Inter -->
@@ -128,23 +125,23 @@ $settings = [
       }
     </style>
 </head>
-
 <body>
 
+<?= view('layout/navbar') ?>
 
 <!-- Hero Carousel -->
 <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
   <div class="carousel-inner">
     <!-- Slide 1 -->
     <div class="carousel-item active">
-      <div class="w-100 h-100 animate__animated animate__fadeIn animate__slow" 
+      <div class="w-100 h-100 animate_animated animatefadeIn animate_slow" 
            style="background-image: url('<?= base_url($data['image_path']) ?>'); background-size: cover; background-position: center;">
         <div class="hero-overlay">
           <div>
-            <h1 class="animate__animated animate__fadeInDown animate__slow"><?= esc($data['title_1']) ?></h1>
-            <p class="animate__animated animate__fadeInLeft animate__delay-1s animate__slow"><?= $data['desc_1'] ?></p>
+            <h1 class="animate_animated animatefadeInDown animate_slow"><?= esc($data['title_1']) ?></h1>
+            <p class="animate_animated animatefadeInLeft animatedelay-1s animate_slow"><?= $data['desc_1'] ?></p>
             <a href="<?= base_url('/login') ?>"
-               class="animate__animated animate__bounceIn animate__delay-2s animate__slow"
+               class="animate_animated animatebounceIn animatedelay-2s animate_slow"
                style="background-color: <?= esc($settings['survey_button_color']) ?>;
                       color: <?= esc($settings['survey_button_text_color']) ?>;
                       padding: 10px 26px;
@@ -159,40 +156,57 @@ $settings = [
             </a>
           </div>
         </div>
-    </section>
+      </div>
+    </div>
 
-    <!-- Section 2: Teks + Video -->
-    <section class="section bg-light">
-        <div class="container">
-            <div class="row align-items-top g-5">
-                <div class="col-md-6">
-                    <h2><?= esc($data['title_2']) ?></h2>
-                    <p><?= $data['desc_2'] ?></p>
-                    <a href="<?= base_url('/login') ?>"
-                        class="btn mt-3"
-                        style="background-color: <?= $loginColor ?>; color: <?= $loginTextColor ?>;"
-                        onmouseover="this.style.backgroundColor='<?= $loginHover ?>';"
-                        onmouseout="this.style.backgroundColor='<?= $loginColor ?>';">
-                        <?= esc($loginText) ?>
-                    </a>
-                </div>
-                <div class="col-md-6">
-                    <div class="ratio ratio-16x9 video-custom">
-                        <iframe
-                            src="<?= esc($data['youtube_url']) ?>"
-                            title="YouTube video"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                </div>
-            </div>
+    <!-- Slide 2 -->
+    <div class="carousel-item">
+      <div class="w-100 h-100 animate_animated animatefadeIn animate_slow" 
+           style="background-image: url('<?= base_url($data['image_path_2']) ?>'); background-size: cover; background-position: center;">
+        <div class="hero-overlay">
+          <div>
+            <h1 class="animate_animated animatefadeInDown animate_slow"><?= esc($data['title_2']) ?></h1>
+            <p class="animate_animated animatefadeInRight animatedelay-1s animate_slow"><?= $data['desc_2'] ?></p>
+          </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </div>
 
-    <?= view('layout/footer') ?>
+  <!-- Indicators -->
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+  </div>
 
-    <!-- Bootstrap Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Controls -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon"></span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon"></span>
+  </button>
+</div>
+
+<!-- Section 2 -->
+<section class="bg-white">
+  <div class="container text-center">
+    <h2 class="section-title animate_animated animatelightSpeedInLeft animate_slow"><?= esc($data['title_3']) ?></h2>
+    <p class="section-desc animate_animated animatefadeInUp animatedelay-1s animate_slow"><?= $data['desc_3'] ?></p>
+    <div class="ratio ratio-16x9 mx-auto mt-4 animate_animated animatezoomInUp animatedelay-2s animate_slow" style="max-width: 800px;">
+      <iframe 
+          src="<?= esc($data['youtube_url']) ?>" 
+          title="YouTube video"
+          allowfullscreen
+          class="rounded shadow">
+      </iframe>
+    </div>
+  </div>
+</section>
+
+<?= view('layout/footer') ?>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
