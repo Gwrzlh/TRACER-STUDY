@@ -1,11 +1,35 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 <link href="<?= base_url('css/respon/index.css') ?>" rel="stylesheet">
-
+<!-- Navbar Tab -->
+<div class="respon-navbar mb-3">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link <?= (uri_string() == 'admin/respon' || uri_string() == 'admin/respon/') ? 'active' : '' ?>"
+                href="<?= base_url('admin/respon') ?>">
+                📋 Respon
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <?= (uri_string() == 'admin/respon/ami') ? 'active' : '' ?>"
+                href="<?= base_url('admin/respon/ami') ?>">
+                🧾 AMI
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <?= (uri_string() == 'admin/respon/akreditasi') ? 'active' : '' ?>"
+                href="<?= base_url('admin/respon/akreditasi') ?>">
+                📊 Akreditasi
+            </a>
+        </li>
+    </ul>
+</div>
 <div class="respon-container">
     <div class="respon-header">
         <h2 class="respon-title">Data Respon Alumni</h2>
     </div>
+
+
 
     <!-- Filter Form -->
     <div class="filter-card">
@@ -150,16 +174,18 @@
                                 </td>
 
                                 <td class="date-cell"><?= esc($res['submitted_at'] ?? '-') ?></td>
-                               <td class="action-cell">
+                                <td class="action-cell">
                                     <?php if (!empty($res['response_id']) && ($res['status'] ?? '') === 'completed'): ?>
                                         <!-- Debug: Output $res to check available keys -->
-                                        <?php // Remove this after debugging ?>
-                                        <?php // echo '<pre>'; var_dump($res); echo '</pre>'; ?>
-                                        <a href="<?= base_url('admin/respon/allow_edit/' . $res['questionnaire_id'] . '/' . $res['id_account']) ?>" 
-                                        class="action-btn" 
-                                        onclick="return confirm('Izinkan alumni mengedit jawaban ini?')">Edit Jawaban</a>
-                                        <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>" 
-                                        class="action-btn">Jawaban</a>
+                                        <?php // Remove this after debugging 
+                                        ?>
+                                        <?php // echo '<pre>'; var_dump($res); echo '</pre>'; 
+                                        ?>
+                                        <a href="<?= base_url('admin/respon/allow_edit/' . $res['questionnaire_id'] . '/' . $res['id_account']) ?>"
+                                            class="action-btn"
+                                            onclick="return confirm('Izinkan alumni mengedit jawaban ini?')">Edit Jawaban</a>
+                                        <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>"
+                                            class="action-btn">Jawaban</a>
                                     <?php else: ?>
                                         <span class="no-action">-</span>
                                     <?php endif; ?>
@@ -177,9 +203,9 @@
     </div>
 
     <<?php if (session()->getFlashdata('success')): ?>
-    <div class="alert alert-success">
+        <div class="alert alert-success">
         <?= session()->getFlashdata('success') ?>
-    </div>
+</div>
 <?php endif; ?>
 
 <?php if (session()->getFlashdata('error')): ?>
@@ -200,33 +226,33 @@
     </div>
 <?php endif; ?>
 
-    <!-- Pagination -->
-    <?php if ($totalPages > 1): ?>
-        <?php
-        $queryParams = $_GET;
-        unset($queryParams['page']); // hapus page lama
-        ?>
-        <div class="d-flex justify-content-end mt-3">
-            <ul class="pagination">
-                <!-- Previous -->
-                <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
-                    <a class="page-link" href="<?= $currentPage > 1 ? base_url('admin/respon?page=' . ($currentPage - 1) . '&' . http_build_query($queryParams)) : '#' ?>">Previous</a>
-                </li>
+<!-- Pagination -->
+<?php if ($totalPages > 1): ?>
+    <?php
+    $queryParams = $_GET;
+    unset($queryParams['page']); // hapus page lama
+    ?>
+    <div class="d-flex justify-content-end mt-3">
+        <ul class="pagination">
+            <!-- Previous -->
+            <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
+                <a class="page-link" href="<?= $currentPage > 1 ? base_url('admin/respon?page=' . ($currentPage - 1) . '&' . http_build_query($queryParams)) : '#' ?>">Previous</a>
+            </li>
 
-                <!-- Page numbers -->
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
-                        <a class="page-link" href="<?= base_url('admin/respon?page=' . $i . '&' . http_build_query($queryParams)) ?>"><?= $i ?></a>
-                    </li>
-                <?php endfor; ?>
-
-                <!-- Next -->
-                <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
-                    <a class="page-link" href="<?= $currentPage < $totalPages ? base_url('admin/respon?page=' . ($currentPage + 1) . '&' . http_build_query($queryParams)) : '#' ?>">Next</a>
+            <!-- Page numbers -->
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
+                    <a class="page-link" href="<?= base_url('admin/respon?page=' . $i . '&' . http_build_query($queryParams)) ?>"><?= $i ?></a>
                 </li>
-            </ul>
-        </div>
-    <?php endif; ?>
+            <?php endfor; ?>
+
+            <!-- Next -->
+            <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
+                <a class="page-link" href="<?= $currentPage < $totalPages ? base_url('admin/respon?page=' . ($currentPage + 1) . '&' . http_build_query($queryParams)) : '#' ?>">Next</a>
+            </li>
+        </ul>
+    </div>
+<?php endif; ?>
 
 </div>
 
