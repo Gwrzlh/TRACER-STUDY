@@ -70,7 +70,7 @@
 // ADMIN - PENGGUNA
 // ===================================================================
 // HAPUS 'admin/' di depan group ini
-$routes->group('pengguna', ['namespace' => 'App\Controllers\User'], function ($routes) {
+$routes->group('pengguna', ['namespace' => 'App\Controllers\User', 'filter' => 'auth'], function ($routes) {
     $routes->get('/', 'PenggunaController::index');
     $routes->get('tambahPengguna', 'PenggunaController::create');
     $routes->post('tambahPengguna/post', 'PenggunaController::store');
@@ -78,9 +78,14 @@ $routes->group('pengguna', ['namespace' => 'App\Controllers\User'], function ($r
     $routes->post('update/(:num)', 'PenggunaController::update/$1');
     $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
 $routes->match(['post', 'delete'], 'deleteMultiple', 'PenggunaController::deleteMultiple');
+$routes->post('exportSelected', 'PenggunaController::exportSelected');
+
     // ✅ Import
     $routes->get('import', '\App\Controllers\Auth\ImportAccount::index', ['filter' => 'auth']);
     $routes->post('import', '\App\Controllers\Auth\ImportAccount::import', ['filter' => 'auth']);
+        $routes->get('export', '\App\Controllers\Auth\ExportAccount::index');
+        $routes->post('exportSelected', 'PenggunaController::exportSelected');
+
 });
 
 
@@ -140,9 +145,12 @@ $routes->group('questionnaire', ['namespace' => 'App\Controllers\Questionnaire']
         $routes->post('tentang/update', 'LandingPage\Tentang::update');
     });
 
-     // Pengaturan Situs
-        $routes->get('pengaturan-situs', 'LandingPage\PengaturanSitus::index');
-        $routes->post('pengaturan-situs/save', 'LandingPage\PengaturanSitus::save');
+   $routes->group('admin', ['filter' => 'auth'], function($routes) {
+    $routes->get('pengaturan-situs', 'LandingPage\PengaturanSitus::index');
+    $routes->post('pengaturan-situs/save', 'LandingPage\PengaturanSitus::save');
+});
+
+
 
 
 $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers\Organisasi', 'filter' => 'auth'], function ($routes) {

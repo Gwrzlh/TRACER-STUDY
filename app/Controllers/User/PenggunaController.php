@@ -52,28 +52,29 @@ class PenggunaController extends BaseController
 
     // 🔹 Pencarian
     if (!empty($keyword)) {
-        $roleName = '';
-        if (!empty($roleId)) {
-            $roleData = $roleModel->find($roleId);
-            $roleName = strtolower($roleData['nama'] ?? '');
-        }
-
-        if ($roleName === 'alumni') {
-            // Join tabel alumni & cari berdasarkan NIM
-            $builder->join('alumni', 'alumni.id_account = account.id', 'left')
-                    ->groupStart()
-                    ->like('alumni.nim', $keyword)
-                    ->groupEnd();
-        } else {
-            // Pencarian umum: username, email, status, role
-            $builder->groupStart()
-                    ->like('account.username', $keyword)
-                    ->orLike('account.email', $keyword)
-                    ->orLike('account.status', $keyword)
-                    ->orLike('role.nama', $keyword)
-                    ->groupEnd();
-        }
+    $roleName = '';
+    if (!empty($roleId)) {
+        $roleData = $roleModel->find($roleId);
+        $roleName = strtolower($roleData['nama'] ?? '');
     }
+
+    if ($roleName === 'alumni') {
+        // ✅ gunakan tabel detailaccount_alumni
+        $builder->join('detailaccount_alumni', 'detailaccount_alumni.id_account = account.id', 'left')
+                ->groupStart()
+                ->like('detailaccount_alumni.nim', $keyword)
+                ->groupEnd();
+    } else {
+        // Pencarian umum: username, email, status, role
+        $builder->groupStart()
+                ->like('account.username', $keyword)
+                ->orLike('account.email', $keyword)
+                ->orLike('account.status', $keyword)
+                ->orLike('role.nama', $keyword)
+                ->groupEnd();
+    }
+}
+
 
     // 🔹 Urutkan terbaru
     $builder->orderBy('account.id', 'DESC');
@@ -942,6 +943,44 @@ public function deleteMultiple()
         return redirect()->back()->with('error', 'Gagal menghapus akun yang dipilih.');
     }
 }
+
+
+public function exportSelected()
+{
+    $ids = $this->request->getPost('ids');
+    if (empty($ids)) {
+        return redirect()->back()->with('error', 'Tidak ada pengguna yang dipilih untuk diexport.');
+    }
+
+    $model = new \App\Models\User\AccountModel();
+    $data = $model->whereIn('id', $ids)->findAll();
+
+    if (!$data) {
+        return redirect()->back()->with('error', 'Data tidak ditemukan.');
+    }
+
+    // buat file CSV
+    $filename = 'pengguna_terpilih_' . date('Ymd_His') . '.csv';
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+    $output = fopen('php://output', 'w');
+    fputcsv($output, ['ID', 'Username', 'Email', 'Status', 'Role']);
+
+    foreach ($data as $row) {
+        fputcsv($output, [
+            $row['id'],
+            $row['username'],
+            $row['email'],
+            $row['status'],
+            $row['id_role']
+        ]);
+    }
+
+    fclose($output);
+    exit;
+}
+
 
 
 }
