@@ -96,90 +96,86 @@
             </div>
         </div>
         <div class="card-content">
-            <h3 class="card-title">Data Jurusan & Prodi (Jumlah)</h3>
+            <h3 class="card-title">Data Jurusan & Prodi</h3>
 
             <?php foreach ($dashboardData as $jurusanData): ?>
-                <div class="mb-4">
-                    <h4 class="font-bold text-blue-600 mb-2"><?= esc($jurusanData['jurusan']['nama_jurusan']) ?></h4>
-
-                    <?php foreach ($jurusanData['prodis'] as $prodiData): ?>
-                        <div class="mb-2 pl-4 border-l-2 border-gray-300 flex items-center justify-between">
-                            <span class="font-semibold text-gray-700"><?= esc($prodiData['prodi']['nama_prodi']) ?></span>
-                            <div class="flex space-x-4">
-                                <span class="bg-green-200 text-green-800 px-2 py-1 rounded">
-                                    Alumni: <?= count($prodiData['alumni']) ?>
-                                </span>
-                                <span class="bg-blue-200 text-blue-800 px-2 py-1 rounded">
-                                    Kaprodi: <?= count($prodiData['kaprodi']) ?>
-                                </span>
+                <div class="jurusan-section mb-6">
+                    <h4 class="jurusan-name mb-3"><?= esc($jurusanData['jurusan']['nama_jurusan']) ?></h4>
+                    <div class="data-prodi-container">
+                        <?php foreach ($jurusanData['prodis'] as $prodiData): ?>
+                            <div class="prodi-card">
+                                <h5 class="prodi-name"><?= esc($prodiData['prodi']['nama_prodi']) ?></h5>
+                                <p class="prodi-alumni">Alumni: <?= count($prodiData['alumni']) ?></p>
+                                <p class="prodi-kaprodi">Kaprodi: <?= count($prodiData['kaprodi']) ?></p>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             <?php endforeach; ?>
+
         </div>
     </div>
-</div>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const grafikAmi = <?= json_encode($grafikAmi) ?>;
-    const grafikAkreditasi = <?= json_encode($grafikAkreditasi) ?>;
-    let chart;
 
-    function renderChart(dataset, label, color) {
-        const ctx = document.getElementById('grafikCanvas').getContext('2d');
-        if (chart) chart.destroy();
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const grafikAmi = <?= json_encode($grafikAmi) ?>;
+        const grafikAkreditasi = <?= json_encode($grafikAkreditasi) ?>;
+        let chart;
 
-        chart = new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: dataset.map(d => d.question_text),
-                datasets: [{
-                    label: label,
-                    data: dataset.map(d => d.total),
-                    backgroundColor: color.replace('1)', '0.2)'),
-                    borderColor: color,
-                    borderWidth: 2,
-                    pointBackgroundColor: color
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
+        function renderChart(dataset, label, color) {
+            const ctx = document.getElementById('grafikCanvas').getContext('2d');
+            if (chart) chart.destroy();
+
+            chart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: dataset.map(d => d.question_text),
+                    datasets: [{
+                        label: label,
+                        data: dataset.map(d => d.total),
+                        backgroundColor: color.replace('1)', '0.2)'),
+                        borderColor: color,
+                        borderWidth: 2,
+                        pointBackgroundColor: color
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
                         }
                     }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
                 }
-            }
-        });
-    }
-
-    function showGrafik(type) {
-        if (type === 'ami') {
-            renderChart(grafikAmi, 'Jawaban AMI', 'rgba(37,99,235,1)');
-            document.getElementById('grafik-title').innerText = "Grafik AMI";
-        } else {
-            renderChart(grafikAkreditasi, 'Jawaban Akreditasi', 'rgba(16,185,129,1)');
-            document.getElementById('grafik-title').innerText = "Grafik Akreditasi";
+            });
         }
-    }
 
-    showGrafik('ami');
-</script>
+        function showGrafik(type) {
+            if (type === 'ami') {
+                renderChart(grafikAmi, 'Jawaban AMI', 'rgba(37,99,235,1)');
+                document.getElementById('grafik-title').innerText = "Grafik AMI";
+            } else {
+                renderChart(grafikAkreditasi, 'Jawaban Akreditasi', 'rgba(16,185,129,1)');
+                document.getElementById('grafik-title').innerText = "Grafik Akreditasi";
+            }
+        }
 
-<!-- Add FontAwesome for icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        showGrafik('ami');
+    </script>
 
-<?= $this->endSection() ?>
+    <!-- Add FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <?= $this->endSection() ?>
