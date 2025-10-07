@@ -74,7 +74,7 @@ class Auth extends Controller
                     'id_cities',
                     'kodepos',
                     'tahun_kelulusan',
-                    'jeniskelamin',
+                    'jenisKelamin',
                     'notlp'
                 ];
                 foreach ($fields as $field) {
