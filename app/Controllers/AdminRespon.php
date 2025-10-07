@@ -13,6 +13,8 @@ use Dompdf\Options;
 use CodeIgniter\I18n\Time;
 use App\Models\AnswerModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
+use App\Controllers\BaseController;
+use Config\Database;
 
 class AdminRespon extends BaseController
 {
@@ -21,6 +23,7 @@ class AdminRespon extends BaseController
     protected $jurusanModel;
     protected $prodiModel;
     protected $answersModel;
+    protected $db;
 
     public function __construct()
     {
@@ -29,7 +32,7 @@ class AdminRespon extends BaseController
         $this->jurusanModel  = new JurusanModel();
         $this->prodiModel    = new Prodi();
         $this->answersModel  = new AnswerModel();
-
+        $this->db = Database::connect();
     }
     public function index()
     {
@@ -530,4 +533,320 @@ class AdminRespon extends BaseController
         return redirect()->back();
     }
 
+
+
+
+
+    // ================== DETAIL AKREDITASI ==================
+    public function detailAkreditasi($opsi)
+    {
+        $db = $this->db;
+        $alumniModel = new AlumniModel();
+
+        // Filter dari URL (GET)
+        $filterJurusan  = $this->request->getGet('jurusan');
+        $filterProdi    = $this->request->getGet('prodi');
+        $filterAngkatan = $this->request->getGet('angkatan');
+
+        // Query utama (JOIN ke jurusan & prodi)
+        $alumniQuery = $db->table('answers a')
+            ->distinct()
+            ->select('
+            al.id_account,
+            al.nama_lengkap,
+            al.nim,
+            j.nama_jurusan AS nama_jurusan,
+            p.nama_prodi AS nama_prodi,
+            al.angkatan,
+            al.tahun_kelulusan,
+            al.ipk,
+            al.alamat,
+            al.alamat2,
+            al.kodepos,
+            al.jenisKelamin,
+            al.notlp,
+            al.id_provinsi,
+            al.id_cities
+        ')
+            ->join('detailaccount_alumni al', 'a.user_id = al.id_account')
+            ->join('prodi p', 'al.id_prodi = p.id', 'left')
+            ->join('jurusan j', 'al.id_jurusan = j.id', 'left')
+            ->where('a.answer_text', urldecode($opsi));
+
+        // Tambahkan filter jika ada
+        if (!empty($filterJurusan))  $alumniQuery->where('al.id_jurusan', $filterJurusan);
+        if (!empty($filterProdi))    $alumniQuery->where('al.id_prodi', $filterProdi);
+        if (!empty($filterAngkatan)) $alumniQuery->where('al.angkatan', $filterAngkatan);
+
+        // Eksekusi
+        $alumni = $alumniQuery->get()->getResultArray();
+
+        // Data tambahan untuk filter dropdown
+        $jurusanList  = $db->table('jurusan')->select('id, nama_jurusan')->get()->getResultArray();
+        $prodiList    = $db->table('prodi')->select('id, nama_prodi')->get()->getResultArray();
+        $angkatanList = $alumniModel->getDistinctAngkatan();
+
+        // Kirim ke view
+        return view('adminpage/respon/detail_akreditasi', [
+            'opsi'           => urldecode($opsi),
+            'alumni'         => $alumni,
+            'jurusanList'    => $jurusanList,
+            'prodiList'      => $prodiList,
+            'angkatanList'   => $angkatanList,
+            'filterJurusan'  => $filterJurusan,
+            'filterProdi'    => $filterProdi,
+            'filterAngkatan' => $filterAngkatan,
+        ]);
+    }
+
+
+
+    // ================== DETAIL AMI ==================
+    public function detailAmi($opsi)
+    {
+        $db = $this->db;
+        $alumniModel = new AlumniModel();
+
+        // Filter dari URL (GET)
+        $filterJurusan  = $this->request->getGet('jurusan');
+        $filterProdi    = $this->request->getGet('prodi');
+        $filterAngkatan = $this->request->getGet('angkatan');
+
+        // Query utama (JOIN ke jurusan & prodi)
+        $alumniQuery = $db->table('answers a')
+            ->distinct()
+            ->select('
+            al.id_account,
+            al.nama_lengkap,
+            al.nim,
+            j.nama_jurusan AS nama_jurusan,
+            p.nama_prodi AS nama_prodi,
+            al.angkatan,
+            al.tahun_kelulusan,
+            al.ipk,
+            al.alamat,
+            al.alamat2,
+            al.kodepos,
+            al.jenisKelamin,
+            al.notlp,
+            al.id_provinsi,
+            al.id_cities
+        ')
+            ->join('detailaccount_alumni al', 'a.user_id = al.id_account')
+            ->join('prodi p', 'al.id_prodi = p.id', 'left')
+            ->join('jurusan j', 'al.id_jurusan = j.id', 'left')
+            ->where('a.answer_text', urldecode($opsi));
+
+        // Tambahkan filter jika ada
+        if (!empty($filterJurusan))  $alumniQuery->where('al.id_jurusan', $filterJurusan);
+        if (!empty($filterProdi))    $alumniQuery->where('al.id_prodi', $filterProdi);
+        if (!empty($filterAngkatan)) $alumniQuery->where('al.angkatan', $filterAngkatan);
+
+        // Eksekusi
+        $alumni = $alumniQuery->get()->getResultArray();
+
+        // Data tambahan untuk dropdown
+        $jurusanList  = $db->table('jurusan')->select('id, nama_jurusan')->get()->getResultArray();
+        $prodiList    = $db->table('prodi')->select('id, nama_prodi')->get()->getResultArray();
+        $angkatanList = $alumniModel->getDistinctAngkatan();
+
+        // Kirim ke view
+        return view('adminpage/respon/detail_ami', [
+            'opsi'           => urldecode($opsi),
+            'alumni'         => $alumni,
+            'jurusanList'    => $jurusanList,
+            'prodiList'      => $prodiList,
+            'angkatanList'   => $angkatanList,
+            'filterJurusan'  => $filterJurusan,
+            'filterProdi'    => $filterProdi,
+            'filterAngkatan' => $filterAngkatan,
+        ]);
+    }
+
+    // ================== EXPORT PDF AKREDITASI ==================
+    public function exportAkreditasiPdf($opsi)
+    {
+        $db = $this->db;
+        $opsi = urldecode($opsi);
+
+        $data = $db->table('answers a')
+            ->select('al.*, j.nama_jurusan, p.nama_prodi')
+            ->join('detailaccount_alumni al', 'a.user_id = al.id_account')
+            ->join('jurusan j', 'al.id_jurusan = j.id', 'left')
+            ->join('prodi p', 'al.id_prodi = p.id', 'left')
+            ->where('a.answer_text', $opsi)
+            ->groupBy('al.id')
+            ->get()
+            ->getResultArray();
+
+        if (empty($data)) {
+            return redirect()->back()->with('error', 'Tidak ada data alumni untuk opsi ini.');
+        }
+
+        $dompdf = new \Dompdf\Dompdf();
+        $html = view('adminpage/respon/pdf_akreditasi', [
+            'opsi' => $opsi,
+            'alumni' => $data
+        ]);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+        $dompdf->stream("Data_Akreditasi_{$opsi}.pdf", ["Attachment" => true]);
+    }
+
+
+    // ================== EXPORT PDF AMI ==================
+    public function exportAmiPdf($opsi)
+    {
+        $db = $this->db;
+        $opsi = urldecode($opsi);
+
+        $data = $db->table('answers a')
+            ->select('al.*, j.nama_jurusan, p.nama_prodi')
+            ->join('detailaccount_alumni al', 'a.user_id = al.id_account')
+            ->join('jurusan j', 'al.id_jurusan = j.id', 'left')
+            ->join('prodi p', 'al.id_prodi = p.id', 'left')
+            ->where('a.answer_text', $opsi)
+            ->groupBy('al.id')
+            ->get()
+            ->getResultArray();
+
+        if (empty($data)) {
+            return redirect()->back()->with('error', 'Tidak ada data alumni untuk opsi ini.');
+        }
+
+        $dompdf = new \Dompdf\Dompdf();
+        $html = view('adminpage/respon/pdf_ami', [
+            'opsi' => $opsi,
+            'alumni' => $data
+        ]);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+        $dompdf->stream("Data_AMI_{$opsi}.pdf", ["Attachment" => true]);
+    }
+
+
+    // ================== AKREDITASI ==================
+    public function akreditasi()
+    {
+        $db = $this->db;
+
+        $questions = $db->table('questions')
+            ->where('is_for_accreditation', 1)
+            ->orderBy('created_at', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $data = [];
+        foreach ($questions as $q) {
+            $answers = $db->table('answers')
+                ->select('answer_text, COUNT(*) as jumlah')
+                ->where('question_id', $q['id'])
+                ->groupBy('answer_text')
+                ->get()
+                ->getResultArray();
+
+            $jawaban = [];
+            foreach ($answers as $a) {
+                $jawaban[] = [
+                    'opsi' => $a['answer_text'],
+                    'jumlah' => (int)$a['jumlah']
+                ];
+            }
+
+            $data[] = [
+                'id' => $q['id'],
+                'teks' => $q['question_text'],
+                'jawaban' => $jawaban,
+                'is_for_accreditation' => $q['is_for_accreditation']
+            ];
+        }
+
+        return view('adminpage/respon/akreditasi', ['pertanyaan' => $data]);
+    }
+
+    // ================== AMI ==================
+    public function ami()
+    {
+        $db = $this->db;
+
+        $questions = $db->table('questions')
+            ->where('is_for_ami', 1)
+            ->orderBy('created_at', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $data = [];
+        foreach ($questions as $q) {
+            $answers = $db->table('answers')
+                ->select('answer_text, COUNT(*) as jumlah')
+                ->where('question_id', $q['id'])
+                ->groupBy('answer_text')
+                ->get()
+                ->getResultArray();
+
+            $jawaban = [];
+            foreach ($answers as $a) {
+                $jawaban[] = [
+                    'opsi' => $a['answer_text'],
+                    'jumlah' => (int)$a['jumlah']
+                ];
+            }
+
+            $data[] = [
+                'id' => $q['id'],
+                'teks' => $q['question_text'],
+                'jawaban' => $jawaban,
+                'is_for_ami' => $q['is_for_ami']
+            ];
+        }
+
+        return view('adminpage/respon/ami', ['pertanyaan' => $data]);
+    }
+
+    // ================== SIMPAN FLAG ==================
+    public function saveFlags()
+    {
+        $akreditasi = $this->request->getPost('akreditasi') ?? [];
+        $ami = $this->request->getPost('ami') ?? [];
+
+        $db = $this->db;
+        $builder = $db->table('questions');
+
+        // 🔹 Update Akreditasi
+        if (!empty($akreditasi)) {
+            $builder->whereIn('id', $akreditasi)->update(['is_for_accreditation' => 1]);
+        }
+
+        // 🔹 Update AMI
+        if (!empty($ami)) {
+            $builder->whereIn('id', $ami)->update(['is_for_ami' => 1]);
+        }
+
+        // Catatan: pertanyaan lama yang tidak dipilih tidak akan berubah → tetap ada
+
+        return redirect()->to(base_url('admin/respon'))->with('success', 'Data berhasil disimpan.');
+    }
+
+    // ================== HAPUS FLAG ==================
+    public function remove_from_ami($id)
+    {
+        $this->db->table('questions')
+            ->where('id', $id)
+            ->update(['is_for_ami' => 0]);
+
+        return redirect()->back()->with('success', 'Pertanyaan dihapus dari AMI');
+    }
+
+    public function remove_from_accreditation($id)
+    {
+        $this->db->table('questions')
+            ->where('id', $id)
+            ->update(['is_for_accreditation' => 0]);
+
+        return redirect()->back()->with('success', 'Pertanyaan dihapus dari Akreditasi');
+    }
 }
