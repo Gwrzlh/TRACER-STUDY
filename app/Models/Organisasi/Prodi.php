@@ -14,7 +14,7 @@ class Prodi extends Model
     protected $protectFields    = true;
     
 
-    protected $allowedFields    = ['nama_prodi', 'id_jurusan'];
+    protected $allowedFields    = ['nama_prodi', 'singkatan', 'id_jurusan'];
 
     protected $useTimestamps    = false;
     protected $dateFormat       = 'datetime';
@@ -44,8 +44,8 @@ class Prodi extends Model
      */
     public function getWithJurusan()
     {
-        return $this->select('prodi.*, jurusan.nama_jurusan')
-            ->join('jurusan', 'jurusan.id = prodi.id_jurusan')
+         return $this->select('prodi.*, jurusan.nama_jurusan')
+            ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left')
             ->findAll();
     }
 }

@@ -343,8 +343,43 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.show();
     };
 
+        // Checkbox Select All
+    const handleCheckboxes = () => {
+        const selectAll = penggunaPage.querySelector('#selectAll');
+        const checkboxes = penggunaPage.querySelectorAll('.row-checkbox');
+        const bulkForm = penggunaPage.querySelector('#bulkDeleteForm');
+
+        if (!selectAll || checkboxes.length === 0) return;
+
+        // Klik select all
+        selectAll.addEventListener('change', function () {
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+
+        // Kalau ada yang di-uncheck, update selectAll
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', function () {
+                const total = checkboxes.length;
+                const checked = penggunaPage.querySelectorAll('.row-checkbox:checked').length;
+                selectAll.checked = (total === checked);
+            });
+        });
+
+        // Cegah submit tanpa pilihan
+        if (bulkForm) {
+            bulkForm.addEventListener('submit', function (e) {
+                const selected = penggunaPage.querySelectorAll('.row-checkbox:checked');
+                if (selected.length === 0) {
+                    e.preventDefault();
+                    alert('Pilih minimal satu akun untuk dihapus.');
+                }
+            });
+        }
+    };
+
+
     // Initialize Enhancements
-    setTimeout(() => {
+   setTimeout(() => {
         animateTableRows();
         enhanceSearchInput();
         enhanceButtons();
@@ -355,6 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         enhanceDeleteButtons();
         enhancePagination();
         enhanceAccessibility();
+        handleCheckboxes();   // ✅ panggil checkbox select all
         showToast('Halaman berhasil dimuat!', 'success');
     }, 300);
 

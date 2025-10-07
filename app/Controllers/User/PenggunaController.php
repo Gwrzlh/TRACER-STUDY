@@ -27,60 +27,68 @@ class PenggunaController extends BaseController
 {
    public function index()
 {
+    $accountModel = new \App\Models\User\Accounts();
+    $roleModel    = new \App\Models\Support\Roles();
+    $roles        = $roleModel->findAll();
+
     // Ambil parameter filter
     $roleId  = $this->request->getGet('role');
     $keyword = $this->request->getGet('keyword');
 
-    // 🔹 Ambil perPage dari Pengaturan Situs, default = 5
+    // Ambil perPage dari pengaturan situs
     $perPage = get_setting('pengguna_perpage_default', 5);
+    $currentPage = (int) ($this->request->getVar('page') ?? 1);
+    $offset = ($currentPage - 1) * $perPage;
 
-    // Ambil semua role
-    $rolesModel = new \App\Models\Support\Roles();
-    $roles      = $rolesModel->findAll();
-
-    // Model akun
-    $accountModel = new \App\Models\User\Accounts();
-
-    // Build query utama
+    // 🔹 Build query utama
     $builder = $accountModel->builder();
     $builder->select('account.*, role.nama AS nama_role')
             ->join('role', 'role.id = account.id_role', 'left');
 
-    // Filter role
-    if ($roleId && is_numeric($roleId)) {
+    // 🔹 Filter berdasarkan role
+    if (!empty($roleId) && is_numeric($roleId)) {
         $builder->where('account.id_role', $roleId);
     }
 
-    // Filter keyword
+    // 🔹 Pencarian
     if (!empty($keyword)) {
-        $builder->groupStart()
-                ->like('account.username', $keyword)
-                ->orLike('account.email', $keyword)
-                ->orLike('account.status', $keyword)
-                ->orLike('role.nama', $keyword)
-                ->groupEnd();
+        $roleName = '';
+        if (!empty($roleId)) {
+            $roleData = $roleModel->find($roleId);
+            $roleName = strtolower($roleData['nama'] ?? '');
+        }
+
+        if ($roleName === 'alumni') {
+            // Join tabel alumni & cari berdasarkan NIM
+            $builder->join('alumni', 'alumni.id_account = account.id', 'left')
+                    ->groupStart()
+                    ->like('alumni.nim', $keyword)
+                    ->groupEnd();
+        } else {
+            // Pencarian umum: username, email, status, role
+            $builder->groupStart()
+                    ->like('account.username', $keyword)
+                    ->orLike('account.email', $keyword)
+                    ->orLike('account.status', $keyword)
+                    ->orLike('role.nama', $keyword)
+                    ->groupEnd();
+        }
     }
 
-    // Urutkan terbaru
+    // 🔹 Urutkan terbaru
     $builder->orderBy('account.id', 'DESC');
 
-    // 🔹 Hitung total data
+    // 🔹 Hitung total data untuk pagination
     $totalRecords = $builder->countAllResults(false);
 
-    // Setup pagination
-    $currentPage = (int) ($this->request->getVar('page') ?? 1);
-
-    $offset      = ($currentPage - 1) * $perPage;
-
-    // Ambil data sesuai halaman
+    // 🔹 Ambil data sesuai halaman
     $accounts = $builder->limit($perPage, $offset)->get()->getResultArray();
 
-    // Buat pagination links
+    // 🔹 Buat pagination
     $pager = \Config\Services::pager();
     $pagerLinks = $pager->makeLinks($currentPage, $perPage, $totalRecords, 'bootstrap5');
 
-
-    // Hitung jumlah akun per role
+    // 🔹 Hitung jumlah akun per role
     $counts = [];
     foreach ($roles as $r) {
         $counts[$r['id']] = $accountModel->where('id_role', $r['id'])->countAllResults();
@@ -88,7 +96,7 @@ class PenggunaController extends BaseController
     }
     $counts['all'] = $accountModel->countAllResults();
 
-    // Ambil detail tambahan
+    // 🔹 Ambil detail tambahan (optional)
     $detailaccountAdmin  = new \App\Models\User\DetailaccountAdmins();
     $detailaccountAlumni = new \App\Models\User\DetailaccountAlumni();
 
@@ -100,7 +108,7 @@ class PenggunaController extends BaseController
         ? $detailaccountAlumni->getDetailWithRelations()
         : [];
 
-    // Kirim ke view
+    // 🔹 Kirim data ke view
     $data = [
         'roles'               => $roles,
         'counts'              => $counts,
@@ -118,9 +126,6 @@ class PenggunaController extends BaseController
 
     return view('adminpage/pengguna/index', $data);
 }
-
-
-
 
     public function create()
     {
@@ -901,4 +906,42 @@ class PenggunaController extends BaseController
 
         return $this->response->setJSON($data);
     }
+
+public function deleteMultiple()
+{
+    $ids = $this->request->getPost('ids');
+
+    if (!$ids) {
+        return redirect()->back()->with('error', 'Tidak ada akun yang dipilih untuk dihapus.');
+    }
+
+    $accountModel = new \App\Models\User\Accounts();
+    $alumniModel = new \App\Models\User\DetailaccountAlumni();
+    $adminModel = new \App\Models\User\DetailaccountAdmins();
+    $kaprodiModel = new \App\Models\User\DetailaccountKaprodi();
+    $perusahaanModel = new \App\Models\User\DetailaccoountPerusahaan();
+    $atasanModel = new \App\Models\User\DetailaccountAtasan();
+    $jabatanLainModel = new \App\Models\User\DetailaccountJabatanLLnya();
+    $logModel = new \App\Models\Support\LogActivityModel();
+
+    // Hapus dulu semua data turunan (child)
+    $alumniModel->whereIn('id_account', $ids)->delete();
+    $adminModel->whereIn('id_account', $ids)->delete();
+    $kaprodiModel->whereIn('id_account', $ids)->delete();
+    $perusahaanModel->whereIn('id_account', $ids)->delete();
+    $atasanModel->whereIn('id_account', $ids)->delete();
+    $jabatanLainModel->whereIn('id_account', $ids)->delete();
+    $logModel->whereIn('user_id', $ids)->delete();
+
+    // Setelah semua child terhapus, baru hapus akun utama
+    $deleted = $accountModel->whereIn('id', $ids)->delete();
+
+    if ($deleted) {
+        return redirect()->back()->with('success', 'Akun yang dipilih berhasil dihapus.');
+    } else {
+        return redirect()->back()->with('error', 'Gagal menghapus akun yang dipilih.');
+    }
+}
+
+
 }

@@ -66,22 +66,27 @@
             $routes->post('delete/(:num)', 'TipeOrganisasiController::delete/$1');
         });
 
-        // Pengguna
-        $routes->group('pengguna', ['namespace' => 'App\Controllers\User'], function ($routes) {
-            $routes->get('/', 'PenggunaController::index');
-            $routes->get('tambahPengguna', 'PenggunaController::create');
-            $routes->post('tambahPengguna/post', 'PenggunaController::store');
-            $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
-            $routes->post('update/(:num)', 'PenggunaController::update/$1');
-            $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
+       // ===================================================================
+// ADMIN - PENGGUNA
+// ===================================================================
+// HAPUS 'admin/' di depan group ini
+$routes->group('pengguna', ['namespace' => 'App\Controllers\User'], function ($routes) {
+    $routes->get('/', 'PenggunaController::index');
+    $routes->get('tambahPengguna', 'PenggunaController::create');
+    $routes->post('tambahPengguna/post', 'PenggunaController::store');
+    $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
+    $routes->post('update/(:num)', 'PenggunaController::update/$1');
+    $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
+$routes->match(['post', 'delete'], 'deleteMultiple', 'PenggunaController::deleteMultiple');
+    // ✅ Import
+    $routes->get('import', '\App\Controllers\Auth\ImportAccount::index', ['filter' => 'auth']);
+    $routes->post('import', '\App\Controllers\Auth\ImportAccount::import', ['filter' => 'auth']);
+});
 
-            // Import
-           // Import Akun
-$routes->get('import', '\App\Controllers\Auth\ImportAccount::index', ['filter' => 'auth']);
-$routes->post('import', '\App\Controllers\Auth\ImportAccount::import', ['filter' => 'auth']);
 
-        });
-        
+
+// Bulk delete pengguna (versi admin)
+$routes->match(['post', 'delete'], 'admin/pengguna/deleteMultiple', 'User\PenggunaController::deleteMultiple');
 
 // --------------------
 // ROUTES: Questionnaire
@@ -128,16 +133,16 @@ $routes->group('questionnaire', ['namespace' => 'App\Controllers\Questionnaire']
 
 
 
-        // Pengaturan Situs
-        $routes->get('pengaturan-situs', 'LandingPage\PengaturanSitus::index');
-        $routes->post('pengaturan-situs/save', 'LandingPage\PengaturanSitus::save');
+       
 
         // Tentang
         $routes->get('tentang/edit', 'LandingPage\Tentang::edit');
         $routes->post('tentang/update', 'LandingPage\Tentang::update');
     });
 
-    
+     // Pengaturan Situs
+        $routes->get('pengaturan-situs', 'LandingPage\PengaturanSitus::index');
+        $routes->post('pengaturan-situs/save', 'LandingPage\PengaturanSitus::save');
 
 
 $routes->group('satuanorganisasi', ['namespace' => 'App\Controllers\Organisasi', 'filter' => 'auth'], function ($routes) {
@@ -290,7 +295,7 @@ $routes->group('kaprodi', [
         $routes->post('(:num)/update', 'KaprodiSectionController::update/$1/$2/$3');
         $routes->get('(:num)/delete', 'KaprodiSectionController::delete/$1/$2/$3');
     });
-});
+});     
 
 
     // Akreditasi
