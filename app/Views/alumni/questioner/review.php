@@ -11,22 +11,6 @@
 
 <body>
     <div class="container">
-        <!-- Header Section -->
-        <div class="review-header">
-            <h3 class="review-title">Review Jawaban: <?= esc($structure['questionnaire']['title']) ?></h3>
-            <div class="progress-container">
-                <div class="progress">
-                    <div class="progress-bar" 
-                         style="width: <?= esc($progress) ?>%" 
-                         role="progressbar"
-                         aria-valuenow="<?= esc($progress) ?>" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                        <?= round($progress, 1) ?>%
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Review Content -->
         <div class="card">
