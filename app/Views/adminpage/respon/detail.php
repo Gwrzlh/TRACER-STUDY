@@ -1,123 +1,67 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
+
 <link href="<?= base_url('css/respon/detail.css') ?>" rel="stylesheet">
 
-<div class="container">
-    <!-- Header Section -->
-    <div class="detail-header">
-        <h3 class="detail-title">Detail Jawaban Alumni</h3>
-        <div class="action-buttons">
-            <a href="<?= base_url('admin/respon') ?>" class="btn btn-secondary">
-                Kembali
-            </a>
-            <a href="<?= base_url('admin/respon/exportPdf/' . $response['id']) ?>"
-               class="btn btn-danger" target="_blank">
-                Download PDF
-            </a>
+<div class="container mt-4">
+    <?php if (session()->getFlashdata('success')): ?>
+        <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+    <?php elseif (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+    <?php endif; ?>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>🧾 Detail Jawaban Alumni</h3>
+        <div>
+            <a href="<?= base_url('admin/respon') ?>" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-left"></i> Kembali</a>
         </div>
     </div>
 
-    <!-- Content Card -->
-    <div class="content-card">
+    <form method="post" action="<?= base_url('admin/respon/saveFlags') ?>">
         <?php foreach ($structure['pages'] as $page): ?>
-            <div class="card-header">
-                <h5><?= esc($page['page_title'] ?? 'Halaman') ?></h5>
-            </div>
-            <div class="card-body">
-                <?php if (!empty($page['sections'])): ?>
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white"><?= esc($page['page_title']) ?></div>
+                <div class="card-body">
                     <?php foreach ($page['sections'] as $section): ?>
                         <?php if ($section['show_section_title']): ?>
-                            <h6><?= esc($section['section_title']) ?></h6>
+                            <h6 class="text-muted mb-3"><?= esc($section['section_title']) ?></h6>
                         <?php endif; ?>
-
-                        <?php if (!empty($section['questions'])): ?>
-                            <?php foreach ($section['questions'] as $q): ?>
-                                <div class="question-item">
-                                    <label class="form-label">
-                                        <?= esc($q['question_text']) ?>
-                                        <?= $q['is_required'] ? ' <span class="text-danger">*</span>' : '' ?>
-                                    </label>
+                        <?php foreach ($section['questions'] as $q): ?>
+                            <div class="question-item border-bottom pb-2 mb-3 d-flex justify-content-between align-items-start">
+                                <div style="flex: 1;">
+                                    <strong><?= esc($q['question_text']) ?></strong>
                                     <?php
-                                    $key     = 'q_' . $q['id'];
-                                    $answer  = $answers[$key] ?? '';
+                                    $key = 'q_' . $q['id'];
+                                    $answer = $answers[$key] ?? '';
                                     $decoded = json_decode($answer, true);
                                     $answersArr = is_array($decoded) ? $decoded : (strlen($answer) ? [$answer] : []);
                                     ?>
-                                    
-                                    <?php if (in_array(strtolower($q['question_type']), ['text', 'email'])): ?>
-                                        <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
-                                    
-                                    <?php elseif (in_array(strtolower($q['question_type']), ['dropdown', 'select', 'radio'])): ?>
-                                        <p class="form-control-static"><?= esc($answer ?: 'Belum dijawab') ?></p>
-                                    
-                                    <?php elseif (strtolower($q['question_type']) === 'checkbox'): ?>
-                                        <p class="form-control-static"><?= esc(implode(', ', $answersArr) ?: 'Belum dijawab') ?></p>
-                                    
-                                    <?php elseif (in_array(strtolower($q['question_type']), ['scale', 'matrix_scale'])): ?>
-                                        <p class="form-control-static">
-                                            <?= esc($answer ?: 'Belum dijawab') ?>
-                                            (Skala: <?= esc($q['scale_min'] ?? 1) ?> - <?= esc($q['scale_max'] ?? 10) ?>)
-                                        </p>
-                                    
-                                    <?php elseif (strtolower($q['question_type']) === 'matrix'): ?>
-                                        <?php if (empty($q['matrix_rows']) || empty($q['matrix_columns'])): ?>
-                                            <div class="text-danger">
-                                                Data matrix tidak lengkap (ID: <?= $q['id'] ?>)
-                                            </div>
-                                        <?php else: ?>
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th></th>
-                                                        <?php foreach ($q['matrix_columns'] as $col): ?>
-                                                            <th><?= esc($col['column_text']) ?></th>
-                                                        <?php endforeach; ?>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php foreach ($q['matrix_rows'] as $row): ?>
-                                                        <tr>
-                                                            <td><?= esc($row['row_text']) ?></td>
-                                                            <?php foreach ($q['matrix_columns'] as $col): ?>
-                                                                <td>
-                                                                    <?php $row_answer = $answersArr[$row['id']] ?? ''; ?>
-                                                                    <?= $row_answer === $col['column_text']
-                                                                        ? '<span class="badge bg-success">✓</span>'
-                                                                        : '' ?>
-                                                                </td>
-                                                            <?php endforeach; ?>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                </tbody>
-                                            </table>
-                                        <?php endif; ?>
-                                    
-                                    <?php elseif (strtolower($q['question_type']) === 'file'): ?>
-                                        <p class="form-control-static">
-                                            <?php if ($answer && strpos($answer, 'uploaded_file:') === 0): ?>
-                                                <?php $file = str_replace('uploaded_file:', 'uploads/answers/', $answer); ?>
-                                                <a href="<?= base_url($file) ?>" target="_blank">
-                                                    Lihat file: <?= esc(basename($file)) ?>
-                                                </a>
-                                            <?php else: ?>
-                                                Belum ada file diunggah
-                                            <?php endif; ?>
-                                        </p>
-                                    
-                                    <?php else: ?>
-                                        <div class="text-danger">
-                                            Jenis pertanyaan tidak dikenali: <?= esc($q['question_type']) ?>
-                                        </div>
-                                    
-                                    <?php endif; ?>
+                                    <p class="mt-1 mb-0 text-secondary">
+                                        <?= $answer ? esc(is_array($answersArr) ? implode(', ', $answersArr) : $answer) : '<em>Belum dijawab</em>' ?>
+                                    </p>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+
+                                <div class="text-end" style="min-width: 160px;">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="akreditasi[]" value="<?= $q['id'] ?>" class="form-check-input" <?= !empty($q['is_for_accreditation']) ? 'checked' : '' ?>>
+                                        <label class="form-check-label">Akreditasi</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="ami[]" value="<?= $q['id'] ?>" class="form-check-input" <?= !empty($q['is_for_ami']) ? 'checked' : '' ?>>
+                                        <label class="form-check-label">AMI</label>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     <?php endforeach; ?>
-                <?php endif; ?>
+                </div>
             </div>
         <?php endforeach; ?>
-    </div>
+
+        <div class="text-end mb-5">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Simpan</button>
+        </div>
+    </form>
 </div>
 
 <?= $this->endSection() ?>
