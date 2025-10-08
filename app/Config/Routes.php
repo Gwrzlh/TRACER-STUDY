@@ -37,10 +37,14 @@ $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
     $routes->post('update/(:num)', 'PenggunaController::update/$1');
     $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
+    $routes->match(['post', 'delete'], 'deleteMultiple', 'PenggunaController::deleteMultiple');
+$routes->post('exportSelected', 'PenggunaController::exportSelected');
 
     // ✅ Import akun (cukup tulis 'import')
-    $routes->get('import', 'ImportAccount::form');
-    $routes->post('import', 'ImportAccount::process');
+    $routes->get('import', 'ImportAccount::index', ['filter' => 'auth']);
+    $routes->post('import', 'ImportAccount::import', ['filter' => 'auth']);
+        $routes->get('export', 'ExportAccount::index');
+        $routes->post('exportSelected', 'PenggunaController::exportSelected');
 });
 // ===============================
 // ADMIN ROUTES

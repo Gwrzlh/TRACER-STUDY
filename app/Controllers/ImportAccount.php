@@ -1,239 +1,253 @@
 <?php
+
 namespace App\Controllers;
 
+use App\Controllers\BaseController;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Accounts;
 use App\Models\DetailaccountAdmins;
 use App\Models\DetailaccountAlumni;
-use App\Models\DetailaccountKaprodi;
 use App\Models\DetailaccountAtasan;
-use App\Models\DetailaccountPerusahaan;
 use App\Models\DetailaccountJabatanLLnya;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Models\DetailaccountKaprodi;
+use App\Models\DetailaccountPerusahaan;
+use App\Models\Jurusan;
+use App\Models\Prodi;
+use App\Models\Cities;
+use App\Models\Provincies;
+use App\Models\Roles;
+use App\Models\JabatanModels;
 
 class ImportAccount extends BaseController
 {
-    public function form()
+    public function index()
     {
         return view('adminpage/pengguna/import');
     }
 
-    public function process()
+    public function import()
+    {
+        $file = $this->request->getFile('file');
+        $role = $this->request->getPost('role');
+
+        if (!$file || !$file->isValid()) {
+            return redirect()->back()->with('error', 'File tidak valid atau tidak ditemukan.');
+        }
+
+        try {
+            $spreadsheet = IOFactory::load($file->getTempName());
+            $rows = $spreadsheet->getActiveSheet()->toArray();
+
+            $accountModel = new Accounts();
+            $countSuccess = 0;
+            $errorLogs = [];
+
+            foreach (array_slice($rows, 1) as $i => $row) {
+                if (empty($row[0])) continue ; // skip baris kosong
+
+                $email    = trim($row[0]);
+                $password = password_hash(trim($row[1]), PASSWORD_DEFAULT);
+                $username = trim($row[2]);
+                $nama     = trim($row[3]);
+
+                // Cek duplikasi email
+                if ($accountModel->where('email', $email)->first()) {
+                    $errorLogs[] = "Baris " . ($i + 2) . ": Email $email sudah terdaftar.";
+                    continue ;
+                }
+
+                try {
+                    // Insert akun utama
+                    $accountId = $accountModel->insert([
+                        'username' => $username,
+                        'email'    => $email,
+                        'password' => $password,
+                        'status'   => 'active',
+                        'id_role'  => $this->mapRoleId($role)
+                    ], true);
+
+                    // Insert detail sesuai role
+                    switch ($role) {
+                        case 'alumni':
+                            $idJurusan = $this->mapJurusan($row[5] ?? null);
+                            if (!$idJurusan) {
+                                $errorLogs[] = "Baris " . ($i + 2) . ": Jurusan '" . ($row[5] ?? '-') . "' tidak ditemukan di database.";
+                                $accountModel->delete($accountId); // rollback akun
+                                continue 2 ;
+                            }
+
+                            (new DetailaccountAlumni())->insert([
+                                'nama_lengkap'    => $nama,
+                                'nim'             => $row[4] ?? null,
+                                'id_jurusan'      => $idJurusan,
+                                'id_prodi'        => $this->mapProdi($row[6] ?? null),
+                                'angkatan'        => $row[7] ?? null,
+                                'ipk'             => $row[8] ?? null,
+                                'alamat'          => $row[9] ?? null,
+                                'alamat2'         => $row[10] ?? null,
+                                'id_cities'       => $this->mapCity($row[11] ?? null),
+                                'id_provinsi'     => $this->mapProvinsi($row[12] ?? null),
+                                'kodepos'         => $row[13] ?? null,
+                                'tahun_kelulusan' => $row[14] ?? null,
+                                'jenisKelamin'    => $row[15] ?? null,
+                                'notlp'           => $row[16] ?? null,
+                                'id_account'      => $accountId,
+                            ]);
+                            break;
+
+                        case 'admin':
+                            (new DetailaccountAdmins())->insert([
+                                'nama_lengkap' => $nama,
+                                'no_hp'        => $row[16] ?? null,
+                                'id_account'   => $accountId,
+                            ]);
+                            break;
+
+                        case 'perusahaan':
+                            (new DetailaccountPerusahaan())->insert([
+                                'nama_perusahaan' => $nama,
+                                'alamat1'         => $row[9] ?? null,
+                                'alamat2'         => $row[10] ?? null,
+                                'id_provinsi'     => $this->mapProvinsi($row[12] ?? null),
+                                'id_kota'         => $this->mapCity($row[11] ?? null),
+                                'kodepos'         => $row[13] ?? null,
+                                'noTlp'           => $row[16] ?? null,
+                                'id_account'      => $accountId,
+                            ]);
+                            break;
+
+                        case 'kaprodi':
+                            $idJurusan = $this->mapJurusan($row[5] ?? null);
+                            if (!$idJurusan) {
+                                $errorLogs[] = "Baris " . ($i + 2) . ": Jurusan '" . ($row[5] ?? '-') . "' tidak ditemukan di database.";
+                                $accountModel->delete($accountId);
+                                continue 2 ;
+                            }
+
+                            (new DetailaccountKaprodi())->insert([
+                                'nama_lengkap' => $nama,
+                                'id_prodi'     => $this->mapProdi($row[6] ?? null),
+                                'id_jurusan'   => $idJurusan,
+                                'notlp'        => $row[16] ?? null,
+                                'id_account'   => $accountId,
+                            ]);
+                            break;
+
+                        case 'atasan':
+                            (new DetailaccountAtasan())->insert([
+                                'nama_lengkap' => $nama,
+                                'id_jabatan'   => $this->mapJabatan($row[6] ?? null),
+                                'notlp'        => $row[16] ?? null,
+                                'id_account'   => $accountId,
+                            ]);
+                            break;
+
+                        case 'jabatan lainnya':
+                            $idJurusan = $this->mapJurusan($row[5] ?? null);
+                            if (!$idJurusan) {
+                                $errorLogs[] = "Baris " . ($i + 2) . ": Jurusan '" . ($row[5] ?? '-') . "' tidak ditemukan di database.";
+                                $accountModel->delete($accountId);
+                                continue 2 ;
+                            }
+
+                            (new DetailaccountJabatanLLnya())->insert([
+                                'nama_lengkap' => $nama,
+                                'id_prodi'     => $this->mapProdi($row[6] ?? null),
+                                'id_jurusan'   => $idJurusan,
+                                'id_jabatan'   => $this->mapJabatan($row[6] ?? null),
+                                'notlp'        => $row[16] ?? null,
+                                'id_account'   => $accountId,
+                            ]);
+                            break;
+                    }
+
+                    $countSuccess++;
+                } catch (\Exception $e) {
+                    $errorLogs[] = "Baris " . ($i + 2) . ": Gagal insert - " . $e->getMessage();
+                }
+            }
+
+            return redirect()->to('/admin/pengguna')
+                ->with('success', "Import selesai. Berhasil: $countSuccess, Gagal: " . count($errorLogs))
+                ->with('errorLogs', $errorLogs);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal import: ' . $e->getMessage());
+        }
+    }
+
+    // =========================
+    // Mapping Helper Functions
+    // =========================
+
+    private function mapRoleId($role)
+    {
+        $roleModel = new Roles();
+        $roleData = $roleModel->where('nama', $role)->first();
+        return $roleData['id'] ?? null;
+    }
+
+    private function mapJurusan($nama)
 {
-    $file = $this->request->getFile('file');
-    $selectedRole = $this->request->getPost('role');
+    if (!$nama) return null;
 
-    if (!$file || !$file->isValid()) {
-        return redirect()->back()->with('error', 'File tidak valid!');
-    }
+    $model = new \App\Models\Jurusan();
 
-    $ext = $file->getClientExtension();
-    $reader = IOFactory::createReader($ext === 'csv' ? 'Csv' : ($ext === 'xls' ? 'Xls' : 'Xlsx'));
-    $spreadsheet = $reader->load($file->getTempName());
-    $rows = $spreadsheet->getActiveSheet()->toArray();
+    // Cari berdasarkan singkatan
+    $data = $model->where('singkatan', strtoupper(trim($nama)))->first();
+    if ($data) return $data['id'];
 
-    $accountModel = new Accounts();
-    $countSuccess = 0;
-    $errorLogs = [];
+    // Cari berdasarkan nama jurusan full
+    $data = $model->where('nama_jurusan', $nama)->first();
+    if ($data) return $data['id'];
 
-    foreach ($rows as $i => $row) {
-        if ($i == 0) continue; // skip header
-
-        $username = $row[0] ?? null;
-        $email    = $row[1] ?? null;
-        $password = isset($row[2]) ? password_hash($row[2], PASSWORD_DEFAULT) : null;
-        $status   = $row[3] ?? 'Aktif';
-        $role     = $selectedRole ?: strtolower(trim($row[4] ?? ''));
-
-        // --- Validasi umum ---
-        if (!$email) { $errorLogs[] = "Baris $i: Email wajib diisi"; continue; }
-        if (!$password) { $errorLogs[] = "Baris $i: Password wajib diisi"; continue; }
-        if ($accountModel->where('email', $email)->first()) {
-            $errorLogs[] = "Baris $i: Email $email sudah terdaftar";
-            continue;
-        }
-
-        // --- Validasi khusus per role ---
-        switch ($role) {
-            case 'alumni':
-                if (empty($row[6])) { $errorLogs[] = "Baris $i: NIM wajib diisi"; continue 2; }
-                if (empty($row[7])) { $errorLogs[] = "Baris $i: Jurusan wajib diisi"; continue 2; }
-                if (empty($row[8])) { $errorLogs[] = "Baris $i: Prodi wajib diisi"; continue 2; }
-                if (empty($row[9])) { $errorLogs[] = "Baris $i: Angkatan wajib diisi"; continue 2; }
-                if (empty($row[10])) { $errorLogs[] = "Baris $i: Tahun Kelulusan wajib diisi"; continue 2; }
-                if (empty($row[11])) { $errorLogs[] = "Baris $i: IPK wajib diisi"; continue 2; }
-                if (empty($row[14])) { $errorLogs[] = "Baris $i: No Telepon wajib diisi"; continue 2; }
-                break;
-
-            case 'admin':
-                if (empty($row[5])) { $errorLogs[] = "Baris $i: Nama Lengkap wajib diisi"; continue 2; }
-                break;
-
-            case 'perusahaan':
-                if (empty($row[15])) { $errorLogs[] = "Baris $i: Nama Perusahaan wajib diisi"; continue 2; }
-                if (empty($row[12])) { $errorLogs[] = "Baris $i: Alamat wajib diisi"; continue 2; }
-                if (empty($row[14])) { $errorLogs[] = "Baris $i: No Telepon wajib diisi"; continue 2; }
-                break;
-
-            case 'kaprodi':
-                if (empty($row[5])) { $errorLogs[] = "Baris $i: Nama Lengkap wajib diisi"; continue 2; }
-                if (empty($row[7]) || empty($row[8])) { $errorLogs[] = "Baris $i: Jurusan & Prodi wajib diisi"; continue 2; }
-                if (empty($row[14])) { $errorLogs[] = "Baris $i: No Telepon wajib diisi"; continue 2; }
-                break;
-
-            case 'atasan':
-                if (empty($row[5])) { $errorLogs[] = "Baris $i: Nama Lengkap wajib diisi"; continue 2; }
-                if (empty($row[20])) { $errorLogs[] = "Baris $i: Jabatan wajib diisi"; continue 2; }
-                if (empty($row[14])) { $errorLogs[] = "Baris $i: No Telepon wajib diisi"; continue 2; }
-                break;
-
-            case 'jabatan lainnya':
-                if (empty($row[5])) { $errorLogs[] = "Baris $i: Nama Lengkap wajib diisi"; continue 2; }
-                if (empty($row[7]) || empty($row[8])) { $errorLogs[] = "Baris $i: Jurusan & Prodi wajib diisi"; continue 2; }
-                if (empty($row[20])) { $errorLogs[] = "Baris $i: Jabatan wajib diisi"; continue 2; }
-                if (empty($row[14])) { $errorLogs[] = "Baris $i: No Telepon wajib diisi"; continue 2; }
-                break;
-
-            default:
-                $errorLogs[] = "Baris $i: Role '$role' tidak dikenali";
-                continue 2;
-        }
-
-        // --- Insert akun utama ---
-        $id_account = $accountModel->insert([
-            'username' => $username,
-            'email'    => $email,
-            'password' => $password,
-            'status'   => $status,
-            'id_role'  => $this->mapRole($role),
-        ], true);
-
-        // --- Insert detail sesuai role ---
-        switch ($role) {
-            case 'alumni':
-                (new DetailaccountAlumni())->insert([
-                    'nama_lengkap'    => $row[5] ?? $username,
-                    'nim'             => $row[6],
-                    'id_jurusan'      => $row[7],
-                    'id_prodi'        => $row[8],
-                    'angkatan'        => $row[9],
-                    'tahun_kelulusan' => $row[10],
-                    'ipk'             => $row[11],
-                    'alamat'          => $row[12] ?? null,
-                    'jenisKelamin'    => $row[13] ?? null,
-                    'notlp'           => $row[14],
-                    'id_account'      => $id_account,
-                ]);
-                break;
-
-            case 'admin':
-                (new DetailaccountAdmins())->insert([
-                    'nama_lengkap' => $row[5],
-                    'id_account'   => $id_account,
-                ]);
-                break;
-
-            case 'perusahaan':
-                (new DetailaccountPerusahaan())->insert([
-                    'nama_perusahaan' => $row[15],
-                    'alamat1'         => $row[12],
-                    'alamat2'         => $row[16] ?? null,
-                    'id_provinsi'     => $row[17] ?? null,
-                    'id_kota'         => $row[18] ?? null,
-                    'kodepos'         => $row[19] ?? null,
-                    'noTlp'           => $row[14],
-                    'id_account'      => $id_account,
-                ]);
-                break;
-
-            case 'kaprodi':
-                (new DetailaccountKaprodi())->insert([
-                    'nama_lengkap' => $row[5],
-                    'id_prodi'     => $row[8],
-                    'id_jurusan'   => $row[7],
-                    'notlp'        => $row[14],
-                    'id_account'   => $id_account,
-                ]);
-                break;
-
-            case 'atasan':
-                (new DetailaccountAtasan())->insert([
-                    'nama_lengkap' => $row[5],
-                    'id_jabatan'   => $row[20],
-                    'notlp'        => $row[14],
-                    'id_account'   => $id_account,
-                ]);
-                break;
-
-            case 'jabatan lainnya':
-                (new DetailaccountJabatanLLnya())->insert([
-                    'nama_lengkap' => $row[5],
-                    'id_prodi'     => $row[8],
-                    'id_jurusan'   => $row[7],
-                    'id_jabatan'   => $row[20],
-                    'notlp'        => $row[14],
-                    'id_account'   => $id_account,
-                ]);
-                break;
-        }
-
-        $countSuccess++;
-    }
-
-    return redirect()->to('/admin/pengguna')
-        ->with('success', "Import selesai. Sukses: $countSuccess, Skip: " . count($errorLogs))
-        ->with('errorLogs', $errorLogs);
+    // Fallback LIKE
+    $data = $model->like('nama_jurusan', $nama)->first();
+    return $data['id'] ?? null;
 }
 
 
-    private function mapRole($role)
+
+    private function mapProdi($nama)
     {
-        $map = [
-            'alumni' => 1,
-            'admin' => 2,
-            'kaprodi' => 6,
-            'perusahaan' => 7,
-            'atasan' => 8,
-            'jabatan lainnya' => 9,
-        ];
-        return $map[$role] ?? null;
+        if (!$nama) return null;
+        $model = new Prodi();
+        $data = $model->like('nama_prodi', $nama)->first();
+        return $data['id'] ?? null;
     }
 
-    private function validateRequiredFields($role, $row, $line)
+    private function mapCity($nama)
     {
-        switch ($role) {
-            case 'alumni':
-                if (empty($row[6])) return "Baris $line dilewati: NIM wajib diisi";
-                if (empty($row[8])) return "Baris $line dilewati: ID Prodi wajib diisi";
-                if (empty($row[9])) return "Baris $line dilewati: Angkatan wajib diisi";
-                break;
+        if (!$nama) return null;
+        $nama = trim(str_ireplace(['Kabupaten', 'Kota'], '', $nama));
 
-            case 'perusahaan':
-                if (empty($row[15])) return "Baris $line dilewati: Nama Perusahaan wajib diisi";
-                if (empty($row[17])) return "Baris $line dilewati: ID Provinsi wajib diisi";
-                if (empty($row[18])) return "Baris $line dilewati: ID Kota wajib diisi";
-                break;
+        $model = new Cities();
+        $data = $model->like('name', $nama)->first();
 
-            case 'admin':
-                if (empty($row[5])) return "Baris $line dilewati: Nama lengkap wajib diisi";
-                break;
-
-            case 'kaprodi':
-                if (empty($row[5])) return "Baris $line dilewati: Nama lengkap wajib diisi";
-                if (empty($row[7]) || empty($row[8])) return "Baris $line dilewati: Jurusan & Prodi wajib diisi";
-                break;
-
-            case 'atasan':
-                if (empty($row[5])) return "Baris $line dilewati: Nama lengkap wajib diisi";
-                if (empty($row[20])) return "Baris $line dilewati: ID Jabatan wajib diisi";
-                break;
-
-            case 'jabatan lainnya':
-                if (empty($row[5])) return "Baris $line dilewati: Nama lengkap wajib diisi";
-                if (empty($row[7]) || empty($row[8])) return "Baris $line dilewati: Jurusan & Prodi wajib diisi";
-                if (empty($row[20])) return "Baris $line dilewati: ID Jabatan wajib diisi";
-                break;
+        if (!$data) {
+            $data = $model->where('name', $nama)->first();
         }
 
-        return null;
+        if (!$data) {
+            log_message('error', "City not found for: " . $nama);
+        }
+
+        return $data['id'] ?? null;
+    }
+
+    private function mapProvinsi($nama)
+    {
+        if (!$nama) return null;
+        $model = new Provincies();
+        $data = $model->like('name', $nama)->first();
+        return $data['id'] ?? null;
+    }
+
+    private function mapJabatan($nama)
+    {
+        if (!$nama) return null;
+        $model = new JabatanModels();
+        $data = $model->like('jabatan', $nama)->first();
+        return $data['id'] ?? null;
     }
 }
