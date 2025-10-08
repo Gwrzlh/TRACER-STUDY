@@ -16,15 +16,25 @@
         </script>
     <?php endif; ?>
 
-    <!-- tabs -->
-    <div class="tab-container">
-        <a href="<?= base_url('pengaturan-situs') ?>" class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-situs') ? 'active' : '' ?>">
-            Pengaturan Admin
+   <!-- tabs -->
+<div class="tab-container">
+    <a href="<?= base_url('pengaturan-situs') ?>" 
+       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-situs') ? 'active' : '' ?>">
+        Pengaturan Admin
+    </a>
+    <a href="<?= base_url('pengaturan-alumni') ?>" 
+       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-alumni') ? 'active' : '' ?>">
+        Pengaturan Alumni
+    </a>
+      <a href="<?= base_url('pengaturan-kaprodi') ?>" 
+           class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-kaprodi') ? 'active' : '' ?>">
+            Pengaturan Kaprodi
         </a>
-        <a href="<?= base_url('pengaturan-alumni') ?>" class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-alumni') ? 'active' : '' ?>">
-            Pengaturan Alumni
+      <a href="<?= base_url('pengaturan-atasan') ?>" 
+           class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-atasan') ? 'active' : '' ?>">
+           Pengaturan Atasan
         </a>
-    </div>
+</div>
 
     <form action="<?= base_url('pengaturan-alumni/save') ?>" method="post">
         <div class="card">
@@ -135,9 +145,17 @@
                     <?= esc($settings['dashboard_logout_button_text'] ?? 'Logout') ?> →
                   </button>
                 </div>
+                
+<!-- Pagination -->
+<h5 class="mb-3">Pengaturan Pagination - Lihat Teman</h5>
+<div class="mb-3">
+    <label for="lihat_teman_pagination_limit" class="form-label">Jumlah Data per Halaman</label>
+    <input type="number" min="1" max="100" name="lihat_teman_pagination_limit" id="lihat_teman_pagination_limit"
+           value="<?= esc($settings['lihat_teman_pagination_limit'] ?? 10) ?>" class="form-control" style="width: 150px;">
+    <small class="text-muted">Atur berapa banyak data teman yang ditampilkan per halaman di menu "Lihat Teman".</small>
+</div>
             </div>
         </div>
-
         <div class="text-end mt-4">
             <button type="submit" class="btn btn-success">💾 Simpan Pengaturan Alumni</button>
         </div>

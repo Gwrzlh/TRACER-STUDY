@@ -48,6 +48,12 @@
               </select>
             </div>
 
+             <div class="mb-3">
+        <label for="singkatan" class="form-label">Singkatan</label>
+        <input type="text" name="singkatan" id="singkatan" 
+               class="form-control" maxlength="10" placeholder="Contoh: JTK, AK, BI" required>
+    </div>
+
             <div class="mt-4">
               <button type="submit" class="btn-primary-custom">Simpan</button>
               <a href="<?= base_url('satuanorganisasi/prodi') ?>" class="btn-warning-custom">Batal</a>

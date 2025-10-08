@@ -13,6 +13,7 @@ class JabatanController extends Controller
 {
     public function dashboard()
     {
+        
         // Cek role hanya untuk Jabatan Lainnya
         if (session('role_id') != 9) {
             return redirect()->to('/login')->with('error', 'Akses ditolak.');

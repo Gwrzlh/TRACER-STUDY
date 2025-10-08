@@ -95,7 +95,7 @@
                                         $model = new \App\Models\Roles();
                                         $options = $model->select('id, nama as name')->findAll();
                                     } elseif ($condition['field'] == 'jenis_kel') {
-                                        $options = [['id' => 'L', 'name' => 'Laki-laki'], ['id' => 'P', 'name' => 'Perempuan']];
+                                        $options = [['id' => 'Laki-Laki', 'name' => 'Laki-Laki'], ['id' => 'Perempuan', 'name' => 'Perempuan']];
                                     } elseif ($condition['field'] == 'academic_year' || $condition['field'] == 'academic_graduate_year') {
                                         $start_year = date('Y') - 15;
                                         $end_year = date('Y');

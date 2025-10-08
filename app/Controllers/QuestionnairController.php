@@ -84,7 +84,7 @@ class QuestionnairController extends BaseController
         $user_fields = [
             'email',
             'username',
-            'id_role',
+            'role_id',
             'nama_lengkap',
             'nim',
             'id_jurusan',
@@ -125,7 +125,7 @@ class QuestionnairController extends BaseController
                 $type = 'select';
                 break;
             case 'jenisKelamin':
-                $options = [['id' => 'L', 'name' => 'Laki-laki'], ['id' => 'P', 'name' => 'Perempuan']];
+                $options = [['id' => 'Laki-Laki', 'name' => 'Laki-Laki'], ['id' => 'Perempuan', 'name' => 'Perempuan']];
                 $type = 'select';
                 break;
             case 'tahun_kelulusan':
@@ -140,7 +140,7 @@ class QuestionnairController extends BaseController
                 $options = $cityModel->select('id, name')->findAll();
                 $type = 'select';
                 break;
-            case 'id_role':
+            case 'role_id':
                 $groupModel = new Roles();
                 $options = $groupModel->select('id, nama as name')->findAll();
                 $type = 'select';
@@ -230,7 +230,7 @@ class QuestionnairController extends BaseController
         $user_fields = [
             'email',
             'username',
-            'id_role',
+            'role_id',
             'nama_lengkap',
             'nim',
             'id_jurusan',

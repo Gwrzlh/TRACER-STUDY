@@ -37,10 +37,14 @@ $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
     $routes->post('update/(:num)', 'PenggunaController::update/$1');
     $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
+    $routes->match(['post', 'delete'], 'deleteMultiple', 'PenggunaController::deleteMultiple');
+$routes->post('exportSelected', 'PenggunaController::exportSelected');
 
     // ✅ Import akun (cukup tulis 'import')
-    $routes->get('import', 'ImportAccount::form');
-    $routes->post('import', 'ImportAccount::process');
+    $routes->get('import', 'ImportAccount::index', ['filter' => 'auth']);
+    $routes->post('import', 'ImportAccount::import', ['filter' => 'auth']);
+        $routes->get('export', 'ExportAccount::index');
+        $routes->post('exportSelected', 'PenggunaController::exportSelected');
 });
 // ===============================
 // ADMIN ROUTES
@@ -144,8 +148,8 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     });
 
 
-// // --- Perusahaan ---
-// $routes->get('perusahaan/dashboard', 'PerusahaanController::dashboard');
+    // // --- Perusahaan ---
+    // $routes->get('perusahaan/dashboard', 'PerusahaanController::dashboard');
 
 
 
@@ -419,6 +423,11 @@ $routes->post('pengaturan-situs/save', 'PengaturanSitus::save');
 $routes->get('/pengaturan-situs', 'PengaturanSitus::index');
 $routes->get('pengaturan-alumni', 'PengaturanAlumni::index');
 $routes->post('pengaturan-alumni/save', 'PengaturanAlumni::save');
+$routes->get('pengaturan-kaprodi', 'PengaturanKaprodi::index');
+$routes->post('pengaturan-kaprodi/save', 'PengaturanKaprodi::save');
+$routes->get('pengaturan-atasan', 'PengaturanAtasan::index');
+$routes->post('pengaturan-atasan/save', 'PengaturanAtasan::save');
+
 
 // ajax conditional_logic 
 
@@ -465,6 +474,25 @@ $routes->group('admin/respon', ['filter' => 'adminAuth'], function ($routes) {
     // Tambahan PDF
     $routes->get('exportPdf/(:num)', 'AdminRespon::exportPdf/$1');
     $routes->get('allow_edit/(:num)/(:num)', 'AdminRespon::allowEdit/$1/$2');
+    // 🔹 Tambahan baru untuk AMI & Akreditasi
+    $routes->get('ami', 'AdminRespon::ami');
+    $routes->get('ami/detail/(:segment)', 'AdminRespon::detailAmi/$1');
+
+    $routes->get('akreditasi', 'AdminRespon::akreditasi');
+    $routes->get('akreditasi/detail/(:segment)', 'AdminRespon::detailAkreditasi/$1');
+    // PDF Akreditasi & AMI
+    $routes->get('akreditasi/pdf/(:segment)', 'AdminRespon::exportAkreditasiPdf/$1');
+    $routes->get('ami/pdf/(:segment)', 'AdminRespon::exportAmiPdf/$1');
+    // Hapus flag AMI
+    $routes->get('remove_from_ami/(:num)', 'AdminRespon::remove_from_ami/$1');
+
+    // Hapus flag Akreditasi
+    $routes->get('remove_from_accreditation/(:num)', 'AdminRespon::remove_from_accreditation/$1');
+
+
+
+    // 🔹 Simpan flag (AMI/Akreditasi)
+    $routes->post('saveFlags', 'AdminRespon::saveFlags');
 });
 
 $routes->get('api/getProdiByJurusan/(:num)', 'PenggunaController::getProdiByJurusan/$1');
@@ -605,7 +633,7 @@ $routes->get('atasan/dashboard', 'AtasanController::dashboard');
 $routes->get('atasan/kuesioner', 'AtasanKuesionerController::index');
 
 // --- Kuesioner Atasan ---
-$routes->group('atasan/kuesioner', ['namespace' => 'App\Controllers'], function($routes){
+$routes->group('atasan/kuesioner', ['namespace' => 'App\Controllers'], function ($routes) {
     $routes->get('', 'AtasanKuesionerController::index');
     $routes->get('mulai/(:num)', 'AtasanKuesionerController::mulai/$1');
     $routes->get('lanjutkan/(:num)', 'AtasanKuesionerController::lanjutkan/$1');

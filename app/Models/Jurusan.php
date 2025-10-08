@@ -12,7 +12,7 @@ class Jurusan extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','nama_jurusan'];
+   protected $allowedFields = ['nama_jurusan', 'singkatan'];
 
     protected bool $allowEmptyInserts = false;
 
@@ -39,4 +39,6 @@ class Jurusan extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    
 }

@@ -598,7 +598,8 @@ textarea.form-control {
 .question-details {
     max-height: none;
     overflow: visible;
-}  padding: var(--spacing-lg);
+    padding: var(--spacing-lg);
+}  
 
 
 @media (min-width: 768px) {

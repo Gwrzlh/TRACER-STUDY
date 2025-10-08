@@ -19,7 +19,8 @@ class AccountModel extends Model
         'reset_token',
         'reset_expires',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'foto'  
     ];
 
     protected $useTimestamps = true;
