@@ -33,30 +33,31 @@
                                     <tr>
                                         <td class="text-center"><?= $no++ ?></td>
                                         <td><?= esc($row['judul']) ?></td>
-                                        <td class="text-center">
-                                            <?php 
-                                            // Tentukan status
-                                            if ($row['statusIsi'] == 'Belum Mengisi'): ?>
-                                                <span class="status-badge belum-mengisi">Belum Mengisi</span>
-                                            <?php elseif ($row['statusIsi'] == 'On Going'): ?>
-                                                <span class="status-badge on-going">On Going
-                                                    <?php if (isset($row['progress']) && $row['progress'] > 0): ?>
-                                                        (<?= round($row['progress'], 1) ?>%)
-                                                    <?php endif; ?>
-                                                </span>
-                                            <?php elseif ($row['statusIsi'] == 'Finish' || (isset($row['progress']) && $row['progress'] >= 100)): ?>
-                                                <span class="status-badge finish">Finish</span>
-                                            <?php endif; ?>
-                                        </td>
-                                      <td class="action-cell">
+                                      <td class="text-center">
+    <?php 
+    $status = $row['status'] ?? $row['statusIsi'] ?? 'Belum Mengisi';
+    if ($status === 'Belum Mengisi'): ?>
+        <span class="status-badge belum-mengisi">Belum Mengisi</span>
+    <?php elseif ($status === 'On Going' || (isset($row['progress']) && $row['progress'] < 100)): ?>
+        <span class="status-badge on-going">On Going
+            <?php if (isset($row['progress']) && $row['progress'] > 0): ?>
+                (<?= round($row['progress'], 1) ?>%)
+            <?php endif; ?>
+        </span>
+    <?php elseif ($status === 'Finish' || (isset($row['progress']) && $row['progress'] >= 100)): ?>
+        <span class="status-badge finish">Finish</span>
+    <?php endif; ?>
+</td>
+
+<td class="action-cell">
     <div class="action-buttons">
         <?php 
-        if ($row['statusIsi'] == 'Belum Mengisi') : ?>
-            <a href="<?= base_url('atasan/kuesioner/mulai/' . $row['id']) ?>" 
-               class="btn-action btn-mulai">▶</a>
-        <?php elseif (isset($row['progress']) && $row['progress'] < 100) : ?>
-            <a href="<?= base_url('atasan/kuesioner/lanjutkan/' . $row['id']) ?>" 
-               class="btn-action btn-lanjutkan">👁️</a>
+        if ($status === 'Belum Mengisi') : ?>
+            <a href="<?= base_url('atasan/kuesioner/mulai/' . $row['id']) ?>" class="btn-action btn-mulai">▶</a>
+        <?php elseif ($status === 'On Going' || (isset($row['progress']) && $row['progress'] < 100)) : ?>
+            <a href="<?= base_url('atasan/kuesioner/lanjutkan/' . $row['id']) ?>" class="btn-action btn-lanjutkan">🔄</a>
+        <?php elseif ($status === 'Finish' || (isset($row['progress']) && $row['progress'] >= 100)) : ?>
+            <a href="<?= base_url('atasan/kuesioner/lihat/' . $row['id']) ?>" class="btn-action btn-lihat">👁️</a>
         <?php endif; ?>
     </div>
 </td>
