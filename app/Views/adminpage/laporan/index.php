@@ -1,69 +1,51 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Kelola Laporan</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?= $this->extend('layout/sidebar') ?>
+<?= $this->section('content') ?>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="flex min-h-screen bg-gray-100 text-gray-800">
-
-    <!-- Sidebar -->
-    <?= view('layout/sidebar') ?>
-
-<!-- Konten -->
-<div class="flex-1 py-10 px-6 overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-blue-100">
-
-  <div class="max-w-7xl mx-auto">
-    <!-- Logo -->
-    <img src="/images/logo.png" alt="Logo POLBAN" class="logo-img mb-8 w-28" />
-
-    <!-- Hero Section -->
-    <div class="mb-10 flex items-center justify-between">
+<div class="flex-1 overflow-y-auto bg-gray-50">
+  <div class="max-w-7xl mx-auto px-8 py-8">
+    
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
       <div>
-        <h1 class="text-4xl font-extrabold text-gray-900">Kelola Laporan</h1>
-        <p class="text-gray-600 mt-2">Manajemen data laporan tahunan dengan lebih mudah.</p>
+        <h1 class="text-3xl font-bold text-gray-900">Kelola Laporan</h1>
+        <p class="text-gray-600 mt-1 text-sm">Manajemen data laporan tahunan dengan lebih mudah.</p>
       </div>
       <!-- Tombol Tambah Laporan -->
       <button 
         type="button" 
         id="add-laporan"
-
-        class="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl shadow hover:scale-105 transition"
-
-      >
+        class="px-5 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-all shadow-sm">
         + Tambah Laporan
       </button>
     </div>
 
-    <!-- Card Container -->
-    <div class="w-full bg-white shadow-xl rounded-2xl p-10 border border-gray-200">
-      <!-- Notifikasi sukses -->
-      <?php if (session()->getFlashdata('success')): ?>
-          <div class="mb-6 p-4 bg-green-100 text-green-700 border border-green-300 rounded-lg font-medium shadow">
-              ✅ <?= session()->getFlashdata('success') ?>
+    <!-- Notifikasi sukses -->
+    <?php if (session()->getFlashdata('success')): ?>
+      <div class="mb-6 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg font-medium">
+        ✅ <?= session()->getFlashdata('success') ?>
+      </div>
+    <?php endif; ?>
 
-          </div>
-      <?php endif; ?>
+    <!-- Notifikasi error -->
+    <?php if (session()->getFlashdata('error')): ?>
+      <div class="mb-6 bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg font-medium">
+        ⚠️ <?= session()->getFlashdata('error') ?>
+      </div>
+    <?php endif; ?>
 
-      <!-- Notifikasi error -->
-      <?php if (session()->getFlashdata('error')): ?>
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      
+      <!-- Table Header -->
+      <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <h2 class="text-sm font-semibold text-gray-700">DAFTAR LAPORAN</h2>
+      </div>
 
-          <div class="mb-6 p-4 bg-red-100 text-red-700 border border-red-300 rounded-lg font-medium shadow">
-              ⚠️ <?= session()->getFlashdata('error') ?>
-
-          </div>
-      <?php endif; ?>
-
-      <!-- Form -->
-      <form action="<?= base_url('admin/laporan/save') ?>" method="post" enctype="multipart/form-data" class="space-y-8" id="laporan-form">
+      <!-- Form Content -->
+      <form action="<?= base_url('admin/laporan/save') ?>" method="post" enctype="multipart/form-data" id="laporan-form">
         <?= csrf_field() ?>
 
-
-        <div id="laporan-container" class="space-y-8">
+        <div id="laporan-container" class="divide-y divide-gray-100">
 
           <?php for ($i = 1; $i <= 7; $i++): ?>
             <?php 
@@ -73,134 +55,217 @@
               }
             ?>
 
-            <div class="relative border-l-4 border-blue-600 rounded-2xl p-8 bg-gradient-to-br from-white to-blue-50 hover:shadow-lg transition laporan-item">
-              <!-- Hidden id -->
+            <div class="laporan-item px-6 py-6 hover:bg-gray-50 transition-colors relative">
+              <!-- Hidden fields -->
               <input type="hidden" name="id[]" value="<?= $lap['id'] ?? '' ?>">
-
               <input type="hidden" name="urutan[]" value="<?= $i ?>">
 
-              <!-- Tombol Delete -->
-              <?php if(!empty($lap['id'])): ?>
-
-              <button type="button" class="absolute top-4 right-4 px-4 py-1.5 bg-red-600 text-white text-sm font-semibold rounded-full hover:bg-red-700 transition delete-btn" 
-                      data-id="<?= $lap['id'] ?>">
-                Hapus
-              </button>
-              <?php endif; ?>
-
-              <h3 class="text-xl font-bold text-blue-700 mb-6">📄 Laporan <?= $i ?></h3>
-
-              <!-- Judul -->
-              <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Judul</label>
-                <input 
-                  type="text" 
-                  name="judul[]" 
-                  value="<?= $lap['judul'] ?? '' ?>"
-                  class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 px-4 py-2"
-                >
-              </div>
-
-              <!-- Isi -->
-              <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Isi</label>
-                <textarea 
-                  name="isi[]" 
-                  class="isi-editor w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 px-4 py-2"
-                ><?= $lap['isi'] ?? '' ?></textarea>
-              </div>
-
-              <!-- File PDF -->
-              <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">File PDF</label>
-                <input 
-                  type="file" 
-                  name="file_pdf[]" 
-                  class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-5 
-                         file:rounded-full file:border-0 file:text-sm file:font-semibold 
-                         file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100"
-                >
-                <?php if (!empty($lap['file_pdf'])): ?>
-                  <p class="text-sm text-gray-600 mt-1">File lama: 
-                    <span class="font-medium text-blue-600"><?= $lap['file_pdf'] ?></span>
-                  </p>
+              <!-- Header dengan nomor dan tombol hapus -->
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-900">📄 Laporan <?= $i ?></h3>
+                <?php if(!empty($lap['id'])): ?>
+                <button type="button" 
+                        class="delete-btn px-5 py-2.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all shadow-sm" 
+                        data-id="<?= $lap['id'] ?>">
+                  Hapus
+                </button>
                 <?php endif; ?>
               </div>
 
-              <!-- File Gambar -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Gambar</label>
-                <input 
-                  type="file" 
-                  name="file_gambar[]" 
-                  accept="image/*"
-                  class="preview-gambar w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-5 
-                         file:rounded-full file:border-0 file:text-sm file:font-semibold 
-                         file:bg-green-50 file:text-green-600 hover:file:bg-green-100"
-                  data-preview="preview-<?= $i ?>"
-                >
+              <!-- Grid Layout untuk Form Fields -->
+              <div class="space-y-5">
+                
+                <!-- Judul -->
+                <div class="grid grid-cols-12 gap-4">
+                  <div class="col-span-3 flex items-start pt-2">
+                    <label class="font-medium text-gray-700 text-sm">Judul</label>
+                  </div>
+                  <div class="col-span-9">
+                    <input 
+                      type="text" 
+                      name="judul[]" 
+                      value="<?= $lap['judul'] ?? '' ?>"
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                  </div>
+                </div>
 
-                <!-- Preview Gambar -->
-                <img id="preview-<?= $i ?>" 
-                     src="<?= !empty($lap['file_gambar']) ? base_url('uploads/gambar/'.$lap['file_gambar']) : '' ?>" 
-                     class="mt-3 w-36 h-36 object-cover rounded-xl border shadow <?= empty($lap['file_gambar']) ? 'hidden' : '' ?>">
+                <!-- Isi -->
+                <div class="grid grid-cols-12 gap-4">
+                  <div class="col-span-3 flex items-start pt-2">
+                    <label class="font-medium text-gray-700 text-sm">Isi</label>
+                  </div>
+                  <div class="col-span-9">
+                    <textarea 
+                      name="isi[]" 
+                      class="isi-editor w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none"><?= $lap['isi'] ?? '' ?></textarea>
+                  </div>
+                </div>
+
+                <!-- File PDF -->
+                <div class="grid grid-cols-12 gap-4">
+                  <div class="col-span-3 flex items-start pt-2">
+                    <label class="font-medium text-gray-700 text-sm">File PDF</label>
+                  </div>
+                  <div class="col-span-9">
+                    <input 
+                      type="file" 
+                      name="file_pdf[]" 
+                      class="block w-full text-sm text-gray-600 border border-gray-300 rounded-lg cursor-pointer
+                             file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                             file:bg-blue-600 file:text-white file:text-sm hover:file:bg-blue-700 transition-all">
+                    <?php if (!empty($lap['file_pdf'])): ?>
+                      <p class="text-xs text-gray-600 mt-2">File saat ini: 
+                        <span class="font-medium text-blue-600"><?= $lap['file_pdf'] ?></span>
+                      </p>
+                    <?php endif; ?>
+                  </div>
+                </div>
+
+                <!-- File Gambar -->
+                <div class="grid grid-cols-12 gap-4">
+                  <div class="col-span-3 flex items-start pt-2">
+                    <label class="font-medium text-gray-700 text-sm">Gambar</label>
+                  </div>
+                  <div class="col-span-9">
+                    <div class="flex items-start gap-4">
+                      <img id="preview-<?= $i ?>" 
+                           src="<?= !empty($lap['file_gambar']) ? base_url('uploads/gambar/'.$lap['file_gambar']) : 'https://via.placeholder.com/200x150/e5e7eb/6b7280?text=No+Image' ?>" 
+                           class="w-48 h-36 object-cover rounded-lg border border-gray-300 flex-shrink-0 <?= empty($lap['file_gambar']) ? 'hidden' : '' ?>">
+                      <div class="flex-1">
+                        <input 
+                          type="file" 
+                          name="file_gambar[]" 
+                          accept="image/*"
+                          class="preview-gambar block w-full text-sm text-gray-600 border border-gray-300 rounded-lg cursor-pointer
+                                 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                                 file:bg-green-600 file:text-white file:text-sm hover:file:bg-green-700 transition-all"
+                          data-preview="preview-<?= $i ?>">
+                        <p class="text-xs text-gray-500 mt-2">Format: JPG, PNG. Max 2MB.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
-
             </div>
           <?php endfor; ?>
+
         </div>
 
-        <!-- Tombol Simpan -->
-        <div class="text-right">
-          <button 
-            type="submit" 
-
-            class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-xl shadow hover:scale-105 transition"
-          >
-            💾 Simpan Perubahan
+        <!-- Action Buttons -->
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+          <button type="button" onclick="window.history.back()" 
+            class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
+            Batal
+          </button>
+          <button type="submit"
+            class="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all">
+             Simpan Perubahan
           </button>
         </div>
+
       </form>
+
     </div>
 
     <!-- Pagination -->
-    <div class="mt-8">
-        <?= $pager->links('laporan', 'custom_pagination') ?>
+    <div class="mt-6">
+      <?= $pager->links('laporan', 'custom_pagination') ?>
     </div>
+
   </div>
 </div>
 
 <!-- Template Laporan Baru -->
 <template id="laporan-template">
-  <div class="relative border-l-4 border-blue-600 rounded-2xl p-8 bg-gradient-to-br from-white to-blue-50 hover:shadow-lg transition laporan-item">
+  <div class="laporan-item px-6 py-6 hover:bg-gray-50 transition-colors relative border-t border-gray-100">
     <input type="hidden" name="id[]" value="">
     <input type="hidden" name="urutan[]" value="">
 
-    <button type="button" class="absolute top-4 right-4 px-4 py-1.5 bg-red-600 text-white text-sm font-semibold rounded-full hover:bg-red-700 transition remove-laporan">
-      Hapus
-    </button>
+    <!-- Header dengan nomor dan tombol hapus -->
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-lg font-bold text-gray-900">📄 Laporan Baru</h3>
+      <button type="button" 
+              class="remove-laporan px-5 py-2.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-all shadow-sm">
+        Hapus
+      </button>
+    </div>
 
-    <h3 class="text-xl font-bold text-blue-700 mb-6">📄 Laporan Baru</h3>
+    <!-- Grid Layout untuk Form Fields -->
+    <div class="space-y-5">
+      
+      <!-- Judul -->
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-3 flex items-start pt-2">
+          <label class="font-medium text-gray-700 text-sm">Judul</label>
+        </div>
+        <div class="col-span-9">
+          <input 
+            type="text" 
+            name="judul[]"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+        </div>
+      </div>
 
-    <label class="block text-sm font-medium text-gray-700 mb-2">Judul</label>
-    <input type="text" name="judul[]" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 px-4 py-2 mb-4">
+      <!-- Isi -->
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-3 flex items-start pt-2">
+          <label class="font-medium text-gray-700 text-sm">Isi</label>
+        </div>
+        <div class="col-span-9">
+          <textarea 
+            name="isi[]" 
+            class="isi-editor w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none"></textarea>
+        </div>
+      </div>
 
-    <label class="block text-sm font-medium text-gray-700 mb-2">Isi</label>
-    <textarea name="isi[]" class="isi-editor w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 px-4 py-2 mb-4"></textarea>
+      <!-- File PDF -->
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-3 flex items-start pt-2">
+          <label class="font-medium text-gray-700 text-sm">File PDF</label>
+        </div>
+        <div class="col-span-9">
+          <input 
+            type="file" 
+            name="file_pdf[]" 
+            class="block w-full text-sm text-gray-600 border border-gray-300 rounded-lg cursor-pointer
+                   file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                   file:bg-blue-600 file:text-white file:text-sm hover:file:bg-blue-700 transition-all">
+        </div>
+      </div>
 
-    <label class="block text-sm font-medium text-gray-700 mb-2">File PDF</label>
-    <input type="file" name="file_pdf[]" class="w-full mb-2">
+      <!-- File Gambar -->
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-3 flex items-start pt-2">
+          <label class="font-medium text-gray-700 text-sm">Gambar</label>
+        </div>
+        <div class="col-span-9">
+          <div class="flex items-start gap-4">
+            <img id="preview-new" 
+                 class="w-48 h-36 object-cover rounded-lg border border-gray-300 flex-shrink-0 hidden">
+            <div class="flex-1">
+              <input 
+                type="file" 
+                name="file_gambar[]" 
+                accept="image/*"
+                class="preview-gambar block w-full text-sm text-gray-600 border border-gray-300 rounded-lg cursor-pointer
+                       file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                       file:bg-green-600 file:text-white file:text-sm hover:file:bg-green-700 transition-all"
+                data-preview="preview-new">
+              <p class="text-xs text-gray-500 mt-2">Format: JPG, PNG. Max 2MB.</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <label class="block text-sm font-medium text-gray-700 mb-2">Gambar</label>
-    <input type="file" name="file_gambar[]" accept="image/*" class="preview-gambar w-full mb-2" data-preview="preview-new">
-
-    <img id="preview-new" class="mt-3 w-36 h-36 object-cover rounded-xl border shadow hidden">
+    </div>
   </div>
 </template>
 
-<!-- Script Tambah & Hapus Slot -->
+<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<!-- Script Tambah & Hapus Slot -->
 <script>
   const addBtn = document.getElementById('add-laporan');
   const container = document.getElementById('laporan-container');
@@ -210,37 +275,33 @@
     const clone = document.importNode(template, true);
     container.appendChild(clone);
 
-
+    // Reinitialize TinyMCE
     tinymce.remove('textarea.isi-editor');
-
     tinymce.init({
       selector: 'textarea.isi-editor',
       height: 250,
       menubar: false,
       plugins: 'lists link image table code fullscreen',
-      toolbar: 'undo redo | styles | bold italic underline | alignleft aligncenter alignright | bullist numlist | code fullscreen',
-      license_key: 'gpl'
+      toolbar: 'undo redo | bold italic underline | bullist numlist | alignleft aligncenter alignright | fullscreen code',
+      license_key: 'gpl',
+      content_style: 'body { font-family:"Figtree", sans-serif; font-size:16px; line-height:1.6 }'
     });
   });
 
-
-
+  // Remove laporan baru
   container.addEventListener('click', function(e) {
     if (e.target.classList.contains('remove-laporan')) {
       e.target.closest('.laporan-item').remove();
     }
-
   });
 
-  // Event delegation untuk tombol delete
- container.addEventListener('click', function(e) {
-
+  // Delete laporan yang sudah ada
+  container.addEventListener('click', function(e) {
     if (e.target.classList.contains('delete-btn')) {
       const laporanItem = e.target.closest('.laporan-item');
       const id = e.target.getAttribute('data-id');
 
       Swal.fire({
-
         title: 'Yakin ingin menghapus laporan ini?',
         text: "Data yang dihapus tidak bisa dikembalikan!",
         icon: 'warning',
@@ -291,6 +352,23 @@
     }
   });
 
+  // Preview gambar saat upload
+  container.addEventListener('change', function(e) {
+    if (e.target.classList.contains('preview-gambar')) {
+      const file = e.target.files[0];
+      const previewId = e.target.getAttribute('data-preview');
+      const preview = document.getElementById(previewId);
+      
+      if (file && preview) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          preview.src = event.target.result;
+          preview.classList.remove('hidden');
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+  });
 </script>
 
 <!-- TinyMCE Self-hosted -->
@@ -307,6 +385,4 @@ tinymce.init({
 });
 </script>
 
-</body>
-</html>
-
+<?= $this->endSection() ?>
