@@ -21,6 +21,8 @@ use App\Models\DetailaccountKaprodi;
 use App\Models\DetailaccountAtasan;
 use App\Models\DetailaccountJabatanLLnya;
 use App\Models\LogActivityModel;
+use App\Models\AnswerModel;
+use App\Models\ResponseModel;
 use Exception;
 
 class PenggunaController extends BaseController
@@ -197,7 +199,6 @@ class PenggunaController extends BaseController
             'jabatan'   => $jabatan
 
         ];
-
 
         return view('adminpage\pengguna\tambahPengguna', $data);
     }
@@ -859,41 +860,131 @@ class PenggunaController extends BaseController
     }
     public function delete($id)
     {
-        $model = new DetailaccountAlumni();
-        $modeladmin = new DetailaccountAdmins();
+        // Models yang dipakai (sesuaikan nama kelas jika berbeda)
         $accountModel = new Accounts();
+        $answersModel = new AnswerModel();
+        $responsesModel = new ResponseModel();
+        $logModel = new LogActivityModel();
+
+        // detail account models (sesuaikan nama class jika perlu)
+        $detailAlumni = new DetailaccountAlumni();
+        $detailAdmins = new DetailaccountAdmins();
         $detailPerusahaan = new DetailaccountPerusahaan();
         $detailKaprodi = new DetailaccountKaprodi();
         $detailAtasan = new DetailaccountAtasan();
-        $accountJabatanLainnya = new DetailaccountJabatanLLnya();
+        $detailJabatanLainnya = new DetailaccountJabatanLLnya();
+
+        // Ambil akun dulu (untuk cek role / informasi lain)
         $account = $accountModel->find($id);
-        $logModel = new LogActivityModel(); // tambahin model log activities
-
-
-        if ($account['id_role'] == 1) {
-            $model->where('id_account', $id)->delete();
-        } else if ($account['id_role'] == 2) {
-            $modeladmin->where('id_account', $id)->delete();
-        } else if ($account['id_role'] == 6) {
-            $detailKaprodi->where('id_account', $id)->delete();
-        } else if ($account['id_role'] == 7) {
-            $detailPerusahaan->where('id_account', $id)->delete();
-        } else if ($account['id_role'] == 8) {
-            $detailAtasan->where('id_account', $id)->delete();
-        } else if ($account['id_role'] == 9) {
-            $accountJabatanLainnya->where('id_account', $id)->delete();
+        if (!$account) {
+            return redirect()->back()->with('error', 'Akun tidak ditemukan.');
         }
 
+        // Koneksi DB & mulai transaction
+        $db = \Config\Database::connect();
+        $db->transStart();
 
+        try {
+            // ============================
+            // Optional business rule checks
+            // ============================
+            // Jika organisasi ingin MENCEGAH penghapusan jika user punya responses (audit),
+            // aktifkan pengecekan berikut dan kembalikan pesan error.
+            //
+            // $existingResponses = $responsesModel->where('account_id', $id)->countAllResults();
+            // if ($existingResponses > 0) {
+            //     // Batalkan - jangan hapus jika perlu mempertahankan response untuk audit
+            //     $db->transRollback();
+            //     return redirect()->back()->with('error', 'Akun memiliki data respons; penghapusan dibatasi oleh kebijakan audit.');
+            // }
 
-        // 🔥 Hapus dulu semua log aktivitas terkait user ini
-        $logModel->where('user_id', $id)->delete();
+            // =========================================
+            // 1) Hapus dari answers (FK answers.user_id -> account.id)
+            //    - Answers biasanya paling "child" (depends on responses or questions).
+            // =========================================
+            try {
+                $answersModel->where('user_id', $id)->delete();
+                log_message('debug', "[deleteAccount] Deleted answers for account {$id}");
+            } catch (\Exception $e) {
+                // Jika gagal hapus answers, throw untuk ditangani di catch utama
+                throw new \Exception('Failed deleting answers: ' . $e->getMessage());
+            }
 
-        // Baru hapus akun utama
-        $accountModel->delete($id);
+            // =========================================
+            // 2) Hapus dari responses (FK responses.account_id -> account.id)
+            // =========================================
+            try {
+                $responsesModel->where('account_id', $id)->delete();
+                log_message('debug', "[deleteAccount] Deleted responses for account {$id}");
+            } catch (\Exception $e) {
+                throw new \Exception('Failed deleting responses: ' . $e->getMessage());
+            }
 
-        return redirect()->to('/admin/pengguna')->with('success', 'Data dihapus.');
+            // =========================================
+            // 3) Hapus log_activities terkait (jika FK ke user/account)
+            // =========================================
+            try {
+                // log_activities bisa merujuk ke user_id atau account_id tergantung schema
+                // coba delete by user_id terlebih dahulu, jika tidak ada, hapus by account_id
+                $logModel->where('user_id', $id)->delete();
+                $logModel->where('user_id', $id)->delete();
+                log_message('debug', "[deleteAccount] Deleted log activities for account {$id}");
+            } catch (\Exception $e) {
+                throw new \Exception('Failed deleting log activities: ' . $e->getMessage());
+            }
+
+            // =========================================
+            // 4) Hapus detail account sesuai role (1:1 tables)
+            //    - Pastikan kita menghapus tabel detail yang relevan
+            // =========================================
+            try {
+                // Contoh: hapus semua kemungkinan detail (aman karena where id_account)
+                $detailAlumni->where('id_account', $id)->delete();
+                $detailAdmins->where('id_account', $id)->delete();
+                $detailPerusahaan->where('id_account', $id)->delete();
+                $detailKaprodi->where('id_account', $id)->delete();
+                $detailAtasan->where('id_account', $id)->delete();
+                $detailJabatanLainnya->where('id_account', $id)->delete();
+
+                log_message('debug', "[deleteAccount] Deleted detail-account related rows for account {$id}");
+            } catch (\Exception $e) {
+                throw new \Exception('Failed deleting detail account rows: ' . $e->getMessage());
+            }
+
+            // =========================================
+            // 5) Terakhir hapus row di account
+            // =========================================
+            try {
+                $accountModel->delete($id);
+                log_message('info', "[deleteAccount] Account {$id} deleted successfully.");
+            } catch (\Exception $e) {
+                throw new \Exception('Failed deleting account row: ' . $e->getMessage());
+            }
+
+            // Selesaikan transaction
+            $db->transComplete();
+
+            // Periksa status transaction
+            if ($db->transStatus() === false) {
+                // Transaction gagal
+                $db->transRollback();
+                log_message('error', "[deleteAccount] Transaction rollback for account {$id}");
+                return redirect()->back()->with('error', 'Gagal menghapus akun. Silakan coba lagi atau hubungi admin.');
+            }
+
+            return redirect()->to('/admin/pengguna')->with('success', 'Akun dan data terkait berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            // rollback & log
+            $db->transRollback();
+            log_message('error', "[deleteAccount] Delete failed for account {$id}: " . $e->getMessage());
+            // opsional: simpan stack trace untuk debugging
+            log_message('error', $e->getTraceAsString());
+
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus akun: ' . $e->getMessage());
+        }
     }
+
     public function getProdiByJurusan($id_jurusan)
     {
         $prodiModel = new Prodi();
