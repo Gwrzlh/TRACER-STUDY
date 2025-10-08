@@ -35,7 +35,7 @@ class QuestionnairModel extends Model
         $user_fields = [
             'email',
             'username',
-            'group_id',
+            'role_id',
             'nama_lengkap',
             'nim',
             'id_jurusan',
@@ -47,7 +47,7 @@ class QuestionnairModel extends Model
             'id_cities',
             'kodepos',
             'tahun_kelulusan',
-            'jeniskelamin',
+            'jenisKelamin',
             'notlp'
         ];
 

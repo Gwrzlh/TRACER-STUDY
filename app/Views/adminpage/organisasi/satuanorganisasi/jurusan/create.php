@@ -28,18 +28,25 @@
                     <?php endif; ?>
 
                     <form action="<?= base_url('satuanorganisasi/jurusan/store') ?>" method="post">
-                        <?= csrf_field() ?>
-                        <div class="mb-3">
-                            <label for="nama_jurusan" class="form-label">Nama Jurusan</label>
-                            <input type="text" name="nama_jurusan" id="nama_jurusan" 
-                                   class="form-control" required>
-                        </div>
+    <?= csrf_field() ?>
+    <div class="mb-3">
+        <label for="nama_jurusan" class="form-label">Nama Jurusan</label>
+        <input type="text" name="nama_jurusan" id="nama_jurusan" 
+               class="form-control"  maxlength="100" placeholder="Contoh:Akuntansi" required>
+    </div>
 
-                        <div class="mt-4">
-                            <button type="submit" class="btn-primary-custom">Simpan</button>
-                            <a href="<?= base_url('satuanorganisasi') ?>" class="btn-warning-custom">Batal</a>
-                        </div>
-                    </form>
+    <div class="mb-3">
+        <label for="singkatan" class="form-label">Singkatan</label>
+        <input type="text" name="singkatan" id="singkatan" 
+               class="form-control" maxlength="10" placeholder="Contoh: JTK, AK, BI" required>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn-primary-custom">Simpan</button>
+        <a href="<?= base_url('satuanorganisasi') ?>" class="btn-warning-custom">Batal</a>
+    </div>
+</form>
+
                 </div>
             </div>
         </div>

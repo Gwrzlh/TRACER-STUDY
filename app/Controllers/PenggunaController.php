@@ -21,38 +21,54 @@ use App\Models\DetailaccountKaprodi;
 use App\Models\DetailaccountAtasan;
 use App\Models\DetailaccountJabatanLLnya;
 use App\Models\LogActivityModel;
+use App\Models\ResponseModel;
+use App\Models\AnswerModel;
+
 use Exception;
 
 class PenggunaController extends BaseController
 {
    public function index()
 {
+    $accountModel = new \App\Models\Accounts();
+    $roleModel    = new \App\Models\Roles();
+    $roles        = $roleModel->findAll();
+
     // Ambil parameter filter
     $roleId  = $this->request->getGet('role');
     $keyword = $this->request->getGet('keyword');
 
-    // 🔹 Ambil perPage dari Pengaturan Situs, default = 5
+    // Ambil perPage dari pengaturan situs
     $perPage = get_setting('pengguna_perpage_default', 5);
+    $currentPage = (int) ($this->request->getVar('page') ?? 1);
+    $offset = ($currentPage - 1) * $perPage;
 
-    // Ambil semua role
-    $rolesModel = new \App\Models\Roles();
-    $roles      = $rolesModel->findAll();
-
-    // Model akun
-    $accountModel = new \App\Models\Accounts();
-
-    // Build query utama
+    // 🔹 Build query utama
     $builder = $accountModel->builder();
     $builder->select('account.*, role.nama AS nama_role')
             ->join('role', 'role.id = account.id_role', 'left');
 
-    // Filter role
-    if ($roleId && is_numeric($roleId)) {
+    // 🔹 Filter berdasarkan role
+    if (!empty($roleId) && is_numeric($roleId)) {
         $builder->where('account.id_role', $roleId);
     }
 
-    // Filter keyword
+    // 🔹 Pencarian
     if (!empty($keyword)) {
+    $roleName = '';
+    if (!empty($roleId)) {
+        $roleData = $roleModel->find($roleId);
+        $roleName = strtolower($roleData['nama'] ?? '');
+    }
+
+    if ($roleName === 'alumni') {
+        // ✅ gunakan tabel detailaccount_alumni
+        $builder->join('detailaccount_alumni', 'detailaccount_alumni.id_account = account.id', 'left')
+                ->groupStart()
+                ->like('detailaccount_alumni.nim', $keyword)
+                ->groupEnd();
+    } else {
+        // Pencarian umum: username, email, status, role
         $builder->groupStart()
                 ->like('account.username', $keyword)
                 ->orLike('account.email', $keyword)
@@ -60,27 +76,23 @@ class PenggunaController extends BaseController
                 ->orLike('role.nama', $keyword)
                 ->groupEnd();
     }
+}
 
-    // Urutkan terbaru
+
+    // 🔹 Urutkan terbaru
     $builder->orderBy('account.id', 'DESC');
 
-    // 🔹 Hitung total data
+    // 🔹 Hitung total data untuk pagination
     $totalRecords = $builder->countAllResults(false);
 
-    // Setup pagination
-    $currentPage = (int) ($this->request->getVar('page') ?? 1);
-
-    $offset      = ($currentPage - 1) * $perPage;
-
-    // Ambil data sesuai halaman
+    // 🔹 Ambil data sesuai halaman
     $accounts = $builder->limit($perPage, $offset)->get()->getResultArray();
 
-    // Buat pagination links
+    // 🔹 Buat pagination
     $pager = \Config\Services::pager();
     $pagerLinks = $pager->makeLinks($currentPage, $perPage, $totalRecords, 'bootstrap5');
 
-
-    // Hitung jumlah akun per role
+    // 🔹 Hitung jumlah akun per role
     $counts = [];
     foreach ($roles as $r) {
         $counts[$r['id']] = $accountModel->where('id_role', $r['id'])->countAllResults();
@@ -88,7 +100,7 @@ class PenggunaController extends BaseController
     }
     $counts['all'] = $accountModel->countAllResults();
 
-    // Ambil detail tambahan
+    // 🔹 Ambil detail tambahan (optional)
     $detailaccountAdmin  = new \App\Models\DetailaccountAdmins();
     $detailaccountAlumni = new \App\Models\DetailaccountAlumni();
 
@@ -100,7 +112,7 @@ class PenggunaController extends BaseController
         ? $detailaccountAlumni->getDetailWithRelations()
         : [];
 
-    // Kirim ke view
+    // 🔹 Kirim data ke view
     $data = [
         'roles'               => $roles,
         'counts'              => $counts,
@@ -118,9 +130,6 @@ class PenggunaController extends BaseController
 
     return view('adminpage/pengguna/index', $data);
 }
-
-
-
 
     public function create()
     {
@@ -858,42 +867,85 @@ class PenggunaController extends BaseController
         }
     }
     public function delete($id)
-    {
-        $model = new DetailaccountAlumni();
-        $modeladmin = new DetailaccountAdmins();
-        $accountModel = new Accounts();
-        $detailPerusahaan = new DetailaccountPerusahaan();
-        $detailKaprodi = new DetailaccountKaprodi();
-        $detailAtasan = new DetailaccountAtasan();
-        $accountJabatanLainnya = new DetailaccountJabatanLLnya();
-        $account = $accountModel->find($id);
-        $logModel = new LogActivityModel(); // tambahin model log activities
+{
+    // ====== Inisialisasi semua model yang mungkin dipakai ======
+    $accountModel = new Accounts();
+    $logModel = new LogActivityModel();
+    $answersModel = new AnswerModel();
+    $responsesModel = new ResponseModel();
 
+    // Detail akun per-role
+    $detailAlumni = new DetailaccountAlumni();
+    $detailAdmins = new DetailaccountAdmins();
+    $detailPerusahaan = new DetailaccountPerusahaan();
+    $detailKaprodi = new DetailaccountKaprodi();
+    $detailAtasan = new DetailaccountAtasan();
+    $detailJabatanLainnya = new DetailaccountJabatanLLnya();
 
-        if ($account['id_role'] == 1) {
-            $model->where('id_account', $id)->delete();
-        } else if ($account['id_role'] == 2) {
-            $modeladmin->where('id_account', $id)->delete();
-        } else if ($account['id_role'] == 6) {
-            $detailKaprodi->where('id_account', $id)->delete();
-        } else if ($account['id_role'] == 7) {
-            $detailPerusahaan->where('id_account', $id)->delete();
-        } else if ($account['id_role'] == 8) {
-            $detailAtasan->where('id_account', $id)->delete();
-        } else if ($account['id_role'] == 9) {
-            $accountJabatanLainnya->where('id_account', $id)->delete();
-        }
+    // ====== Cek apakah akun ada ======
+    $account = $accountModel->find($id);
+    if (!$account) {
+        return redirect()->back()->with('error', 'Akun tidak ditemukan.');
+    }
 
+    // ====== Mulai transaksi database ======
+    $db = \Config\Database::connect();
+    $db->transStart();
 
-
-        // 🔥 Hapus dulu semua log aktivitas terkait user ini
+    try {
+        // ====== (1) Hapus data turunan yang umum ======
+        $answersModel->where('user_id', $id)->delete();
+        $responsesModel->where('account_id', $id)->delete();
         $logModel->where('user_id', $id)->delete();
 
-        // Baru hapus akun utama
+        // ====== (2) Hapus detail akun sesuai role ======
+        switch ($account['id_role']) {
+            case 1: // Alumni
+                $detailAlumni->where('id_account', $id)->delete();
+                break;
+            case 2: // Admin
+                $detailAdmins->where('id_account', $id)->delete();
+                break;
+            case 6: // Kaprodi
+                $detailKaprodi->where('id_account', $id)->delete();
+                break;
+            case 7: // Perusahaan
+                $detailPerusahaan->where('id_account', $id)->delete();
+                break;
+            case 8: // Atasan
+                $detailAtasan->where('id_account', $id)->delete();
+                break;
+            case 9: // Jabatan Lainnya
+                $detailJabatanLainnya->where('id_account', $id)->delete();
+                break;
+            default:
+                // jika role baru tidak dikenali, aman tidak melakukan apa pun
+                log_message('warning', "[deleteAccount] Tidak ada detail table untuk role {$account['id_role']}");
+                break;
+        }
+
+        // ====== (3) Terakhir hapus akun utama ======
         $accountModel->delete($id);
 
-        return redirect()->to('/admin/pengguna')->with('success', 'Data dihapus.');
+        // ====== (4) Commit transaksi ======
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            $db->transRollback();
+            return redirect()->back()->with('error', 'Gagal menghapus akun. Transaksi dibatalkan.');
+        }
+
+        // ====== (5) Sukses ======
+        return redirect()->to('/admin/pengguna')->with('success', 'Akun dan data terkait berhasil dihapus.');
+
+    } catch (\Exception $e) {
+        // Rollback kalau ada error
+        $db->transRollback();
+        log_message('error', "[deleteAccount] Error: " . $e->getMessage());
+        return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
+}
+
     public function getProdiByJurusan($id_jurusan)
     {
         $prodiModel = new Prodi();
@@ -901,4 +953,80 @@ class PenggunaController extends BaseController
 
         return $this->response->setJSON($data);
     }
+
+public function deleteMultiple()
+{
+    $ids = $this->request->getPost('ids');
+
+    if (!$ids) {
+        return redirect()->back()->with('error', 'Tidak ada akun yang dipilih untuk dihapus.');
+    }
+
+    $accountModel = new \App\Models\Accounts();
+    $alumniModel = new \App\Models\DetailaccountAlumni();
+    $adminModel = new \App\Models\DetailaccountAdmins();
+    $kaprodiModel = new \App\Models\DetailaccountKaprodi();
+    $perusahaanModel = new \App\Models\DetailaccountPerusahaan();
+    $atasanModel = new \App\Models\DetailaccountAtasan();
+    $jabatanLainModel = new \App\Models\DetailaccountJabatanLLnya();
+    $logModel = new \App\Models\LogActivityModel();
+
+    // Hapus dulu semua data turunan (child)
+    $alumniModel->whereIn('id_account', $ids)->delete();
+    $adminModel->whereIn('id_account', $ids)->delete();
+    $kaprodiModel->whereIn('id_account', $ids)->delete();
+    $perusahaanModel->whereIn('id_account', $ids)->delete();
+    $atasanModel->whereIn('id_account', $ids)->delete();
+    $jabatanLainModel->whereIn('id_account', $ids)->delete();
+    $logModel->whereIn('user_id', $ids)->delete();
+
+    // Setelah semua child terhapus, baru hapus akun utama
+    $deleted = $accountModel->whereIn('id', $ids)->delete();
+
+    if ($deleted) {
+        return redirect()->back()->with('success', 'Akun yang dipilih berhasil dihapus.');
+    } else {
+        return redirect()->back()->with('error', 'Gagal menghapus akun yang dipilih.');
+    }
+}
+
+
+public function exportSelected()
+{
+    $ids = $this->request->getPost('ids');
+    if (empty($ids)) {
+        return redirect()->back()->with('error', 'Tidak ada pengguna yang dipilih untuk diexport.');
+    }
+
+    $model = new \App\Models\AccountModel();
+    $data = $model->whereIn('id', $ids)->findAll();
+
+    if (!$data) {
+        return redirect()->back()->with('error', 'Data tidak ditemukan.');
+    }
+
+    // buat file CSV
+    $filename = 'pengguna_terpilih_' . date('Ymd_His') . '.csv';
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+    $output = fopen('php://output', 'w');
+    fputcsv($output, ['ID', 'Username', 'Email', 'Status', 'Role' ]);
+
+    foreach ($data as $row) {
+        fputcsv($output, [
+            $row['id'],
+            $row['username'],
+            $row['email'],
+            $row['status'],
+            $row['id_role'],
+        ]);
+    }
+
+    fclose($output);
+    exit;
+}
+
+
+
 }

@@ -1,115 +1,159 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Edit Welcome Page</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="flex bg-gray-100 min-h-screen">
+<?= $this->extend('layout/sidebar') ?>
+<?= $this->section('content') ?>
 
-    <!-- Sidebar -->
-    <?= view('layout/sidebar') ?>
-
-<!-- Konten -->
-<div class="flex-1 py-10 px-6 overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-blue-100">
-  <div class="max-w-6xl mx-auto">
-<img src="/images/logo.png" alt="Logo POLBAN" class="logo-img" />
-   <!-- Hero Section -->
-<div class="text-left mb-12">
-  <h1 class="text-4xl font-extrabold text-gray-900">Edit Landing Page</h1>
-</div>
+<div class="flex-1 overflow-y-auto bg-gray-50">
+  <div class="max-w-7xl mx-auto px-8 py-8">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Edit Landing Page</h1>
+    </div>
 
     <!-- Notifikasi -->
     <?php if (session()->getFlashdata('success')): ?>
-      <div class="bg-blue-100 border-2 border-blue-500 text-blue-800 px-6 py-4 rounded-xl font-semibold mb-8">
+      <div class="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg mb-6 font-medium">
         ✅ <?= session()->getFlashdata('success') ?>
       </div>
     <?php endif; ?>
 
-    <!-- Form -->
-    <form action="<?= base_url('/admin/welcome-page/update') ?>" method="post" enctype="multipart/form-data" class="space-y-12 relative">
-      <input type="hidden" name="id" value="<?= esc($welcome['id']) ?>">
-
-           <!-- Section Judul 1 -->
-      <div class="bg-white border-l-4 border-blue-600 rounded-2xl p-8 shadow-lg">
-        <h2 class="text-2xl font-bold text-blue-700 mb-6">Judul & Deskripsi Pertama</h2>
-
-        <label class="block font-semibold text-gray-800">Judul 1</label>
-        <input type="text" name="title_1" value="<?= esc($welcome['title_1']) ?>" required
-          class="w-full mt-2 border border-blue-300 rounded-xl px-5 py-3 text-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
-
-        <label class="block font-semibold text-gray-800 mt-6">Deskripsi 1</label>
-        <textarea id="desc_1_editor" name="desc_1" rows="4" required
-          class="w-full mt-2 border border-blue-300 rounded-xl px-5 py-3 text-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500"><?= esc($welcome['desc_1']) ?></textarea>
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      
+      <!-- Table Header -->
+      <div class="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-200 font-semibold text-sm text-gray-700">
+        <div class="col-span-3">FIELD</div>
+        <div class="col-span-9">KONTEN</div>
       </div>
 
-      <!-- Section Judul 2 -->
-      <div class="bg-white border-l-4 border-blue-500 rounded-2xl p-8 shadow-lg">
-        <h2 class="text-2xl font-bold text-blue-700 mb-6">Judul & Deskripsi Kedua</h2>
+      <!-- Form Content -->
+      <form action="<?= base_url('/admin/welcome-page/update') ?>" method="post" enctype="multipart/form-data" id="welcomeForm" class="divide-y divide-gray-100">
+        <input type="hidden" name="id" value="<?= esc($welcome['id']) ?>">
 
-        <label class="block font-semibold text-gray-800">Judul 2</label>
-        <input type="text" name="title_2" value="<?= esc($welcome['title_2']) ?>" required
-          class="w-full mt-2 border border-blue-300 rounded-xl px-5 py-3 text-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
+        <!-- Judul 1 -->
+        <div class="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-gray-50 transition-colors">
+          <div class="col-span-3 flex items-start pt-2">
+            <label class="font-medium text-gray-700">Judul 1</label>
+          </div>
+          <div class="col-span-9">
+            <input type="text" name="title_1" value="<?= esc($welcome['title_1']) ?>" required
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+          </div>
+        </div>
 
-        <label class="block font-semibold text-gray-800 mt-6">Deskripsi 2</label>
-        <textarea id="desc_2_editor" name="desc_2" rows="4" required
-          class="w-full mt-2 border border-blue-300 rounded-xl px-5 py-3 text-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500"><?= esc($welcome['desc_2']) ?></textarea>
+        <!-- Deskripsi 1 -->
+        <div class="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-gray-50 transition-colors">
+          <div class="col-span-3 flex items-start pt-2">
+            <label class="font-medium text-gray-700">Deskripsi 1</label>
+          </div>
+          <div class="col-span-9">
+            <textarea id="desc_1_editor" name="desc_1" rows="4" required
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none"><?= esc($welcome['desc_1']) ?></textarea>
+          </div>
+        </div>
+
+        <!-- Judul 2 -->
+        <div class="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-gray-50 transition-colors">
+          <div class="col-span-3 flex items-start pt-2">
+            <label class="font-medium text-gray-700">Judul 2</label>
+          </div>
+          <div class="col-span-9">
+            <input type="text" name="title_2" value="<?= esc($welcome['title_2']) ?>" required
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+          </div>
+        </div>
+
+        <!-- Deskripsi 2 -->
+        <div class="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-gray-50 transition-colors">
+          <div class="col-span-3 flex items-start pt-2">
+            <label class="font-medium text-gray-700">Deskripsi 2</label>
+          </div>
+          <div class="col-span-9">
+            <textarea id="desc_2_editor" name="desc_2" rows="4" required
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none"><?= esc($welcome['desc_2']) ?></textarea>
+          </div>
+        </div>
+
+        <!-- Gambar 1 -->
+        <div class="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-gray-50 transition-colors">
+          <div class="col-span-3 flex items-start pt-2">
+            <label class="font-medium text-gray-700">Gambar 1</label>
+          </div>
+          <div class="col-span-9">
+            <div class="flex items-start gap-4">
+              <img id="preview_image" src="<?= esc($welcome['image_path']) ?>" alt="Preview"
+                class="w-48 h-36 object-cover rounded-lg border border-gray-300 flex-shrink-0">
+              <div class="flex-1">
+                <input type="file" name="image" id="image_input" accept="image/*"
+                  class="block w-full text-sm text-gray-600 border border-gray-300 rounded-lg cursor-pointer
+                         file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                         file:bg-blue-600 file:text-white file:text-sm hover:file:bg-blue-700 transition-all">
+                <button type="button" id="reset_image"
+                  class="mt-2 text-xs text-red-600 hover:text-red-800 underline">Reset ke default</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gambar 2 -->
+        <div class="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-gray-50 transition-colors">
+          <div class="col-span-3 flex items-start pt-2">
+            <label class="font-medium text-gray-700">Gambar 2</label>
+          </div>
+          <div class="col-span-9">
+            <div class="flex items-start gap-4">
+              <img id="preview_image_2" 
+                   src="<?= !empty($welcome['image_path_2']) ? esc($welcome['image_path_2']) : '/images/placeholder.png' ?>" 
+                   alt="Preview"
+                   class="w-48 h-36 object-cover rounded-lg border border-gray-300 flex-shrink-0">
+              <div class="flex-1">
+                <input type="file" name="image_2" id="image_input_2" accept="image/*"
+                  class="block w-full text-sm text-gray-600 border border-gray-300 rounded-lg cursor-pointer
+                         file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                         file:bg-blue-600 file:text-white file:text-sm hover:file:bg-blue-700 transition-all">
+                <button type="button" id="reset_image_2"
+                  class="mt-2 text-xs text-red-600 hover:text-red-800 underline">Reset ke default</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- YouTube URL -->
+        <div class="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-gray-50 transition-colors">
+          <div class="col-span-3 flex items-start pt-2">
+            <label class="font-medium text-gray-700">Link YouTube</label>
+          </div>
+          <div class="col-span-9">
+            <input type="text" id="youtube_url" name="youtube_url" value="<?= esc($welcome['youtube_url']) ?>" required
+              placeholder="https://www.youtube.com/watch?v=xxxx"
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+            <p class="text-xs text-gray-500 mt-2">Bisa pakai link biasa atau embed (contoh: https://www.youtube.com/watch?v=xxxx atau https://www.youtube.com/embed/xxxx)</p>
+            
+            <!-- Preview YouTube -->
+            <div id="youtube_preview_container" class="mt-4 <?= empty($welcome['youtube_url']) ? 'hidden' : '' ?>">
+              <iframe id="youtube_preview" 
+                      src="<?= esc($welcome['youtube_url']) ?>" 
+                      class="w-full h-64 rounded-lg border border-gray-300" 
+                      frameborder="0" allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- Action Buttons -->
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+        <button type="button" onclick="window.history.back()" 
+          class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
+          Batal
+        </button>
+        <button type="submit" form="welcomeForm"
+          class="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all">
+          Simpan Perubahan
+        </button>
       </div>
 
-  <!-- Section Media -->
-<div class="bg-white border-l-4 border-blue-400 rounded-2xl p-8 shadow-lg">
-  <h2 class="text-2xl font-bold text-blue-700 mb-6">Media</h2>
-
-  <!-- Grid untuk 2 gambar sejajar -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <!-- Gambar Pertama -->
-    <div>
-      <label class="block font-semibold text-gray-800 mb-2">Gambar Kesatu</label>
-      <div class="bg-gray-100 p-4 rounded-xl border border-dashed border-blue-300 flex justify-center">
-        <img id="preview_image" src="<?= esc($welcome['image_path']) ?>" alt="Preview"
-             class="w-64 rounded-lg shadow hover:scale-105 transition-transform duration-300">
-      </div>
-      <input type="file" name="image" id="image_input"
-        class="mt-4 block w-full text-sm text-gray-600 border border-blue-300 rounded-lg px-4 py-3 cursor-pointer
-               file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
-               file:bg-blue-600 file:text-white hover:file:bg-blue-700">
-      <button type="button" id="reset_image"
-        class="mt-2 text-xs text-red-600 hover:text-red-800 underline">Reset Gambar</button>
     </div>
 
-    <!-- Gambar Kedua -->
-    <div>
-      <label class="block font-semibold text-gray-800 mb-2">Gambar Kedua</label>
-      <div class="bg-gray-100 p-4 rounded-xl border border-dashed border-blue-300 flex justify-center">
-        <img id="preview_image_2" 
-             src="<?= !empty($welcome['image_path_2']) ? esc($welcome['image_path_2']) : '/images/placeholder.png' ?>" 
-             alt="Preview"
-             class="w-64 rounded-lg shadow hover:scale-105 transition-transform duration-300">
-      </div>
-      <input type="file" name="image_2" id="image_input_2"
-        class="mt-4 block w-full text-sm text-gray-600 border border-blue-300 rounded-lg px-4 py-3 cursor-pointer
-               file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
-               file:bg-blue-600 file:text-white hover:file:bg-blue-700">
-      <button type="button" id="reset_image_2"
-        class="mt-2 text-xs text-red-600 hover:text-red-800 underline">Reset Gambar</button>
-    </div>
-  </div>
-
-   <!-- YouTube di bawah -->
-  <div class="mt-8">
-    <label class="block font-semibold text-gray-800 mb-2">Link YouTube</label>
-    <input type="text" id="youtube_url" name="youtube_url" value="<?= esc($welcome['youtube_url']) ?>" required
-      class="w-full border border-blue-300 rounded-xl px-5 py-3 text-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500">
-    <p class="text-sm text-gray-500 mt-2">Bisa pakai link biasa atau embed (contoh: https://www.youtube.com/watch?v=xxxx atau https://www.youtube.com/embed/xxxx)</p>
-
-    <!-- Preview YouTube -->
-    <div id="youtube_preview_container" class="mt-4 <?= empty($welcome['youtube_url']) ? 'hidden' : '' ?>">
-      <iframe id="youtube_preview" 
-              src="<?= esc($welcome['youtube_url']) ?>" 
-              class="w-full h-64 rounded-xl shadow-md border border-blue-300" 
-              frameborder="0" allowfullscreen></iframe>
-    </div>
   </div>
 
   <!-- ✅ Tambahan: Upload Video File -->
@@ -218,23 +262,11 @@ videoInput.addEventListener('change', function(e) {
 });
 </script>
 
-
-      <!-- Tombol Floating -->
-      <div class="sticky bottom-6 flex justify-end">
-        <button type="submit"
-          class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-extrabold px-10 py-4 rounded-full shadow-xl hover:scale-105 transition">
-          Simpan Perubahan
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <!-- TinyMCE Self-hosted -->
 <script src="<?= base_url('tinymce/tinymce.min.js'); ?>"></script>
 <script>
 tinymce.init({
-    selector: '#desc_1_editor, #desc_2_editor , #desc_3_editor',
+    selector: '#desc_1_editor, #desc_2_editor, #desc_3_editor',
     license_key: 'gpl',
     height: 250,
     menubar: false,
@@ -243,3 +275,5 @@ tinymce.init({
     content_style: 'body { font-family:"Figtree", sans-serif; font-size:16px; line-height:1.6 }'
 });
 </script>
+
+<?= $this->endSection() ?>

@@ -2,9 +2,9 @@
 
 namespace App\Controllers;
 
-use App\Models\Prodi;
 use App\Models\JurusanModel;
 use App\Models\SatuanOrganisasiModel;
+use App\Models\Prodi;
 use CodeIgniter\Controller;
 
 class ProdiController extends Controller
@@ -12,51 +12,34 @@ class ProdiController extends Controller
     protected $helpers = ['form'];
 
     public function index()
-{
-    $satuanModel  = new SatuanOrganisasiModel();
-    $jurusanModel = new JurusanModel();
-    $prodiModel   = new Prodi();
+    {
+        $satuanModel  = new SatuanOrganisasiModel();
+        $jurusanModel = new JurusanModel();
+        $prodiModel   = new Prodi();
 
-    // Ambil keyword dari GET
-    $keyword = $this->request->getGet('keyword');
+        $keyword = $this->request->getGet('keyword');
 
-    // Ambil setting jumlah per halaman (default 10)
-    $perPage = get_setting('org_perpage_default', 10);
+        $data['count_satuan']  = $satuanModel->countAll();
+        $data['count_jurusan'] = $jurusanModel->countAll();
+        $data['count_prodi']   = $prodiModel->countAll();
 
-    // Query untuk badge (hitung total tanpa filter)
-    $data['count_satuan']  = $satuanModel->countAll();
-    $data['count_jurusan'] = $jurusanModel->countAll();
-    $data['count_prodi']   = $prodiModel->countAll();
+        // ✅ Tambahkan prodi.singkatan di SELECT
+        $builder = $prodiModel->select('prodi.id, prodi.nama_prodi, prodi.singkatan, jurusan.nama_jurusan')
+            ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left');
 
-    // Builder: Prodi + Join ke Jurusan
-    $builder = $prodiModel->select('prodi.id, prodi.nama_prodi, jurusan.nama_jurusan')
-        ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left');
+        if (!empty($keyword)) {
+            $builder->groupStart()
+                ->like('prodi.nama_prodi', $keyword)
+                ->orLike('prodi.singkatan', $keyword)
+                ->orLike('jurusan.nama_jurusan', $keyword)
+                ->groupEnd();
+        }
 
-    // Filter jika ada keyword (pencarian nama_prodi atau nama_jurusan)
-    if (!empty($keyword)) {
-        $builder->groupStart()
-            ->like('prodi.nama_prodi', $keyword)
-            ->orLike('jurusan.nama_jurusan', $keyword)
-            ->groupEnd();
+        $data['prodi']   = $builder->findAll();
+        $data['keyword'] = $keyword;
+
+        return view('adminpage/organisasi/satuanorganisasi/prodi/index', $data);
     }
-
-    // Ambil data dengan pagination
-    $prodi = $builder
-        ->orderBy('prodi.id', 'DESC')
-        ->paginate($perPage);
-
-    // Data untuk view
-    $data['prodi']        = $prodi;
-    $data['pager']        = $prodiModel->pager;
-    $data['perPage']      = $perPage;
-    $data['currentPage']  = (int) ($this->request->getGet('page') ?? 1);
-    $data['pagerLinks']   = $prodiModel->pager->links();
-    $data['keyword']      = $keyword;
-
-    return view('adminpage/organisasi/satuanorganisasi/prodi/index', $data);
-}
-
-
 
     public function create()
     {
@@ -69,6 +52,7 @@ class ProdiController extends Controller
         $model = new Prodi();
         $data = [
             'nama_prodi' => $this->request->getPost('nama_prodi'),
+            'singkatan'  => $this->request->getPost('singkatan'), // ✅ Tambah field
             'id_jurusan' => $this->request->getPost('id_jurusan'),
         ];
         $model->insert($data);
@@ -92,6 +76,7 @@ class ProdiController extends Controller
         $model = new Prodi();
         $data = [
             'nama_prodi' => $this->request->getPost('nama_prodi'),
+            'singkatan'  => $this->request->getPost('singkatan'), // ✅ Tambah field
             'id_jurusan' => $this->request->getPost('id_jurusan'),
         ];
         $model->update($id, $data);
@@ -105,6 +90,7 @@ class ProdiController extends Controller
         $model->delete($id);
         return redirect()->to('/satuanorganisasi/prodi')->with('success', 'Data prodi berhasil dihapus.');
     }
+
     public function getProdi($id_jurusan)
     {
         $prodiModel = new Prodi();
