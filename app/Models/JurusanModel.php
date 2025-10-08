@@ -17,4 +17,10 @@ class JurusanModel extends Model
                 ->join('tipe_organisasi', 'tipe_organisasi.id = satuan_organisasi.id_tipe')
                 ->findAll();
 }
+ public function getWithRole()
+{
+    return $this->select('tipe_organisasi.*, role.nama as role_nama')
+                ->join('role', 'role.id = tipe_organisasi.id_group')
+                ->findAll();
+}
 }
