@@ -1,16 +1,29 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 <link rel="stylesheet" href="<?= base_url('css/organisasi/tipeorganisasi.css') ?>">
-
+<?php
+$tambah_text = get_setting('tambah_button_text', 'Tambah Data');
+$tambah_color = get_setting('tambah_button_color', '#0d6efd');
+$tambah_text_color = get_setting('tambah_button_text_color', '#ffffff');
+$tambah_hover = get_setting('tambah_button_hover_color', '#0b5ed7');
+?>
 <!-- Main Container -->
 <div class="main-container">
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title">Tipe Organisasi</h1>
         <div class="header-actions">
-            <a href="<?= base_url('/admin/tipeorganisasi/form') ?>" class="btn-primary">
-                <span class="btn-icon">+</span> Tambah
-            </a>
+          
+<a href="<?= base_url('tipeorganisasi/tambah') ?>"
+   id="btnTambah"
+   class="btn"
+   style="background-color: <?= esc($tambah_color) ?>;
+          color: <?= esc($tambah_text_color) ?>;
+          border: none; padding: 8px 16px; border-radius: 6px;
+          transition: all 0.3s ease;">
+    <?= esc($tambah_text) ?>
+</a>
+
         </div>
     </div>
 
@@ -81,6 +94,9 @@
             <?php endif; ?>
         </tbody>
     </table>
+    <div class="mt-3">
+    <?= $pager->links('default', 'bootstrap5') ?>
+</div>
 </div>
 
 <!-- Flashdata -->
@@ -118,6 +134,12 @@ function confirmDelete(button) {
         }
     })
 }
+document.getElementById('btnTambah').addEventListener('mouseover', function() {
+    this.style.backgroundColor = '<?= esc($tambah_hover) ?>';
+});
+document.getElementById('btnTambah').addEventListener('mouseout', function() {
+    this.style.backgroundColor = '<?= esc($tambah_color) ?>';
+});
 </script>
 
 <?= $this->endSection() ?>

@@ -28,6 +28,14 @@
        class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-alumni') ? 'active' : '' ?>">
         Pengaturan Alumni
     </a>
+      <a href="<?= base_url('pengaturan-kaprodi') ?>" 
+           class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-kaprodi') ? 'active' : '' ?>">
+            Pengaturan Kaprodi
+        </a>
+      <a href="<?= base_url('pengaturan-atasan') ?>" 
+           class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-atasan') ? 'active' : '' ?>">
+           Pengaturan Atasan
+        </a>
 </div>
 
     <form action="<?= base_url('pengaturan-situs/save') ?>" method="post">
@@ -377,6 +385,61 @@
         </div>
     </div>
 </div>
+<!-- Tombol Tambah -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5>Pengaturan Tombol Tambah</h5>
+    </div>
+    <div class="card-body p-4">
+        <div class="mb-3">
+            <label for="tambah_button_text" class="form-label">Teks Tombol</label>
+            <input type="text" name="tambah_button_text" id="tambah_button_text"
+                   value="<?= esc($settings['tambah_button_text'] ?? 'Tambah Data') ?>" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="tambah_button_color" class="form-label">Warna Tombol</label>
+            <div class="d-flex gap-2">
+                <input type="color" name="tambah_button_color" id="tambah_button_color"
+                       value="<?= esc($settings['tambah_button_color'] ?? '#0d6efd') ?>" class="form-control form-control-color">
+                <button type="button" class="btn-reset" id="resetTambah">Reset</button>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="tambah_button_text_color" class="form-label">Warna Teks Tombol</label>
+            <input type="color" name="tambah_button_text_color" id="tambah_button_text_color"
+                   value="<?= esc($settings['tambah_button_text_color'] ?? '#ffffff') ?>" class="form-control form-control-color">
+        </div>
+        <div class="mb-3">
+            <label for="tambah_button_hover_color" class="form-label">Warna Hover Tombol</label>
+            <input type="color" name="tambah_button_hover_color" id="tambah_button_hover_color"
+                   value="<?= esc($settings['tambah_button_hover_color'] ?? '#0b5ed7') ?>" class="form-control form-control-color">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Preview Tombol Tambah</label><br>
+            <button type="button" id="tambahPreview"
+                    style="background-color: <?= esc($settings['tambah_button_color'] ?? '#0d6efd') ?>;
+                           color: <?= esc($settings['tambah_button_text_color'] ?? '#ffffff') ?>;
+                           border: none; padding: 8px 16px; border-radius: 6px;">
+                <?= esc($settings['tambah_button_text'] ?? 'Tambah Data') ?>
+            </button>
+        </div>
+    </div>
+</div>
+<!-- Pengaturan Jumlah Data Tipe Organisasi -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5>Pengaturan Jumlah Data Tipe Organisasi</h5>
+    </div>
+    <div class="card-body p-4">
+        <div class="mb-3">
+            <label for="tipe_organisasi_per_page" class="form-label">Jumlah Data per Halaman</label>
+            <input type="number" name="tipe_organisasi_per_page" id="tipe_organisasi_per_page"
+                   value="<?= esc($settings['tipe_organisasi_per_page'] ?? 1) ?>" 
+                   class="form-control" min="1" max="100">
+            <small class="text-muted">Atur berapa banyak data Tipe Organisasi yang tampil di satu halaman.</small>
+        </div>
+    </div>
+</div>
 
 
         <div class="text-end mt-4">
@@ -638,6 +701,32 @@ exportBtn.reset.addEventListener("click", () => {
     exportBtn.hover.value = "#157347";
     updateExport();
     showResetAlert("Export CSV");
+});
+// Tombol Tambah
+const tambahBtn = {
+    text: document.getElementById("tambah_button_text"),
+    color: document.getElementById("tambah_button_color"),
+    textColor: document.getElementById("tambah_button_text_color"),
+    hover: document.getElementById("tambah_button_hover_color"),
+    preview: document.getElementById("tambahPreview"),
+    reset: document.getElementById("resetTambah")
+};
+
+function updateTambah() {
+    tambahBtn.preview.innerText = tambahBtn.text.value;
+    tambahBtn.preview.style.backgroundColor = tambahBtn.color.value;
+    tambahBtn.preview.style.color = tambahBtn.textColor.value;
+}
+[tambahBtn.text, tambahBtn.color, tambahBtn.textColor].forEach(el => el.addEventListener("input", updateTambah));
+tambahBtn.preview.addEventListener("mouseover", () => tambahBtn.preview.style.backgroundColor = tambahBtn.hover.value);
+tambahBtn.preview.addEventListener("mouseout", updateTambah);
+tambahBtn.reset.addEventListener("click", () => {
+    tambahBtn.text.value = "Tambah Data";
+    tambahBtn.color.value = "#0d6efd";
+    tambahBtn.textColor.value = "#ffffff";
+    tambahBtn.hover.value = "#0b5ed7";
+    updateTambah();
+    showResetAlert("Tambah");
 });
 
 </script>
