@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use CodeIgniter\Model;
@@ -12,23 +11,21 @@ class DetailaccountAlumni extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [
-        'nama_lengkap',
-        'nim',
-        'id_jurusan',
-        'id_prodi',
-        'angkatan',
-        'tahun_kelulusan',
-        'ipk',
-        'alamat',
-        'alamat2',
-        'id_cities',
-        'id_provinsi',
-        'kodepos',
-        'jenisKelamin',
-        'notlp',
-        'id_account'
-    ];
+    protected $allowedFields    = ['nama_lengkap',
+                                    'nim',
+                                    'id_jurusan',
+                                    'id_prodi',
+                                    'angkatan',
+                                    'tahun_kelulusan',
+                                    'ipk',
+                                    'alamat',
+                                    'alamat2',
+                                    'id_cities',
+                                    'id_provinsi',
+                                    'kodepos',
+                                    'jenisKelamin',
+                                'notlp',
+                                'id_account'];
 
 
     public function getDetailWithRelations($id = null)
@@ -42,7 +39,7 @@ class DetailaccountAlumni extends Model
         ');
         $builder->join('jurusan', 'jurusan.id = detailaccount_alumni.id_jurusan', 'left');
         $builder->join('prodi', 'prodi.id = detailaccount_alumni.id_prodi', 'left');
-        $builder->join('account', 'account.id = detailaccount_alumni.id_account');
+        $builder->join('account','account.id = detailaccount_alumni.id_account');
 
         if ($id !== null) {
             $builder->where('detailaccount_alumni.id', $id);

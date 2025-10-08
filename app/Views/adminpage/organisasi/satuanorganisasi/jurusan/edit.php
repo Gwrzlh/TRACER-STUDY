@@ -36,6 +36,14 @@
                                    value="<?= old('nama_jurusan', $jurusan['nama_jurusan']) ?>" required>
                         </div>
 
+                        <div class="mb-3">
+    <label for="singkatan" class="form-label">Singkatan</label>
+    <input type="text" name="singkatan" id="singkatan" 
+           class="form-control" value="<?= esc($jurusan['singkatan']) ?>" 
+           maxlength="10" required>
+</div>
+
+
                         <div class="mt-4">
                             <button type="submit" class="btn-primary-custom">Update</button>
                             <a href="<?= base_url('satuanorganisasi/jurusan') ?>" class="btn-warning-custom">Batal</a>
