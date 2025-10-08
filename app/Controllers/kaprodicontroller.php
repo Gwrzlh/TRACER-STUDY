@@ -174,32 +174,43 @@ class KaprodiController extends Controller
 
     // ================== KUESIONER ==================
     public function questioner()
-    {
-        $idAccount = session()->get('id_account');
+{
+    $idAccount = session()->get('id_account');
 
-        // Ambil data kaprodi + prodi
-        $builder = $this->db->table('detailaccount_kaprodi dk');
-        $builder->select('dk.*, p.nama_prodi, p.id as id_prodi');
-        $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
-        $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
+    // Ambil data kaprodi + prodi
+    $builder = $this->db->table('detailaccount_kaprodi dk');
+    $builder->select('dk.*, p.nama_prodi, p.id as id_prodi');
+    $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
+    $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
 
-        if (!$kaprodi) {
-            return redirect()->to('/login')->with('error', 'Data Kaprodi tidak ditemukan');
-        }
-
-        $user_data = [
-            'id_prodi' => $kaprodi['id_prodi'],
-        ];
-
-        $questionnaireModel = new \App\Models\QuestionnairModel();
-        // khusus kaprodi → filter prodi dan wajib ada conditional_logic
-        $kuesioner = $questionnaireModel->getAccessibleQuestionnaires($user_data, 'kaprodi');
-
-        return view('kaprodi/questioner/index', [
-            'kuesioner' => $kuesioner,
-            'kaprodi'   => $kaprodi
-        ]);
+    if (!$kaprodi) {
+        return redirect()->to('/login')->with('error', 'Data Kaprodi tidak ditemukan');
     }
+
+    $user_data = [
+        'id_prodi' => $kaprodi['id_prodi'],
+    ];
+
+    $questionnaireModel = new \App\Models\QuestionnairModel();
+
+    // Ambil data kuesioner
+    $kuesioner = $questionnaireModel->getAccessibleQuestionnaires($user_data, 'kaprodi');
+
+    // Jika hasil berupa array, urutkan secara manual (yang terbaru di atas)
+    if (is_array($kuesioner)) {
+        usort($kuesioner, function ($a, $b) {
+            // Gunakan kolom created_at kalau ada, kalau tidak gunakan id
+            $field = isset($a['created_at']) ? 'created_at' : 'id';
+            return strcmp($b[$field], $a[$field]); // urut DESC
+        });
+    }
+
+    return view('kaprodi/questioner/index', [
+        'kuesioner' => $kuesioner,
+        'kaprodi'   => $kaprodi
+    ]);
+}
+
 
 
 

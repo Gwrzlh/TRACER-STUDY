@@ -11,6 +11,13 @@ $currentRoute = service('request')->uri->getPath();
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+<?php
+// Ambil pengaturan tombol logout Kaprodi
+$logoutText        = get_setting('kaprodi_logout_button_text', 'Logout');
+$logoutBgColor     = get_setting('kaprodi_logout_button_color', '#dc3545');
+$logoutTextColor   = get_setting('kaprodi_logout_button_text_color', '#ffffff');
+$logoutHoverColor  = get_setting('kaprodi_logout_button_hover_color', '#bb2d3b');
+?>
 
 <body class="bg-[#cfd8dc] font-sans">
   <div class="flex">
@@ -100,11 +107,19 @@ $currentRoute = service('request')->uri->getPath();
           </div>
         </div>
 
-        <form action="/logout" method="get">
-          <button type="submit" class="logout-btn">
-            Logout
-          </button>
-        </form>
+       <form action="/logout" method="get">
+  <button type="submit"
+    class="w-full font-semibold rounded-lg px-4 py-2 transition duration-300"
+    style="
+      background-color: <?= esc($logoutBgColor) ?>;
+      color: <?= esc($logoutTextColor) ?>;
+      border: none;
+    "
+    onmouseover="this.style.backgroundColor='<?= esc($logoutHoverColor) ?>'"
+    onmouseout="this.style.backgroundColor='<?= esc($logoutBgColor) ?>'">
+    <?= esc($logoutText) ?>
+  </button>
+</form>
       </div>
     </aside>
 

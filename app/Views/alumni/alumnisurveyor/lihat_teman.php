@@ -78,6 +78,9 @@
                     <?php endif; ?>
                 </tbody>
             </table>
+            <div class="mt-3">
+    <?= $pager->links('default', 'bootstrap5') ?>
+</div>
         </div>
     </div>
 </div>
