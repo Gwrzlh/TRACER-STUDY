@@ -377,27 +377,94 @@ class UserQuestionController extends BaseController
     /**
      * Review / lihat hasil kuesioner
      */
-    public function lihat($q_id)
+   public function lihat($q_id)
     {
+        // 1️⃣ Ambil data user dari session
         $user_data = session()->get();
+        $user_id   = $user_data['id'] ?? null;
 
-        $data['structure'] = $this->questionnaireModel->getQuestionnaireStructure(
+        if (!$user_id) {
+            return redirect()->to('/login')->with('error', 'Sesi pengguna tidak ditemukan.');
+        }
+
+        // 2️⃣ Ambil semua jawaban user untuk kuesioner ini
+        $previous_answers = $this->answerModel->getUserAnswers($q_id, $user_id);
+
+        // 3️⃣ Ambil struktur kuesioner lengkap (dengan logika kondisi aktif)
+        $structure = $this->questionnaireModel->getQuestionnaireStructure(
             $q_id,
             $user_data,
-            $this->answerModel->getUserAnswers($q_id, $user_data['id'])
+            $previous_answers
         );
 
-        if (!$data['structure']) {
+        if (!$structure) {
             return redirect()->to('/alumni/questioner')
                 ->with('error', 'Kuesioner tidak ditemukan atau tidak dapat diakses.');
         }
 
-        $data['q_id']             = $q_id;
-        $data['progress']         = $this->answerModel->getProgress($q_id, $user_data['id']);
-        $data['previous_answers'] = $this->answerModel->getUserAnswers($q_id, $user_data['id']);
+        // 4️⃣ Filter tambahan khusus halaman review:
+        //     Hanya tampilkan page, section, dan question yang benar-benar dijawab user.
+        $filtered_pages = [];
 
+        foreach ($structure['pages'] as $page) {
+            $filtered_sections = [];
+
+            foreach ($page['sections'] as $section) {
+                $filtered_questions = [];
+
+               foreach ($section['questions'] as $question) {
+                        $key = 'q_' . $question['id'];
+                        $answer = $previous_answers[$key] ?? null;
+
+                        // ✅ Tambahkan logika khusus untuk pertanyaan tipe "scale"
+                        if (isset($answer) && $answer !== '' && $answer !== null) {
+
+                            // Jika tipe pertanyaan adalah scale, pastikan nilainya bukan default
+                            if (strtolower($question['question_type']) === 'scale') {
+                                // Anggap "1" sebagai nilai default (ubah sesuai konfigurasi form-mu)
+                                if ($answer == '1' || $answer == '0') {
+                                    continue; // lewati karena belum benar-benar dijawab
+                                }
+                            }
+
+                            // Hanya simpan pertanyaan yang benar-benar dijawab
+                            $filtered_questions[] = $question;
+                        }
+                    }
+
+                // Hanya tambahkan section yang memiliki pertanyaan terjawab
+                if (!empty($filtered_questions)) {
+                    $section['questions'] = $filtered_questions;
+                    $filtered_sections[] = $section;
+                }
+            }
+
+            // Hanya tambahkan page yang memiliki section dengan pertanyaan terjawab
+            if (!empty($filtered_sections)) {
+                $page['sections'] = $filtered_sections;
+                $filtered_pages[] = $page;
+            }
+        }
+
+        // 5️⃣ Jika tidak ada page yang punya jawaban, arahkan balik
+        if (empty($filtered_pages)) {
+            return redirect()->to('/alumni/questioner')
+                ->with('error', 'Tidak ada data jawaban yang ditemukan untuk ditinjau.');
+        }
+
+        // 6️⃣ Siapkan data untuk dikirim ke view
+        $data['structure']         = [
+            'questionnaire' => $structure['questionnaire'],
+            'pages'         => $filtered_pages,
+        ];
+        $data['q_id']             = $q_id;
+        $data['progress']         = $this->answerModel->getProgress($q_id, $user_id);
+        $data['previous_answers'] = $previous_answers;
+
+        // 7️⃣ Render halaman review
         return view('alumni/questioner/review', $data);
     }
+
 
     /**
      * KEEP: Your enhanced saveAnswer method (this was working correctly)

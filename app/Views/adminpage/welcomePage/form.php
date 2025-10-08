@@ -111,6 +111,26 @@
               frameborder="0" allowfullscreen></iframe>
     </div>
   </div>
+
+  <!-- ✅ Tambahan: Upload Video File -->
+  <div class="mt-10">
+    <label class="block font-semibold text-gray-800 mb-2">Upload Video</label>
+    <input type="file" id="video_file" name="video_file" accept="video/mp4,video/webm,video/ogg"
+      class="block w-full text-sm text-gray-600 border border-blue-300 rounded-lg px-4 py-3 cursor-pointer
+             file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+             file:bg-blue-600 file:text-white hover:file:bg-blue-700">
+    <p class="text-sm text-gray-500 mt-2">Format didukung: MP4, WebM, OGG</p>
+
+    <div id="video_preview_container" class="mt-4 <?= empty($welcome['video_path']) ? 'hidden' : '' ?>">
+      <video id="video_preview" controls
+             class="w-full h-64 rounded-xl shadow-md border border-blue-300">
+        <?php if (!empty($welcome['video_path'])): ?>
+          <source src="<?= esc($welcome['video_path']) ?>" type="video/mp4">
+        <?php endif; ?>
+        Browser Anda tidak mendukung pemutar video.
+      </video>
+    </div>
+  </div>
 </div>
 
 <!-- Preview + Reset Script -->
@@ -120,7 +140,6 @@ function previewImage(inputId, previewId, resetId, defaultSrc) {
   const preview = document.getElementById(previewId);
   const resetBtn = document.getElementById(resetId);
 
-  // preview otomatis
   input.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -132,7 +151,6 @@ function previewImage(inputId, previewId, resetId, defaultSrc) {
     }
   });
 
-  // reset ke default
   resetBtn.addEventListener('click', function() {
     input.value = "";
     preview.src = defaultSrc;
@@ -147,23 +165,18 @@ const youtubeInput = document.getElementById('youtube_url');
 const youtubePreview = document.getElementById('youtube_preview');
 const youtubeContainer = document.getElementById('youtube_preview_container');
 
-// fungsi ubah watch?v=xxxx -> embed/xxxx
 function convertToEmbed(url) {
   const watchPattern = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/;
   const shortPattern = /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]+)/;
-  if (watchPattern.test(url)) {
-    return url.replace(watchPattern, "https://www.youtube.com/embed/$1");
-  } else if (shortPattern.test(url)) {
-    return url.replace(shortPattern, "https://www.youtube.com/embed/$1");
-  }
+  if (watchPattern.test(url)) return url.replace(watchPattern, "https://www.youtube.com/embed/$1");
+  if (shortPattern.test(url)) return url.replace(shortPattern, "https://www.youtube.com/embed/$1");
   return url;
 }
 
-// update preview saat input berubah
 youtubeInput.addEventListener('input', function() {
   let url = youtubeInput.value.trim();
   url = convertToEmbed(url);
-  youtubeInput.value = url; // simpan versi embed ke field agar tersimpan ke DB
+  youtubeInput.value = url;
   if (url.includes("youtube.com/embed/")) {
     youtubePreview.src = url;
     youtubeContainer.classList.remove('hidden');
@@ -173,17 +186,34 @@ youtubeInput.addEventListener('input', function() {
   }
 });
 
-// === Pastikan saat halaman load juga langsung pakai embed ===
 window.addEventListener('DOMContentLoaded', function() {
   let url = youtubeInput.value.trim();
   url = convertToEmbed(url);
-  youtubeInput.value = url; // pastikan yang tampil & tersimpan adalah embed
+  youtubeInput.value = url;
   if (url.includes("youtube.com/embed/")) {
     youtubePreview.src = url;
     youtubeContainer.classList.remove('hidden');
   } else {
     youtubeContainer.classList.add('hidden');
     youtubePreview.src = "";
+  }
+});
+
+// === Preview Video File Tambahan ===
+const videoInput = document.getElementById('video_file');
+const videoContainer = document.getElementById('video_preview_container');
+const videoPreview = document.getElementById('video_preview');
+
+videoInput.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const url = URL.createObjectURL(file);
+    const source = videoPreview.querySelector('source');
+    source.src = url;
+    videoPreview.load();
+    videoContainer.classList.remove('hidden');
+  } else {
+    videoContainer.classList.add('hidden');
   }
 });
 </script>
