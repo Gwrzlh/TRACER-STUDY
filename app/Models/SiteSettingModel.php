@@ -11,27 +11,37 @@ class SiteSettingModel extends Model
     protected $allowedFields = ['setting_key', 'setting_value'];
     protected $useTimestamps = true;
 
-    // Ambil semua setting jadi array key => value
+    /**
+     * Ambil semua pengaturan dan kembalikan dalam bentuk array key => value.
+     */
     public function getSettings()
     {
         $settings = $this->findAll();
-        $result = [];
+        $data = [];
         foreach ($settings as $s) {
-            $result[$s['setting_key']] = $s['setting_value'];
+            $data[$s['setting_key']] = $s['setting_value'];
         }
-        return $result;
+        return $data;
     }
 
-    // Simpan atau update setting
-    public function saveSettings($data)
+    /**
+     * Simpan satu pengaturan berdasarkan key.
+     * Jika key sudah ada → update.
+     * Jika belum ada → insert baru.
+     */
+    public function saveSetting($key, $value)
     {
-        foreach ($data as $key => $value) {
-            $row = $this->where('setting_key', $key)->first();
-            if ($row) {
-                $this->update($row['id'], ['setting_value' => $value]);
-            } else {
-                $this->insert(['setting_key' => $key, 'setting_value' => $value]);
-            }
+        $exists = $this->where('setting_key', $key)->first();
+
+        if ($exists) {
+            $this->where('setting_key', $key)
+                 ->set(['setting_value' => $value])
+                 ->update();
+        } else {
+            $this->insert([
+                'setting_key'   => $key,
+                'setting_value' => $value
+            ]);
         }
     }
 }
