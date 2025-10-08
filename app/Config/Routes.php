@@ -419,6 +419,11 @@ $routes->post('pengaturan-situs/save', 'PengaturanSitus::save');
 $routes->get('/pengaturan-situs', 'PengaturanSitus::index');
 $routes->get('pengaturan-alumni', 'PengaturanAlumni::index');
 $routes->post('pengaturan-alumni/save', 'PengaturanAlumni::save');
+$routes->get('pengaturan-kaprodi', 'PengaturanKaprodi::index');
+$routes->post('pengaturan-kaprodi/save', 'PengaturanKaprodi::save');
+$routes->get('pengaturan-atasan', 'PengaturanAtasan::index');
+$routes->post('pengaturan-atasan/save', 'PengaturanAtasan::save');
+
 
 // ajax conditional_logic 
 

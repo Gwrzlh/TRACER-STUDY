@@ -72,19 +72,24 @@ $currentRoute = service('request')->uri->getPath();
         </div>
 
         <form action="/logout" method="get">
-          <button type="submit"
-            style="background-color: <?= get_setting('logout_button_color', '#dc3545') ?>;
-             color: <?= get_setting('logout_button_text_color', '#ffffff') ?>;
-             padding: 10px 20px;
-             font-weight: 600;
-             border-radius: 8px;
-             width: 100%; text-align:center;"
-            onmouseover="this.style.backgroundColor='<?= get_setting('logout_button_hover_color', '#a71d2a') ?>';"
-            onmouseout="this.style.backgroundColor='<?= get_setting('logout_button_color', '#dc3545') ?>';">
-            <?= esc(get_setting('logout_button_text', 'Logout')) ?>
-          </button>
-        </form>
-      </div>
+  <button type="submit"
+    style="
+      background-color: <?= get_setting('atasan_logout_button_color', '#dc3545') ?>;
+      color: <?= get_setting('atasan_logout_button_text_color', '#ffffff') ?>;
+      padding: 10px 20px;
+      font-weight: 600;
+      border-radius: 8px;
+      width: 100%;
+      text-align: center;
+      border: none;
+      transition: background-color 0.3s ease;
+    "
+    onmouseover="this.style.backgroundColor='<?= get_setting('atasan_logout_button_hover_color', '#a71d2a') ?>';"
+    onmouseout="this.style.backgroundColor='<?= get_setting('atasan_logout_button_color', '#dc3545') ?>';">
+    <?= esc(get_setting('atasan_logout_button_text', 'Logout')) ?>
+  </button>
+</form>
+
 
       <!-- Modal Foto -->
       <div id="profileModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">

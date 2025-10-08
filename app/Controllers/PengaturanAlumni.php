@@ -44,6 +44,8 @@ class PengaturanAlumni extends BaseController
         'dashboard_logout_button_color'       => $post['dashboard_logout_button_color'],
         'dashboard_logout_button_text_color'  => $post['dashboard_logout_button_text_color'],
         'dashboard_logout_button_hover_color' => $post['dashboard_logout_button_hover_color'],
+
+          'lihat_teman_pagination_limit' => $this->request->getPost('lihat_teman_pagination_limit'),
         ];
 
         $this->siteSettingModel->saveSettings($data);

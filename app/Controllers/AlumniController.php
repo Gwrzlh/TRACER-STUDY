@@ -314,61 +314,70 @@ class AlumniController extends BaseController
     // =============================
     // 👥 LIHAT TEMAN
     // =============================
-    public function lihatTeman()
-    {
-        $alumniModel  = new DetailaccountAlumni();
-        $jurusanModel = new JurusanModel();
-        $prodiModel   = new Prodi();
-        $db           = \Config\Database::connect();
+   public function lihatTeman()
+{
+    $alumniModel  = new DetailaccountAlumni();
+    $jurusanModel = new JurusanModel();
+    $prodiModel   = new Prodi();
+    $db           = \Config\Database::connect();
 
-        $currentAlumni = $alumniModel
-            ->where('id_account', session('id'))
-            ->first();
+    // Ambil data alumni saat ini
+    $currentAlumni = $alumniModel
+        ->where('id_account', session('id'))
+        ->first();
 
-        if (!$currentAlumni) {
-            return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
-        }
+    if (!$currentAlumni) {
+        return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
+    }
 
-        $jurusanNama = $jurusanModel->find($currentAlumni['id_jurusan'])['nama_jurusan'] ?? '-';
-        $prodiNama   = $prodiModel->find($currentAlumni['id_prodi'])['nama_prodi'] ?? '-';
+    $jurusanNama = $jurusanModel->find($currentAlumni['id_jurusan'])['nama_jurusan'] ?? '-';
+    $prodiNama   = $prodiModel->find($currentAlumni['id_prodi'])['nama_prodi'] ?? '-';
 
-        $teman = $alumniModel
-            ->where('id_jurusan', $currentAlumni['id_jurusan'])
-            ->where('id_prodi', $currentAlumni['id_prodi'])
-            ->where('id_account !=', session('id'))
-            ->findAll();
+    // 🔹 Ambil pengaturan pagination dari site_settings
+    $siteSettingModel = new \App\Models\SiteSettingModel();
+    $limitSetting = $siteSettingModel->where('setting_key', 'lihat_teman_pagination_limit')->first();
+    $limit = $limitSetting ? (int)$limitSetting['setting_value'] : 10; // default 10
 
-        // cek status kuesioner multi
-        foreach ($teman as &$t) {
-            $responses = $db->table('responses')
-                ->where('account_id', $t['id_account'])
-                ->get()
-                ->getResult();
+    // 🔹 Ambil data teman sesuai jurusan & prodi, pakai pagination
+    $teman = $alumniModel
+        ->where('id_jurusan', $currentAlumni['id_jurusan'])
+        ->where('id_prodi', $currentAlumni['id_prodi'])
+        ->where('id_account !=', session('id'))
+        ->paginate($limit);
 
-            if (empty($responses)) {
-                $t['status'] = 'Belum Mengisi';
+    // 🔹 Ambil pager untuk pagination di view
+    $pager = $alumniModel->pager;
+
+    // 🔹 Cek status kuesioner multi
+    foreach ($teman as &$t) {
+        $responses = $db->table('responses')
+            ->where('account_id', $t['id_account'])
+            ->get()
+            ->getResult();
+
+        if (empty($responses)) {
+            $t['status'] = 'Belum Mengisi';
+        } else {
+            $statuses = array_column($responses, 'status');
+            if (count(array_unique($statuses)) === 1 && $statuses[0] === 'completed') {
+                $t['status'] = 'Finish';
             } else {
-                $statuses = array_column($responses, 'status');
-
-                if (count(array_unique($statuses)) === 1 && $statuses[0] === 'completed') {
-                    // semua completed
-                    $t['status'] = 'Finish';
-                } else {
-                    // ada draft atau campuran
-                    $t['status'] = 'Ongoing';
-                }
+                $t['status'] = 'Ongoing';
             }
         }
-        unset($t);
-
-        $data = [
-            'teman'   => $teman,
-            'jurusan' => $jurusanNama,
-            'prodi'   => $prodiNama,
-        ];
-
-        return view('alumni/alumnisurveyor/lihat_teman', $data);
     }
+    unset($t);
+
+    // 🔹 Kirim data ke view
+    $data = [
+        'teman'   => $teman,
+        'jurusan' => $jurusanNama,
+        'prodi'   => $prodiNama,
+        'pager'   => $pager,
+    ];
+
+    return view('alumni/alumnisurveyor/lihat_teman', $data);
+}
 
 
     // =============================
