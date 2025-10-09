@@ -1242,7 +1242,7 @@ class QuestionnairController extends BaseController
             'title', 'deskripsi', 'is_active', 'conditional_logic', 'announcement', 'created_at',
             'page_title', 'order_no', 'section_title', 'question_text', 'question_type', 'condition_json',
             'scale_min', 'scale_max', 'allowed_types', 'option_text', 'option_value', 'row_text', 'column_text',
-            'answer_text', 'status'
+            'answer_text', 'status','user_field_name'
         ];
         $sheet->fromArray($headers, NULL, 'A1');
 
@@ -1293,6 +1293,7 @@ class QuestionnairController extends BaseController
                     $sheet->setCellValue('T' . $rowNum, $question['scale_min'] ?? '');
                     $sheet->setCellValue('U' . $rowNum, $question['scale_max'] ?? '');
                     $sheet->setCellValue('V' . $rowNum, $question['allowed_types'] ?? '');
+                    $sheet->setCellValue('AC' . $rowNum, $question['user_field_name'] ?? '');
                     $rowNum++;
 
                     // Options for relevant types
@@ -1511,6 +1512,7 @@ class QuestionnairController extends BaseController
                     'scale_min' => $qRow['T'] ? (int)$qRow['T'] : null,
                     'scale_max' => $qRow['U'] ? (int)$qRow['U'] : null,
                     'allowed_types' => $qRow['V'] ?? null,
+                    'user_field_name' => $qRow['AC'] ?? null,   
                     'is_required' => 1,  // Default to required; adjust if needed based on your app logic
                     'created_at' => date('Y-m-d H:i:s'),  // Set explicit timestamp
                 ];
@@ -1606,6 +1608,63 @@ class QuestionnairController extends BaseController
                 $this->answerModel->insert($aData);
                 $this->logger->info('Answer inserted for question_id: ' . $aData['question_id']);
             }
+
+            foreach ($idMap['page'] as $oldPageId => $newPageId) {
+            $page = $this->questionnairePageModel->find($newPageId);
+            if ($page && $page['conditional_logic']) {
+                $logicArr = json_decode($page['conditional_logic'], true);
+                if (json_last_error() === JSON_ERROR_NONE && isset($logicArr['conditions'])) {
+                    foreach ($logicArr['conditions'] as &$condition) {
+                        $field = $condition['field'] ?? '';
+                        if (is_numeric($field) && isset($idMap['question'][$field])) {
+                            $condition['field'] = (string) $idMap['question'][$field];
+                            $this->logger->info("Updated page conditional_logic field from {$field} to {$idMap['question'][$field]} for page ID: {$newPageId}");
+                        } else {
+                            $this->logger->warning("No mapping found for field {$field} in page ID: {$newPageId}");
+                        }
+                    }
+                    $updatedLogic = json_encode($logicArr);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $this->questionnairePageModel->update($newPageId, ['conditional_logic' => $updatedLogic]);
+                        $this->logger->info("Updated conditional_logic for page ID: {$newPageId} (old ID: {$oldPageId})");
+                    } else {
+                        $this->logger->error("Failed to encode JSON for page ID: {$newPageId}");
+                        throw new Exception("Failed to encode JSON for page ID: {$newPageId}");
+                    }
+                } else {
+                    $this->logger->warning("Invalid JSON in conditional_logic for page ID: {$newPageId}");
+                }
+            }
+        }
+
+        // Step 14: Update conditional_logic for sections (remap question IDs in JSON)
+        foreach ($idMap['section'] as $oldSectionId => $newSectionId) {
+            $section = $this->sectionModel->find($newSectionId);
+            if ($section && $section['conditional_logic']) {
+                $logicArr = json_decode($section['conditional_logic'], true);
+                if (json_last_error() === JSON_ERROR_NONE && isset($logicArr['conditions'])) {
+                    foreach ($logicArr['conditions'] as &$condition) {
+                        $field = $condition['field'] ?? '';
+                        if (is_numeric($field) && isset($idMap['question'][$field])) {
+                            $condition['field'] = (string) $idMap['question'][$field];
+                            $this->logger->info("Updated section conditional_logic field from {$field} to {$idMap['question'][$field]} for section ID: {$newSectionId}");
+                        } else {
+                            $this->logger->warning("No mapping found for field {$field} in section ID: {$newSectionId}");
+                        }
+                    }
+                    $updatedLogic = json_encode($logicArr);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $this->sectionModel->update($newSectionId, ['conditional_logic' => $updatedLogic]);
+                        $this->logger->info("Updated conditional_logic for section ID: {$newSectionId} (old ID: {$oldSectionId})");
+                    } else {
+                        $this->logger->error("Failed to encode JSON for section ID: {$newSectionId}");
+                        throw new Exception("Failed to encode JSON for section ID: {$newSectionId}");
+                    }
+                } else {
+                    $this->logger->warning("Invalid JSON in conditional_logic for section ID: {$newSectionId}");
+                }
+            }
+        }
 
             $db->transCommit();
             $this->logger->info('Transaction committed successfully.');
