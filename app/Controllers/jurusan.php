@@ -9,59 +9,53 @@ use CodeIgniter\Controller;
 
 class Jurusan extends Controller
 {
-   public function index()
-{
-    $jurusanModel = new JurusanModel();
-    $satuanModel  = new SatuanOrganisasiModel();
-    $prodiModel   = new Prodi();
+    public function index()
+    {
+        $jurusanModel = new JurusanModel();
+        $satuanModel  = new SatuanOrganisasiModel();
+        $prodiModel   = new Prodi();
 
-    // Ambil keyword dari GET
-    $keyword = $this->request->getGet('keyword');
+        // Ambil keyword dari GET
+        $keyword = $this->request->getGet('keyword');
 
-    // Ambil setting jumlah per halaman (default 10)
-    $perPage = get_setting('org_perpage_default', 10);
+        // Query untuk badge (hitung total tanpa filter)
+        $data['count_satuan']  = $satuanModel->countAll();
+        $data['count_jurusan'] = $jurusanModel->countAll();
+        $data['count_prodi']   = $prodiModel->countAll();
 
-    // Query untuk badge (hitung total tanpa filter)
-    $data['count_satuan']  = $satuanModel->countAll();
-    $data['count_jurusan'] = $jurusanModel->countAll();
-    $data['count_prodi']   = $prodiModel->countAll();
+        // Filter jika ada keyword (pencarian berdasarkan nama_jurusan)
+        if ($keyword) {
+            $jurusanModel->like('nama_jurusan', $keyword);
+        }
 
-    // Filter jika ada keyword
-    if ($keyword) {
-        $jurusanModel->like('nama_jurusan', $keyword);
+        // Ambil data jurusan
+        $data['jurusan'] = $jurusanModel->findAll();
+        $data['keyword'] = $keyword; // supaya input search tetap terisi
+
+        return view('adminpage/organisasi/satuanorganisasi/jurusan/index', $data);
     }
-
-    // Ambil data dengan pagination
-    $jurusan = $jurusanModel
-        ->orderBy('id', 'DESC')
-        ->paginate($perPage);
-
-    $data['jurusan']      = $jurusan;
-    $data['pager']        = $jurusanModel->pager;
-    $data['perPage']      = $perPage;
-    $data['currentPage']  = (int) ($this->request->getGet('page') ?? 1);
-    $data['pagerLinks']   = $jurusanModel->pager->links();
-    $data['keyword']      = $keyword;
-
-    return view('adminpage/organisasi/satuanorganisasi/jurusan/index', $data);
-}
-
 
     public function create()
     {
         return view('adminpage/organisasi/satuanorganisasi/jurusan/create');
     }
 
-    public function store()
-    {
-        $model = new JurusanModel();
+   public function store()
+{
+    $jurusanModel = new \App\Models\Jurusan();
 
-        $model->insert([
-            'nama_jurusan' => $this->request->getPost('nama_jurusan')
-        ]);
+    $data = [
+        'nama_jurusan' => $this->request->getPost('nama_jurusan'),
+        'singkatan'    => strtoupper(trim($this->request->getPost('singkatan')))
+    ];
 
-        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
+    if (!$jurusanModel->insert($data)) {
+        return redirect()->back()->with('errors', $jurusanModel->errors());
     }
+
+    return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Jurusan berhasil ditambahkan');
+}
+
 
     public function edit($id)
     {
@@ -71,20 +65,26 @@ class Jurusan extends Controller
     }
 
     public function update($id)
-    {
-        $model = new JurusanModel();
-        $model->update($id, [
-            'nama_jurusan' => $this->request->getPost('nama_jurusan')
-        ]);
+{
+    $model = new JurusanModel();
 
-        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
-    }
+    $data = [
+        'nama_jurusan' => $this->request->getPost('nama_jurusan'),
+        'singkatan'    => strtoupper(trim($this->request->getPost('singkatan')))
+    ];
+
+    $model->update($id, $data);
+
+    return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil diperbarui.');
+}
+
 
     public function delete($id)
-    {
-        $model = new JurusanModel();
-        $model->delete($id);
+{
+    $model = new JurusanModel();
+    $model->delete($id);
 
-        return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil ditambahkan.');
-    }
+    return redirect()->to('/satuanorganisasi/jurusan')->with('success', 'Data jurusan berhasil dihapus.');
+}
+
 }
