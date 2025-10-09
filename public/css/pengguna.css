@@ -60,6 +60,16 @@
     transform: translateY(-2px);
 }
 
+.modern-table thead th {
+    color: #ffffff; /* agar kontras dengan background biru */
+}
+
+.modern-table tbody td {
+    position: relative; /* agar data-label tampil benar di mobile */
+}
+
+
+
 /* Button Container */
 .button-container {
     display: flex;
@@ -81,7 +91,9 @@
     align-items: center;
     gap: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
 }
+
 
 .btn:hover {
     transform: translateY(-2px);

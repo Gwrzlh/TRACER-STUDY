@@ -106,13 +106,18 @@
                                         <tr>
                                             <td><?= $index + 1 ?></td>
                                             <td>
-                                                <strong><?= esc($acc['username']) ?></strong><br>
+                                                <strong><?= esc($acc['username']) ?></strong><br>s
                                                 <small><?= esc($acc['email']) ?></small>
                                             </td>
                                             <td>
-                                                <span class="badge badge-status <?= (strtolower($acc['status']) == 'active' || $acc['status'] == '1') ? 'badge-active' : 'badge-inactive' ?>">
-                                                    <?= (strtolower($acc['status']) == 'active' || $acc['status'] == '1') ? 'Active' : 'Inactive' ?>
-                                                </span>
+                                               <?php
+    $status = strtolower(trim((string)$acc['status']));
+    $isActive = ($status === '1' || $status === 'active' || $status === 'aktif');
+?>
+<span class="badge badge-status <?= $isActive ? 'badge-active' : 'badge-inactive' ?>">
+    <?= $isActive ? 'Active' : 'Inactive' ?>
+</span>
+
                                             </td>
                                             <td><?= esc($acc['email']) ?></td>
                                             <td><span class="badge badge-role"><?= esc($acc['nama_role'] ?? 'No Role') ?></span></td>
@@ -120,7 +125,7 @@
                                                 <a href="<?= base_url('admin/pengguna/editPengguna/' . $acc['id']) ?>" class="btn btn-sm btn-edit">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
-                                                <form action="<?= base_url('pengguna/delete/' . $acc['id']) ?>" method="post" style="display:inline;" onsubmit="return confirm('Hapus pengguna ini?')">
+                                                <form action="<?= base_url('admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display:inline;" onsubmit="return confirm('Hapus pengguna ini?')">
                                                     <?= csrf_field() ?>
                                                     <button type="submit" class="btn btn-sm btn-delete">
                                                         <i class="fas fa-trash"></i> Hapus

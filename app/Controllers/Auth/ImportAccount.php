@@ -10,7 +10,7 @@ use App\Models\User\DetailaccountAlumni;
 use App\Models\User\DetailaccountAtasan;
 use App\Models\User\DetailaccountJabatanLLnya;
 use App\Models\User\DetailaccountKaprodi;
-use App\Models\User\DetailaccountPerusahaan;
+use App\Models\User\DetailaccoountPerusahaan;
 use App\Models\Organisasi\Jurusan;
 use App\Models\Organisasi\Prodi;
 use App\Models\Support\Cities;
@@ -104,7 +104,7 @@ class ImportAccount extends BaseController
                             break;
 
                         case 'perusahaan':
-                            (new DetailaccountPerusahaan())->insert([
+                            (new DetailaccoountPerusahaan())->insert([
                                 'nama_perusahaan' => $nama,
                                 'alamat1'         => $row[9] ?? null,
                                 'alamat2'         => $row[10] ?? null,

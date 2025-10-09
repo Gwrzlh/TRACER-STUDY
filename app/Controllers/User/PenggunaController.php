@@ -965,7 +965,7 @@ public function exportSelected()
     header('Content-Disposition: attachment; filename="' . $filename . '"');
 
     $output = fopen('php://output', 'w');
-    fputcsv($output, ['ID', 'Username', 'Email', 'Status', 'Role']);
+    fputcsv($output, ['ID', 'Username', 'Email', 'Status', 'Role' ]);
 
     foreach ($data as $row) {
         fputcsv($output, [
@@ -973,7 +973,7 @@ public function exportSelected()
             $row['username'],
             $row['email'],
             $row['status'],
-            $row['id_role']
+            $row['id_role'],
         ]);
     }
 

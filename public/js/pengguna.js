@@ -229,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     };
 
+    
     // Initialize Enhancements
     setTimeout(() => {
         animateTableRows();
