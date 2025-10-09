@@ -12,27 +12,19 @@ class TipeOrganisasiController extends BaseController
 {
 public function index()
 {
+    $perPage = $this->request->getGet('per_page') ?? 5; // default 5 data per halaman
+
     $tipeorganisasi = new \App\Models\Tipeorganisasi();
 
-    // Ambil nilai default dari pengaturan situs
-    $defaultPerPage = get_setting('tipe_organisasi_per_page', 5);
-
-    // Jika ada parameter di URL (?per_page=10), gunakan itu, kalau tidak pakai default
-    $perPage = $this->request->getGet('per_page') ?? $defaultPerPage;
-
     $data = [
-        'Tipeorganisasi' => $tipeorganisasi
-                                ->getgroupid()
-                                ->orderBy('id', 'DESC')
-                                ->paginate($perPage),
-        'pager'   => $tipeorganisasi->pager,
-        'perPage' => $perPage
+        'Tipeorganisasi' => $tipeorganisasi->getgroupid()->paginate($perPage), // pagination
+        'pager'          => $tipeorganisasi->pager,
+        'perPage'        => $perPage
     ];
 
     return view('adminpage/organisasi/tipe_organisasi/index', $data);
 }
- 
-     public function create()
+    public function create()
     {
         $tipeorganisasi = new Tipeorganisasi();
         $roles = new Roles();
