@@ -7,25 +7,373 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --card-hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
         body, html {
             height: 100%;
             margin: 0;
-            overflow: hidden; /* Cegah scroll body ke page hidden */
+            overflow: hidden;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .container {
+
+        .main-container {
             height: 100vh;
-            overflow-y: auto; /* Scroll hanya dalam container jika konten halaman panjang */
-            padding-bottom: 50px; /* Ruang untuk tombol */
+            overflow-y: auto;
+            padding: 2rem 0;
         }
+
+        .content-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styling */
+        .questionnaire-header {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .questionnaire-header h3 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.75rem;
+        }
+
+        /* Progress Bar Styling */
+        .progress-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .progress {
+            height: 12px;
+            border-radius: 10px;
+            background: #e9ecef;
+            overflow: visible;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-color) 0%, #357abd 100%);
+            border-radius: 10px;
+            transition: width 0.6s ease;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);
+        }
+
+        /* Page Card Styling */
         .page-step {
-            display: none; /* Semua page hidden secara default */
-            min-height: 100%; /* Isi penuh container */
+            display: none;
         }
+
         .page-step.active {
-            display: block; /* Hanya active yang tampil */
+            display: block;
+            animation: fadeInUp 0.4s ease;
         }
-        
-        /* NEW: Announcement overlay styles */
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            transition: box-shadow 0.3s ease;
+            margin-bottom: 1.5rem;
+            background: white;
+        }
+
+        .card:hover {
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            border: none;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1.5rem;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* Section Styling */
+        .section-container {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .section-container h6 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .section-container > p {
+            color: #6c757d;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        /* Question Container */
+        .question-container {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid #e9ecef;
+            transition: border-color 0.3s ease;
+        }
+
+        .question-container:hover {
+            border-color: var(--primary-color);
+        }
+
+        /* Form Labels */
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            display: block;
+            font-size: 1rem;
+        }
+
+        .text-danger {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        /* Input Styling */
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--danger-color);
+        }
+
+        .form-control.is-invalid:focus {
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
+
+        /* Radio & Checkbox Styling */
+        .form-check {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .form-check:hover {
+            background: var(--light-bg);
+        }
+
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-top: 0.125rem;
+            border: 2px solid #d1d5db;
+            cursor: pointer;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .form-check-label {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            color: #495057;
+            font-size: 0.95rem;
+        }
+
+        /* Scale/Range Input */
+        .form-range {
+            height: 8px;
+            border-radius: 10px;
+        }
+
+        .form-range::-webkit-slider-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-range::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border-radius: 6px;
+        }
+
+        /* Table Styling */
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+
+        .table thead th {
+            background: var(--light-bg);
+            color: #2c3e50;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+            padding: 1rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* File Input */
+        .form-control[type="file"] {
+            padding: 0.5rem;
+        }
+
+        small.text-success, small.text-muted {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Button Styling */
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            transition: all 0.3s ease;
+            text-transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #357abd 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color) 0%, #218838 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+            background: white;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Navigation Buttons */
+        .d-flex.justify-content-between {
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e9ecef;
+        }
+
+        /* Back Link */
+        .back-link-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* Announcement Overlay */
         .announcement-overlay {
             position: fixed;
             top: 0;
@@ -63,6 +411,7 @@
             color: white;
             padding: 25px;
             text-align: center;
+            border-radius: 15px 15px 0 0;
         }
         
         .announcement-body {
@@ -77,6 +426,7 @@
             background: #f8f9fa;
             border-top: 1px solid #e9ecef;
             text-align: center;
+            border-radius: 0 0 15px 15px;
         }
         
         .btn-announcement {
@@ -94,229 +444,291 @@
             box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
             color: white;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 0 15px;
+            }
+
+            .questionnaire-header {
+                padding: 1.5rem;
+            }
+
+            .card-body {
+                padding: 1.5rem;
+            }
+
+            .section-container {
+                padding: 1rem;
+            }
+
+            .question-container {
+                padding: 1rem;
+            }
+
+            .btn {
+                padding: 0.65rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div class="container mt-4">
-        <h3><?= esc($structure['questionnaire']['title']) ?></h3>
-        <div class="progress mb-3">
-            <div class="progress-bar" id="progress-bar" style="width: <?= esc($progress) ?>%"
-                role="progressbar" aria-valuenow="<?= esc($progress) ?>" aria-valuemin="0" aria-valuemax="100">
-                <?= round($progress, 1) ?>%
+    <div class="main-container">
+        <div class="content-wrapper">
+            <!-- Header -->
+            <div class="questionnaire-header">
+                <h3><?= esc($structure['questionnaire']['title']) ?></h3>
             </div>
-        </div>
 
-        <form id="questionnaire-form" method="post" action="<?= base_url('alumni/questionnaires/save-answer') ?>" enctype="multipart/form-data">
-            <input type="hidden" name="q_id" value="<?= esc($q_id) ?>">
-
-            <?php $pageIndex = 0; ?>
-            <?php foreach ($structure['pages'] as $page): ?>
-                <div class="card mb-3 page-step <?= $pageIndex === 0 ? 'active' : '' ?>"
-                    data-step="<?= $pageIndex ?>"
-                    data-conditions="<?= htmlspecialchars($page['conditional_logic'] ?? '[]') ?>">
-                    <div class="card-header">
-                        <h5><?= esc($page['page_title']) ?></h5>
-                    </div>
-                    <div class="card-body">
-                        <?php foreach ($page['sections'] as $section): ?>
-                            <div class="section-container mb-3"
-                                data-conditions="<?= htmlspecialchars($section['conditional_logic'] ?? '[]') ?>">
-                                <?php if ($section['show_section_title']): ?>
-                                    <h6><?= esc($section['section_title']) ?></h6>
-                                <?php endif; ?>
-                                <?php if ($section['show_section_description']): ?>
-                                    <p><?= esc($section['section_description']) ?></p>
-                                <?php endif; ?>
-                                <?php foreach ($section['questions'] as $q): ?>
-                                    <div class="mb-3 question-container"
-                                        data-conditions="<?= htmlspecialchars($q['condition_json'] ?? '[]') ?>">
-                                        <label class="form-label">
-                                            <?= esc($q['question_text']) ?><?= $q['is_required'] ? ' <span class="text-danger">*</span>' : '' ?>
-                                        </label>
-                                        <?php
-                                        $options = $q['options'] ?? [];
-                                        $existing_answer = $previous_answers['q_' . $q['id']] ?? '';
-                                        $existing_answers = is_array(json_decode($existing_answer, true)) ? json_decode($existing_answer, true) : [$existing_answer];
-                                        ?>
-                                        <?php if (strtolower($q['question_type']) === 'text'): ?>
-                                            <input type="text" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
-                                                value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
-                                        <?php elseif (strtolower($q['question_type']) === 'email'): ?>
-                                            <input type="email" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
-                                                value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
-                                        <?php elseif (strtolower($q['question_type']) === 'number'): ?>
-                                            <input type="number" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
-                                                value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
-                                        <?php elseif (strtolower($q['question_type']) === 'date'): ?>
-                                            <input type="date" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
-                                                value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
-                                        <?php elseif (in_array(strtolower($q['question_type']), ['dropdown', 'select'])): ?>
-                                            <select class="form-select" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
-                                                <option value="">Pilih...</option>
-                                                <?php foreach ($options as $opt): ?>
-                                                    <option value="<?= esc($opt) ?>" <?= in_array($opt, $existing_answers) ? 'selected' : '' ?>><?= esc($opt) ?></option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        <?php elseif (strtolower($q['question_type']) === 'radio'): ?>
-                                            <?php foreach ($options as $opt): ?>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
-                                                        value="<?= esc($opt) ?>" id="radio-<?= $q['id'] ?>-<?= md5($opt) ?>"
-                                                        <?= in_array($opt, $existing_answers) ? 'checked' : '' ?>
-                                                        <?= $q['is_required'] ? 'required' : '' ?>>
-                                                    <label class="form-check-label" for="radio-<?= $q['id'] ?>-<?= md5($opt) ?>"><?= esc($opt) ?></label>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        <?php elseif (strtolower($q['question_type']) === 'checkbox'): ?>
-                                            <?php foreach ($options as $opt): ?>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="answer[<?= $q['id'] ?>][]" data-qid="<?= $q['id'] ?>"
-                                                        value="<?= esc($opt) ?>" id="check-<?= $q['id'] ?>-<?= md5($opt) ?>"
-                                                        <?= in_array($opt, $existing_answers) ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="check-<?= $q['id'] ?>-<?= md5($opt) ?>"><?= esc($opt) ?></label>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        <?php elseif (strtolower($q['question_type']) === 'user_field'): ?>
-                                            <?php
-                                            $fieldName = $q['user_field_name'] ?? '';
-                                            $friendlyLabel = isset($field_friendly_names[$fieldName]) ? $field_friendly_names[$fieldName] : ucwords(str_replace('_', ' ', $fieldName));
-                                            $fieldType = $field_types[$fieldName] ?? 'text';
-                                            $preValue = isset($user_profile[$fieldName]) ? $user_profile[$fieldName] : '';
-                                            // Gunakan nama untuk foreign key, nilai asli untuk non-foreign key
-                                            $displayValue = isset($user_profile_display[$fieldName . '_name']) ? $user_profile_display[$fieldName . '_name'] : (isset($user_profile_display[$fieldName]) ? $user_profile_display[$fieldName] : $preValue);
-                                            ?>
-                                            <?php if (strpos($fieldType, 'foreign_key') === 0): ?>
-                                                <?php
-                                                // Map foreign key table to options and keys
-                                                $fkTable = explode(':', $fieldType)[1] ?? '';
-                                                $fkConfig = [
-                                                    'jurusan' => [
-                                                        'options' => $jurusan_options,
-                                                        'key' => isset($jurusan_options[0]['id_jurusan']) ? 'id_jurusan' : 'id',
-                                                        'label' => 'nama_jurusan'
-                                                    ],
-                                                    'cities' => [
-                                                        'options' => $cities_options,
-                                                        'key' => isset($cities_options[0]['id_cities']) ? 'id_cities' : 'id',
-                                                        'label' => 'name'
-                                                    ],
-                                                    'prodi' => [
-                                                        'options' => $prodi_options,
-                                                        'key' => isset($prodi_options[0]['id_prodi']) ? 'id_prodi' : 'id',
-                                                        'label' => 'nama_prodi'
-                                                    ],
-                                                    'provinces' => [
-                                                        'options' => $provinsi_options,
-                                                        'key' => isset($provinsi_options[0]['id_provinsi']) ? 'id_provinsi' : 'id',
-                                                        'label' => 'name'
-                                                    ],
-                                                ];
-                                                $options = $fkConfig[$fkTable]['options'] ?? [];
-                                                $optionKey = $fkConfig[$fkTable]['key'] ?? 'id';
-                                                $optionLabel = $fkConfig[$fkTable]['label'] ?? 'name';
-                                                ?>
-                                                <?php if (!empty($options)): ?>
-                                                    <select class="form-select" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
-                                                        <option value="">-- Pilih <?= esc($friendlyLabel) ?> --</option>
-                                                        <?php foreach ($options as $option): ?>
-                                                            <!-- Simpan nama sebagai value, bukan ID -->
-                                                            <option value="<?= esc($option[$optionLabel]) ?>" <?= $option[$optionLabel] == $displayValue ? 'selected' : '' ?>>
-                                                                <?= esc($option[$optionLabel]) ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                    <?php if (!$displayValue && $fieldName): ?>
-                                                        <small class="form-text text-muted">Pilih <?= esc($friendlyLabel) ?>.</small>
-                                                    <?php endif; ?>
-                                                <?php else: ?>
-                                                    <input type="text" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
-                                                        value="<?= esc($displayValue) ?>" <?= $q['is_required'] ? 'required' : '' ?>
-                                                        placeholder="Tidak ada opsi tersedia untuk <?= esc($friendlyLabel) ?>">
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                <input type="<?= esc($fieldType) ?>" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
-                                                    value="<?= esc($displayValue) ?>" <?= $q['is_required'] ? 'required' : '' ?>
-                                                    placeholder="Masukkan <?= esc($friendlyLabel) ?>" readonly>
-                                                <?php if (!$displayValue && $fieldName): ?>
-                                                    <small class="form-text text-muted">Data <?= esc($friendlyLabel) ?> tidak tersedia.</small>
-                                                <?php endif; ?>
-                                            <?php endif; ?>
-                                        <?php elseif (strtolower($q['question_type']) === 'scale' || strtolower($q['question_type']) === 'matrix_scale'): ?>
-                                            <div class="row">
-                                                <div class="col-md-10">
-                                                    <input type="range" class="form-range" id="scale-<?= $q['id'] ?>" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
-                                                        min="<?= $q['scale_min'] ?? 1 ?>" max="<?= $q['scale_max'] ?? 10 ?>"
-                                                        step="<?= $q['scale_step'] ?? 1 ?>"
-                                                        value="<?= esc($existing_answer ?: ($q['scale_min'] ?? 1)) ?>"
-                                                        <?= $q['is_required'] ? 'required' : '' ?>
-                                                        oninput="updateScaleValue(<?= $q['id'] ?>)">
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <span id="scale-value-<?= $q['id'] ?>" class="badge bg-secondary">
-                                                        <?= esc($existing_answer ?: ($q['scale_min'] ?? 1)) ?>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        <?php elseif (strtolower($q['question_type']) === 'matrix'): ?>
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th></th>
-                                                        <?php foreach ($q['matrix_columns'] as $col): ?>
-                                                            <th><?= esc($col['column_text']) ?></th>
-                                                        <?php endforeach; ?>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php foreach ($q['matrix_rows'] as $row): ?>
-                                                        <tr>
-                                                            <td><?= esc($row['row_text']) ?></td>
-                                                            <?php foreach ($q['matrix_columns'] as $col): ?>
-                                                                <td>
-                                                                    <input type="radio" name="answer[<?= $q['id'] ?>][<?= $row['id'] ?>]" data-qid="<?= $q['id'] ?>"
-                                                                        value="<?= esc($col['column_text']) ?>"
-                                                                        id="matrix-<?= $q['id'] ?>-<?= $row['id'] ?>-<?= $col['id'] ?>"
-                                                                        <?= in_array($col['column_text'], (array)($existing_answers[$row['id']] ?? [])) ? 'checked' : '' ?>
-                                                                        <?= $q['is_required'] ? 'required' : '' ?>>
-                                                                </td>
-                                                            <?php endforeach; ?>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                </tbody>
-                                            </table>
-                                        <?php elseif (strtolower($q['question_type']) === 'file'): ?>
-                                            <input type="file" class="form-control" name="answer_<?= $q['id'] ?>" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
-                                            <?php if ($existing_answer): ?>
-                                                <small class="text-success">File sebelumnya: <?= esc(basename($existing_answer)) ?></small>
-                                            <?php endif; ?>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endforeach; ?>
-
-                        <div class="d-flex justify-content-between mt-3">
-                            <?php if ($pageIndex > 0): ?>
-                                <button type="button" class="btn btn-secondary prev-btn">Sebelumnya</button>
-                            <?php endif; ?>
-                            <?php if ($pageIndex < count($structure['pages']) - 1): ?>
-                                <button type="button" class="btn btn-primary next-btn">Selanjutnya</button>
-                            <?php else: ?>
-                                <button type="submit" class="btn btn-success">Simpan</button>
-                            <?php endif; ?>
-                        </div>
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress">
+                    <div class="progress-bar" id="progress-bar" style="width: <?= esc($progress) ?>%"
+                        role="progressbar" aria-valuenow="<?= esc($progress) ?>" aria-valuemin="0" aria-valuemax="100">
+                        <?= round($progress, 1) ?>%
                     </div>
                 </div>
-                <?php $pageIndex++; ?>
-            <?php endforeach; ?>
-        </form>
-        <div class="mt-3">
-            <a href="<?= base_url('alumni/questionnaires') ?>" class="btn btn-outline-secondary">Kembali</a>
+            </div>
+
+            <!-- Form -->
+            <form id="questionnaire-form" method="post" action="<?= base_url('alumni/questionnaires/save-answer') ?>" enctype="multipart/form-data">
+                <input type="hidden" name="q_id" value="<?= esc($q_id) ?>">
+
+                <?php $pageIndex = 0; ?>
+                <?php foreach ($structure['pages'] as $page): ?>
+                    <div class="page-step <?= $pageIndex === 0 ? 'active' : '' ?>"
+                        data-step="<?= $pageIndex ?>"
+                        data-conditions="<?= htmlspecialchars($page['conditional_logic'] ?? '[]') ?>">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><?= esc($page['page_title']) ?></h5>
+                            </div>
+                            <div class="card-body">
+                                <?php foreach ($page['sections'] as $section): ?>
+                                    <div class="section-container"
+                                        data-conditions="<?= htmlspecialchars($section['conditional_logic'] ?? '[]') ?>">
+                                        <?php if ($section['show_section_title']): ?>
+                                            <h6><?= esc($section['section_title']) ?></h6>
+                                        <?php endif; ?>
+                                        <?php if ($section['show_section_description']): ?>
+                                            <p><?= esc($section['section_description']) ?></p>
+                                        <?php endif; ?>
+                                        <?php foreach ($section['questions'] as $q): ?>
+                                            <div class="question-container"
+                                                data-conditions="<?= htmlspecialchars($q['condition_json'] ?? '[]') ?>">
+                                                <label class="form-label">
+                                                    <?= esc($q['question_text']) ?><?= $q['is_required'] ? ' <span class="text-danger">*</span>' : '' ?>
+                                                </label>
+                                                <?php
+                                                $options = $q['options'] ?? [];
+                                                $existing_answer = $previous_answers['q_' . $q['id']] ?? '';
+                                                $existing_answers = is_array(json_decode($existing_answer, true)) ? json_decode($existing_answer, true) : [$existing_answer];
+                                                ?>
+                                                <?php if (strtolower($q['question_type']) === 'text'): ?>
+                                                    <input type="text" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                        value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
+                                                <?php elseif (strtolower($q['question_type']) === 'email'): ?>
+                                                    <input type="email" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                        value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
+                                                <?php elseif (strtolower($q['question_type']) === 'number'): ?>
+                                                    <input type="number" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                        value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
+                                                <?php elseif (strtolower($q['question_type']) === 'date'): ?>
+                                                    <input type="date" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                        value="<?= esc($existing_answer) ?>" <?= $q['is_required'] ? 'required' : '' ?>>
+                                                <?php elseif (in_array(strtolower($q['question_type']), ['dropdown', 'select'])): ?>
+                                                    <select class="form-select" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
+                                                        <option value="">Pilih...</option>
+                                                        <?php foreach ($options as $opt): ?>
+                                                            <option value="<?= esc($opt) ?>" <?= in_array($opt, $existing_answers) ? 'selected' : '' ?>><?= esc($opt) ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                <?php elseif (strtolower($q['question_type']) === 'radio'): ?>
+                                                    <?php foreach ($options as $opt): ?>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                                value="<?= esc($opt) ?>" id="radio-<?= $q['id'] ?>-<?= md5($opt) ?>"
+                                                                <?= in_array($opt, $existing_answers) ? 'checked' : '' ?>
+                                                                <?= $q['is_required'] ? 'required' : '' ?>>
+                                                            <label class="form-check-label" for="radio-<?= $q['id'] ?>-<?= md5($opt) ?>"><?= esc($opt) ?></label>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                <?php elseif (strtolower($q['question_type']) === 'checkbox'): ?>
+                                                    <?php foreach ($options as $opt): ?>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" name="answer[<?= $q['id'] ?>][]" data-qid="<?= $q['id'] ?>"
+                                                                value="<?= esc($opt) ?>" id="check-<?= $q['id'] ?>-<?= md5($opt) ?>"
+                                                                <?= in_array($opt, $existing_answers) ? 'checked' : '' ?>>
+                                                            <label class="form-check-label" for="check-<?= $q['id'] ?>-<?= md5($opt) ?>"><?= esc($opt) ?></label>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                <?php elseif (strtolower($q['question_type']) === 'user_field'): ?>
+                                                    <?php
+                                                    $fieldName = $q['user_field_name'] ?? '';
+                                                    $friendlyLabel = isset($field_friendly_names[$fieldName]) ? $field_friendly_names[$fieldName] : ucwords(str_replace('_', ' ', $fieldName));
+                                                    $fieldType = $field_types[$fieldName] ?? 'text';
+                                                    $preValue = isset($user_profile[$fieldName]) ? $user_profile[$fieldName] : '';
+                                                    $displayValue = isset($user_profile_display[$fieldName . '_name']) ? $user_profile_display[$fieldName . '_name'] : (isset($user_profile_display[$fieldName]) ? $user_profile_display[$fieldName] : $preValue);
+                                                    ?>
+                                                    <?php if (strpos($fieldType, 'foreign_key') === 0): ?>
+                                                        <?php
+                                                        $fkTable = explode(':', $fieldType)[1] ?? '';
+                                                        $fkConfig = [
+                                                            'jurusan' => [
+                                                                'options' => $jurusan_options,
+                                                                'key' => isset($jurusan_options[0]['id_jurusan']) ? 'id_jurusan' : 'id',
+                                                                'label' => 'nama_jurusan'
+                                                            ],
+                                                            'cities' => [
+                                                                'options' => $cities_options,
+                                                                'key' => isset($cities_options[0]['id_cities']) ? 'id_cities' : 'id',
+                                                                'label' => 'name'
+                                                            ],
+                                                            'prodi' => [
+                                                                'options' => $prodi_options,
+                                                                'key' => isset($prodi_options[0]['id_prodi']) ? 'id_prodi' : 'id',
+                                                                'label' => 'nama_prodi'
+                                                            ],
+                                                            'provinces' => [
+                                                                'options' => $provinsi_options,
+                                                                'key' => isset($provinsi_options[0]['id_provinsi']) ? 'id_provinsi' : 'id',
+                                                                'label' => 'name'
+                                                            ],
+                                                        ];
+                                                        $options = $fkConfig[$fkTable]['options'] ?? [];
+                                                        $optionKey = $fkConfig[$fkTable]['key'] ?? 'id';
+                                                        $optionLabel = $fkConfig[$fkTable]['label'] ?? 'name';
+                                                        ?>
+                                                        <?php if (!empty($options)): ?>
+                                                            <select class="form-select" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
+                                                                <option value="">-- Pilih <?= esc($friendlyLabel) ?> --</option>
+                                                                <?php foreach ($options as $option): ?>
+                                                                    <option value="<?= esc($option[$optionLabel]) ?>" <?= $option[$optionLabel] == $displayValue ? 'selected' : '' ?>>
+                                                                        <?= esc($option[$optionLabel]) ?>
+                                                                    </option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                            <?php if (!$displayValue && $fieldName): ?>
+                                                                <small class="form-text text-muted">Pilih <?= esc($friendlyLabel) ?>.</small>
+                                                            <?php endif; ?>
+                                                        <?php else: ?>
+                                                            <input type="text" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                                value="<?= esc($displayValue) ?>" <?= $q['is_required'] ? 'required' : '' ?>
+                                                                placeholder="Tidak ada opsi tersedia untuk <?= esc($friendlyLabel) ?>">
+                                                        <?php endif; ?>
+                                                    <?php else: ?>
+                                                        <input type="<?= esc($fieldType) ?>" class="form-control" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                            value="<?= esc($displayValue) ?>" <?= $q['is_required'] ? 'required' : '' ?>
+                                                            placeholder="Masukkan <?= esc($friendlyLabel) ?>" readonly>
+                                                        <?php if (!$displayValue && $fieldName): ?>
+                                                            <small class="form-text text-muted">Data <?= esc($friendlyLabel) ?> tidak tersedia.</small>
+                                                        <?php endif; ?>
+                                                    <?php endif; ?>
+                                                <?php elseif (strtolower($q['question_type']) === 'scale' || strtolower($q['question_type']) === 'matrix_scale'): ?>
+                                                    <div class="row align-items-center">
+                                                        <div class="col-md-10">
+                                                            <input type="range" class="form-range" id="scale-<?= $q['id'] ?>" name="answer[<?= $q['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                                min="<?= $q['scale_min'] ?? 1 ?>" max="<?= $q['scale_max'] ?? 10 ?>"
+                                                                step="<?= $q['scale_step'] ?? 1 ?>"
+                                                                value="<?= esc($existing_answer ?: ($q['scale_min'] ?? 1)) ?>"
+                                                                <?= $q['is_required'] ? 'required' : '' ?>
+                                                                oninput="updateScaleValue(<?= $q['id'] ?>)">
+                                                        </div>
+                                                        <div class="col-md-2 text-center">
+                                                            <span id="scale-value-<?= $q['id'] ?>" class="badge bg-primary">
+                                                                <?= esc($existing_answer ?: ($q['scale_min'] ?? 1)) ?>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                <?php elseif (strtolower($q['question_type']) === 'matrix'): ?>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th></th>
+                                                                    <?php foreach ($q['matrix_columns'] as $col): ?>
+                                                                        <th><?= esc($col['column_text']) ?></th>
+                                                                    <?php endforeach; ?>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <?php foreach ($q['matrix_rows'] as $row): ?>
+                                                                    <tr>
+                                                                        <td><strong><?= esc($row['row_text']) ?></strong></td>
+                                                                        <?php foreach ($q['matrix_columns'] as $col): ?>
+                                                                            <td class="text-center">
+                                                                                <input type="radio" name="answer[<?= $q['id'] ?>][<?= $row['id'] ?>]" data-qid="<?= $q['id'] ?>"
+                                                                                    value="<?= esc($col['column_text']) ?>"
+                                                                                    id="matrix-<?= $q['id'] ?>-<?= $row['id'] ?>-<?= $col['id'] ?>"
+                                                                                    <?= in_array($col['column_text'], (array)($existing_answers[$row['id']] ?? [])) ? 'checked' : '' ?>
+                                                                                    <?= $q['is_required'] ? 'required' : '' ?>
+                                                                                    class="form-check-input">
+                                                                            </td>
+                                                                        <?php endforeach; ?>
+                                                                    </tr>
+                                                                <?php endforeach; ?>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                <?php elseif (strtolower($q['question_type']) === 'file'): ?>
+                                                    <input type="file" class="form-control" name="answer_<?= $q['id'] ?>" data-qid="<?= $q['id'] ?>" <?= $q['is_required'] ? 'required' : '' ?>>
+                                                    <?php if ($existing_answer): ?>
+                                                        <small class="text-success">File sebelumnya: <?= esc(basename($existing_answer)) ?></small>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endforeach; ?>
+
+                                <div class="d-flex justify-content-between">
+                                    <?php if ($pageIndex > 0): ?>
+                                        <button type="button" class="btn btn-secondary prev-btn">
+                                            <svg width="16" height="16" fill="currentColor" style="margin-right: 5px; vertical-align: middle;">
+                                                <path d="M11 1L4 8l7 7" stroke="currentColor" stroke-width="2" fill="none"/>
+                                            </svg>
+                                            Sebelumnya
+                                        </button>
+                                    <?php endif; ?>
+                                    <?php if ($pageIndex < count($structure['pages']) - 1): ?>
+                                        <button type="button" class="btn btn-primary next-btn ms-auto">
+                                            Selanjutnya
+                                            <svg width="16" height="16" fill="currentColor" style="margin-left: 5px; vertical-align: middle;">
+                                                <path d="M5 1l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none"/>
+                                            </svg>
+                                        </button>
+                                    <?php else: ?>
+                                        <button type="submit" class="btn btn-success ms-auto">
+                                            <svg width="16" height="16" fill="currentColor" style="margin-right: 5px; vertical-align: middle;">
+                                                <path d="M13 3L5 11 2 8" stroke="currentColor" stroke-width="2" fill="none"/>
+                                            </svg>
+                                            Simpan
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php $pageIndex++; ?>
+                <?php endforeach; ?>
+            </form>
+
+            <!-- Back Link -->
+            <div class="back-link-container">
+                <a href="<?= base_url('alumni/questionnaires') ?>" class="btn btn-outline-secondary">
+                    <svg width="16" height="16" fill="currentColor" style="margin-right: 5px; vertical-align: middle;">
+                        <path d="M11 1L4 8l7 7" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                    Kembali
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- NEW: Announcement Overlay -->
+    <!-- Announcement Overlay -->
     <div class="announcement-overlay" id="announcementOverlay">
         <div class="announcement-modal" id="announcementModal">
             <div class="announcement-header">
@@ -377,11 +789,11 @@
             const conditionsJson = $el.data('conditions');
             
             if (!conditionsJson || conditionsJson === '[]' || conditionsJson === '') {
-                return true; // No conditions = always valid
+                return true;
             }
             
             let pass = false;
-            let logicType = 'any'; // Default
+            let logicType = 'any';
             
             try {
                 const parsed = (typeof conditionsJson === 'string') ? JSON.parse(conditionsJson) : conditionsJson;
@@ -471,17 +883,38 @@
             buttonsContainer.empty();
             
             if (currentStep > 0) {
-                buttonsContainer.append('<button type="button" class="btn btn-secondary prev-btn">Sebelumnya</button>');
+                buttonsContainer.append(`
+                    <button type="button" class="btn btn-secondary prev-btn">
+                        <svg width="16" height="16" fill="currentColor" style="margin-right: 5px; vertical-align: middle;">
+                            <path d="M11 1L4 8l7 7" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                        Sebelumnya
+                    </button>
+                `);
             }
             
             const hasNextValidPages = hasValidNextPages(currentStep);
             const isActualLastPage = currentStep === steps.length - 1;
             
             if (hasNextValidPages && !isActualLastPage) {
-                buttonsContainer.append('<button type="button" class="btn btn-primary next-btn">Selanjutnya</button>');
+                buttonsContainer.append(`
+                    <button type="button" class="btn btn-primary next-btn ms-auto">
+                        Selanjutnya
+                        <svg width="16" height="16" fill="currentColor" style="margin-left: 5px; vertical-align: middle;">
+                            <path d="M5 1l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                    </button>
+                `);
                 console.log(`[DEBUG] Showing Next button - valid pages exist after index ${currentStep}`);
             } else {
-                buttonsContainer.append('<button type="submit" class="btn btn-success submit-btn">Simpan Jawaban</button>');
+                buttonsContainer.append(`
+                    <button type="submit" class="btn btn-success submit-btn ms-auto">
+                        <svg width="16" height="16" fill="currentColor" style="margin-right: 5px; vertical-align: middle;">
+                            <path d="M13 3L5 11 2 8" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                        Simpan
+                    </button>
+                `);
                 console.log(`[DEBUG] Showing Submit button - no valid next pages after index ${currentStep}`);
             }
         }
@@ -629,7 +1062,7 @@
             const progress = ((index + 1) / steps.length) * 100;
             $("#progress-bar").css("width", progress + "%").attr("aria-valuenow", progress).text(Math.round(progress) + "%");
 
-            $('.container').scrollTop(0);
+            $('.main-container').scrollTop(0);
             return true;
         }
 
