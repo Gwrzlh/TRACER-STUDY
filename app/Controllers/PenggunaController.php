@@ -970,6 +970,8 @@ public function deleteMultiple()
     $atasanModel = new \App\Models\DetailaccountAtasan();
     $jabatanLainModel = new \App\Models\DetailaccountJabatanLLnya();
     $logModel = new \App\Models\LogActivityModel();
+    $responsesModel = new ResponseModel();
+    $answersModel = new AnswerModel();
 
     // Hapus dulu semua data turunan (child)
     $alumniModel->whereIn('id_account', $ids)->delete();
@@ -979,7 +981,10 @@ public function deleteMultiple()
     $atasanModel->whereIn('id_account', $ids)->delete();
     $jabatanLainModel->whereIn('id_account', $ids)->delete();
     $logModel->whereIn('user_id', $ids)->delete();
+    $responsesModel->whereIn('account_id', $ids)->delete();
+    $answersModel->whereIn('user_id',$ids)->delete();
 
+    
     // Setelah semua child terhapus, baru hapus akun utama
     $deleted = $accountModel->whereIn('id', $ids)->delete();
 

@@ -1,64 +1,96 @@
 <?= $this->extend('layout/sidebar'); ?>
 <?= $this->section('content'); ?>
 
-<div class="respon-navbar mb-4">
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <a class="nav-link <?= (uri_string() == 'admin/respon') ? 'active' : '' ?>" href="<?= base_url('admin/respon') ?>">📋 Respon</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link <?= (uri_string() == 'admin/respon/ami') ? '' : '' ?>" href="<?= base_url('admin/respon/ami') ?>">🧾 AMI</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link <?= (uri_string() == 'admin/respon/akreditasi') ? 'active' : '' ?>" href="<?= base_url('admin/respon/akreditasi') ?>">📊 Akreditasi</a>
-        </li>
-    </ul>
-</div>
+<link href="<?= base_url('css/respon/akreditasi.css') ?>" rel="stylesheet">
 
-<div class="container-fluid">
-    <h4 class="mb-4">📊 Data Akreditasi</h4>
+<div class="flex-1 overflow-y-auto bg-gray-50">
+    <div class="max-w-7xl mx-auto px-8 py-8">
 
-    <div class="card">
-        <div class="card-body">
-            <?php if (empty($pertanyaan)) : ?>
-                <div class="alert alert-info">Belum ada pertanyaan untuk Akreditasi.</div>
-            <?php else : ?>
-                <?php foreach ($pertanyaan as $q) : ?>
-                    <div class="mb-4">
-                        <h6 class="fw-bold">
-                            <?= esc($q['teks']); ?>
-                            <span class="badge bg-success">Akreditasi</span>
-                            <a href="<?= base_url('admin/respon/remove_from_accreditation/' . $q['id']); ?>" class="btn btn-sm btn-danger float-end" onclick="return confirm('Yakin hapus pertanyaan ini dari Akreditasi?')">
-                                <i class="bi bi-trash"></i> Hapus
-                            </a>
-                        </h6>
-
-                        <table class="table table-sm table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Opsi Jawaban</th>
-                                    <th>Jumlah</th>
-                                    <th>Detail</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($q['jawaban'] as $a) : ?>
-                                    <tr>
-                                        <td><?= esc($a['opsi']); ?></td>
-                                        <td><?= esc($a['jumlah']); ?></td>
-                                        <td>
-                                            <a href="<?= base_url('admin/respon/akreditasi/detail/' . urlencode($a['opsi'])); ?>" class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-eye"></i> Lihat Alumni
-                                            </a>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+        <!-- Breadcrumb Navigation -->
+        <div class="breadcrumb-nav mb-6">
+            <a href="<?= base_url('admin/respon') ?>" class="breadcrumb-item">
+                📋 Respon
+            </a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="<?= base_url('admin/respon/ami') ?>" class="breadcrumb-item">
+                🧾 AMI
+            </a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="<?= base_url('admin/respon/akreditasi') ?>" class="breadcrumb-item active">
+                📊 Akreditasi
+            </a>
         </div>
+
+        <!-- Header -->
+        <div class="header-section mb-8">
+            <div class="header-icon">📊</div>
+            <h1 class="header-title">Data Akreditasi</h1>
+        </div>
+
+        <!-- Main Card -->
+        <div class="main-card">
+            <!-- Card Header -->
+            <div class="card-header">
+                <h2 class="card-title">DAFTAR PERTANYAAN AKREDITASI</h2>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+                <?php if (empty($pertanyaan)) : ?>
+                    <div class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        <p class="empty-text">Belum ada pertanyaan untuk Akreditasi.</p>
+                    </div>
+                <?php else : ?>
+                    <?php foreach ($pertanyaan as $q) : ?>
+                        <div class="question-item">
+                            <!-- Question Header -->
+                            <div class="question-header">
+                                <div class="question-info">
+                                    <h3 class="question-text"><?= esc($q['teks']); ?></h3>
+                                    <span class="badge-akreditasi">Akreditasi</span>
+                                </div>
+                                <a href="<?= base_url('admin/respon/remove_from_accreditation/' . $q['id']); ?>" 
+                                   class="btn-hapus" 
+                                   onclick="return confirm('Yakin hapus pertanyaan ini dari Akreditasi?')">
+                                    Hapus
+                                </a>
+                            </div>
+
+                            <!-- Answer Table -->
+                            <div class="table-container">
+                                <table class="answer-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-opsi">OPSI JAWABAN</th>
+                                            <th class="col-jumlah">JUMLAH</th>
+                                            <th class="col-detail">DETAIL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($q['jawaban'] as $a) : ?>
+                                            <tr class="answer-row">
+                                                <td class="opsi-cell"><?= esc($a['opsi']); ?></td>
+                                                <td class="jumlah-cell">
+                                                    <span class="jumlah-badge"><?= esc($a['jumlah']); ?></span>
+                                                </td>
+                                                <td class="detail-cell">
+                                                    <a href="<?= base_url('admin/respon/akreditasi/detail/' . urlencode($a['opsi'])); ?>" 
+                                                       class="btn-detail">
+                                                        Lihat Alumni
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+
     </div>
 </div>
 
