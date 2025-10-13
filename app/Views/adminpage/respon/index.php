@@ -36,17 +36,23 @@
                         <div class="filter-group">
                             <input type="text" name="nama" class="filter-input" placeholder="Nama Alumni" value="<?= esc($selectedNama) ?>">
                         </div>
+                        <!-- Row 1 -->
                         <div class="filter-group">
                             <select name="jurusan" class="filter-select">
-                                <option value="">-- Semua Jurusan --</option>
+                                <option value="" disabled selected>-- Jurusan --</option>
+                                <option value="all" <?= $selectedJurusan == 'all' ? 'selected' : '' ?>>Semua Jurusan</option>
                                 <?php foreach ($allJurusan as $j): ?>
-                                    <option value="<?= $j['id'] ?>" <?= $selectedJurusan == $j['id'] ? 'selected' : '' ?>><?= esc($j['nama_jurusan']) ?></option>
+                                    <option value="<?= $j['id'] ?>" <?= $selectedJurusan == $j['id'] ? 'selected' : '' ?>>
+                                        <?= esc($j['nama_jurusan']) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
+
                         <div class="filter-group">
                             <select name="prodi" class="filter-select">
-                                <option value="">-- Semua Prodi --</option>
+                                <option value="" disabled selected>-- Prodi --</option>
+                                <option value="all" <?= $selectedProdi == 'all' ? 'selected' : '' ?>>Semua Prodi</option>
                                 <?php foreach ($allProdi as $p): ?>
                                     <option value="<?= $p['id'] ?>" <?= $selectedProdi == $p['id'] ? 'selected' : '' ?>>
                                         <?= esc($p['nama_prodi']) ?> (<?= esc($p['nama_jurusan'] ?? '-') ?>)
@@ -58,40 +64,51 @@
                         <!-- Row 2 -->
                         <div class="filter-group">
                             <select name="angkatan" class="filter-select">
-                                <option value="">-- Semua Angkatan --</option>
+                                <option value="" disabled selected>-- Tahun Masuk --</option>
+                                <option value="all" <?= $selectedAngkatan == 'all' ? 'selected' : '' ?>>Semua Tahun Masuk</option>
                                 <?php foreach ($allAngkatan as $a): ?>
-                                    <option value="<?= $a['angkatan'] ?>" <?= $selectedAngkatan == $a['angkatan'] ? 'selected' : '' ?>><?= esc($a['angkatan']) ?></option>
+                                    <option value="<?= $a['angkatan'] ?>" <?= $selectedAngkatan == $a['angkatan'] ? 'selected' : '' ?>>
+                                        <?= esc($a['angkatan']) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
+
                         <div class="filter-group">
                             <select name="year" class="filter-select">
-                                <option value="">-- Semua Tahun Kelulusan --</option>
+                                <option value="" disabled selected>-- Tahun Lulus --</option>
+                                <option value="all" <?= $selectedYear == 'all' ? 'selected' : '' ?>>Semua Tahun Lulus</option>
                                 <?php foreach ($allYears as $y): ?>
-                                    <option value="<?= $y['tahun_kelulusan'] ?>" <?= $selectedYear == $y['tahun_kelulusan'] ? 'selected' : '' ?>><?= esc($y['tahun_kelulusan']) ?></option>
+                                    <option value="<?= $y['tahun_kelulusan'] ?>" <?= $selectedYear == $y['tahun_kelulusan'] ? 'selected' : '' ?>>
+                                        <?= esc($y['tahun_kelulusan']) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="filter-group">
                             <select name="status" class="filter-select">
-                                <option value="">-- Semua Status --</option>
+                                <option value="" disabled <?= empty($selectedStatus) ? 'selected' : '' ?>>-- Status --</option>
+                                <option value="all" <?= $selectedStatus == 'all' ? 'selected' : '' ?>>Semua Status</option>
                                 <option value="completed" <?= $selectedStatus == 'completed' ? 'selected' : '' ?>>Sudah</option>
-                                <option value="ongoing" <?= $selectedStatus == 'ongoing' ? 'selected' : '' ?>>Ongoing</option>
+                                <option value="draft" <?= $selectedStatus == 'draft' ? 'selected' : '' ?>>Ongoing</option>
                                 <option value="Belum" <?= $selectedStatus == 'Belum' ? 'selected' : '' ?>>Belum Mengisi</option>
                             </select>
                         </div>
 
+
                         <!-- Row 3 -->
                         <div class="filter-group">
                             <select name="sort_by" class="filter-select">
-                                <option value="">-- Urutkan Berdasarkan --</option>
+                                <option value="" disabled selected>-- Urutkan Berdasarkan --</option>
+                                <option value="all" <?= ($filters['sort_by'] ?? '') == 'all' ? 'selected' : '' ?>>Semua Urutan</option>
                                 <option value="nim" <?= ($filters['sort_by'] ?? '') == 'nim' ? 'selected' : '' ?>>NIM</option>
                                 <option value="nama_lengkap" <?= ($filters['sort_by'] ?? '') == 'nama_lengkap' ? 'selected' : '' ?>>Nama</option>
-                                <option value="angkatan" <?= ($filters['sort_by'] ?? '') == 'angkatan' ? 'selected' : '' ?>>Angkatan</option>
-                                <option value="tahun_kelulusan" <?= ($filters['sort_by'] ?? '') == 'tahun_kelulusan' ? 'selected' : '' ?>>Tahun Kelulusan</option>
+                                <option value="angkatan" <?= ($filters['sort_by'] ?? '') == 'angkatan' ? 'selected' : '' ?>>Tahun Masuk</option>
+                                <option value="tahun_kelulusan" <?= ($filters['sort_by'] ?? '') == 'tahun_kelulusan' ? 'selected' : '' ?>>Tahun Lulus</option>
                                 <option value="status" <?= ($filters['sort_by'] ?? '') == 'status' ? 'selected' : '' ?>>Status</option>
                             </select>
                         </div>
+
                         <div class="filter-group">
                             <select name="sort_order" class="filter-select">
                                 <option value="asc" <?= ($filters['sort_order'] ?? '') == 'asc' ? 'selected' : '' ?>>Ascending (A–Z / 0–9)</option>
@@ -251,5 +268,38 @@
 
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const jurusanSelect = document.querySelector('select[name="jurusan"]');
+        const prodiSelect = document.querySelector('select[name="prodi"]');
+
+        if (jurusanSelect && prodiSelect) {
+            jurusanSelect.addEventListener('change', function() {
+                const jurusanId = this.value;
+
+                // Kosongkan prodi dulu
+                prodiSelect.innerHTML = '<option value="">-- Semua Prodi --</option>';
+
+                // Kalau user pilih semua jurusan → ambil semua prodi
+                const url = jurusanId && jurusanId !== 'all' ?
+                    `/admin/respon/getProdiByJurusan/${jurusanId}` :
+                    `/admin/respon/getProdiByJurusan/all`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(p => {
+                            const option = document.createElement('option');
+                            option.value = p.id;
+                            option.textContent = p.nama_prodi;
+                            prodiSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        }
+    });
+</script>
+
 
 <?= $this->endSection() ?>
