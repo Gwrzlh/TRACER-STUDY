@@ -142,4 +142,4 @@ function confirmDelete(id) {
 }
 </script>
 
-<?= $this->endSection() ?>
+<?= $this->endSection() ?>\

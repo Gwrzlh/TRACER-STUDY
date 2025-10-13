@@ -185,6 +185,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (bulkForm) {
             bulkForm.addEventListener('submit', e => {
+                // Pastikan event submit hanya dari bulkDeleteForm, bukan form lain
+                if (e.target.id !== 'bulkDeleteForm') return;
+
                 const selected = penggunaPage.querySelectorAll('.row-checkbox:checked');
                 if (selected.length === 0) {
                     e.preventDefault();
