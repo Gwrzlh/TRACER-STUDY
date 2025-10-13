@@ -41,13 +41,12 @@ class AdminRespon extends BaseController
         $currentPage = (int) ($this->request->getVar('page') ?? 1);
         if ($currentPage < 1) $currentPage = 1;
 
-        // Ambil semua Prodi + Jurusan
         $allProdi = $this->prodiModel
             ->select('prodi.id, prodi.nama_prodi, jurusan.nama_jurusan')
             ->join('jurusan', 'jurusan.id = prodi.id_jurusan', 'left')
             ->findAll();
 
-        // 🔹 Subquery untuk ambil response terakhir per user + questionnaire
+        // Subquery responses terakhir
         $subQuery = "
         (SELECT rr.* 
          FROM responses rr
@@ -59,8 +58,8 @@ class AdminRespon extends BaseController
         ) r
     ";
 
-        // Builder utama (summary counter)
-        $builder = $this->alumniModel->db->table('detailaccount_alumni da')
+        // ========== BASE BUILDER ==========
+        $baseBuilder = $this->alumniModel->db->table('detailaccount_alumni da')
             ->select("
             da.id_account,
             da.nim,
@@ -80,53 +79,55 @@ class AdminRespon extends BaseController
             ->join($subQuery, 'r.account_id = da.id_account', 'left')
             ->join('questionnaires q', 'q.id = r.questionnaire_id', 'left');
 
-        // apply filter
-        if (!empty($filters['prodi'])) $builder->where('da.id_prodi', $filters['prodi']);
-        if (!empty($filters['jurusan'])) $builder->where('da.id_jurusan', $filters['jurusan']);
-        if (!empty($filters['angkatan'])) $builder->where('da.angkatan', $filters['angkatan']);
-        if (!empty($filters['tahun'])) $builder->where('da.tahun_kelulusan', $filters['tahun']);
-        if (!empty($filters['nim'])) $builder->like('da.nim', $filters['nim']);
-        if (!empty($filters['nama'])) $builder->like('da.nama_lengkap', $filters['nama']);
-        if (!empty($filters['status'])) {
+        // ========== APPLY FILTER ==========
+        if (!empty($filters['jurusan']) && $filters['jurusan'] !== 'all') {
+            $baseBuilder->where('da.id_jurusan', $filters['jurusan']);
+        }
+        if (!empty($filters['prodi']) && $filters['prodi'] !== 'all') {
+            $baseBuilder->where('da.id_prodi', $filters['prodi']);
+        }
+        if (!empty($filters['angkatan']) && $filters['angkatan'] !== 'all') {
+            $baseBuilder->where('da.angkatan', $filters['angkatan']);
+        }
+        if (!empty($filters['tahun']) && $filters['tahun'] !== 'all') {
+            $baseBuilder->where('da.tahun_kelulusan', $filters['tahun']);
+        }
+        if (!empty($filters['nim'])) {
+            $baseBuilder->like('da.nim', $filters['nim']);
+        }
+        if (!empty($filters['nama'])) {
+            $baseBuilder->like('da.nama_lengkap', $filters['nama']);
+        }
+        if (!empty($filters['status']) && $filters['status'] !== 'all') {
             if ($filters['status'] === 'Belum') {
-                $builder->where('r.status IS NULL');
+                $baseBuilder->where('r.status IS NULL');
+            } elseif ($filters['status'] === 'Ongoing') {
+                $baseBuilder->where('r.status', 'draft');
+            } elseif ($filters['status'] === 'Sudah') {
+                $baseBuilder->where('r.status', 'completed');
             } else {
-                $builder->where('r.status', $filters['status']);
+                $baseBuilder->where('r.status', $filters['status']);
             }
         }
 
-        // Ambil semua data untuk summary counter
-        $allResponses = $builder->get()->getResultArray();
+
+
+        // Clone builder agar tidak perlu ulang filter
+        $builderAll = clone $baseBuilder;
+        $builderPaged = clone $baseBuilder;
+
+        // ========= SUMMARY COUNTER =========
+        $allResponses = $builderAll->get()->getResultArray();
 
         $totalCompleted = count(array_filter($allResponses, fn($r) => ($r['response_status'] ?? '') === 'completed'));
         $totalDraft     = count(array_filter($allResponses, fn($r) => ($r['response_status'] ?? '') === 'draft'));
         $totalBelum     = count(array_filter($allResponses, fn($r) => empty($r['response_status'])));
         $totalOngoing   = $totalDraft;
+        $totalData      = count($allResponses);
 
-        // Hitung total setelah filter
-        $totalData = count($allResponses);
-
-        // Ambil data untuk halaman sekarang
+        // ========= PAGINATION =========
         $offset = ($currentPage - 1) * $perPage;
-        $responses = $this->alumniModel->db->table('detailaccount_alumni da')
-            ->select("
-            da.id_account,
-            da.nim,
-            da.nama_lengkap,
-            da.angkatan,
-            da.tahun_kelulusan,
-            j.nama_jurusan,
-            p.nama_prodi,
-            r.id as response_id,
-            r.questionnaire_id,
-            r.submitted_at,
-            r.status as response_status,
-            q.title as judul_kuesioner
-        ")
-            ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
-            ->join('prodi p', 'p.id = da.id_prodi', 'left')
-            ->join($subQuery, 'r.account_id = da.id_account', 'left')
-            ->join('questionnaires q', 'q.id = r.questionnaire_id', 'left')
+        $responses = $builderPaged
             ->limit($perPage, $offset)
             ->get()
             ->getResultArray();
@@ -176,6 +177,19 @@ class AdminRespon extends BaseController
 
 
 
+
+    public function getProdiByJurusan($jurusanId = null)
+    {
+        $prodiModel = new \App\Models\Prodi();
+
+        if ($jurusanId && $jurusanId !== 'all') {
+            $data = $prodiModel->where('id_jurusan', $jurusanId)->findAll();
+        } else {
+            $data = $prodiModel->findAll(); // kalau pilih "Semua Jurusan"
+        }
+
+        return $this->response->setJSON($data);
+    }
 
 
 
@@ -807,29 +821,44 @@ class AdminRespon extends BaseController
         return view('adminpage/respon/ami', ['pertanyaan' => $data]);
     }
 
-    // ================== SIMPAN FLAG ==================
+    // ================== SIMPAN FLAG (ADMIN) ==================
     public function saveFlags()
     {
         $akreditasi = $this->request->getPost('akreditasi') ?? [];
-        $ami = $this->request->getPost('ami') ?? [];
+        $ami        = $this->request->getPost('ami') ?? [];
 
         $db = $this->db;
         $builder = $db->table('questions');
 
+        // 🔹 Reset dulu semua flag milik admin
+        $builder->where('created_by_role', 1)
+            ->set(['is_for_accreditation' => 0, 'is_for_ami' => 0])
+            ->update();
+
         // 🔹 Update Akreditasi
         if (!empty($akreditasi)) {
-            $builder->whereIn('id', $akreditasi)->update(['is_for_accreditation' => 1]);
+            $builder->whereIn('id', $akreditasi)
+                ->set([
+                    'is_for_accreditation' => 1,
+                    'created_by_role' => 1
+                ])
+                ->update();
         }
 
         // 🔹 Update AMI
         if (!empty($ami)) {
-            $builder->whereIn('id', $ami)->update(['is_for_ami' => 1]);
+            $builder->whereIn('id', $ami)
+                ->set([
+                    'is_for_ami' => 1,
+                    'created_by_role' => 1
+                ])
+                ->update();
         }
 
-        // Catatan: pertanyaan lama yang tidak dipilih tidak akan berubah → tetap ada
-
-        return redirect()->to(base_url('admin/respon'))->with('success', 'Data berhasil disimpan.');
+        return redirect()->to(base_url('admin/respon'))
+            ->with('success', 'Data AMI & Akreditasi (Admin) berhasil disimpan.');
     }
+
 
     // ================== HAPUS FLAG ==================
     public function remove_from_ami($id)

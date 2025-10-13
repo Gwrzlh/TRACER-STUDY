@@ -6,6 +6,7 @@
 <div class="pengguna-page">
     <div class="page-wrapper">
         <div class="page-container">
+            <?= $this->include('kaprodi/kuesioner/breadcupp') ?>
             <h2 class="page-title"> Daftar Kuesioner Kaprodi <?= esc($kaprodi['nama_prodi']) ?> </h2>
 
             <!-- Top Controls -->
