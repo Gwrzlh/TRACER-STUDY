@@ -16,9 +16,9 @@ class WelcomePageModel extends Model
         'title_3',
         'desc_3',
         'image_path',
+        'image_path_2',
         'youtube_url',
-        'updated_at',
-        'image_path_2'
+        'video_path', 
+        'updated_at'
     ];
-    protected $useTimestamps = false;
 }
