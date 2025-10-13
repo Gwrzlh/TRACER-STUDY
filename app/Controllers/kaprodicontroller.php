@@ -5,6 +5,8 @@ namespace App\Controllers;
 use CodeIgniter\Controller;
 use Config\Database;
 use Dompdf\Dompdf;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class KaprodiController extends Controller
 {
@@ -80,6 +82,157 @@ class KaprodiController extends Controller
         ]);
     }
 
+
+
+    public function alumni()
+    {
+        // Cek role dan session
+        if (session()->get('role_id') != 6 || !session()->get('id_account')) {
+            return redirect()->to('/login')->with('error', 'Akses ditolak.');
+        }
+
+        $idProdi = session()->get('id_prodi');
+
+        // Ambil data alumni berdasarkan prodi Kaprodi
+        $alumni = $this->db->table('detailaccount_alumni da')
+            ->select('
+            da.id,
+            da.nama_lengkap,
+            da.nim,
+            da.angkatan,
+            a.email,
+            a.username,
+            da.notlp,
+            j.nama_jurusan,
+            p.nama_prodi,
+            prov.name AS provinsi,
+            c.name AS kota,
+            da.tahun_kelulusan,
+            da.ipk,
+            da.alamat,
+            da.alamat2,
+            da.jenisKelamin
+        ')
+            ->join('account a', 'a.id = da.id_account', 'left') // perbaikan di sini
+            ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
+            ->join('prodi p', 'p.id = da.id_prodi', 'left')
+            ->join('provinces prov', 'prov.id = da.id_provinsi', 'left')
+            ->join('cities c', 'c.id = da.id_cities', 'left')
+            ->where('da.id_prodi', $idProdi)
+            ->orderBy('da.angkatan', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        return view('kaprodi/alumni/index', [
+            'alumni' => $alumni
+        ]);
+    }
+
+    public function exportAlumni()
+    {
+        if (session()->get('role_id') != 6 || !session()->get('id_account')) {
+            return redirect()->to('/login')->with('error', 'Akses ditolak.');
+        }
+
+        $idProdi = session()->get('id_prodi');
+
+        // Ambil data alumni
+        $alumni = $this->db->table('detailaccount_alumni da')
+            ->select('
+            da.nama_lengkap,
+            da.nim,
+            da.angkatan,
+            a.email,
+            a.username,
+            da.notlp,
+            j.nama_jurusan,
+            p.nama_prodi,
+            prov.name AS provinsi,
+            c.name AS kota,
+            da.tahun_kelulusan,
+            da.ipk,
+            da.alamat,
+            da.alamat2,
+            da.jenisKelamin
+        ')
+            ->join('account a', 'a.id = da.id_account', 'left')
+            ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
+            ->join('prodi p', 'p.id = da.id_prodi', 'left')
+            ->join('provinces prov', 'prov.id = da.id_provinsi', 'left')
+            ->join('cities c', 'c.id = da.id_cities', 'left')
+            ->where('da.id_prodi', $idProdi)
+            ->orderBy('da.angkatan', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        // Buat spreadsheet baru
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Header kolom
+        $headers = [
+            'No',
+            'Nama Lengkap',
+            'NIM',
+            'Tahun Masuk',
+            'Email',
+            'Username',
+            'No Telepon',
+            'Jurusan',
+            'Prodi',
+            'Provinsi',
+            'Kota',
+            'Tahun Lulus',
+            'IPK',
+            'Alamat',
+            'Alamat 2',
+            'Jenis Kelamin'
+        ];
+
+        $col = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($col . '1', $header);
+            $col++;
+        }
+
+        // Isi data
+        $row = 2;
+        $no = 1;
+        foreach ($alumni as $a) {
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $a['nama_lengkap']);
+            $sheet->setCellValue('C' . $row, $a['nim']);
+            $sheet->setCellValue('D' . $row, $a['angkatan']);
+            $sheet->setCellValue('E' . $row, $a['email']);
+            $sheet->setCellValue('F' . $row, $a['username']);
+            $sheet->setCellValue('G' . $row, $a['notlp']);
+            $sheet->setCellValue('H' . $row, $a['nama_jurusan']);
+            $sheet->setCellValue('I' . $row, $a['nama_prodi']);
+            $sheet->setCellValue('J' . $row, $a['provinsi']);
+            $sheet->setCellValue('K' . $row, $a['kota']);
+            $sheet->setCellValue('L' . $row, $a['tahun_kelulusan']);
+            $sheet->setCellValue('M' . $row, $a['ipk']);
+            $sheet->setCellValue('N' . $row, $a['alamat']);
+            $sheet->setCellValue('O' . $row, $a['alamat2']);
+            $sheet->setCellValue('P' . $row, $a['jenisKelamin']);
+            $row++;
+        }
+
+        // Styling sederhana (header bold)
+        $sheet->getStyle('A1:P1')->getFont()->setBold(true);
+
+        // Simpan sebagai file Excel
+        $filename = 'Data_Alumni_' . date('Ymd_His') . '.xlsx';
+        $writer = new Xlsx($spreadsheet);
+
+        // Output ke browser
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Disposition: attachment;filename=\"$filename\"");
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
+    }
 
 
 
@@ -174,42 +327,42 @@ class KaprodiController extends Controller
 
     // ================== KUESIONER ==================
     public function questioner()
-{
-    $idAccount = session()->get('id_account');
+    {
+        $idAccount = session()->get('id_account');
 
-    // Ambil data kaprodi + prodi
-    $builder = $this->db->table('detailaccount_kaprodi dk');
-    $builder->select('dk.*, p.nama_prodi, p.id as id_prodi');
-    $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
-    $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
+        // Ambil data kaprodi + prodi
+        $builder = $this->db->table('detailaccount_kaprodi dk');
+        $builder->select('dk.*, p.nama_prodi, p.id as id_prodi');
+        $builder->join('prodi p', 'dk.id_prodi = p.id', 'left');
+        $kaprodi = $builder->where('dk.id_account', $idAccount)->get()->getRowArray();
 
-    if (!$kaprodi) {
-        return redirect()->to('/login')->with('error', 'Data Kaprodi tidak ditemukan');
+        if (!$kaprodi) {
+            return redirect()->to('/login')->with('error', 'Data Kaprodi tidak ditemukan');
+        }
+
+        $user_data = [
+            'id_prodi' => $kaprodi['id_prodi'],
+        ];
+
+        $questionnaireModel = new \App\Models\QuestionnairModel();
+
+        // Ambil data kuesioner
+        $kuesioner = $questionnaireModel->getAccessibleQuestionnaires($user_data, 'kaprodi');
+
+        // Jika hasil berupa array, urutkan secara manual (yang terbaru di atas)
+        if (is_array($kuesioner)) {
+            usort($kuesioner, function ($a, $b) {
+                // Gunakan kolom created_at kalau ada, kalau tidak gunakan id
+                $field = isset($a['created_at']) ? 'created_at' : 'id';
+                return strcmp($b[$field], $a[$field]); // urut DESC
+            });
+        }
+
+        return view('kaprodi/questioner/index', [
+            'kuesioner' => $kuesioner,
+            'kaprodi'   => $kaprodi
+        ]);
     }
-
-    $user_data = [
-        'id_prodi' => $kaprodi['id_prodi'],
-    ];
-
-    $questionnaireModel = new \App\Models\QuestionnairModel();
-
-    // Ambil data kuesioner
-    $kuesioner = $questionnaireModel->getAccessibleQuestionnaires($user_data, 'kaprodi');
-
-    // Jika hasil berupa array, urutkan secara manual (yang terbaru di atas)
-    if (is_array($kuesioner)) {
-        usort($kuesioner, function ($a, $b) {
-            // Gunakan kolom created_at kalau ada, kalau tidak gunakan id
-            $field = isset($a['created_at']) ? 'created_at' : 'id';
-            return strcmp($b[$field], $a[$field]); // urut DESC
-        });
-    }
-
-    return view('kaprodi/questioner/index', [
-        'kuesioner' => $kuesioner,
-        'kaprodi'   => $kaprodi
-    ]);
-}
 
 
 
@@ -436,14 +589,13 @@ class KaprodiController extends Controller
         return $dompdf->stream("pertanyaan_kuesioner_$idKuesioner.pdf", ["Attachment" => true]);
     }
 
-    // ================== AKREDITASI ==================
     public function akreditasi()
     {
         $db = $this->db;
 
-        // Ambil semua pertanyaan akreditasi
         $questions = $db->table('questions')
             ->where('is_for_accreditation', 1)
+            ->where('created_by_role', 2) // ⬅️ tambahkan ini agar hanya pertanyaan kaprodi
             ->orderBy('created_at', 'ASC')
             ->get()
             ->getResultArray();
@@ -451,7 +603,6 @@ class KaprodiController extends Controller
         $data = [];
 
         foreach ($questions as $q) {
-            // Ambil jawaban per pertanyaan
             $answers = $db->table('answers')
                 ->select('answer_text, COUNT(*) as jumlah')
                 ->where('question_id', $q['id'])
@@ -459,7 +610,6 @@ class KaprodiController extends Controller
                 ->get()
                 ->getResultArray();
 
-            // Format jawaban
             $jawaban = [];
             foreach ($answers as $a) {
                 $jawaban[] = [
@@ -477,6 +627,7 @@ class KaprodiController extends Controller
 
         return view('kaprodi/akreditasi/index', ['pertanyaan' => $data]);
     }
+
 
 
 
@@ -500,14 +651,13 @@ class KaprodiController extends Controller
         ]);
     }
 
-    // ================== AMI ==================
     public function ami()
     {
         $db = $this->db;
 
-        // Ambil semua pertanyaan AMI
         $questions = $db->table('questions')
             ->where('is_for_ami', 1)
+            ->where('created_by_role', 2) // ⬅️ tambahkan filter kaprodi
             ->orderBy('created_at', 'ASC')
             ->get()
             ->getResultArray();
@@ -515,7 +665,6 @@ class KaprodiController extends Controller
         $data = [];
 
         foreach ($questions as $q) {
-            // Ambil jawaban per pertanyaan
             $answers = $db->table('answers')
                 ->select('answer_text, COUNT(*) as jumlah')
                 ->where('question_id', $q['id'])
@@ -523,7 +672,6 @@ class KaprodiController extends Controller
                 ->get()
                 ->getResultArray();
 
-            // Format jawaban
             $jawaban = [];
             foreach ($answers as $a) {
                 $jawaban[] = [
@@ -541,10 +689,6 @@ class KaprodiController extends Controller
 
         return view('kaprodi/ami/index', ['pertanyaan' => $data]);
     }
-
-
-
-
 
     public function detailAmi($opsi)
     {
@@ -564,6 +708,7 @@ class KaprodiController extends Controller
             'alumni' => $alumni
         ]);
     }
+    // ================== SIMPAN FLAG (KAPRODI) ==================
     public function saveFlags()
     {
         $akreditasi = $this->request->getPost('akreditasi') ?? [];
@@ -572,21 +717,35 @@ class KaprodiController extends Controller
         $db = $this->db;
         $builder = $db->table('questions');
 
-        // 🔹 Update flag Akreditasi
+        // 🔹 Reset dulu semua flag milik kaprodi
+        $builder->where('created_by_role', 2)
+            ->set(['is_for_accreditation' => 0, 'is_for_ami' => 0])
+            ->update();
+
+        // 🔹 Update Akreditasi
         if (!empty($akreditasi)) {
-            $builder->whereIn('id', $akreditasi)->update(['is_for_accreditation' => 1]);
+            $builder->whereIn('id', $akreditasi)
+                ->set([
+                    'is_for_accreditation' => 1,
+                    'created_by_role' => 2
+                ])
+                ->update();
         }
 
-        // 🔹 Update flag AMI
+        // 🔹 Update AMI
         if (!empty($ami)) {
-            $builder->whereIn('id', $ami)->update(['is_for_ami' => 1]);
+            $builder->whereIn('id', $ami)
+                ->set([
+                    'is_for_ami' => 1,
+                    'created_by_role' => 2
+                ])
+                ->update();
         }
-
-        // Catatan: pertanyaan lain tetap tidak berubah, jadi pertanyaan lama tetap ada.
 
         return redirect()->to(base_url('kaprodi/questioner'))
-            ->with('success', 'Data berhasil disimpan.');
+            ->with('success', 'Data AMI & Akreditasi (Kaprodi) berhasil disimpan.');
     }
+
     public function delete($id)
     {
         $db = $this->db;

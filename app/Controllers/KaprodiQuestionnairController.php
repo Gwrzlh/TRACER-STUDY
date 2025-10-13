@@ -472,8 +472,6 @@ class KaprodiQuestionnairController extends BaseController
         ]);
     }
 
-    // TAMBAH method baru untuk manage questions per section
-
     public function manageSectionQuestions($questionnaire_id, $page_id, $section_id)
     {
         $questionModel = new QuestionModel();
@@ -491,7 +489,7 @@ class KaprodiQuestionnairController extends BaseController
 
 
         if (!$questionnaire || !$page || !$section) {
-            return redirect()->to('kaprodi/kuesioner')
+            return redirect()->to('admin/questionnaire')
                 ->with('error', 'Data tidak ditemukan.');
         }
 
@@ -527,6 +525,7 @@ class KaprodiQuestionnairController extends BaseController
             'file'      => 'Upload File',
             'rating'    => 'Rating',
             'matrix'    => 'Matriks',
+            'user_field' => 'User Profile Field',
         ];
 
 
@@ -579,73 +578,50 @@ class KaprodiQuestionnairController extends BaseController
             'all_questions'    => $all_questions
         ]);
     }
-    public function getQuestionOptions($questionnaire_id = null, $page_id = null, $section_id = null, $questionId = null)
+    public function getQuestionOptions($questionnaire_id, $page_id, $section_id, $questionId)
     {
         try {
-            // Bisa ambil dari parameter atau dari query string ?question_id=123
-            if ($questionId === null) {
-                $questionId = $this->request->getGet('question_id');
-            }
-
-            if (!$questionId) {
-                return $this->response->setJSON([
-                    'status'  => 'error',
-                    'message' => 'Question ID tidak ditemukan',
-                    'type'    => 'text',
-                    'options' => []
-                ]);
-            }
+            log_message('debug', "Mengambil opsi untuk questionId: $questionId, questionnaire: $questionnaire_id, page: $page_id, section: $section_id");
 
             $questionModel = new QuestionModel();
-            $optionModel   = new QuestionOptionModel();
+            $optionModel = new QuestionOptionModel();
+            log_message('debug', 'Models initialized successfully');
 
-            $question = $questionModel->find($questionId);
+            $question = $questionModel->where('id', $questionId)
+                ->where('questionnaires_id', $questionnaire_id)
+                ->where('page_id', $page_id)
+                ->where('section_id', $section_id)
+                ->first();
+            log_message('debug', 'Question query executed: ' . ($question ? json_encode($question) : 'No question found'));
 
             if (!$question) {
-                return $this->response->setJSON([
-                    'status'  => 'error',
-                    'message' => 'Question not found',
-                    'type'    => 'text',
-                    'options' => []
-                ]);
+                log_message('error', "Question not found for ID: $questionId");
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
             }
 
             $options = [];
-            $type    = 'text'; // default
-
-            // Kalau tipe pertanyaan pilihan (radio, checkbox, dropdown)
             if (in_array($question['question_type'], ['radio', 'checkbox', 'dropdown'])) {
-                $type    = 'select';
                 $options = $optionModel->where('question_id', $questionId)
-                    ->orderBy('order_number', 'ASC')
+                    ->select('option_text, option_value, order_number') // Gunakan order_number
+                    ->orderBy('order_number', 'ASC') // Konsisten dengan order_number
                     ->findAll();
-
-                // Mapping hasil biar lebih bersih
-                $options = array_map(function ($opt) {
-                    return [
-                        'id'           => $opt['id'],
-                        'option_text'  => $opt['option_text'],
-                        'option_value' => $opt['option_value'] ?? $opt['id'],
-                    ];
-                }, $options);
+                log_message('debug', "Options fetched: " . json_encode($options));
+            } else {
+                log_message('debug', "Question type {$question['question_type']} does not support options");
             }
-
             return $this->response->setJSON([
-                'status'  => 'success',
-                'type'    => $type,              // <-- konsisten dengan JS: 'select' atau 'text'
+                'status' => 'success',
+                'question_type' => $question['question_type'],
                 'options' => $options
             ]);
         } catch (\Exception $e) {
-            log_message('error', 'Error in getQuestionOptions: ' . $e->getMessage());
+            log_message('error', 'Error in getQuestionOptions: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
             return $this->response->setStatusCode(500)->setJSON([
-                'status'  => 'error',
-                'message' => 'Internal server error: ' . $e->getMessage(),
-                'type'    => 'text',
-                'options' => []
+                'status' => 'error',
+                'message' => 'Internal server error: ' . $e->getMessage()
             ]);
         }
     }
-
     public function getOptions($questionId)
     {
         $questionModel = new QuestionModel();
@@ -688,15 +664,25 @@ class KaprodiQuestionnairController extends BaseController
             'max_file_size' => 'permit_empty|integer',
             'matrix_rows' => 'permit_empty',
             'matrix_columns' => 'permit_empty',
-            'enable_conditional' => 'permit_empty|in_list[0,1]',
-            'parent_question_id' => 'permit_empty|integer',
-            'condition_operator' => 'permit_empty|in_list[is,is not]',
-            'condition_value' => 'permit_empty',
+            'user_field_name' => 'permit_empty|alpha_dash',
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
             log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
             return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
+        }
+
+        $type = $this->request->getPost('question_type');
+        if ($type === 'user_field') {
+            $userFieldName = $this->request->getPost('user_field_name');
+            if (empty($userFieldName)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'User field name is required for user_field type']]);
+            }
+            // Validate against available fields (hardcoded for simplicity)
+            $availableFields = ['nama_lengkap', 'email', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
+            if (!in_array($userFieldName, $availableFields)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'Invalid user field name']]);
+            }
         }
 
         $questionModel = new QuestionModel();
@@ -727,20 +713,8 @@ class KaprodiQuestionnairController extends BaseController
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
 
-            // Conditional logic to condition_json
-            $enableConditional = $this->request->getPost('enable_conditional') ? 1 : 0;
-            $parentId = $this->request->getPost('parent_question_id');
-            if ($enableConditional && $parentId) {
-                $condition = [
-                    'field' => 'question_' . $parentId,
-                    'operator' => $this->request->getPost('condition_operator') ?: 'is',
-                    'value' => $this->request->getPost('condition_value')
-                ];
-                $data['condition_json'] = json_encode([$condition]);
-                log_message('debug', 'Saving condition_json: ' . $data['condition_json']);
-            } else {
-                $data['condition_json'] = null;
-            }
+            $data['condition_json'] = null;
+
             // Special type handling
             $type = $data['question_type'];
             log_message('debug', 'Processing special type: ' . $type);
@@ -756,7 +730,10 @@ class KaprodiQuestionnairController extends BaseController
                 $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
                 $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
                 log_message('debug', 'File settings saved: types=' . $data['allowed_types'] . ', size=' . $data['max_file_size']);
+            } elseif ($type === 'user_field') {
+                $data['user_field_name'] = $this->request->getPost('user_field_name');
             }
+
 
             // Insert question
             $question_id = $questionModel->insert($data);
@@ -861,15 +838,25 @@ class KaprodiQuestionnairController extends BaseController
             'max_file_size' => 'permit_empty|integer',
             'matrix_rows' => 'permit_empty',
             'matrix_columns' => 'permit_empty',
-            'enable_conditional' => 'permit_empty|in_list[0,1]',
-            'parent_question_id' => 'permit_empty|integer',
-            'condition_operator' => 'permit_empty|in_list[is,is not]',
-            'condition_value' => 'permit_empty',
+            'user_field_name' => 'permit_empty|alpha_dash',
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
             log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
             return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
+        }
+
+        $type = $this->request->getPost('question_type');
+        if ($type === 'user_field') {
+            $userFieldName = $this->request->getPost('user_field_name');
+            if (empty($userFieldName)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'User field name is required for user_field type']]);
+            }
+            // Validate against available fields (hardcoded for simplicity)
+            $availableFields = ['nama_lengkap', 'email', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
+            if (!in_array($userFieldName, $availableFields)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'Invalid user field name']]);
+            }
         }
 
         $db = \Config\Database::connect();
@@ -894,21 +881,7 @@ class KaprodiQuestionnairController extends BaseController
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
 
-            // Conditional logic
-            $enableConditional = $this->request->getPost('enable_conditional') ? 1 : 0;
-            $parentId = $this->request->getPost('parent_question_id');
-            if ($enableConditional && $parentId) {
-                $condition = [
-                    'field' => 'question_' . $parentId,
-                    'operator' => $this->request->getPost('condition_operator') ?: 'is',
-                    'value' => $this->request->getPost('condition_value')
-                ];
-                $data['condition_json'] = json_encode([$condition]);
-                log_message('debug', 'Saving condition_json: ' . $data['condition_json']);
-            } else {
-                $data['condition_json'] = null;
-                log_message('debug', 'No conditional logic enabled, condition_json set to null');
-            }
+            $data['condition_json'] = null;
 
             // Special type handling
             $type = $data['question_type'];
@@ -921,6 +894,8 @@ class KaprodiQuestionnairController extends BaseController
             } elseif ($type === 'file') {
                 $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
                 $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
+            } elseif ($type === 'user_field') {
+                $data['user_field_name'] = $this->request->getPost('user_field_name');
             }
 
             $questionModel->update($question_id, $data);
