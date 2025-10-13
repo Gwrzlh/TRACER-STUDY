@@ -16,7 +16,8 @@
         </script>
     <?php endif; ?>
 
-   <!-- tabs -->
+ 
+<!-- tabs -->
 <div class="tab-container">
     <a href="<?= base_url('pengaturan-situs') ?>" 
        class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-situs') ? 'active' : '' ?>">
@@ -33,7 +34,12 @@
       <a href="<?= base_url('pengaturan-atasan') ?>" 
            class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-atasan') ? 'active' : '' ?>">
            Pengaturan Atasan
-        </a>
+      </a>
+      
+    <a href="<?= base_url('pengaturan-jabatanlainya') ?>" 
+       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-jabatanlainya') ? 'active' : '' ?>">
+        Pengaturan Jabatan Lainnya
+    </a>
 </div>
 
     <form action="<?= base_url('pengaturan-alumni/save') ?>" method="post">
@@ -147,12 +153,12 @@
                 </div>
                 
 <!-- Pagination -->
-<h5 class="mb-3">Pengaturan Pagination - Lihat Teman</h5>
+<h5 class="mb-3">Pengaturan Lihat Teman</h5>
 <div class="mb-3">
-    <label for="lihat_teman_pagination_limit" class="form-label">Jumlah Data per Halaman</label>
+    <label for="lihat_teman_pagination_limit" class="form-label">Jumlah Data per Halaman Lihat Teman</label>
     <input type="number" min="1" max="100" name="lihat_teman_pagination_limit" id="lihat_teman_pagination_limit"
            value="<?= esc($settings['lihat_teman_pagination_limit'] ?? 10) ?>" class="form-control" style="width: 150px;">
-    <small class="text-muted">Atur berapa banyak data teman yang ditampilkan per halaman di menu "Lihat Teman".</small>
+    
 </div>
             </div>
         </div>
