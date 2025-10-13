@@ -5,6 +5,7 @@
 <div class="pengguna-page">
     <div class="page-wrapper">
         <div class="page-container">
+            <?= $this->include('kaprodi/kuesioner/breadcupp') ?>
             <!-- Judul -->
             <h2 class="page-title">📑 Halaman Kuesioner: <?= esc($questionnaire['title']) ?></h2>
             <p class="text-muted"><?= esc($questionnaire['deskripsi']) ?></p>
