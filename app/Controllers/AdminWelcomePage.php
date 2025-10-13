@@ -38,7 +38,6 @@ class AdminWelcomePage extends BaseController
         // upload gambar pertama jika ada
         $img = $this->request->getFile('image');
         if ($img && $img->isValid() && !$img->hasMoved()) {
-            // opsional: hapus file lama jika ingin
             $newName = $img->getRandomName();
             $img->move(WRITEPATH . '../public/uploads/', $newName); // pastikan folder uploads writable
             $data['image_path'] = '/uploads/' . $newName;
@@ -48,8 +47,16 @@ class AdminWelcomePage extends BaseController
         $img2 = $this->request->getFile('image_2');
         if ($img2 && $img2->isValid() && !$img2->hasMoved()) {
             $newName2 = $img2->getRandomName();
-            $img2->move(WRITEPATH . '../public/uploads/', $newName2); // pastikan folder uploads writable
+            $img2->move(WRITEPATH . '../public/uploads/', $newName2);
             $data['image_path_2'] = '/uploads/' . $newName2;
+        }
+
+        // upload video jika ada
+        $videoFile = $this->request->getFile('video_file');
+        if ($videoFile && $videoFile->isValid() && !$videoFile->hasMoved()) {
+            $newVideoName = $videoFile->getRandomName();
+            $videoFile->move(WRITEPATH . '../public/uploads/videos/', $newVideoName); // pastikan folder writable
+            $data['video_path'] = '/uploads/videos/' . $newVideoName;
         }
 
         $model->update($id, $data);

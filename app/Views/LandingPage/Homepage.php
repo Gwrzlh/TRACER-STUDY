@@ -9,7 +9,7 @@ $data = $model->first();
 // Ambil setting tombol dari DB
 $settingModel = new SiteSettingModel();
 $settings = [
-    'survey_button_text'        => get_setting('survey_button_text', 'Mulai Survey'),
+    'survey_button_text'        => get_setting('survey_button_text', 'Mulai Login'),
     'survey_button_color'       => get_setting('survey_button_color', '#ef4444'),
     'survey_button_text_color'  => get_setting('survey_button_text_color', '#ffffff'),
     'survey_button_hover_color' => get_setting('survey_button_hover_color', '#dc2626'),
@@ -193,14 +193,28 @@ $settings = [
   <div class="container text-center">
     <h2 class="section-title animate_animated animatelightSpeedInLeft animate_slow"><?= esc($data['title_3']) ?></h2>
     <p class="section-desc animate_animated animatefadeInUp animatedelay-1s animate_slow"><?= $data['desc_3'] ?></p>
-    <div class="ratio ratio-16x9 mx-auto mt-4 animate_animated animatezoomInUp animatedelay-2s animate_slow" style="max-width: 800px;">
-      <iframe 
-          src="<?= esc($data['youtube_url']) ?>" 
-          title="YouTube video"
-          allowfullscreen
-          class="rounded shadow">
-      </iframe>
-    </div>
+
+    <!-- ✅ YouTube Video -->
+    <?php if (!empty($data['youtube_url'])): ?>
+      <div class="ratio ratio-16x9 mx-auto mt-4 animate_animated animatezoomInUp animatedelay-2s animate_slow" style="max-width: 800px;">
+        <iframe 
+            src="<?= esc($data['youtube_url']) ?>" 
+            title="YouTube video"
+            allowfullscreen
+            class="rounded shadow">
+        </iframe>
+      </div>
+    <?php endif; ?>
+
+    <!-- ✅ Uploaded Video (video_path) -->
+    <?php if (!empty($data['video_path'])): ?>
+      <div class="ratio ratio-16x9 mx-auto mt-4 animate_animated animatezoomInUp animatedelay-2s animate_slow" style="max-width: 800px;">
+        <video controls class="rounded shadow w-100">
+          <source src="<?= base_url($data['video_path']) ?>" type="video/mp4">
+          Browser kamu tidak mendukung pemutaran video.
+        </video>
+      </div>
+    <?php endif; ?>
   </div>
 </section>
 

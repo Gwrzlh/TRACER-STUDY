@@ -14,7 +14,8 @@ class Prodi extends Model
     protected $protectFields    = true;
     
 
-    protected $allowedFields    = ['nama_prodi', 'id_jurusan'];
+    protected $allowedFields = ['nama_prodi', 'id_jurusan', 'singkatan'];
+
 
     protected $useTimestamps    = false;
     protected $dateFormat       = 'datetime';

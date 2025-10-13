@@ -197,18 +197,11 @@ public function save($q_id)
             ->with('error', 'Tidak ada jawaban yang disimpan.');
     }
 
-    // --- Simpan jawaban dari input text/radio/checkbox/dropdown ---
+    // --- Simpan jawaban (text/radio/checkbox/dropdown) ---
     if (!empty($answers)) {
         foreach ($answers as $question_id => $answer) {
-            if (empty($answer) && !is_array($answer)) {
-                continue;
-            }
-
-            // Jika jawaban berupa array (checkbox multiple), simpan sebagai JSON
-            if (is_array($answer)) {
-                $answer = json_encode($answer);
-            }
-
+            if (empty($answer) && !is_array($answer)) continue;
+            if (is_array($answer)) $answer = json_encode($answer);
             $this->answerModel->saveAnswer($user_id, $q_id, $question_id, $answer);
         }
     }
@@ -225,7 +218,6 @@ public function save($q_id)
 
                     $new_name = $file->getRandomName();
                     $file->move($upload_path, $new_name);
-
                     $file_path = 'uploaded_file:' . $new_name;
                     $this->answerModel->saveAnswer($user_id, $q_id, $question_id, $file_path);
                 }
@@ -233,21 +225,29 @@ public function save($q_id)
         }
     }
 
-    // 🔹 UPDATE STATUS: jika baru mengisi, ubah dari draft → On Going
-    $db = \Config\Database::connect();
-    $builder = $db->table('answers');
+    // 🔹 Update status di tabel "responses", bukan "answers"
+    $responseModel = new \App\Models\ResponseModel();
+    $existingResponse = $responseModel
+        ->where('account_id', $user_id)
+        ->where('questionnaire_id', $q_id)
+        ->first();
 
-    // Cek apakah user sudah pernah isi sebelumnya
-    $existing = $builder
-        ->where(['questionnaire_id' => $q_id, 'user_id' => $user_id])
-        ->countAllResults();
-
-    if ($existing > 0) {
-        // Perbarui status menjadi "On Going" jika belum Finish
-        $builder->where(['questionnaire_id' => $q_id, 'user_id' => $user_id])
-            ->where('STATUS !=', 'Finish')
-            ->set(['STATUS' => 'On Going'])
-            ->update();
+    if ($existingResponse) {
+        // Jika belum selesai, ubah status jadi On Going
+        if ($existingResponse['status'] !== 'completed') {
+            $responseModel->update($existingResponse['id'], [
+                'status'     => 'On Going',
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+        }
+    } else {
+        // Jika belum ada respon sama sekali, buat baru
+        $responseModel->insert([
+            'account_id'       => $user_id,
+            'questionnaire_id' => $q_id,
+            'status'           => 'On Going',
+            'created_at'       => date('Y-m-d H:i:s')
+        ]);
     }
 
     // --- Log aktivitas ---
