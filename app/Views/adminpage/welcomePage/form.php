@@ -117,6 +117,31 @@
           </div>
         </div>
 
+        <!-- Upload Video -->
+        <div class="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-gray-50 transition-colors">
+          <div class="col-span-3 flex items-start pt-2">
+            <label class="font-medium text-gray-700">Upload Video</label>
+          </div>
+          <div class="col-span-9">
+            <input type="file" id="video_file" name="video_file" accept="video/mp4,video/webm,video/ogg"
+              class="block w-full text-sm text-gray-600 border border-gray-300 rounded-lg cursor-pointer
+                     file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                     file:bg-blue-600 file:text-white file:text-sm hover:file:bg-blue-700 transition-all">
+            <button type="button" id="reset_video"
+              class="mt-2 text-xs text-red-600 hover:text-red-800 underline">Reset ke default</button>
+            <p class="text-xs text-gray-500 mt-2">Format didukung: MP4, WebM, OGG</p>
+            
+            <div id="video_preview_container" class="mt-4 <?= empty($welcome['video_path']) ? 'hidden' : '' ?>">
+              <video id="video_preview" controls class="w-full h-64 rounded-lg border border-gray-300">
+                <?php if (!empty($welcome['video_path'])): ?>
+                  <source src="<?= esc($welcome['video_path']) ?>" type="video/mp4">
+                <?php endif; ?>
+                Browser Anda tidak mendukung pemutar video.
+              </video>
+            </div>
+          </div>
+        </div>
+
         <!-- YouTube URL -->
         <div class="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-gray-50 transition-colors">
           <div class="col-span-3 flex items-start pt-2">
@@ -155,26 +180,6 @@
     </div>
 
   </div>
-
-  <!-- ✅ Tambahan: Upload Video File -->
-  <div class="mt-10">
-    <label class="block font-semibold text-gray-800 mb-2">Upload Video</label>
-    <input type="file" id="video_file" name="video_file" accept="video/mp4,video/webm,video/ogg"
-      class="block w-full text-sm text-gray-600 border border-blue-300 rounded-lg px-4 py-3 cursor-pointer
-             file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
-             file:bg-blue-600 file:text-white hover:file:bg-blue-700">
-    <p class="text-sm text-gray-500 mt-2">Format didukung: MP4, WebM, OGG</p>
-
-    <div id="video_preview_container" class="mt-4 <?= empty($welcome['video_path']) ? 'hidden' : '' ?>">
-      <video id="video_preview" controls
-             class="w-full h-64 rounded-xl shadow-md border border-blue-300">
-        <?php if (!empty($welcome['video_path'])): ?>
-          <source src="<?= esc($welcome['video_path']) ?>" type="video/mp4">
-        <?php endif; ?>
-        Browser Anda tidak mendukung pemutar video.
-      </video>
-    </div>
-  </div>
 </div>
 
 <!-- Preview + Reset Script -->
@@ -204,6 +209,46 @@ function previewImage(inputId, previewId, resetId, defaultSrc) {
 previewImage('image_input', 'preview_image', 'reset_image', "<?= esc($welcome['image_path']) ?>");
 previewImage('image_input_2', 'preview_image_2', 'reset_image_2', "<?= !empty($welcome['image_path_2']) ? esc($welcome['image_path_2']) : '/images/placeholder.png' ?>");
 
+
+// === Preview + Reset Video File ===
+const videoInput = document.getElementById('video_file');
+const videoContainer = document.getElementById('video_preview_container');
+const videoPreview = document.getElementById('video_preview');
+const videoReset = document.getElementById('reset_video');
+const defaultVideoSrc = "<?= !empty($welcome['video_path']) ? esc($welcome['video_path']) : '' ?>";
+
+if (videoInput) {
+  videoInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      const source = videoPreview.querySelector('source');
+      source.src = url;
+      videoPreview.load();
+      videoContainer.classList.remove('hidden');
+      videoPreview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      videoContainer.classList.add('hidden');
+    }
+  });
+}
+
+if (videoReset) {
+  videoReset.addEventListener('click', function() {
+    videoInput.value = "";
+    const source = videoPreview.querySelector('source');
+    if (defaultVideoSrc) {
+      source.src = defaultVideoSrc;
+      videoPreview.load();
+      videoContainer.classList.remove('hidden');
+    } else {
+      source.src = "";
+      videoContainer.classList.add('hidden');
+    }
+  });
+}
+
+
 // === YouTube Preview ===
 const youtubeInput = document.getElementById('youtube_url');
 const youtubePreview = document.getElementById('youtube_preview');
@@ -221,6 +266,7 @@ youtubeInput.addEventListener('input', function() {
   let url = youtubeInput.value.trim();
   url = convertToEmbed(url);
   youtubeInput.value = url;
+
   if (url.includes("youtube.com/embed/")) {
     youtubePreview.src = url;
     youtubeContainer.classList.remove('hidden');
@@ -234,6 +280,7 @@ window.addEventListener('DOMContentLoaded', function() {
   let url = youtubeInput.value.trim();
   url = convertToEmbed(url);
   youtubeInput.value = url;
+
   if (url.includes("youtube.com/embed/")) {
     youtubePreview.src = url;
     youtubeContainer.classList.remove('hidden');
@@ -242,25 +289,8 @@ window.addEventListener('DOMContentLoaded', function() {
     youtubePreview.src = "";
   }
 });
-
-// === Preview Video File Tambahan ===
-const videoInput = document.getElementById('video_file');
-const videoContainer = document.getElementById('video_preview_container');
-const videoPreview = document.getElementById('video_preview');
-
-videoInput.addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    const source = videoPreview.querySelector('source');
-    source.src = url;
-    videoPreview.load();
-    videoContainer.classList.remove('hidden');
-  } else {
-    videoContainer.classList.add('hidden');
-  }
-});
 </script>
+
 
 <!-- TinyMCE Self-hosted -->
 <script src="<?= base_url('tinymce/tinymce.min.js'); ?>"></script>
