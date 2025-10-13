@@ -16,7 +16,8 @@
         </script>
     <?php endif; ?>
 
-   <!-- tabs -->
+   
+<!-- tabs -->
 <div class="tab-container">
     <a href="<?= base_url('pengaturan-situs') ?>" 
        class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-situs') ? 'active' : '' ?>">
@@ -33,7 +34,12 @@
       <a href="<?= base_url('pengaturan-atasan') ?>" 
            class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-atasan') ? 'active' : '' ?>">
            Pengaturan Atasan
-        </a>
+      </a>
+      
+    <a href="<?= base_url('pengaturan-jabatanlainya') ?>" 
+       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-jabatanlainya') ? 'active' : '' ?>">
+        Pengaturan Jabatan Lainnya
+    </a>
 </div>
 
     <!-- Form Pengaturan Logout -->
