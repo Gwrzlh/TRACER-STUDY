@@ -35,7 +35,12 @@
       <a href="<?= base_url('pengaturan-atasan') ?>" 
            class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-atasan') ? 'active' : '' ?>">
            Pengaturan Atasan
-        </a>
+      </a>
+      
+    <a href="<?= base_url('pengaturan-jabatanlainya') ?>" 
+       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-jabatanlainya') ? 'active' : '' ?>">
+        Pengaturan Jabatan Lainnya
+    </a>
 </div>
 
     <form action="<?= base_url('pengaturan-situs/save') ?>" method="post">
@@ -272,10 +277,14 @@
         <h5>Pengaturan logactivities</h5>
     </div>
     <div class="card-body p-4">
-        <!-- Filter -->
-        <h6>Tombol Filter</h6>
+      <!-- Tombol Filter -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5>Pengaturan Tombol Filter</h5>
+    </div>
+    <div class="card-body p-4">
         <div class="mb-3">
-            <label for="filter_button_text" class="form-label">Teks Tombol Filter</label>
+            <label for="filter_button_text" class="form-label">Teks Tombol</label>
             <input type="text" name="filter_button_text" id="filter_button_text"
                    value="<?= esc($settings['filter_button_text'] ?? 'Filter') ?>" class="form-control">
         </div>
@@ -301,17 +310,22 @@
             <label class="form-label">Preview Tombol Filter</label><br>
             <button type="button" id="filterPreview"
                     style="background-color: <?= esc($settings['filter_button_color'] ?? '#0d6efd') ?>;
-                           color: <?= esc($settings['filter_button_text_color'] ?? '#ffffff') ?>;">
+                           color: <?= esc($settings['filter_button_text_color'] ?? '#ffffff') ?>;
+                           border: none; padding: 8px 16px; border-radius: 6px;">
                 <?= esc($settings['filter_button_text'] ?? 'Filter') ?>
             </button>
         </div>
+    </div>
+</div>
 
-        <hr>
-
-        <!-- Reset -->
-        <h6>Tombol Reset</h6>
+<!-- Tombol Reset -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5>Pengaturan Tombol Reset</h5>
+    </div>
+    <div class="card-body p-4">
         <div class="mb-3">
-            <label for="reset_button_text" class="form-label">Teks Tombol Reset</label>
+            <label for="reset_button_text" class="form-label">Teks Tombol</label>
             <input type="text" name="reset_button_text" id="reset_button_text"
                    value="<?= esc($settings['reset_button_text'] ?? 'Reset') ?>" class="form-control">
         </div>
@@ -337,42 +351,53 @@
             <label class="form-label">Preview Tombol Reset</label><br>
             <button type="button" id="resetPreviewBtn"
                     style="background-color: <?= esc($settings['reset_button_color'] ?? '#6c757d') ?>;
-                           color: <?= esc($settings['reset_button_text_color'] ?? '#ffffff') ?>;">
+                           color: <?= esc($settings['reset_button_text_color'] ?? '#ffffff') ?>;
+                           border: none; padding: 8px 16px; border-radius: 6px;">
                 <?= esc($settings['reset_button_text'] ?? 'Reset') ?>
             </button>
         </div>
-        <!-- Export CSV -->
-<h6>Tombol Export CSV</h6>
-<div class="mb-3">
-    <label for="export_button_text" class="form-label">Teks Tombol Export</label>
-    <input type="text" name="export_button_text" id="export_button_text"
-           value="<?= esc($settings['export_button_text'] ?? 'Export CSV') ?>" class="form-control">
-</div>
-<div class="mb-3">
-    <label for="export_button_color" class="form-label">Warna Tombol</label>
-    <div class="d-flex gap-2">
-        <input type="color" name="export_button_color" id="export_button_color"
-               value="<?= esc($settings['export_button_color'] ?? '#198754') ?>" class="form-control form-control-color">
-        <button type="button" class="btn-reset" id="resetExport">Reset</button>
     </div>
 </div>
-<div class="mb-3">
-    <label for="export_button_text_color" class="form-label">Warna Teks Tombol</label>
-    <input type="color" name="export_button_text_color" id="export_button_text_color"
-           value="<?= esc($settings['export_button_text_color'] ?? '#ffffff') ?>" class="form-control form-control-color">
-</div>
-<div class="mb-3">
-    <label for="export_button_hover_color" class="form-label">Warna Hover Tombol</label>
-    <input type="color" name="export_button_hover_color" id="export_button_hover_color"
-           value="<?= esc($settings['export_button_hover_color'] ?? '#157347') ?>" class="form-control form-control-color">
-</div>
-<div class="mb-3">
-    <label class="form-label">Preview Tombol Export CSV</label><br>
-    <button type="button" id="exportPreview"
-            style="background-color: <?= esc($settings['export_button_color'] ?? '#198754') ?>;
-                   color: <?= esc($settings['export_button_text_color'] ?? '#ffffff') ?>;">
-        <?= esc($settings['export_button_text'] ?? 'Export CSV') ?>
-    </button>
+
+<!-- Tombol Export CSV -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5>Pengaturan Tombol Export CSV</h5>
+    </div>
+    <div class="card-body p-4">
+        <div class="mb-3">
+            <label for="export_button_text" class="form-label">Teks Tombol</label>
+            <input type="text" name="export_button_text" id="export_button_text"
+                   value="<?= esc($settings['export_button_text'] ?? 'Export CSV') ?>" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="export_button_color" class="form-label">Warna Tombol</label>
+            <div class="d-flex gap-2">
+                <input type="color" name="export_button_color" id="export_button_color"
+                       value="<?= esc($settings['export_button_color'] ?? '#198754') ?>" class="form-control form-control-color">
+                <button type="button" class="btn-reset" id="resetExport">Reset</button>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="export_button_text_color" class="form-label">Warna Teks Tombol</label>
+            <input type="color" name="export_button_text_color" id="export_button_text_color"
+                   value="<?= esc($settings['export_button_text_color'] ?? '#ffffff') ?>" class="form-control form-control-color">
+        </div>
+        <div class="mb-3">
+            <label for="export_button_hover_color" class="form-label">Warna Hover Tombol</label>
+            <input type="color" name="export_button_hover_color" id="export_button_hover_color"
+                   value="<?= esc($settings['export_button_hover_color'] ?? '#157347') ?>" class="form-control form-control-color">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Preview Tombol Export CSV</label><br>
+            <button type="button" id="exportPreview"
+                    style="background-color: <?= esc($settings['export_button_color'] ?? '#198754') ?>;
+                           color: <?= esc($settings['export_button_text_color'] ?? '#ffffff') ?>;
+                           border: none; padding: 8px 16px; border-radius: 6px;">
+                <?= esc($settings['export_button_text'] ?? 'Export CSV') ?>
+            </button>
+        </div>
+    </div>
 </div>
         <div class="mb-3">
             <label for="log_perpage_default" class="form-label">Default Tampilkan Per Halaman (Log Activities)</label>

@@ -38,13 +38,13 @@ $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
     $routes->post('update/(:num)', 'PenggunaController::update/$1');
     $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
     $routes->match(['post', 'delete'], 'deleteMultiple', 'PenggunaController::deleteMultiple');
-$routes->post('exportSelected', 'PenggunaController::exportSelected');
+    $routes->post('exportSelected', 'PenggunaController::exportSelected');
 
     // ✅ Import akun (cukup tulis 'import')
     $routes->get('import', 'ImportAccount::index', ['filter' => 'auth']);
     $routes->post('import', 'ImportAccount::import', ['filter' => 'auth']);
-        $routes->get('export', 'ExportAccount::index');
-        $routes->post('exportSelected', 'PenggunaController::exportSelected');
+    $routes->get('export', 'ExportAccount::index');
+    $routes->post('exportSelected', 'PenggunaController::exportSelected');
 });
 // ===============================
 // ADMIN ROUTES
@@ -427,6 +427,8 @@ $routes->get('pengaturan-kaprodi', 'PengaturanKaprodi::index');
 $routes->post('pengaturan-kaprodi/save', 'PengaturanKaprodi::save');
 $routes->get('pengaturan-atasan', 'PengaturanAtasan::index');
 $routes->post('pengaturan-atasan/save', 'PengaturanAtasan::save');
+$routes->get('pengaturan-jabatanlainya', 'PengaturanJabatanLainnya::index');
+$routes->post('pengaturan-jabatanlainya/save', 'PengaturanJabatanLainnya::save');
 
 
 // ajax conditional_logic 
@@ -489,6 +491,7 @@ $routes->group('admin/respon', ['filter' => 'adminAuth'], function ($routes) {
     // Hapus flag Akreditasi
     $routes->get('remove_from_accreditation/(:num)', 'AdminRespon::remove_from_accreditation/$1');
 
+    $routes->get('getProdiByJurusan/(:any)', 'AdminRespon::getProdiByJurusan/$1');
 
 
     // 🔹 Simpan flag (AMI/Akreditasi)
@@ -580,11 +583,12 @@ $routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
     // Hapus pertanyaan
     $routes->get('questioner/delete/(:num)', 'KaprodiController::delete/$1');
 
-
-
     // AMI
     $routes->get('ami', 'KaprodiController::ami');
     $routes->get('ami/detail/(:any)', 'KaprodiController::detailAmi/$1');
+
+    $routes->get('alumni', 'KaprodiController::alumni');
+    $routes->get('alumni/export', 'KaprodiController::exportAlumni');
 });
 
 

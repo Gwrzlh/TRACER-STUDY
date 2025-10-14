@@ -13,7 +13,7 @@ class JabatanController extends Controller
 {
     public function dashboard()
     {
-        
+
         // Cek role hanya untuk Jabatan Lainnya
         if (session('role_id') != 9) {
             return redirect()->to('/login')->with('error', 'Akses ditolak.');
@@ -164,70 +164,97 @@ class JabatanController extends Controller
         $prodiId   = $this->request->getPost('prodi_id');
         $role      = $this->request->getPost('role');
 
-        $dataResult = [];
+        $alumniData = [];
+        $kaprodiData = [];
 
-        if ($role == 'alumni') {
-            $alumniModel = new DetailaccountAlumni();
-            $builder = $alumniModel->db->table('detailaccount_alumni da')
-                ->select('da.*, account.username, jurusan.nama_jurusan, prodi.nama_prodi, 
-                      provinces.name as nama_provinsi, cities.name as nama_cities')
-                ->join('account', 'account.id = da.id_account', 'left')
-                ->join('jurusan', 'jurusan.id = da.id_jurusan', 'left')
-                ->join('prodi', 'prodi.id = da.id_prodi', 'left')
-                ->join('provinces', 'provinces.id = da.id_provinsi', 'left')
-                ->join('cities', 'cities.id = da.id_cities', 'left');
+        // === ALUMNI ===
+        $alumniModel = new DetailaccountAlumni();
+        $builderAlumni = $alumniModel->db->table('detailaccount_alumni da')
+            ->select('da.nama_lengkap, da.nim, da.angkatan, da.tahun_kelulusan, da.ipk, da.alamat, da.alamat2, da.jenisKelamin,
+                  jurusan.nama_jurusan, prodi.nama_prodi,
+                  provinces.name as nama_provinsi, cities.name as nama_cities,
+                  account.username')
+            ->join('account', 'account.id = da.id_account', 'left')
+            ->join('jurusan', 'jurusan.id = da.id_jurusan', 'left')
+            ->join('prodi', 'prodi.id = da.id_prodi', 'left')
+            ->join('provinces', 'provinces.id = da.id_provinsi', 'left')
+            ->join('cities', 'cities.id = da.id_cities', 'left');
 
-            if ($jurusanId) $builder->where('da.id_jurusan', $jurusanId);
-            if ($prodiId) $builder->where('da.id_prodi', $prodiId);
-
-            $dataResult = $builder->get()->getResultArray();
-        } elseif ($role == 'kaprodi') {
-            $kaprodiModel = new DetailaccountKaprodi();
-            $builder = $kaprodiModel->db->table('detailaccount_kaprodi dk')
-                ->select('dk.*, account.username, jurusan.nama_jurusan, prodi.nama_prodi')
-                ->join('account', 'account.id = dk.id_account', 'left')
-                ->join('jurusan', 'jurusan.id = dk.id_jurusan', 'left')
-                ->join('prodi', 'prodi.id = dk.id_prodi', 'left');
-
-            if ($jurusanId) $builder->where('dk.id_jurusan', $jurusanId);
-            if ($prodiId) $builder->where('dk.id_prodi', $prodiId);
-
-            $dataResult = $builder->get()->getResultArray();
+        if (!empty($jurusanId) && $jurusanId !== 'all') {
+            $builderAlumni->where('da.id_jurusan', $jurusanId);
+        }
+        if (!empty($prodiId) && $prodiId !== 'all') {
+            $builderAlumni->where('da.id_prodi', $prodiId);
         }
 
+        $alumniData = $builderAlumni->get()->getResultArray();
+
+        // === KAPRODI ===
+        $kaprodiModel = new DetailaccountKaprodi();
+        $builderKaprodi = $kaprodiModel->db->table('detailaccount_kaprodi dk')
+            ->select('dk.nama_lengkap, jurusan.nama_jurusan, prodi.nama_prodi, account.username')
+            ->join('account', 'account.id = dk.id_account', 'left')
+            ->join('jurusan', 'jurusan.id = dk.id_jurusan', 'left')
+            ->join('prodi', 'prodi.id = dk.id_prodi', 'left');
+
+        if (!empty($jurusanId) && $jurusanId !== 'all') {
+            $builderKaprodi->where('dk.id_jurusan', $jurusanId);
+        }
+        if (!empty($prodiId) && $prodiId !== 'all') {
+            $builderKaprodi->where('dk.id_prodi', $prodiId);
+        }
+
+        $kaprodiData = $builderKaprodi->get()->getResultArray();
+
+        // === Dropdown data ===
         $prodiModel = new Prodi();
         $prodiList  = $prodiModel->getWithJurusan();
+        $roles = ['kaprodi' => 'Kaprodi', 'alumni' => 'Alumni'];
 
-        $roles = [
-            'kaprodi' => 'Kaprodi',
-            'alumni'  => 'Alumni'
-        ];
+        // === Filter sesuai role (kalau role dipilih) ===
+        if (!empty($role) && $role !== 'all') {
+            if ($role === 'alumni') {
+                $kaprodiData = [];
+            } elseif ($role === 'kaprodi') {
+                $alumniData = [];
+            }
+        }
+
 
         return view('jabatan/control_panel', [
-            'prodiList'      => $prodiList,
-            'roles'          => $roles,
+            'prodiList'       => $prodiList,
+            'roles'           => $roles,
             'selectedJurusan' => $jurusanId,
-            'selectedProdi'  => $prodiId,
-            'selectedRole'   => $role,
-            'dataResult'     => $dataResult
+            'selectedProdi'   => $prodiId,
+            'selectedRole'    => $role,
+            'alumniData'      => $alumniData,
+            'kaprodiData'     => $kaprodiData,
         ]);
     }
 
 
 
 
-    // ================== Detail AMI / Akreditasi ==================
+    // ================== DETAIL AMI / AKREDITASI (JABATAN LAINNYA) ==================
     private function loadQuestionsAndAnswers($jenis)
     {
         $questionModel = new QuestionModel();
-        $answerModel = new AnswerModel();
+        $answerModel   = new AnswerModel();
 
+        // Tentukan field AMI atau Akreditasi
         $field = $jenis === 'ami' ? 'is_for_ami' : 'is_for_accreditation';
-        $questions = $questionModel->where($field, 1)->orderBy('created_at', 'ASC')->findAll();
+
+        // 🔹 Hanya ambil pertanyaan milik Kaprodi (role_id = 2)
+        $questions = $questionModel
+            ->where($field, 1)
+            ->where('created_by_role', 2)
+            ->orderBy('created_at', 'ASC')
+            ->findAll();
 
         $selectedQuestion = $this->request->getGet('question_id');
         $answers = [];
 
+        // 🔹 Ambil jawaban jika pertanyaan dipilih
         if ($selectedQuestion) {
             $answers = $answerModel->getAnswersRaw(null, $selectedQuestion);
         }
@@ -239,6 +266,7 @@ class JabatanController extends Controller
         ];
     }
 
+    // ================== DETAIL AMI ==================
     public function detailAmi()
     {
         if (session('role_id') != 9) {
@@ -246,14 +274,15 @@ class JabatanController extends Controller
         }
 
         $prodiModel = new Prodi();
-        $prodiList = $prodiModel->getWithJurusan();
-        $data = $this->loadQuestionsAndAnswers('ami');
+        $prodiList  = $prodiModel->getWithJurusan();
+        $data       = $this->loadQuestionsAndAnswers('ami');
 
         return view('jabatan/detail_ami', array_merge($data, [
             'prodiList' => $prodiList
         ]));
     }
 
+    // ================== DETAIL AKREDITASI ==================
     public function detailAkreditasi()
     {
         if (session('role_id') != 9) {
@@ -261,8 +290,8 @@ class JabatanController extends Controller
         }
 
         $prodiModel = new Prodi();
-        $prodiList = $prodiModel->getWithJurusan();
-        $data = $this->loadQuestionsAndAnswers('akreditasi');
+        $prodiList  = $prodiModel->getWithJurusan();
+        $data       = $this->loadQuestionsAndAnswers('akreditasi');
 
         return view('jabatan/detail_akreditasi', array_merge($data, [
             'prodiList' => $prodiList
