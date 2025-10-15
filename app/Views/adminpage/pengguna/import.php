@@ -173,20 +173,27 @@
         <form action="<?= base_url('/admin/pengguna/import') ?>" method="post" enctype="multipart/form-data" class="mt-3">
             
             <!-- Pilih Role -->
-            <div class="mb-3">
-                <label for="role" class="form-label">Pilih Role</label>
-                <select name="role" id="role" class="form-select" required>
-                    <option value="">-- Pilih Role --</option>
-                    <option value="alumni">Alumni</option>
-                    <option value="admin">Admin</option>
-                    <option value="perusahaan">Perusahaan</option>
-                    <option value="kaprodi">Kaprodi</option>
-                    <option value="atasan">Atasan</option>
-                    <option value="jabatan lainnya">Jabatan Lainnya</option>
-                </select>
-                <!-- Keterangan wajib -->
-                <small id="role-requirements" class="form-text text-muted mt-2"></small>
-            </div>
+<div class="mb-3">
+    <label for="role" class="form-label">Pilih Role</label>
+    <select name="role" id="role" class="form-select" required>
+        <option value="">Pilih Role </option>
+        <option value="alumni">Alumni</option>
+        <option value="admin">Admin</option>
+        <option value="perusahaan">Perusahaan</option>
+        <option value="kaprodi">Kaprodi</option>
+        <option value="atasan">Atasan</option>
+        <option value="jabatan lainnya">Jabatan Lainnya</option>
+    </select>
+
+    <!-- Keterangan wajib -->
+    <small id="role-requirements" class="form-text text-muted mt-2"></small>
+
+    <!-- Tombol Download Template -->
+    <a id="download-template" href="#" class="btn btn-outline-primary btn-sm mt-2 d-none" target="_blank">
+        <i class="fas fa-file-excel"></i> Download Template Excel
+    </a>
+</div>
+
 
             <!-- Pilih File -->
             <div class="mb-3">
@@ -210,6 +217,7 @@
 <script>
     const roleSelect = document.getElementById("role");
     const requirements = document.getElementById("role-requirements");
+    const templateBtn = document.getElementById("download-template");
 
     const messages = {
         "alumni": "Wajib diisi: Email, Password, NIM, Nama Lengkap, Jurusan, Prodi, Angkatan, Tahun Kelulusan, IPK, No. Telepon",
@@ -220,9 +228,28 @@
         "jabatan lainnya": "Wajib diisi: Email, Password, Nama Lengkap, Jurusan, Prodi, Jabatan, No. Telepon"
     };
 
+    const templates = {
+        "alumni": "<?= base_url('templates/alumni_template.xlsx') ?>",
+        "admin": "<?= base_url('templates/admin_template.xlsx') ?>",
+        "perusahaan": "<?= base_url('templates/perusahaan_template.xlsx') ?>",
+        "kaprodi": "<?= base_url('templates/kaprodi_template.xlsx') ?>",
+        "atasan": "<?= base_url('templates/atasan_template.xlsx') ?>",
+        "jabatan lainnya": "<?= base_url('templates/jabatan_lainnya_template.xlsx') ?>"
+    };
+
     roleSelect.addEventListener("change", function () {
-        requirements.textContent = messages[this.value] || "";
+        const role = this.value;
+        requirements.textContent = messages[role] || "";
+        
+        // Update tombol template
+        if (templates[role]) {
+            templateBtn.href = templates[role];
+            templateBtn.classList.remove("d-none");
+        } else {
+            templateBtn.classList.add("d-none");
+        }
     });
 </script>
+
 
 <?= $this->endSection() ?>

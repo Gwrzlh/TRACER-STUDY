@@ -32,52 +32,63 @@ class PenggunaController extends BaseController
 {
     $accountModel = new \App\Models\Accounts();
     $roleModel    = new \App\Models\Roles();
+    $alumniModel  = new \App\Models\DetailaccountAlumni();
     $roles        = $roleModel->findAll();
 
-    // Ambil parameter filter
-    $roleId  = $this->request->getGet('role');
-    $keyword = $this->request->getGet('keyword');
+    // 🔹 Ambil parameter filter
+    $roleId      = $this->request->getGet('role');
+    $keyword     = $this->request->getGet('keyword');
+    $angkatan    = $this->request->getGet('angkatan');
+    $tahunLulus  = $this->request->getGet('tahun_lulus');
 
-    // Ambil perPage dari pengaturan situs
-    $perPage = get_setting('pengguna_perpage_default', 5);
-    $currentPage = (int) ($this->request->getVar('page') ?? 1);
-    $offset = ($currentPage - 1) * $perPage;
+    // 🔹 Ambil pagination
+    $perPage      = get_setting('pengguna_perpage_default', 5);
+    $currentPage  = (int) ($this->request->getVar('page') ?? 1);
+    $offset       = ($currentPage - 1) * $perPage;
 
     // 🔹 Build query utama
     $builder = $accountModel->builder();
-    $builder->select('account.*, role.nama AS nama_role')
-            ->join('role', 'role.id = account.id_role', 'left');
+    $builder->select('account.*, role.nama AS nama_role, da.angkatan, da.tahun_kelulusan')
+            ->join('role', 'role.id = account.id_role', 'left')
+            ->join('detailaccount_alumni da', 'da.id_account = account.id', 'left');
 
-    // 🔹 Filter berdasarkan role
+    // 🔹 Filter Role
     if (!empty($roleId) && is_numeric($roleId)) {
         $builder->where('account.id_role', $roleId);
     }
 
-    // 🔹 Pencarian
-    if (!empty($keyword)) {
-    $roleName = '';
-    if (!empty($roleId)) {
-        $roleData = $roleModel->find($roleId);
-        $roleName = strtolower($roleData['nama'] ?? '');
+    // 🔹 Filter Tahun Masuk (angkatan)
+    if (!empty($angkatan)) {
+        $builder->where('da.angkatan', $angkatan);
     }
 
-    if ($roleName === 'alumni') {
-        // ✅ gunakan tabel detailaccount_alumni
-        $builder->join('detailaccount_alumni', 'detailaccount_alumni.id_account = account.id', 'left')
-                ->groupStart()
-                ->like('detailaccount_alumni.nim', $keyword)
+    // 🔹 Filter Tahun Lulus
+    if (!empty($tahunLulus)) {
+        $builder->where('da.tahun_kelulusan', $tahunLulus);
+    }
+
+    // 🔹 Filter Keyword
+    if (!empty($keyword)) {
+        $roleName = '';
+        if (!empty($roleId)) {
+            $roleData = $roleModel->find($roleId);
+            $roleName = strtolower($roleData['nama'] ?? '');
+        }
+
+        if ($roleName === 'alumni') {
+            $builder->groupStart()
+                ->like('da.nim', $keyword)
+                ->orLike('da.nama_lengkap', $keyword)
                 ->groupEnd();
-    } else {
-        // Pencarian umum: username, email, status, role
-        $builder->groupStart()
+        } else {
+            $builder->groupStart()
                 ->like('account.username', $keyword)
                 ->orLike('account.email', $keyword)
                 ->orLike('account.status', $keyword)
                 ->orLike('role.nama', $keyword)
                 ->groupEnd();
+        }
     }
-}
-
 
     // 🔹 Urutkan terbaru
     $builder->orderBy('account.id', 'DESC');
@@ -100,17 +111,19 @@ class PenggunaController extends BaseController
     }
     $counts['all'] = $accountModel->countAllResults();
 
-    // 🔹 Ambil detail tambahan (optional)
+    // 🔹 Ambil detail tambahan (opsional)
     $detailaccountAdmin  = new \App\Models\DetailaccountAdmins();
-    $detailaccountAlumni = new \App\Models\DetailaccountAlumni();
-
     $adminDetails = method_exists($detailaccountAdmin, 'getaccountid')
         ? $detailaccountAdmin->getaccountid()
         : [];
 
-    $alumniDetails = method_exists($detailaccountAlumni, 'getDetailWithRelations')
-        ? $detailaccountAlumni->getDetailWithRelations()
+    $alumniDetails = method_exists($alumniModel, 'getDetailWithRelations')
+        ? $alumniModel->getDetailWithRelations()
         : [];
+
+    // 🔹 Ambil tahun unik dari database
+    $angkatanList   = $alumniModel->select('angkatan')->distinct()->orderBy('angkatan', 'DESC')->findAll();
+    $tahunLulusList = $alumniModel->select('tahun_kelulusan')->distinct()->orderBy('tahun_kelulusan', 'DESC')->findAll();
 
     // 🔹 Kirim data ke view
     $data = [
@@ -123,6 +136,10 @@ class PenggunaController extends BaseController
         'detailaccountAlumni' => $alumniDetails,
         'roleId'              => $roleId,
         'keyword'             => $keyword,
+        'angkatan'            => $angkatan,
+        'tahunLulus'          => $tahunLulus,
+        'angkatanList'        => $angkatanList,
+        'tahunLulusList'      => $tahunLulusList,
         'perPage'             => $perPage,
         'currentPage'         => $currentPage,
         'totalRecords'        => $totalRecords,
@@ -130,6 +147,7 @@ class PenggunaController extends BaseController
 
     return view('adminpage/pengguna/index', $data);
 }
+
 
     public function create()
     {
