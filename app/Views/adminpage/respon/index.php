@@ -153,8 +153,8 @@
                                 <th>Nama Alumni</th>
                                 <th>Jurusan</th>
                                 <th>Prodi</th>
-                                <th>Angkatan</th>
-                                <th>Tahun Lulusan</th>
+                                <th>Tahun Masuk</th>
+                                <th>Tahun Lulus</th>
                                 <th>Judul Kuesioner</th>
                                 <th>Status</th>
                                 <th>Tanggal Submit</th>
