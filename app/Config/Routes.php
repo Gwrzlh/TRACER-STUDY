@@ -427,9 +427,8 @@ $routes->get('pengaturan-kaprodi', 'PengaturanKaprodi::index');
 $routes->post('pengaturan-kaprodi/save', 'PengaturanKaprodi::save');
 $routes->get('pengaturan-atasan', 'PengaturanAtasan::index');
 $routes->post('pengaturan-atasan/save', 'PengaturanAtasan::save');
-$routes->get('pengaturan-jabatanlainya', 'PengaturanJabatanLainnya::index');
-$routes->post('pengaturan-jabatanlainya/save', 'PengaturanJabatanLainnya::save');
-
+$routes->get('pengaturan-jabatanlainnya', 'PengaturanJabatanLainnya::index');
+$routes->post('pengaturan-jabatanlainnya/save', 'PengaturanJabatanLainnya::save');
 
 // ajax conditional_logic 
 
