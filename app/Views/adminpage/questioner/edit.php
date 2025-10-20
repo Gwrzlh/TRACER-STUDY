@@ -54,24 +54,51 @@
         </div>
 
         <!-- Conditional Logic -->
-        <div>
+      <div>
             <label class="flex items-center">
                 <input type="checkbox" name="conditional_logic" id="conditional_logic" value="1" class="mr-2" <?= !empty($conditionalLogic) ? 'checked' : '' ?>>
                 <span class="text-sm font-medium text-gray-700">Conditional Logic</span>
             </label>
 
             <div id="conditional-container" class="mt-3 space-y-3">
+                <!-- Template untuk baris baru -->
+                <div class="condition-row hidden flex items-center gap-3 p-3 bg-gray-50 rounded-md border">
+                    <select name="field_name[]" class="field-selector border rounded-lg p-2 flex-1">
+                        <option value="">Pilih Field</option>
+                        <?php foreach ($fields as $actual_field => $label): ?>
+                            <option value="<?= esc($actual_field) ?>"><?= esc($label) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <select name="operator[]" class="border rounded-lg p-2" style="width: auto;">
+                        <?php foreach ($operators as $key => $label): ?>
+                            <option value="<?= esc($key) ?>"><?= esc($label) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="value-input-container flex-1">
+                        <input type="text" name="value[]" placeholder="Value" class="w-full border rounded-lg p-2">
+                    </span>
+                    <button type="button" class="remove-condition-btn hidden bg-red-500 text-white px-3 py-1 rounded-lg text-sm">
+                        Hapus
+                    </button>
+                </div>
+
+                <!-- Tampilkan conditional logic yang sudah ada -->
                 <?php if (!empty($conditionalLogic)): ?>
                     <?php foreach ($conditionalLogic as $i => $condition): ?>
                         <div class="condition-row flex items-center gap-3 p-3 bg-gray-50 rounded-md border">
                             <select name="field_name[]" class="field-selector border rounded-lg p-2 flex-1">
-                                <?php foreach ($fields as $f): ?>
-                                    <option value="<?= $f ?>" <?= $f == $condition['field'] ? 'selected' : '' ?>><?= ucwords(str_replace('_', ' ', $f)) ?></option>
+                                <option value="">Pilih Field</option>
+                                <?php foreach ($fields as $actual_field => $label): ?>
+                                    <option value="<?= esc($actual_field) ?>" <?= $condition['field'] == $actual_field ? 'selected' : '' ?>>
+                                        <?= esc($label) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                             <select name="operator[]" class="border rounded-lg p-2" style="width: auto;">
                                 <?php foreach ($operators as $key => $label): ?>
-                                    <option value="<?= $key ?>" <?= $key == $condition['operator'] ? 'selected' : '' ?>><?= $label ?></option>
+                                    <option value="<?= esc($key) ?>" <?= $condition['operator'] == $key ? 'selected' : '' ?>>
+                                        <?= esc($label) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                             <span class="value-input-container flex-1">
@@ -80,23 +107,24 @@
                                 $options = [];
                                 $value = $condition['value'];
 
-                                if (in_array($condition['field'], ['academic_faculty', 'academic_program', 'academic_year', 'academic_graduate_year', 'city', 'group_id', 'jenis_kel'])) {
+                                // Sesuaikan dengan nama field dari $user_fields
+                                if (in_array($condition['field'], ['id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'id_provinsi', 'role_id', 'jenisKelamin'])) {
                                     $input_type = 'select';
-                                    if ($condition['field'] == 'academic_faculty') {
+                                    if ($condition['field'] == 'id_jurusan') {
                                         $model = new \App\Models\Jurusan();
                                         $options = $model->select('id, nama_jurusan as name')->findAll();
-                                    } elseif ($condition['field'] == 'academic_program') {
+                                    } elseif ($condition['field'] == 'id_prodi') {
                                         $model = new \App\Models\Prodi();
                                         $options = $model->select('id, nama_prodi as name')->findAll();
-                                    } elseif ($condition['field'] == 'city') {
-                                        $model = new \App\Models\Cities();
+                                    } elseif ($condition['field'] == 'id_provinsi') {
+                                        $model = new \App\Models\Provincies(); // Sesuaikan dengan model yang benar
                                         $options = $model->select('id, name')->findAll();
-                                    } elseif ($condition['field'] == 'group_id') {
+                                    } elseif ($condition['field'] == 'role_id') {
                                         $model = new \App\Models\Roles();
                                         $options = $model->select('id, nama as name')->findAll();
-                                    } elseif ($condition['field'] == 'jenis_kel') {
+                                    } elseif ($condition['field'] == 'jenisKelamin') {
                                         $options = [['id' => 'Laki-Laki', 'name' => 'Laki-Laki'], ['id' => 'Perempuan', 'name' => 'Perempuan']];
-                                    } elseif ($condition['field'] == 'academic_year' || $condition['field'] == 'academic_graduate_year') {
+                                    } elseif ($condition['field'] == 'angkatan' || $condition['field'] == 'tahun_kelulusan') {
                                         $start_year = date('Y') - 15;
                                         $end_year = date('Y');
                                         $options = [];
@@ -109,8 +137,8 @@
                                 if ($input_type == 'select' && !empty($options)): ?>
                                     <select name="value[]" class="w-full border rounded-lg p-2">
                                         <?php foreach ($options as $opt): ?>
-                                            <option value="<?= $opt['id'] ?>" <?= $opt['id'] == $value ? 'selected' : '' ?>>
-                                                <?= $opt['name'] ?>
+                                            <option value="<?= esc($opt['id']) ?>" <?= $opt['id'] == $value ? 'selected' : '' ?>>
+                                                <?= esc($opt['name']) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -123,25 +151,6 @@
                             </button>
                         </div>
                     <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="condition-row hidden flex items-center gap-3 p-3 bg-gray-50 rounded-md border">
-                        <select name="field_name[]" class="field-selector border rounded-lg p-2 flex-1">
-                            <?php foreach ($fields as $f): ?>
-                                <option value="<?= $f ?>"><?= ucwords(str_replace('_', ' ', $f)) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <select name="operator[]" class="border rounded-lg p-2" style="width: auto;">
-                            <?php foreach ($operators as $key => $label): ?>
-                                <option value="<?= $key ?>"><?= $label ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <span class="value-input-container flex-1">
-                            <input type="text" name="value[]" placeholder="Value" class="w-full border rounded-lg p-2">
-                        </span>
-                        <button type="button" class="remove-condition-btn hidden bg-red-500 text-white px-3 py-1 rounded-lg text-sm">
-                            Hapus
-                        </button>
-                    </div>
                 <?php endif; ?>
             </div>
 
@@ -177,7 +186,7 @@
             }
 
             $.ajax({
-                url: "<?= base_url('/admin/get-conditional-options') ?>",
+                url: "<?= base_url('/admin/get-conditional-options') ?>", // Perbaikan URL
                 type: 'GET',
                 data: {
                     field: selectedField
@@ -198,8 +207,8 @@
                     valueContainer.html(inputHtml);
                 },
                 error: function(xhr, status, error) {
-                    console.error('AJAX Error: ' + status + ' - ' + error);
-                    valueContainer.html('<input type="text" name="value[]" placeholder="Error loading data" value="' + currentValue + '" class="w-full border rounded-lg p-2">');
+                    console.error('AJAX Error: ' + status + ' - ' + error + ' - URL: <?= base_url('/admin/questionnaire/getConditionalOptions') ?>');
+                    valueContainer.html('<input type="text" name="value[]" placeholder="Error loading options - Cek console browser" value="' + currentValue + '" class="w-full border rounded-lg p-2">');
                 }
             });
         }
@@ -215,6 +224,11 @@
             if ($(this).is(':checked')) {
                 $('.condition-row').first().show();
                 $('#add-condition-btn').show();
+                // Trigger loadOptions untuk baris pertama jika field sudah dipilih
+                const firstSelector = $('.condition-row').first().find('.field-selector');
+                if (firstSelector.val()) {
+                    loadOptions(firstSelector);
+                }
             } else {
                 $('.condition-row').hide();
                 $('#add-condition-btn').hide();
@@ -224,16 +238,37 @@
 
         // Event handler untuk tombol "Tambah Kondisi"
         $('#add-condition-btn').on('click', function() {
-            const firstRow = $('.condition-row').first();
-            const newRow = firstRow.clone();
+            const fields = <?php echo json_encode($fields); ?>;
+            const operators = <?php echo json_encode($operators); ?>;
 
-            // Reset nilai-nilai di baris baru
-            newRow.find('select').val('');
-            newRow.find('.value-input-container').html('<input type="text" name="value[]" placeholder="Value" class="w-full border rounded-lg p-2">');
-            newRow.find('.remove-condition-btn').show();
+            let fieldOptions = '<option value="">Pilih Field</option>';
+            for (let actual_field in fields) {
+                fieldOptions += `<option value="${actual_field}">${fields[actual_field]}</option>`;
+            }
+
+            let operatorOptions = '';
+            for (let key in operators) {
+                operatorOptions += `<option value="${key}">${operators[key]}</option>`;
+            }
+
+            const newRow = `
+                <div class="condition-row flex items-center gap-3 p-3 bg-gray-50 rounded-md border">
+                    <select name="field_name[]" class="field-selector border rounded-lg p-2 flex-1">
+                        ${fieldOptions}
+                    </select>
+                    <select name="operator[]" class="border rounded-lg p-2" style="width: auto;">
+                        ${operatorOptions}
+                    </select>
+                    <span class="value-input-container flex-1">
+                        <input type="text" name="value[]" placeholder="Value" class="w-full border rounded-lg p-2">
+                    </span>
+                    <button type="button" class="remove-condition-btn bg-red-500 text-white px-3 py-1 rounded-lg text-sm">
+                        Hapus
+                    </button>
+                </div>`;
 
             $('#conditional-container').append(newRow);
-            loadOptions(newRow.find('.field-selector'));
+            loadOptions($('.condition-row').last().find('.field-selector'));
         });
 
         // Event handler untuk tombol "Hapus"

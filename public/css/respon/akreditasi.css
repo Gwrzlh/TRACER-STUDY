@@ -15,6 +15,9 @@
     border-radius: 6px;
     transition: all 0.2s ease;
     font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .breadcrumb-item:hover {
@@ -25,6 +28,12 @@
 .breadcrumb-item.active {
     background-color: #3b82f6;
     color: white;
+}
+
+.breadcrumb-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
 .breadcrumb-separator {
@@ -332,6 +341,16 @@
 
     .breadcrumb-nav {
         flex-wrap: wrap;
+        font-size: 13px;
+    }
+
+    .breadcrumb-item {
+        padding: 5px 10px;
+    }
+
+    .breadcrumb-icon {
+        width: 16px;
+        height: 16px;
     }
 }
 
@@ -358,6 +377,14 @@
         font-size: 12px;
         padding: 6px 12px;
     }
+
+    .breadcrumb-separator {
+        font-size: 16px;
+    }
+
+    .breadcrumb-item span {
+        display: inline;
+    }
 }
 
 /* ===== Animations ===== */
@@ -374,4 +401,25 @@
 
 .question-item {
     animation: fadeIn 0.3s ease-out;
+}
+
+/* ===== Focus States for Accessibility ===== */
+.breadcrumb-item:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* ===== Smooth Animations ===== */
+.breadcrumb-item,
+.question-item,
+.btn-hapus,
+.btn-detail {
+    transition: all 0.15s ease;
+}
+
+/* ===== Print Styles ===== */
+@media print {
+    .breadcrumb-nav {
+        display: none;
+    }
 }

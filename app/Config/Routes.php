@@ -41,10 +41,10 @@ $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
     $routes->post('exportSelected', 'PenggunaController::exportSelected');
 
     // ✅ Import akun (cukup tulis 'import')
-    $routes->get('import', 'ImportAccount::index', ['filter' => 'auth']);
+   $routes->get('import', 'ImportAccount::index', ['filter' => 'auth']);
     $routes->post('import', 'ImportAccount::import', ['filter' => 'auth']);
-    $routes->get('export', 'ExportAccount::index');
-    $routes->post('exportSelected', 'PenggunaController::exportSelected');
+        $routes->get('export', 'ExportAccount::index', ['filter' => 'auth']);
+        $routes->post('exportSelected', 'PenggunaController::exportSelected');
 });
 // ===============================
 // ADMIN ROUTES
@@ -180,6 +180,9 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     $routes->group('log_activities', function ($routes) {
         $routes->get('/', 'LogController::index');
         $routes->get('export', 'LogController::export');
+        $routes->get('dashboard', 'LogController::dashboard');
+        $routes->get('manual-archive', 'LogController::manualArchive');
+        $routes->get('manual-cleanup', 'LogController::manualCleanup');
     });
 
     // Email Template
@@ -427,8 +430,10 @@ $routes->get('pengaturan-kaprodi', 'PengaturanKaprodi::index');
 $routes->post('pengaturan-kaprodi/save', 'PengaturanKaprodi::save');
 $routes->get('pengaturan-atasan', 'PengaturanAtasan::index');
 $routes->post('pengaturan-atasan/save', 'PengaturanAtasan::save');
+
 $routes->get('pengaturan-jabatanlainnya', 'PengaturanJabatanLainnya::index');
 $routes->post('pengaturan-jabatanlainnya/save', 'PengaturanJabatanLainnya::save');
+
 
 // ajax conditional_logic 
 

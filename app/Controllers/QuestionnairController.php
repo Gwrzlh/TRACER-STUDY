@@ -63,10 +63,13 @@ class QuestionnairController extends BaseController
     public function index()
     {
         $model = new QuestionnairModel();
+        
+        $model->orderBy('created_at', 'DESC');
+        
         $data = [
-            'questionnaires' => $model->findAll()
+            'questionnaires' => $model->paginate(10), // 10 data per halaman
+            'pager' => $model->pager // Untuk render pagination di view
         ];
-
         return view('adminpage/questioner/index', $data);
     }
 
@@ -75,30 +78,30 @@ class QuestionnairController extends BaseController
         $operators = [
             'is' => 'Is',
             'is_not' => 'Is Not',
-            'contains' => 'Contains',
-            'not_contains' => 'Not Contains',
-            'greater' => 'Greater Than',
-            'less' => 'Less Than'
+            // 'contains' => 'Contains',
+            // 'not_contains' => 'Not Contains',
+            // 'greater' => 'Greater Than',
+            // 'less' => 'Less Than'
         ];
 
         $user_fields = [
-            'email',
-            'username',
-            'role_id',
-            'nama_lengkap',
-            'nim',
-            'id_jurusan',
-            'id_prodi',
-            'angkatan',
-            'ipk',
-            'alamat',
-            'alamat2',
-            'id_cities',
-            'kodepos',
-            'tahun_kelulusan',
-            'jenisKelamin',
-            'no_tlp'
-        ];
+        'email' => 'Email',
+        'username' => 'Username',
+        'role_id' => 'Role ID',
+        'nama_lengkap' => 'Nama Lengkap',
+        'nim' => 'NIM',
+        'id_jurusan' => 'Jurusan',
+        'id_prodi' => 'Prodi',
+        'angkatan' => 'Tahun Masuk',  // Ini yang diubah: display 'Tahun Masuk', actual 'angkatan'
+        'ipk' => 'IPK',
+        'alamat' => 'Alamat',
+        'alamat2' => 'Alamat 2',
+        'id_provinsi' => 'Provinsi',
+        'kodepos' => 'Kode Pos',
+        'tahun_kelulusan' => 'Tahun lulus',
+        'jenisKelamin' => 'Jenis Kelamin',
+        'no_tlp' => 'No TLP'
+    ];
 
         return view('adminpage/questioner/tambah', [
             'fields' => $user_fields,
@@ -135,7 +138,7 @@ class QuestionnairController extends BaseController
                 }
                 $type = 'select';
                 break;
-            case 'id_cities':
+            case 'id_provinsi':
                 $cityModel = new Provincies();
                 $options = $cityModel->select('id, name')->findAll();
                 $type = 'select';
@@ -221,30 +224,30 @@ class QuestionnairController extends BaseController
         $operators = [
             'is' => 'Is',
             'is_not' => 'Is Not',
-            'contains' => 'Contains',
-            'not_contains' => 'Not Contains',
-            'greater' => 'Greater Than',
-            'less' => 'Less Than'
+            // 'contains' => 'Contains',
+            // 'not_contains' => 'Not Contains',
+            // 'greater' => 'Greater Than',
+            // 'less' => 'Less Than'
         ];
 
         $user_fields = [
-            'email',
-            'username',
-            'role_id',
-            'nama_lengkap',
-            'nim',
-            'id_jurusan',
-            'id_prodi',
-            'angkatan',
-            'ipk',
-            'alamat',
-            'alamat2',
-            'id_cities',
-            'kodepos',
-            'tahun_kelulusan',
-            'jenisKelamin',
-            'no_tlp'
-        ];
+        'email' => 'Email',
+        'username' => 'Username',
+        'role_id' => 'Role ID',
+        'nama_lengkap' => 'Nama Lengkap',
+        'nim' => 'NIM',
+        'id_jurusan' => 'Jurusan',
+        'id_prodi' => 'Prodi',
+        'angkatan' => 'Tahun Masuk',
+        'ipk' => 'IPK',
+        'alamat' => 'Alamat',
+        'alamat2' => 'Alamat 2',
+        'id_provinsi' => 'Provinsi',
+        'kodepos' => 'Kode Pos',
+        'tahun_kelulusan' => 'Tahun lulus',
+        'jenisKelamin' => 'Jenis Kelamin',
+        'no_tlp' => 'No TLP'
+    ];
 
         $conditionalLogic = [];
         if ($questionnaire['conditional_logic']) {
