@@ -427,8 +427,9 @@ $routes->get('pengaturan-kaprodi', 'PengaturanKaprodi::index');
 $routes->post('pengaturan-kaprodi/save', 'PengaturanKaprodi::save');
 $routes->get('pengaturan-atasan', 'PengaturanAtasan::index');
 $routes->post('pengaturan-atasan/save', 'PengaturanAtasan::save');
-$routes->get('pengaturan-jabatanlainya', 'PengaturanJabatanLainnya::index');
-$routes->post('pengaturan-jabatanlainya/save', 'PengaturanJabatanLainnya::save');
+
+$routes->get('pengaturan-jabatanlainnya', 'PengaturanJabatanLainnya::index');
+$routes->post('pengaturan-jabatanlainnya/save', 'PengaturanJabatanLainnya::save');
 
 
 // ajax conditional_logic 
@@ -491,6 +492,7 @@ $routes->group('admin/respon', ['filter' => 'adminAuth'], function ($routes) {
     // Hapus flag Akreditasi
     $routes->get('remove_from_accreditation/(:num)', 'AdminRespon::remove_from_accreditation/$1');
 
+    $routes->get('getProdiByJurusan/(:any)', 'AdminRespon::getProdiByJurusan/$1');
 
 
     // 🔹 Simpan flag (AMI/Akreditasi)
@@ -582,11 +584,12 @@ $routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
     // Hapus pertanyaan
     $routes->get('questioner/delete/(:num)', 'KaprodiController::delete/$1');
 
-
-
     // AMI
     $routes->get('ami', 'KaprodiController::ami');
     $routes->get('ami/detail/(:any)', 'KaprodiController::detailAmi/$1');
+
+    $routes->get('alumni', 'KaprodiController::alumni');
+    $routes->get('alumni/export', 'KaprodiController::exportAlumni');
 });
 
 

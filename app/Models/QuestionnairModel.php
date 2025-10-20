@@ -44,7 +44,7 @@ class QuestionnairModel extends Model
             'ipk',
             'alamat',
             'alamat2',
-            'id_cities',
+            'id_provinsi',
             'kodepos',
             'tahun_kelulusan',
             'jenisKelamin',
