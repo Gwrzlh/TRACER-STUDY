@@ -10,6 +10,8 @@ $currentRoute = service('request')->uri->getPath();
   <link rel="stylesheet" href="<?= base_url('css/sidebar.css') ?>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <?= $this->renderSection('styles') ?>
 </head>
 
@@ -144,6 +146,13 @@ $currentRoute = service('request')->uri->getPath();
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
             </svg>
             <span>Respon</span>
+          </a>
+
+          <a href="<?= base_url('admin/log_activities/dashboard') ?>" class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities/dashboard') ? 'active' : '' ?>">
+            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
+            </svg>
+            <span>Log Dashboard</span>
           </a>
 
 

@@ -180,6 +180,9 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     $routes->group('log_activities', function ($routes) {
         $routes->get('/', 'LogController::index');
         $routes->get('export', 'LogController::export');
+        $routes->get('dashboard', 'LogController::dashboard');
+        $routes->get('manual-archive', 'LogController::manualArchive');
+        $routes->get('manual-cleanup', 'LogController::manualCleanup');
     });
 
     // Email Template
