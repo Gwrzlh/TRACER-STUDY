@@ -14,6 +14,9 @@
     border-radius: 6px;
     transition: all 0.2s ease;
     font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .breadcrumb-item:hover {
@@ -24,6 +27,12 @@
 .breadcrumb-item.active {
     background-color: #3b82f6;
     color: white;
+}
+
+.breadcrumb-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
 .breadcrumb-separator {
@@ -378,6 +387,11 @@ a:focus-visible {
     .breadcrumb-item {
         padding: 5px 10px;
     }
+
+    .breadcrumb-icon {
+        width: 16px;
+        height: 16px;
+    }
 }
 
 @media (max-width: 576px) {
@@ -401,6 +415,10 @@ a:focus-visible {
 
     .breadcrumb-separator {
         font-size: 16px;
+    }
+
+    .breadcrumb-item span {
+        display: inline;
     }
 }
 
