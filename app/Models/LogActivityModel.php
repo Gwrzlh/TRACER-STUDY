@@ -12,7 +12,7 @@ class LogActivityModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id', 'action_type', 'description', 'ip_adress', 'user_agent', 'created_at'];
+    protected $allowedFields    = ['user_id', 'action_type', 'description', 'ip_adress', 'user_agent', 'created_at', 'severity'];
 
     protected bool $allowEmptyInserts = false;
 
@@ -78,6 +78,18 @@ class LogActivityModel extends Model
                     ->limit($limit, $offset)
                     ->get()
                     ->getResultArray();
+    }
+    public function getArchiveStats()
+    {
+        $db = \Config\Database::connect();
+   
+        return [
+            'main_count' => $this->countAll(),
+            'archive_count' => $db->table('log_activities_archive')->countAll(),
+            'oldest_main' => $this->orderBy('created_at', 'ASC')->first()['created_at'] ?? null,
+            'oldest_archive'=> $db->table('log_activities_archive')->orderBy('created_at', 'ASC')->get()->getRow()->created_at ?? null,
+            'by_severity' => $db->table('log_activities')->select('severity, COUNT(*) as count')->groupBy('severity')->get()->getResultArray(),
+        ];
     }
 
     // Dates
