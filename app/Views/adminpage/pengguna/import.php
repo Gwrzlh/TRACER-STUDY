@@ -93,6 +93,31 @@
     background: #475569;
 }
 
+/* ✅ Tombol Download Template — Lebih Menonjol */
+#import-page #download-template,
+.import-page #download-template {
+    background: linear-gradient(135deg, #2563eb, #16a34a);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 24px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 5px 14px rgba(37,99,235,0.3);
+    transition: all 0.25s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#import-page #download-template:hover,
+.import-page #download-template:hover {
+    background: linear-gradient(135deg, #1e3a8a, #15803d);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37,99,235,0.4);
+    color: #fff;
+}
+
 /* ===============================
    Alerts
 ================================ */
@@ -136,23 +161,51 @@
     background: #eff6ff;
     border-left: 4px solid #3b82f6;
     border-radius: 8px;
-    line-height: 1.5;
+    line-height: 1.6;
     transition: all 0.3s ease;
 }
 
 #import-page #role-requirements:empty,
 .import-page #role-requirements:empty {
-    display: none; /* Sembunyikan kalau kosong */
+    display: none;
 }
 
-
+/* Indikator Wajib & Opsional */
+.indikator {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.indikator span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.bullet-merah {
+    width: 12px;
+    height: 12px;
+    background: #ef4444;
+    border-radius: 50%;
+}
+.bullet-kuning {
+    width: 12px;
+    height: 12px;
+    background: #facc15;
+    border-radius: 50%;
+}
 </style>
 
 <div class="container mt-4 import-page">
     <h2>Import Akun</h2>
 
     <div class="import-card">
-        <!-- ✅ Alerts -->
+        <!-- ✅ Area Alert Dinamis -->
+        <div id="alert-container"></div>
+
+        <!-- ✅ Alerts dari session -->
         <?php if(session()->getFlashdata('error')): ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="fas fa-exclamation-circle"></i>
@@ -173,27 +226,32 @@
         <form action="<?= base_url('/admin/pengguna/import') ?>" method="post" enctype="multipart/form-data" class="mt-3">
             
             <!-- Pilih Role -->
-<div class="mb-3">
-    <label for="role" class="form-label">Pilih Role</label>
-    <select name="role" id="role" class="form-select" required>
-        <option value="">Pilih Role </option>
-        <option value="alumni">Alumni</option>
-        <option value="admin">Admin</option>
-        <option value="perusahaan">Perusahaan</option>
-        <option value="kaprodi">Kaprodi</option>
-        <option value="atasan">Atasan</option>
-        <option value="jabatan lainnya">Jabatan Lainnya</option>
-    </select>
+            <div class="mb-3">
+                <label for="role" class="form-label">Pilih Role</label>
+                <select name="role" id="role" class="form-select" required>
+                    <option value="">Pilih Role </option>
+                    <option value="alumni">Alumni</option>
+                    <option value="admin">Admin</option>
+                    <option value="perusahaan">Perusahaan</option>
+                    <option value="kaprodi">Kaprodi</option>
+                    <option value="atasan">Atasan</option>
+                    <option value="jabatan lainnya">Jabatan Lainnya</option>
+                </select>
 
-    <!-- Keterangan wajib -->
-    <small id="role-requirements" class="form-text text-muted mt-2"></small>
+                <!-- Keterangan wajib -->
+                <small id="role-requirements" class="form-text text-muted mt-2"></small>
 
-    <!-- Tombol Download Template -->
-    <a id="download-template" href="#" class="btn btn-outline-primary btn-sm mt-2 d-none" target="_blank">
-        <i class="fas fa-file-excel"></i> Download Template Excel
-    </a>
-</div>
+                <!-- Indikator warna -->
+                <div class="indikator">
+                    <span><span class="bullet-merah"></span> Wajib</span>
+                    <span><span class="bullet-kuning"></span> Opsional</span>
+                </div>
 
+                <!-- Tombol Download Template -->
+                <a id="download-template" href="#" class="btn mt-3 d-none" target="_blank">
+                    <i class="fas fa-file-excel"></i> Download Template Excel
+                </a>
+            </div>
 
             <!-- Pilih File -->
             <div class="mb-3">
@@ -209,8 +267,6 @@
                 <i class="fas fa-arrow-left"></i> Kembali
             </a>
         </form>
-
-
     </div>
 </div>
 
@@ -218,14 +274,15 @@
     const roleSelect = document.getElementById("role");
     const requirements = document.getElementById("role-requirements");
     const templateBtn = document.getElementById("download-template");
+    const alertContainer = document.getElementById("alert-container");
 
     const messages = {
-        "alumni": "Wajib diisi: Email, Password, NIM, Nama Lengkap, Jurusan, Prodi, Angkatan, Tahun Kelulusan, IPK, No. Telepon",
-        "admin": "Wajib diisi: Email, Password, Nama Lengkap",
-        "perusahaan": "Wajib diisi: Email, Password, Nama Perusahaan, Alamat, No. Telepon",
-        "kaprodi": "Wajib diisi: Email, Password, Nama Lengkap, Jurusan, Prodi, No. Telepon",
-        "atasan": "Wajib diisi: Email, Password, Nama Lengkap, Jabatan, No. Telepon",
-        "jabatan lainnya": "Wajib diisi: Email, Password, Nama Lengkap, Jurusan, Prodi, Jabatan, No. Telepon"
+        "alumni": "🔴 WAJIB: Email, Password, NIM, Nama Lengkap, Jurusan, Prodi, Angkatan, Tahun Kelulusan, IPK, No. Telepon<br>🟡 OPSIONAL: Alamat, Kode Pos, Provinsi, Kota",
+        "admin": "🔴 WAJIB: Email, Password, Nama Lengkap",
+        "perusahaan": "🔴 WAJIB: Email, Password, Nama Perusahaan, Alamat, No. Telepon",
+        "kaprodi": "🔴 WAJIB: Email, Password, Nama Lengkap, Jurusan, Prodi, No. Telepon",
+        "atasan": "🔴 WAJIB: Email, Password, Nama Lengkap, Jabatan, No. Telepon",
+        "jabatan lainnya": "🔴 WAJIB: Email, Password, Nama Lengkap, Jurusan, Prodi, Jabatan, No. Telepon"
     };
 
     const templates = {
@@ -239,7 +296,7 @@
 
     roleSelect.addEventListener("change", function () {
         const role = this.value;
-        requirements.textContent = messages[role] || "";
+        requirements.innerHTML = messages[role] || "";
         
         // Update tombol template
         if (templates[role]) {
@@ -249,7 +306,26 @@
             templateBtn.classList.add("d-none");
         }
     });
-</script>
 
+    // 🚨 Jika klik download tanpa pilih role
+    templateBtn.addEventListener("click", function (e) {
+        if (!roleSelect.value) {
+            e.preventDefault();
+            showAlert("⚠️ Pilih role terlebih dahulu sebelum mengunduh template!", "warning");
+        }
+    });
+
+    function showAlert(message, type = "warning") {
+        const alert = document.createElement("div");
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="fas fa-exclamation-triangle"></i> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.innerHTML = "";
+        alertContainer.appendChild(alert);
+        setTimeout(() => alert.remove(), 4000);
+    }
+</script>
 
 <?= $this->endSection() ?>
