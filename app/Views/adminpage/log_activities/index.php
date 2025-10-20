@@ -5,6 +5,21 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <link href="<?= base_url('css/activities.css') ?>" rel="stylesheet">
+<style>
+    .severity-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+.severity-pill.critical { background: #dc3545; color: white; }
+.severity-pill.error { background: #fd7e14; color: white; }
+.severity-pill.warning { background: #ffc107; color: #000; }
+.severity-pill.info { background: #0dcaf0; color: #000; }
+.severity-pill.debug { background: #6c757d; color: white; }
+</style>
 
 
 <div class="page-wrapper">
@@ -30,6 +45,16 @@
                         <button type="button" class="date-btn" style="display: none;">
                             <i class="fas fa-calendar"></i>
                         </button>
+                    </div>
+                    <div class="severity-wrapper">
+                        <select name="severity" id="severity" class="severity-select">
+                            <option value="ALL" <?= ($severity ?? 'ALL') === 'ALL' ? 'selected' : '' ?>>Semua Severity</option>
+                            <option value="CRITICAL" <?= ($severity ?? '') === 'CRITICAL' ? 'selected' : '' ?>>🔴 Critical</option>
+                            <option value="ERROR" <?= ($severity ?? '') === 'ERROR' ? 'selected' : '' ?>>🟠 Error</option>
+                            <option value="WARNING" <?= ($severity ?? '') === 'WARNING' ? 'selected' : '' ?>>🟡 Warning</option>
+                            <option value="INFO" <?= ($severity ?? '') === 'INFO' ? 'selected' : '' ?>>🔵 Info</option>
+                            <option value="DEBUG" <?= ($severity ?? '') === 'DEBUG' ? 'selected' : '' ?>>⚪ Debug</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -106,7 +131,12 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="action-badge"><?= esc($log['action_type']) ?></span>
+                                        <span class="action-badge <?= strtolower($log['severity'] ?? 'info') ?>">
+                                            <?= esc($log['action_type']) ?>
+                                        </span>
+                                        <span class="severity-pill <?= strtolower($log['severity'] ?? 'info') ?>">
+                                            <?= esc($log['severity'] ?? 'INFO') ?>
+                                        </span>
                                     </td>
                                     <td><?= esc($log['ip_adress']) ?></td>
                                     <td><?= esc(date('d M Y H:i:s', strtotime($log['created_at']))) ?></td>
