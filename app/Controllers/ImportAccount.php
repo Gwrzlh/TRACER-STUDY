@@ -116,25 +116,22 @@ class ImportAccount extends BaseController
                             ]);
                             break;
 
-                     case 'kaprodi':
-    // Ambil jurusan dari kolom ke-5 (index 4)
-    $idJurusan = $this->mapJurusan($row[4] ?? null);
-    if (!$idJurusan) {
-        $errorLogs[] = "Baris " . ($i + 2) . ": Jurusan '" . ($row[4] ?? '-') . "' tidak ditemukan di database.";
-        $accountModel->delete($accountId);
-        continue 2;
-    }
+                        case 'kaprodi':
+                            $idJurusan = $this->mapJurusan($row[5] ?? null);
+                            if (!$idJurusan) {
+                                $errorLogs[] = "Baris " . ($i + 2) . ": Jurusan '" . ($row[5] ?? '-') . "' tidak ditemukan di database.";
+                                $accountModel->delete($accountId);
+                                continue 2 ;
+                            }
 
-    // Insert data kaprodi sesuai kolom CSV
-    (new DetailaccountKaprodi())->insert([
-        'nama_lengkap' => $row[3] ?? null,                 // kolom ke-4 = nama lengkap
-        'id_jurusan'   => $idJurusan,                      // hasil map jurusan
-        'id_prodi'     => $this->mapProdi($row[5] ?? null),// kolom ke-6 = program studi
-        'notlp'        => $row[6] ?? null,                 // kolom ke-7 = nomor telepon
-        'id_account'   => $accountId,                      // relasi akun
-    ]);
-    break;
-
+                            (new DetailaccountKaprodi())->insert([
+                                'nama_lengkap' => $nama,
+                                'id_prodi'     => $this->mapProdi($row[6] ?? null),
+                                'id_jurusan'   => $idJurusan,
+                                'notlp'        => $row[16] ?? null,
+                                'id_account'   => $accountId,
+                            ]);
+                            break;
 
                         case 'atasan':
                             (new DetailaccountAtasan())->insert([
