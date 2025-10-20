@@ -1,4 +1,4 @@
-/* ===== BREADCRUMB NAVIGATION ===== */
+/* ===== BREADCRUMB NAVIGATION WITH ICONS ===== */
 .breadcrumb-nav {
     display: flex;
     align-items: center;
@@ -14,6 +14,9 @@
     border-radius: 6px;
     transition: all 0.2s ease;
     font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .breadcrumb-item:hover {
@@ -24,6 +27,12 @@
 .breadcrumb-item.active {
     background-color: #3b82f6;
     color: white;
+}
+
+.breadcrumb-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
 .breadcrumb-separator {
@@ -306,11 +315,6 @@
     min-width: 120px;
 }
 
-.action-cell {
-    text-align: center;
-    min-width: 100px;
-}
-
 /* Status Badge Styles */
 .status-badge {
     display: inline-flex;
@@ -347,19 +351,43 @@
 .action-btn {
     background: #3b82f6;
     color: white;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
     text-decoration: none;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
-    transition: background-color 0.15s ease, transform 0.1s ease;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    width: 140px;
+    height: 40px;
 }
 
 .action-btn:hover {
     background: #2563eb;
     transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
     text-decoration: none;
     color: white;
+}
+
+.action-cell {
+    text-align: center;
+    min-width: 300px;
+    padding: 12px 16px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.action-cell .action-btn {
+    margin: 0;
 }
 
 .no-action {
@@ -560,6 +588,20 @@
         padding: 10px 12px;
     }
     
+    /* Action Buttons Responsive */
+    .action-btn {
+        padding: 9px 18px;
+        font-size: 13px;
+        width: 130px;
+        height: 38px;
+    }
+
+    .action-cell {
+        min-width: 270px;
+        padding: 10px 12px !important;
+        gap: 6px;
+    }
+    
     /* Pagination Responsive */
     .d-flex {
         justify-content: center;
@@ -586,12 +628,31 @@
     .breadcrumb-item {
         padding: 5px 10px;
     }
+
+    .breadcrumb-icon {
+        width: 16px;
+        height: 16px;
+    }
 }
 
 @media (max-width: 480px) {
     .table-container {
         margin: -12px;
         padding: 12px;
+    }
+    
+    /* Action Buttons Mobile */
+    .action-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+        width: 120px;
+        height: 36px;
+    }
+
+    .action-cell {
+        min-width: 250px;
+        padding: 10px 8px !important;
+        gap: 4px;
     }
     
     /* Pagination Mobile */
@@ -614,6 +675,10 @@
 
     .breadcrumb-separator {
         font-size: 16px;
+    }
+
+    .breadcrumb-item span {
+        display: inline;
     }
 }
 

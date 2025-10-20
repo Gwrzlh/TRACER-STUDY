@@ -41,10 +41,10 @@ $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
     $routes->post('exportSelected', 'PenggunaController::exportSelected');
 
     // ✅ Import akun (cukup tulis 'import')
-    $routes->get('import', 'ImportAccount::index', ['filter' => 'auth']);
+   $routes->get('import', 'ImportAccount::index', ['filter' => 'auth']);
     $routes->post('import', 'ImportAccount::import', ['filter' => 'auth']);
-    $routes->get('export', 'ExportAccount::index');
-    $routes->post('exportSelected', 'PenggunaController::exportSelected');
+        $routes->get('export', 'ExportAccount::index', ['filter' => 'auth']);
+        $routes->post('exportSelected', 'PenggunaController::exportSelected');
 });
 // ===============================
 // ADMIN ROUTES
