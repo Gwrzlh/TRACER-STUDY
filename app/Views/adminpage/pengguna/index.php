@@ -47,17 +47,47 @@
                 <!-- 🔍 SEARCH & FILTER -->
                 <div class="controls-container">
                     <form method="get" action="<?= base_url('admin/pengguna') ?>" class="d-flex align-items-center gap-2 flex-wrap">
-                        <select name="role" id="roleSelect" class="form-select">
-                            <option value="">-- Semua Role --</option>
-                            <?php foreach ($roles as $r): ?>
-                                <option value="<?= esc($r['id']) ?>" <?= isset($roleId) && $roleId == $r['id'] ? 'selected' : '' ?>>
-                                    <?= esc($r['nama']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <input type="text" name="keyword" id="keywordInput" value="<?= esc($keyword ?? '') ?>" placeholder="Cari pengguna..." class="form-control search-input">
-                        <button type="submit" class="btn btn-primary search-btn"><i class="fas fa-search"></i> Cari</button>
-                    </form>
+
+    <!-- Role -->
+    <select name="role" id="roleSelect" class="form-select">
+        <option value=""> Semua Role </option>
+        <?php foreach ($roles as $r): ?>
+            <option value="<?= esc($r['id']) ?>" <?= $roleId == $r['id'] ? 'selected' : '' ?>>
+                <?= esc($r['nama']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+
+    <!-- Tahun Masuk -->
+    <select name="angkatan" id="angkatanSelect" class="form-select">
+        <option value=""> Tahun Masuk </option>
+        <?php foreach ($angkatanList as $a): ?>
+            <?php if (!empty($a['angkatan'])): ?>
+                <option value="<?= esc($a['angkatan']) ?>" <?= $angkatan == $a['angkatan'] ? 'selected' : '' ?>>
+                    <?= esc($a['angkatan']) ?>
+                </option>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </select>
+
+    <!-- Tahun Lulus -->
+    <select name="tahun_lulus" id="tahunLulusSelect" class="form-select">
+        <option value=""> Tahun Lulus</option>
+        <?php foreach ($tahunLulusList as $t): ?>
+            <?php if (!empty($t['tahun_kelulusan'])): ?>
+                <option value="<?= esc($t['tahun_kelulusan']) ?>" <?= $tahunLulus == $t['tahun_kelulusan'] ? 'selected' : '' ?>>
+                    <?= esc($t['tahun_kelulusan']) ?>
+                </option>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </select>
+
+    <!-- Keyword -->
+    <input type="text" name="keyword" value="<?= esc($keyword ?? '') ?>" placeholder="Cari pengguna..." class="form-control search-input">
+
+    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Cari</button>
+</form>
+
                 </div>
 
                 <!-- 🎛️ BUTTONS -->
@@ -84,73 +114,85 @@
             </div>
 
             <!-- ====== TABLE ====== -->
-            <form id="bulkDeleteForm" action="<?= base_url('admin/pengguna/deleteMultiple') ?>" method="post" onsubmit="return confirm('Yakin ingin menghapus akun yang dipilih?')">
-                <?= csrf_field() ?>
-                <?php if (!empty($accounts) && count($accounts) > 0): ?>
-                    <div class="table-container">
-                        <div class="table-wrapper">
-                            <table class="table table-bordered align-middle modern-table">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Pengguna</th>
-                                        <th>Status</th>
-                                        <th>Email</th>
-                                        <th>Group</th>
-                                        <th>Aksi</th>
-                                        <th><input type="checkbox" id="selectAll" aria-label="Pilih semua pengguna"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($accounts as $index => $acc): ?>
-                                        <tr>
-                                            <td><?= $index + 1 ?></td>
-                                            <td>
-                                                <strong><?= esc($acc['username']) ?></strong><br>s
-                                                <small><?= esc($acc['email']) ?></small>
-                                            </td>
-                                            <td>
-                                               <?php
-    $status = strtolower(trim((string)$acc['status']));
-    $isActive = ($status === '1' || $status === 'active' || $status === 'aktif');
-?>
-<span class="badge badge-status <?= $isActive ? 'badge-active' : 'badge-inactive' ?>">
-    <?= $isActive ? 'Active' : 'Inactive' ?>
-</span>
+<form id="bulkDeleteForm" action="<?= base_url('admin/pengguna/deleteMultiple') ?>" method="post" onsubmit="return confirm('Yakin ingin menghapus akun yang dipilih?')">
+    <?= csrf_field() ?>
+    <?php if (!empty($accounts) && count($accounts) > 0): ?>
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table class="table table-bordered align-middle modern-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th>Pengguna</th>
+                            <th>Status</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Tahun Masuk</th>
+                            <th>Tahun Lulus</th>
+                            <th>Aksi</th>
+                            <th><input type="checkbox" id="selectAll" aria-label="Pilih semua pengguna"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($accounts as $index => $acc): ?>
+                            <tr>
+                                <td><?= $index + 1 ?></td>
+                                <td>
+                                    <strong><?= esc($acc['username']) ?></strong><br>
+                                    <small><?= esc($acc['email']) ?></small>
+                                </td>
+                                <td>
+                                    <?php
+                                        $status = strtolower(trim((string)$acc['status']));
+                                        $isActive = ($status === '1' || $status === 'active' || $status === 'aktif');
+                                    ?>
+                                    <span class="badge badge-status <?= $isActive ? 'badge-active' : 'badge-inactive' ?>">
+                                        <?= $isActive ? 'Active' : 'Inactive' ?>
+                                    </span>
+                                </td>
+                                <td><?= esc($acc['email']) ?></td>
+                                <td><span class="badge badge-role"><?= esc($acc['nama_role'] ?? 'No Role') ?></span></td>
 
-                                            </td>
-                                            <td><?= esc($acc['email']) ?></td>
-                                            <td><span class="badge badge-role"><?= esc($acc['nama_role'] ?? 'No Role') ?></span></td>
-                                            <td>
-                                                <a href="<?= base_url('admin/pengguna/editPengguna/' . $acc['id']) ?>" class="btn btn-sm btn-edit">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </a>
-                                                <form action="<?= base_url('admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display:inline;" onsubmit="return confirm('Hapus pengguna ini?')">
-                                                    <?= csrf_field() ?>
-                                                    <button type="submit" class="btn btn-sm btn-delete">
-                                                        <i class="fas fa-trash"></i> Hapus
-                                                    </button>
-                                                </form>
-                                            </td>
-                                            <td><input type="checkbox" name="ids[]" value="<?= esc($acc['id']) ?>" class="row-checkbox" aria-label="Pilih pengguna <?= esc($acc['username']) ?>"></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <!-- ====== EMPTY STATE ====== -->
-                    <div class="empty-state text-center">
-                        <i class="fas fa-users mb-3" style="font-size:48px;color:#cbd5e1;"></i>
-                        <h3>Belum ada data pengguna</h3>
-                        <p>Silakan tambah pengguna baru untuk memulai.</p>
-                        <a href="<?= base_url('admin/pengguna/tambahPengguna') ?>" class="btn btn-primary mt-2">
-                            <i class="fas fa-user-plus"></i> Tambah Pengguna
-                        </a>
-                    </div>
-                <?php endif; ?>
-            </form>
+                                <!-- 🔹 Kolom Tahun Masuk -->
+                                <td><?= esc($acc['angkatan'] ?? '-') ?></td>
+
+                                <!-- 🔹 Kolom Tahun Lulus -->
+                                <td><?= esc($acc['tahun_kelulusan'] ?? '-') ?></td>
+
+                                <td>
+                                    <a href="<?= base_url('admin/pengguna/editPengguna/' . $acc['id']) ?>" class="btn btn-sm btn-edit">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <form action="<?= base_url('admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display:inline;" onsubmit="return confirm('Hapus pengguna ini?')">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="btn btn-sm btn-delete">
+                                            <i class="fas fa-trash"></i> Hapus
+                                        </button>
+                                    </form>
+                                </td>
+
+                                <td>
+                                    <input type="checkbox" name="ids[]" value="<?= esc($acc['id']) ?>" class="row-checkbox" aria-label="Pilih pengguna <?= esc($acc['username']) ?>">
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <?php else: ?>
+        <!-- ====== EMPTY STATE ====== -->
+        <div class="empty-state text-center">
+            <i class="fas fa-users mb-3" style="font-size:48px;color:#cbd5e1;"></i>
+            <h3>Belum ada data pengguna</h3>
+            <p>Silakan tambah pengguna baru untuk memulai.</p>
+            <a href="<?= base_url('admin/pengguna/tambahPengguna') ?>" class="btn btn-primary mt-2">
+                <i class="fas fa-user-plus"></i> Tambah Pengguna
+            </a>
+        </div>
+    <?php endif; ?>
+</form>
+
         </div>
     </div>
 </div>
