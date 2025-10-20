@@ -62,8 +62,8 @@
                 <div id="conditional-container" class="mt-3 space-y-3">
                     <div class="condition-row hidden flex items-center gap-3">
                         <select name="field_name[]" class="field-selector border rounded-lg p-2">
-                            <?php foreach ($fields as $f): ?>
-                                <option value="<?= $f ?>"><?= ucwords(str_replace('_', ' ', $f)) ?></option>
+                            <?php foreach ($fields as $actual_field => $label): ?>
+                                <option value="<?= esc($actual_field) ?>"><?= esc($label) ?></option>
                             <?php endforeach; ?>
                         </select>
 

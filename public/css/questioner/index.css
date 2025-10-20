@@ -492,6 +492,48 @@
     }
 }
 
+/* Pagination Styling */
+.pagination {
+    display: flex;
+    justify-content: flex-end; /* Mengubah ke kanan */
+    gap: 4px;
+    margin: 0;
+}
+
+.page-item {
+    list-style: none;
+}
+
+.page-link {
+    padding: 8px 12px;
+    background-color: #f9fafb;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.page-link:hover,
+.page-item.active .page-link {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.page-item.disabled .page-link {
+    color: #9ca3af;
+    pointer-events: none;
+    background-color: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+/* Penyesuaian untuk posisi absolut */
+.pagination-container {
+    margin: 16px;
+}
+
 /* Optimasi Layout Minimalis (Tambah ke existing CSS) */
 .page-wrapper { padding: 16px; }  /* Rapatkan dari 24px */
 .top-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px; }

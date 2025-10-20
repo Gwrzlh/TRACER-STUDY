@@ -71,7 +71,7 @@ class Auth extends Controller
                     'ipk',
                     'alamat',
                     'alamat2',
-                    'id_cities',
+                    'id_provinsi',
                     'kodepos',
                     'tahun_kelulusan',
                     'jenisKelamin',
