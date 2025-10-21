@@ -30,16 +30,18 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
-            <?php if (session()->getFlashdata('errorLogs')): ?>
-                <div class="alert alert-danger shadow-sm">
-                    <strong><i class="fas fa-times-circle me-2"></i> Data Gagal Import:</strong>
-                    <ul class="mb-0 mt-2">
-                        <?php foreach (session()->getFlashdata('errorLogs') as $log): ?>
-                            <li><i class="fas fa-times text-danger me-1"></i> <?= esc($log) ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
+           <?php if (session()->getFlashdata('errorLogs')): ?>
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <strong><i class="fas fa-times-circle me-2"></i> Data Gagal Import:</strong>
+        <ul class="mb-0 mt-2">
+            <?php foreach (session()->getFlashdata('errorLogs') as $log): ?>
+                <li><i class="fas fa-times text-danger me-1"></i> <?= esc($log) ?></li>
+            <?php endforeach; ?>
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+
             <!-- 🔔 END ALERT -->
 
             <!-- ====== TOP CONTROLS ====== -->
@@ -92,6 +94,10 @@
 
                 <!-- 🎛️ BUTTONS -->
                 <div class="button-container d-flex gap-2 flex-wrap">
+                    <a href="<?= base_url('admin/pengguna/errorLogs') ?>" class="btn btn-outline-danger">
+    <i class="fas fa-bug"></i> Riwayat Error
+</a>
+
                     <a href="<?= base_url('admin/pengguna/tambahPengguna') ?>" class="btn btn-primary btn-add">
                         <i class="fas fa-user-plus"></i> <?= get_setting('pengguna_button_text', 'Tambah Pengguna') ?>
                     </a>
