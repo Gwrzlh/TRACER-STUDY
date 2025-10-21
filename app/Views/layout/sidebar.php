@@ -10,8 +10,6 @@ $currentRoute = service('request')->uri->getPath();
   <link rel="stylesheet" href="<?= base_url('css/sidebar.css') ?>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <?= $this->renderSection('styles') ?>
 </head>
 
@@ -67,86 +65,105 @@ $currentRoute = service('request')->uri->getPath();
             <svg class="w-4 h-4 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
-            <span>Kontak</span>
-          </a>
+          </summary>
+          <div class="ml-8 mt-1 space-y-1">
+            <a href="<?= base_url('satuanorganisasi') ?>" class="submenu">Satuan Organisasi</a>
+            <a href="<?= base_url('/admin/tipeorganisasi') ?>" class="submenu">Tipe Organisasi</a>
+          </div>
+        </details>
 
-          <!-- Tentang -->
-          <a href="<?= base_url('admin/tentang/edit') ?>"
-            class="sidebar-link <?= str_contains($currentRoute, 'admin/tentang') ? 'active' : '' ?>">
-            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
-            </svg>
-            <span>Tentang</span>
-          </a>
+        <!-- Welcome Page -->
+        <a href="<?= base_url('admin/welcome-page') ?>"
+          class="sidebar-link <?= str_contains($currentRoute, 'admin/welcome-page') ? 'active' : '' ?>">
+          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6"></path>
+          </svg>
+          <span>Welcome Page</span>
+        </a>
 
-          <!-- Pengaturan Situs -->
-          <a href="<?= base_url('pengaturan-situs') ?>"
-            class="sidebar-link <?= str_contains($currentRoute, 'pengaturan-situs') ? 'active' : '' ?>">
-            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 6V4m0 16v-2m8-8h2M4 12H2m15.364 6.364l1.414 1.414M6.222 6.222L4.808 4.808m12.728 0l1.414 1.414M6.222 17.778l-1.414 1.414">
-              </path>
-            </svg>
-            <span>Pengaturan Situs</span>
-          </a>
+        <!-- Kontak -->
+        <a href="<?= base_url('admin/kontak') ?>"
+          class="sidebar-link <?= str_contains($currentRoute, 'admin/kontak') ? 'active' : '' ?>">
+          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
+          </svg>
+          <span>Kontak</span>
+        </a>
 
-          <!-- Laporan -->
-          <a href="<?= base_url('admin/laporan') ?>"
+        <!-- Tentang -->
+        <a href="<?= base_url('admin/tentang/edit') ?>"
+          class="sidebar-link <?= str_contains($currentRoute, 'admin/tentang') ? 'active' : '' ?>">
+          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
+          </svg>
+          <span>Tentang</span>
+        </a>
 
-            class="sidebar-link <?= str_contains($currentRoute, 'admin/laporan') ? 'active' : '' ?>">
-            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6.586a2 2 0 0 0 1.414-.586l6.414-6.414A2 2 0 0 0 21 13.586V4a2 2 0 0 0-2-2H6zM8 6h8v2H8V6zm0 4h5v2H8v-2zm0 4h3v2H8v-2z" />
-              <path d="M18.414 12 13 17.414V20h2.586L21 14.586 18.414 12z" />
-            </svg>
-            <span>Laporan</span>
-          </a>
+        <!-- Pengaturan Situs -->
+        <a href="<?= base_url('pengaturan-situs') ?>"
+          class="sidebar-link <?= str_contains($currentRoute, 'pengaturan-situs') ? 'active' : '' ?>">
+          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 6V4m0 16v-2m8-8h2M4 12H2m15.364 6.364l1.414 1.414M6.222 6.222L4.808 4.808m12.728 0l1.414 1.414M6.222 17.778l-1.414 1.414">
+            </path>
+          </svg>
+          <span>Pengaturan Situs</span>
+        </a>
 
-          <!-- Email Template -->
-          <a href="<?= base_url('admin/emailtemplate') ?>" class="sidebar-link <?= str_contains($currentRoute, 'admin/emailtemplate') ? 'active' : '' ?>">
-            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M2 4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4zm2 0v16h16V4H4zm2 2h12v2H6V6zm0 4h12v2H6v-2zm0 4h8v2H6v-2z" />
-            </svg>
-            <span>Email</span>
-          </a>
+        <!-- Laporan -->
+        <a href="<?= base_url('admin/laporan') ?>"
+          class="sidebar-link <?= str_contains($currentRoute, 'admin/laporan') ? 'active' : '' ?>">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6.586a2 2 0 0 0 1.414-.586l6.414-6.414A2 2 0 0 0 21 13.586V4a2 2 0 0 0-2-2H6zM8 6h8v2H8V6zm0 4h5v2H8v-2zm0 4h3v2H8v-2z" />
+            <path d="M18.414 12 13 17.414V20h2.586L21 14.586 18.414 12z" />
+          </svg>
+          <span>Laporan</span>
+        </a>
 
-          <!-- log -->
-          <a href="<?= base_url('admin/log_activities') ?>"
-            class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities') ? 'active' : '' ?>">
-            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
-            </svg>
-            <span>aktivitas Pengguna</span>
-          </a>
+        <!-- Email Template -->
+        <a href="<?= base_url('admin/emailtemplate') ?>" class="sidebar-link <?= str_contains($currentRoute, 'admin/emailtemplate') ? 'active' : '' ?>">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2 4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4zm2 0v16h16V4H4zm2 2h12v2H6V6zm0 4h12v2H6v-2zm0 4h8v2H6v-2z" />
+          </svg>
+          <span>Email</span>
+        </a>
 
-          <a href="<?= base_url('admin/respon') ?>" class="sidebar-link <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">
-            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
-            </svg>
-            <span>Respon</span>
-          </a>
+        <!-- Log Aktivitas -->
+        <a href="<?= base_url('admin/log_activities') ?>"
+          class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities') ? 'active' : '' ?>">
+          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
+          </svg>
+          <span>Aktivitas Pengguna</span>
+        </a>
 
-          <a href="<?= base_url('admin/log_activities/dashboard') ?>" class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities/dashboard') ? 'active' : '' ?>">
-            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
-            </svg>
-            <span>Log Dashboard</span>
-          </a>
+        <!-- Log Dashboard -->
+        <a href="<?= base_url('admin/log_activities/dashboard') ?>"
+          class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities/dashboard') ? 'active' : '' ?>">
+          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
+          </svg>
+          <span>Log Dashboard</span>
+        </a>
 
+        <!-- Respon -->
+        <a href="<?= base_url('admin/respon') ?>" class="sidebar-link <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">
+          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
+          </svg>
+          <span>Respon</span>
+        </a>
 
-
-
-          <!-- Profil -->
-          <a href="<?= base_url('admin/profil') ?>"
-            class="sidebar-link <?= str_contains($currentRoute, 'admin/profil') ? 'active' : '' ?>">
-            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M5.121 17.804A9 9 0 1112 21a9 9 0 01-6.879-3.196zM12 12a3 3 0 100-6 3 3 0 000 6z" />
-            </svg>
-            <span>Profil</span>
-          </a>
-
-        </nav>
-      </div>
+        <!-- Profil -->
+        <a href="<?= base_url('admin/profil') ?>"
+          class="sidebar-link <?= str_contains($currentRoute, 'admin/profil') ? 'active' : '' ?>">
+          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M5.121 17.804A9 9 0 1112 21a9 9 0 01-6.879-3.196zM12 12a3 3 0 100-6 3 3 0 000 6z" />
+          </svg>
+          <span>Profil</span>
+        </a>
+      </nav>
 
       <?php
       $session = session();
@@ -184,7 +201,6 @@ $currentRoute = service('request')->uri->getPath();
           </button>
         </form>
       </div>
-
 
       <!-- Modal Foto -->
       <div id="profileModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
