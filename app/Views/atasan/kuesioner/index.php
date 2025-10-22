@@ -1,76 +1,50 @@
-    <?= $this->extend('layout/sidebar_atasan') ?>
-    <?= $this->section('content') ?>
+<?= $this->extend('layout/sidebar_atasan') ?>
 
-    <link rel="stylesheet" href="<?= base_url('css/alumni/kuesioner/index.css') ?>">
+<?= $this->section('content') ?>
 
-    <div class="questionnaire-container">
-        <div class="page-wrapper">
-            <div class="page-container">
-                <div class="top-controls">
-                    <h3 class="page-title">Daftar Kuesioner Atasan</h3>
-                </div>
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table class="user-table">
-                            <thead>
-                                <tr>
-                                    <th>NO</th>
-                                    <th>KUESIONER</th>
-                                    <th>STATUS</th>
-                                    <th>AKSI</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php $no = 1;
-                                if (empty($data)): ?>
-                                    <tr>
-                                        <td colspan="4" class="empty-state">
-                                            <div class="empty-state-title">Tidak ada kuesioner yang tersedia untuk Anda saat ini.</div>
-                                            <div class="empty-state-description">Menampilkan <?= count($data ?? []) ?> kuesioner yang sesuai dengan profil Anda.</div>
-                                        </td>
-                                    </tr>
-                                <?php else: foreach ($data as $row): ?>
-                                    <tr>
-                                        <td class="text-center"><?= $no++ ?></td>
-                                        <td><?= esc($row['judul']) ?></td>
-                                      <td class="text-center">
-    <?php 
-    $status = $row['status'] ?? $row['statusIsi'] ?? 'Belum Mengisi';
-    if ($status === 'Belum Mengisi'): ?>
-        <span class="status-badge belum-mengisi">Belum Mengisi</span>
-    <?php elseif ($status === 'On Going' || (isset($row['progress']) && $row['progress'] < 100)): ?>
-        <span class="status-badge on-going">On Going
-            <?php if (isset($row['progress']) && $row['progress'] > 0): ?>
-                (<?= round($row['progress'], 1) ?>%)
-            <?php endif; ?>
-        </span>
-    <?php elseif ($status === 'Finish' || (isset($row['progress']) && $row['progress'] >= 100)): ?>
-        <span class="status-badge finish">Finish</span>
-    <?php endif; ?>
-</td>
+<link rel="stylesheet" href="<?= base_url('css/alumni/kuesioner/index.css') ?>">
 
-<td class="action-cell">
-    <div class="action-buttons">
-        <?php 
-        if ($status === 'Belum Mengisi') : ?>
-            <a href="<?= base_url('atasan/kuesioner/mulai/' . $row['id']) ?>" class="btn-action btn-mulai">▶</a>
-        <?php elseif ($status === 'On Going' || (isset($row['progress']) && $row['progress'] < 100)) : ?>
-            <a href="<?= base_url('atasan/kuesioner/lanjutkan/' . $row['id']) ?>" class="btn-action btn-lanjutkan">🔄</a>
-        <?php elseif ($status === 'Finish' || (isset($row['progress']) && $row['progress'] >= 100)) : ?>
-            <a href="<?= base_url('atasan/kuesioner/lihat/' . $row['id']) ?>" class="btn-action btn-lihat">👁️</a>
-        <?php endif; ?>
+<h3 class="page-title">Daftar Kuesioner Atasan</h3>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Judul Kuesioner</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($data as $row): ?>
+                    <tr>
+                        <td><?= esc($row['judul']) ?></td>
+                        <td>
+                            <?php if ($row['statusIsi'] == 'Belum Mengisi'): ?>
+                                <span class="badge badge-warning">Belum Mengisi</span>
+                            <?php elseif ($row['statusIsi'] == 'On Going'): ?>
+                                <span class="badge badge-info">On Going</span>
+                            <?php elseif ($row['statusIsi'] == 'Finish'): ?>
+                                <span class="badge badge-success">Finish</span>
+                            <?php endif; ?>
+                        </td>
+                        <td><?= $row['progress'] ?>%</td>
+                        <td>
+                            <?php if ($row['statusIsi'] == 'Belum Mengisi'): ?>
+                                <a href="<?= base_url('atasan/kuesioner/mulai/' . $row['id']) ?>" class="btn btn-primary">Mulai</a>
+                            <?php elseif ($row['statusIsi'] == 'On Going'): ?>
+                                <a href="<?= base_url('atasan/kuesioner/lanjutkan/' . $row['id']) ?>" class="btn btn-warning">Lanjutkan</a>
+                            <?php elseif ($row['statusIsi'] == 'Finish'): ?>
+                                <a href="<?= base_url('atasan/kuesioner/lihat/' . $row['id']) ?>" class="btn btn-success">Lihat</a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
-</td>
+</div>
 
-                                    </tr>
-                                <?php endforeach;
-                                endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <?= $this->endSection() ?>
+<?= $this->endSection() ?>
