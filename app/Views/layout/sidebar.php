@@ -27,7 +27,7 @@ $currentRoute = service('request')->uri->getPath();
       <nav class="flex-grow overflow-y-auto mt-4 space-y-2 px-4">
         <!-- Dashboard -->
         <a href="<?= base_url('admin/dashboard') ?>"
-          class="sidebar-link <?= str_contains($currentRoute, 'dashboard') ? 'active' : '' ?>">
+          class="sidebar-link <?= str_contains($currentRoute, 'admin/dashboard') ? 'active' : '' ?>">
           <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z" />
@@ -83,7 +83,7 @@ $currentRoute = service('request')->uri->getPath();
 
         <!-- Kontak -->
         <a href="<?= base_url('admin/kontak') ?>"
-          class="sidebar-link <?= str_contains($currentRoute, 'admin/kontak') ? 'active' : '' ?>">
+          class="sidebar-link <?= str_contains($currentRoute, 'kontak') ? 'active' : '' ?>">
           <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
           </svg>
@@ -130,7 +130,7 @@ $currentRoute = service('request')->uri->getPath();
 
         <!-- Log Aktivitas -->
         <a href="<?= base_url('admin/log_activities') ?>"
-          class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities') ? 'active' : '' ?>">
+          class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities') && !str_contains($currentRoute, 'admin/log_activities/dashboard') ? 'active' : '' ?>">
           <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
           </svg>

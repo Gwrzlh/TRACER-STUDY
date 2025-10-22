@@ -1,5 +1,6 @@
 <?php $this->extend('layout/sidebar'); // Ganti dengan layout Anda jika ada ?>
 <?php $this->section('content'); ?>
+<link href="<?= base_url('css/log_activities/dashboard.css') ?>" rel="stylesheet">
 <div class="container-fluid mt-4">
     <!-- Alert Sukses -->
     <?php if (session()->has('message')): ?>
