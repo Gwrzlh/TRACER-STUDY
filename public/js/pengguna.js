@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         enhanceSearchInput();
         enhanceButtons();
         enhanceFormValidation();
-        enhanceAlerts();
+        // enhanceAlerts();
         handleResponsiveTable();
         handleCheckboxes();
     }, 300);

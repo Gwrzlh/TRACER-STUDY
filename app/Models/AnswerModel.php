@@ -17,7 +17,7 @@ class AnswerModel extends Model
 
     protected bool $allowEmptyInserts = false;
 
-    // Di App/Models/AnswerModel.php
+    // === METHOD EXISTING (TIDAK DIUBAH) ===
     public function getStatus($questionnaireId, $userId)
     {
         $builder = $this->db->table($this->table);
@@ -83,13 +83,12 @@ class AnswerModel extends Model
             'questionnaire_id' => $questionnaire_id,
             'question_id'      => $question_id,
             'answer_text'      => is_array($answer) ? json_encode($answer) : $answer,
-            'STATUS'           => 'draft',  // Initially draft
+            'STATUS'           => 'draft',
             'created_at'       => $now,
         ];
 
         log_message('debug', '[saveAnswer] Saving answer for question_id: ' . $question_id . ', user: ' . $user_id);
 
-        // Insert or update
         $existing = $this->where([
             'user_id'          => $user_id,
             'questionnaire_id' => $questionnaire_id,
@@ -104,7 +103,6 @@ class AnswerModel extends Model
             log_message('info', '[saveAnswer] Inserted new answer ID: ' . $this->insertID());
         }
 
-        // Update or create response as draft if not completed
         $responseModel = new \App\Models\ResponseModel();
         $existingResponse = $responseModel->where('account_id', $user_id)
             ->where('questionnaire_id', $questionnaire_id)
@@ -154,18 +152,15 @@ class AnswerModel extends Model
             log_message('debug', '[setQuestionnaireCompleted] Skipping backend validation.');
         }
 
-        // Transaction
         $this->db->transStart();
 
         try {
-            // Update answers to completed
             $this->where([
                 'user_id'          => $user_id,
                 'questionnaire_id' => $questionnaire_id
             ])->set(['STATUS' => 'completed'])->update();
             log_message('debug', '[setQuestionnaireCompleted] Updated answers to completed. Affected rows: ' . $this->db->affectedRows());
 
-            // Get submitted_at from latest answer
             $lastAnswer = $this->where([
                 'user_id'          => $user_id,
                 'questionnaire_id' => $questionnaire_id
@@ -173,7 +168,6 @@ class AnswerModel extends Model
 
             $submittedAt = $lastAnswer['created_at'] ?? $now;
 
-            // Update response
             $responseData = [
                 'submitted_at' => $submittedAt,
                 'status'       => 'completed',
@@ -204,19 +198,16 @@ class AnswerModel extends Model
         }
     }
 
-        public function validateLogicalCompletion($questionnaire_id, $user_id)
-        {
-            // Asumsi: Implement getQuestionnaireStructure() di QuestionnaireModel
-            // Contoh return: ['pages' => [['id' => 1, 'questions' => [['id' => 1, ...]], 'conditions' => 'question_1 == "yes"'], ...]]
-            $questionnaireModel = new \App\Models\QuestionnairModel();
-            $structure = $questionnaireModel->getQuestionnaireStructure($questionnaire_id, $user_id);
+    public function validateLogicalCompletion($questionnaire_id, $user_id)
+    {
+        $questionnaireModel = new \App\Models\QuestionnairModel();
+        $structure = $questionnaireModel->getQuestionnaireStructure($questionnaire_id, $user_id);
 
         if (empty($structure) || empty($structure['pages'])) {
             log_message('error', '[validateLogicalCompletion] No structure found for questionnaire ' . $questionnaire_id);
             return false;
         }
 
-        // Fetch user answers
         $answers = $this->where([
             'user_id'          => $user_id,
             'questionnaire_id' => $questionnaire_id
@@ -253,10 +244,7 @@ class AnswerModel extends Model
             return true;
         }
 
-        // Contoh simple parser untuk conditions (adjust sesuai format conditions Anda, misal string 'question_1 == "yes" OR question_2 != ""')
-        // Ini placeholder: Gunakan eval() dengan hati-hati (security risk), atau pakai library expression parser.
-        // Untuk tes, asumsikan true jika conditions ada answer terkait.
-        $conditions = $page['conditions'];  // Misal: 'question_1 == "yes"'
+        $conditions = $page['conditions'];
         preg_match_all('/question_(\d+) == "([^"]+)"/', $conditions, $matches);
         for ($i = 0; $i < count($matches[0]); $i++) {
             $qId = $matches[1][$i];
@@ -265,7 +253,7 @@ class AnswerModel extends Model
                 return true;
             }
         }
-        return false;  // Default false jika tidak match
+        return false;
     }
 
     public function batchUpdateStatus($questionnaire_id, $user_id, $status)
@@ -281,7 +269,7 @@ class AnswerModel extends Model
             'questionnaire_id' => $questionnaire_id,
             'user_id' => $user_id
         ]);
-        $affectedCount = $builder->countAllResults(false); // Count before update
+        $affectedCount = $builder->countAllResults(false);
         log_message('debug', "AnswerModel::batchUpdateStatus found {$affectedCount} rows to update");
 
         $builder->set('STATUS', $status);
@@ -293,56 +281,26 @@ class AnswerModel extends Model
         return $result;
     }
 
-    // public function getAnswersWithDetail($prodiId = null, $jenis = null)
-    // {
-    //     $builder = $this->db->table('answers a');
-    //     $builder->select('
-    //     a.id,
-    //     q.question_text,
-    //     a.answer_text,
-    //     da.nama_lengkap,
-    //     j.nama_jurusan,
-    //     p.nama_prodi
-    // ');
-    //     $builder->join('questions q', 'q.id = a.question_id');
-    //     $builder->join('detailaccount_alumni da', 'da.id_account = a.user_id');
-    //     $builder->join('jurusan j', 'j.id = da.id_jurusan', 'left');
-    //     $builder->join('prodi p', 'p.id = da.id_prodi', 'left');
-    //     $builder->where('a.STATUS', 'completed'); // 🔹 fix disini
-
-    //     if ($prodiId) {
-    //         $builder->where('da.id_prodi', $prodiId);
-    //     }
-
-    //     if ($jenis === 'ami') {
-    //         $builder->where('q.is_for_ami', 1);
-    //     } elseif ($jenis === 'akreditasi') {
-    //         $builder->where('q.is_for_accreditation', 1);
-    //     }
-
-    //     return $builder->get()->getResultArray();
-    // }
     public function getAnswersRaw($prodiId = null, $questionId = null)
     {
         $db = \Config\Database::connect();
         $builder = $db->table('detailaccount_alumni al');
 
-        // LEFT JOIN answers agar semua alumni tetap muncul
         $builder->select("
-        al.nama_lengkap as alumni_name,
-        al.nim,
-        al.tahun_kelulusan,
-        j.nama_jurusan as jurusan_name,
-        p.nama_prodi as prodi_name,
-        a.answer_text,
-        a.STATUS,
-        q.id as question_id,
-        q.question_text
-    ");
+            al.nama_lengkap as alumni_name,
+            al.nim,
+            al.tahun_kelulusan,
+            j.nama_jurusan as jurusan_name,
+            p.nama_prodi as prodi_name,
+            a.answer_text,
+            a.STATUS,
+            q.id as question_id,
+            q.question_text
+        ");
 
         $builder->join('jurusan j', 'j.id = al.id_jurusan', 'left');
         $builder->join('prodi p', 'p.id = al.id_prodi', 'left');
-        $builder->join('answers a', 'a.user_id = al.id_account AND a.status="completed"', 'left');
+        $builder->join('answers a', 'a.user_id = al.id_account AND a.STATUS="completed"', 'left');
         $builder->join('questions q', 'q.id = a.question_id', 'left');
 
         if (!empty($prodiId)) {
@@ -357,6 +315,7 @@ class AnswerModel extends Model
 
         return $builder->get()->getResultArray();
     }
+
     public function deleteAnswerAndCheckResponse($answerId)
     {
         $db = \Config\Database::connect();
@@ -370,23 +329,20 @@ class AnswerModel extends Model
         }
 
         $questionnaireId = $answer['questionnaire_id'];
-        $accountId       = $answer['user_id']; // di tabel answers namanya user_id
+        $accountId       = $answer['user_id'];
 
-        // Hapus jawaban
         $this->delete($answerId);
 
-        // Cek apakah masih ada jawaban untuk user & questionnaire ini
         $remaining = $this->where([
             'questionnaire_id' => $questionnaireId,
             'user_id'          => $accountId
         ])->countAllResults();
 
         if ($remaining === 0) {
-            // Kalau tidak ada jawaban, hapus juga response
             $responseModel = new \App\Models\ResponseModel();
             $responseModel->where([
                 'questionnaire_id' => $questionnaireId,
-                'account_id'       => $accountId // di tabel responses pakai account_id
+                'account_id'       => $accountId
             ])->delete();
         }
 
@@ -395,16 +351,100 @@ class AnswerModel extends Model
         return $db->transStatus();
     }
 
+    // === METHOD BARU UNTUK ATASAN KUESIONER (TANPA MENGGANGGU ALUR LAMA) ===
 
+    /**
+     * Mendapatkan jawaban dalam format sederhana untuk fill.php (seperti getUserAnswers tapi tanpa prefix 'q_')
+     * @param int $questionnaireId
+     * @param int $userId
+     * @return array [question_id => answer_text]
+     */
+    public function getAnswers($questionnaireId, $userId)
+    {
+        return $this->getUserAnswers($questionnaireId, $userId, true); // forAdmin = true → tanpa 'q_'
+    }
 
+    /**
+     * Menyimpan semua jawaban sekaligus (untuk save() di controller)
+     * @param int $questionnaireId
+     * @param int $userId
+     * @param array $answers [question_id => value]
+     */
+    public function saveAnswers($questionnaireId, $userId, $answers)
+    {
+        foreach ($answers as $questionId => $value) {
+            $this->saveAnswer($userId, $questionnaireId, $questionId, $value);
+        }
+    }
 
+    /**
+     * Mengecek apakah kuesioner sudah selesai (gunakan validateLogicalCompletion)
+     * @param int $questionnaireId
+     * @param int $userId
+     * @return bool
+     */
+    public function isCompleted($questionnaireId, $userId)
+    {
+        return $this->validateLogicalCompletion($questionnaireId, $userId);
+    }
 
+    /**
+     * Hitung progress dengan struktur dinamis (gunakan getQuestionnaireStructure)
+     * @param int $questionnaireId
+     * @param int $userId
+     * @param array|null $structure (opsional, jika sudah ada)
+     * @return int
+     */
+    public function calculateProgress($questionnaireId, $userId, $structure = null)
+    {
+        if (!$structure) {
+            $questionnaireModel = new \App\Models\QuestionnairModel();
+            $structure = $questionnaireModel->getQuestionnaireStructure($questionnaireId, $userId);
+        }
 
+        if (empty($structure) || empty($structure['pages'])) {
+            log_message('error', '[calculateProgress] No structure or pages found for questionnaire ' . $questionnaireId);
+            return 0;
+        }
 
+        $totalRelevant = 0;
+        $answeredRelevant = 0;
+        $userAnswers = $this->getAnswers($questionnaireId, $userId);
 
+        foreach ($structure['pages'] as $page) {
+            $pageVisible = $this->evaluatePageConditions($page, $userAnswers);
+            if (!$pageVisible) continue;
 
+            // Periksa apakah ada 'sections' di dalam page
+            $sections = $page['sections'] ?? [];
+            if (empty($sections)) {
+                log_message('debug', '[calculateProgress] No sections found in page ' . ($page['id'] ?? 'unknown'));
+                continue;
+            }
 
+            foreach ($sections as $section) {
+                // Periksa apakah ada 'questions' di dalam section
+                $questions = $section['questions'] ?? [];
+                if (empty($questions)) {
+                    log_message('debug', '[calculateProgress] No questions found in section ' . ($section['id'] ?? 'unknown'));
+                    continue;
+                }
 
+                foreach ($questions as $question) {
+                    $totalRelevant++;
+                    if (isset($userAnswers[$question['id']]) && !empty($userAnswers[$question['id']])) {
+                        $answeredRelevant++;
+                    }
+                }
+            }
+        }
+
+        $progress = $totalRelevant > 0 ? round(($answeredRelevant / $totalRelevant) * 100) : 0;
+        log_message('debug', '[calculateProgress] Q_ID: ' . $questionnaireId . ', User: ' . $userId . ', Progress: ' . $progress . '% (Answered/Relevant: ' . $answeredRelevant . '/' . $totalRelevant . ')');
+        return $progress;
+    }
+
+    // === END OF NEW METHODS ===
 
     // Dates
     protected $useTimestamps = false;

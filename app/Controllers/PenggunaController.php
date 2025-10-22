@@ -956,13 +956,33 @@ class PenggunaController extends BaseController
         // ====== (5) Sukses ======
         return redirect()->to('/admin/pengguna')->with('success', 'Akun dan data terkait berhasil dihapus.');
 
-    } catch (\Exception $e) {
-        // Rollback kalau ada error
-        $db->transRollback();
-        log_message('error', "[deleteAccount] Error: " . $e->getMessage());
-        return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-    }
+   } catch (\Exception $e) {
+    // Rollback kalau ada error
+    $db->transRollback();
+
+    // Log ke file (bawaan CI)
+    log_message('error', "[deleteAccount] Error: " . $e->getMessage());
+
+    // Log ke database (riwayat error)
+    log_error('delete', $e->getMessage());
+
+    // Kembalikan ke halaman dengan pesan flash
+    return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
 }
+
+    
+}
+
+public function errorLogs()
+{
+    $logModel = new \App\Models\ErrorLogModel();
+    $data['logs'] = $logModel->orderBy('created_at', 'DESC')->findAll();
+
+    $data['title'] = 'Riwayat Error Pengguna';
+    return view('adminpage/pengguna/error_logs', $data);
+
+}
+
 
     public function getProdiByJurusan($id_jurusan)
     {

@@ -29,7 +29,6 @@ $routes->get('/laporan', 'AdminLaporan::showAll');         // default tahun terb
 $routes->get('/laporan/(:num)', 'AdminLaporan::showAll/$1');
 
 
-// admin pengguna
 $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('', 'PenggunaController::index');
     $routes->get('tambahPengguna', 'PenggunaController::create');
@@ -39,6 +38,9 @@ $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
     $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
     $routes->match(['post', 'delete'], 'deleteMultiple', 'PenggunaController::deleteMultiple');
     $routes->post('exportSelected', 'PenggunaController::exportSelected');
+    
+    // ✅ Tambahkan ini, tanpa awalan "admin/pengguna"
+    $routes->get('errorLogs', 'PenggunaController::errorLogs');
 
     // ✅ Import akun (cukup tulis 'import')
    $routes->get('import', 'ImportAccount::index', ['filter' => 'auth']);
@@ -46,6 +48,11 @@ $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
         $routes->get('export', 'ExportAccount::index', ['filter' => 'auth']);
         $routes->post('exportSelected', 'PenggunaController::exportSelected');
 });
+$routes->get('test-log', function() {
+    log_error('test', 'Percobaan simpan log manual', 'dummy.csv');
+    echo "Cek tabel error_logs di database!";
+});
+
 // ===============================
 // ADMIN ROUTES
 // ===============================
@@ -649,3 +656,5 @@ $routes->group('atasan/kuesioner', ['namespace' => 'App\Controllers'], function 
     $routes->post('save/(:num)', 'AtasanKuesionerController::save/$1');
     $routes->get('responseLanding', 'AtasanKuesionerController::responseLanding');
 });
+
+
