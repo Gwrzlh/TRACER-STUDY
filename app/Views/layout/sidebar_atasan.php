@@ -46,6 +46,12 @@ $currentRoute = service('request')->uri->getPath();
             </svg>
             <span>Kuesioner</span>
           </a>
+          <!-- 🏢 Perusahaan -->
+<a href="<?= base_url('atasan/perusahaan') ?>"
+  class="sidebar-link <?= str_contains($currentRoute, 'perusahaan') ? 'active' : '' ?>">
+  <i class="fa-solid fa-building w-5 text-gray-700"></i>
+  <span>Perusahaan</span>
+</a>
         </nav>
       </div>
 

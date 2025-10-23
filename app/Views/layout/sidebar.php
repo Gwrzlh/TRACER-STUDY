@@ -146,13 +146,32 @@ $currentRoute = service('request')->uri->getPath();
           <span>Log Dashboard</span>
         </a>
 
-        <!-- Respon -->
-        <a href="<?= base_url('admin/respon') ?>" class="sidebar-link <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">
-          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
-          </svg>
-          <span>Respon</span>
-        </a>
+      <!-- Respon Dropdown -->
+<div x-data="{ open: <?= str_contains($currentRoute, 'admin/respon') ? 'true' : 'false' ?> }" class="sidebar-dropdown">
+  <button @click="open = !open" class="sidebar-link flex justify-between w-full">
+    <div class="flex items-center">
+      <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
+      </svg>
+      <span>Respon</span>
+    </div>
+    <svg :class="{ 'rotate-180': open }" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+
+  <div x-show="open" class="ml-6 mt-2 space-y-1" x-cloak>
+    <a href="<?= base_url('admin/respon') ?>"
+       class="sidebar-sublink <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">
+      Respon Alumni
+    </a>
+
+    <a href="<?= base_url('admin/respon/atasan') ?>"
+       class="sidebar-sublink <?= str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">
+      Respon Atasan
+    </a>
+  </div>
+</div>
 
         <!-- Profil -->
         <a href="<?= base_url('admin/profil') ?>"
