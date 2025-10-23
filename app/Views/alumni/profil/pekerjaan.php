@@ -9,8 +9,16 @@
         <?= csrf_field() ?>
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block font-medium">Perusahaan</label>
-                <input type="text" name="perusahaan" class="w-full border px-3 py-2 rounded" required>
+               <label for="id_perusahaan">Perusahaan</label>
+<select name="id_perusahaan" class="form-control" required>
+    <option value="" disabled selected>-- Pilih Perusahaan --</option>
+    <?php foreach ($perusahaanList as $p): ?>
+        <option value="<?= esc($p['id']) ?>">
+            <?= esc($p['nama_perusahaan']) ?>
+        </option>
+    <?php endforeach; ?>
+</select>
+
             </div>
             <div>
                 <label class="block font-medium">Jabatan</label>
@@ -37,10 +45,10 @@
                 <input type="number" name="tahun_keluar" id="tahun_keluar" class="w-full border px-3 py-2 rounded mt-2" placeholder="Tahun Keluar" disabled>
             </div>
 
-            <div class="col-span-2">
+            <!-- <div class="col-span-2">
                 <label class="block font-medium">Alamat Perusahaan</label>
                 <textarea name="alamat_perusahaan" class="w-full border px-3 py-2 rounded"></textarea>
-            </div>
+            </div> -->
         </div>
 
         <div class="mt-4">
