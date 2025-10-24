@@ -657,10 +657,6 @@ $routes->get('atasan/kuesioner', 'AtasanKuesionerController::index');
 $routes->get('/atasan/perusahaan', 'AtasanController::perusahaan');
 $routes->get('/atasan/perusahaan/detail/(:num)', 'AtasanController::detailPerusahaan/$1');
 $routes->get('/atasan/perusahaan/edit/(:num)', 'AtasanController::editPerusahaan/$1');
-$routes->post('/atasan/perusahaan/update/(:num)', 'AtasanController::updatePerusahaan/$1');
-$routes->get('/atasan/perusahaan/delete/(:num)', 'AtasanController::hapusPerusahaan/$1');
-$routes->get('/atasan/perusahaan/tambah', 'AtasanController::tambahPerusahaan');
-$routes->post('/atasan/perusahaan/simpan', 'AtasanController::simpanPerusahaan');
 $routes->get('atasan/perusahaan/getCitiesByProvince/(:num)', 'AtasanController::getCitiesByProvince/$1');
 
 
