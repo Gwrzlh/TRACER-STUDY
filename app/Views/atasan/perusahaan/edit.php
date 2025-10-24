@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
         kotaDropdown.innerHTML = '<option value="">Memuat data kota...</option>';
         kotaDropdown.disabled = true;
 
-        fetch(`<?= base_url('atasan/getCitiesByProvince/') ?>${provinceId}`)
+        fetch(`<?= base_url('atasan/perusahaan/getCitiesByProvince/') ?>${provinceId}`)
             .then(response => response.json())
             .then(data => {
                 kotaDropdown.innerHTML = '<option value="">-- Pilih Kota --</option>';
@@ -109,6 +109,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     });
 });
+
 </script>
 
 <?= $this->endSection() ?>

@@ -53,7 +53,7 @@ class AtasanController extends Controller
         return view('atasan/kuesioner/form', $data);
     }
 // ===============================
-// 📦 MENU PERUSAHAAN UNTUK ATASAN
+// 🏢 MENU PERUSAHAAN (SATU PER ATASAN)
 // ===============================
 public function perusahaan()
 {
@@ -61,20 +61,27 @@ public function perusahaan()
         return redirect()->to('/login')->with('error', 'Akses ditolak.');
     }
 
-    $perusahaanModel = new \App\Models\DetailaccountPerusahaan();
-    $data['perusahaan'] = $perusahaanModel
-        ->select('detailaccoount_perusahaan.*, provinces.name as provinsi, cities.name as kota')
-        ->join('provinces', 'provinces.id = detailaccoount_perusahaan.id_provinsi', 'left')
-        ->join('cities', 'cities.id = detailaccoount_perusahaan.id_kota', 'left')
-        ->orderBy('detailaccoount_perusahaan.nama_perusahaan', 'ASC')
-        ->findAll();
+    $db = \Config\Database::connect();
+    $idAtasan = session('id_account');
 
-    return view('atasan/perusahaan/index', $data);
+    // 🔹 Ambil perusahaan yang terhubung ke atasan (berdasarkan id_perusahaan)
+    $perusahaan = $db->table('detailaccount_atasan da')
+        ->select('dp.*, provinces.name AS provinsi, cities.name AS kota')
+        ->join('detailaccoount_perusahaan dp', 'dp.id = da.id_perusahaan', 'left')
+        ->join('provinces', 'provinces.id = dp.id_provinsi', 'left')
+        ->join('cities', 'cities.id = dp.id_kota', 'left')
+        ->where('da.id_account', $idAtasan)
+        ->get()
+        ->getRowArray();
+
+    // ✅ Tetap render index, tapi dengan kondisi apakah sudah punya perusahaan atau belum
+    return view('atasan/perusahaan/index', [
+        'perusahaan' => $perusahaan,
+        'message'    => !$perusahaan ? 'Belum ada perusahaan yang terhubung dengan akun Anda.' : null
+    ]);
 }
 
-// ===============================
-// 📄 DETAIL PERUSAHAAN + ALUMNI
-// ===============================
+
 public function detailPerusahaan($id)
 {
     if (session('role_id') != 8) {
@@ -82,18 +89,25 @@ public function detailPerusahaan($id)
     }
 
     $db = \Config\Database::connect();
+    $idAtasan = session('id_account');
 
-    // Ambil data perusahaan
-    $perusahaan = $db->table('detailaccoount_perusahaan')
-        ->where('id', $id)
-        ->get()
-        ->getRowArray();
+    // 🔹 Pastikan perusahaan yang diakses memang milik atasan
+   $perusahaan = $db->table('detailaccount_atasan da')
+    ->join('detailaccoount_perusahaan dp', 'dp.id = da.id_perusahaan', 'left')
+    ->join('provinces p', 'p.id = dp.id_provinsi', 'left')   // join provinsi
+    ->join('cities c', 'c.id = dp.id_kota', 'left')          // join kota
+    ->where('da.id_account', $idAtasan)
+    ->where('dp.id', $id)
+    ->select('dp.*, p.name AS provinsi, c.name AS kota')      // ambil nama provinsi & kota
+    ->get()
+    ->getRowArray();
+
 
     if (!$perusahaan) {
-        return redirect()->back()->with('error', 'Perusahaan tidak ditemukan.');
+        return redirect()->to('/atasan/perusahaan')->with('error', 'Anda tidak memiliki akses ke perusahaan ini.');
     }
 
-    // Ambil data alumni yang bekerja di perusahaan ini
+    // 🔹 Ambil alumni yang bekerja di perusahaan ini
     $alumni = $db->table('riwayat_pekerjaan')
         ->select('
             detailaccount_alumni.nama_lengkap, 
@@ -113,20 +127,26 @@ public function detailPerusahaan($id)
     ]);
 }
 
-// ===============================
-// ✏️ EDIT & UPDATE PERUSAHAAN
-// ===============================
 public function editPerusahaan($id)
 {
     if (session('role_id') != 8) {
         return redirect()->to('/login')->with('error', 'Akses ditolak.');
     }
 
-    $model = new \App\Models\DetailaccountPerusahaan();
-    $perusahaan = $model->find($id);
+    $db = \Config\Database::connect();
+    $idAtasan = session('id_account');
+
+    // 🔹 Pastikan hanya perusahaan milik atasan yang bisa di-edit
+    $perusahaan = $db->table('detailaccount_atasan da')
+        ->join('detailaccoount_perusahaan dp', 'dp.id = da.id_perusahaan', 'left')
+        ->where('da.id_account', $idAtasan)
+        ->where('dp.id', $id)
+        ->select('dp.*')
+        ->get()
+        ->getRowArray();
 
     if (!$perusahaan) {
-        return redirect()->back()->with('error', 'Perusahaan tidak ditemukan.');
+        return redirect()->to('/atasan/perusahaan')->with('error', 'Perusahaan tidak ditemukan atau bukan milik Anda.');
     }
 
     $provinsiModel = new \App\Models\Provincies();
@@ -164,89 +184,8 @@ public function updatePerusahaan($id)
     return redirect()->to('/atasan/perusahaan')->with('success', 'Data perusahaan berhasil diperbarui.');
 }
 
-// ===============================
-// ➕ TAMBAH PERUSAHAAN
-// ===============================
-public function tambahPerusahaan()
-{
-    if (session('role_id') != 8) {
-        return redirect()->to('/login')->with('error', 'Akses ditolak.');
-    }
-
-    $provinsiModel = new \App\Models\Provincies();
-    $data['provinces'] = $provinsiModel->orderBy('name', 'ASC')->findAll();
-    $data['cities'] = [];
-
-    return view('atasan/perusahaan/create', $data);
-}
-
-public function simpanPerusahaan()
-{
-    if (session('role_id') != 8) {
-        return redirect()->to('/login')->with('error', 'Akses ditolak.');
-    }
-
-    $model = new \App\Models\DetailaccountPerusahaan();
-
-    $data = [
-        'nama_perusahaan' => $this->request->getPost('nama_perusahaan'),
-        'alamat1'         => $this->request->getPost('alamat1'),
-        'alamat2'         => $this->request->getPost('alamat2'),
-        'id_provinsi'     => $this->request->getPost('id_provinsi'),
-        'id_kota'         => $this->request->getPost('id_kota'),
-        'kodepos'         => $this->request->getPost('kodepos'),
-        'noTlp'           => $this->request->getPost('noTlp'),
-    ];
-
-    $model->insert($data);
-
-    return redirect()->to('/atasan/perusahaan')->with('success', 'Perusahaan baru berhasil ditambahkan.');
-}
-
-// ===============================
-// 🗑️ HAPUS PERUSAHAAN
-// ===============================
-public function hapusPerusahaan($id)
-{
-    if (session('role_id') != 8) {
-        return redirect()->to('/login')->with('error', 'Akses ditolak.');
-    }
-
-    $db = \Config\Database::connect();
-    $model = new \App\Models\DetailaccountPerusahaan();
-
-    // 🔹 Cek apakah perusahaan ada
-    $perusahaan = $model->find($id);
-    if (!$perusahaan) {
-        return redirect()->to('/atasan/perusahaan')->with('error', 'Perusahaan tidak ditemukan.');
-    }
-
-    // 🔹 Cek apakah masih ada alumni aktif di perusahaan ini
-    $alumniAktif = $db->table('riwayat_pekerjaan')
-        ->where('id_perusahaan', $id)
-        ->where('is_current', 1)
-        ->countAllResults();
-
-    if ($alumniAktif > 0) {
-        return redirect()->to('/atasan/perusahaan')
-            ->with('error', 'Tidak bisa menghapus perusahaan karena masih ada alumni yang bekerja di sana.');
-    }
-
-    // 🔹 Jika aman, hapus perusahaan
-    if ($model->delete($id)) {
-        return redirect()->to('/atasan/perusahaan')->with('success', 'Perusahaan berhasil dihapus.');
-    }
-
-    return redirect()->to('/atasan/perusahaan')->with('error', 'Gagal menghapus perusahaan.');
-}
-
-
-// ===============================
-// 🌆 GET KOTA BERDASARKAN PROVINSI (AJAX)
-// ===============================
 public function getCitiesByProvince($province_id = null)
 {
-    // validasi dasar
     if (!$province_id || !is_numeric($province_id)) {
         return $this->response->setStatusCode(400)->setJSON(['error' => 'Provinsi tidak valid']);
     }
@@ -254,23 +193,18 @@ public function getCitiesByProvince($province_id = null)
     try {
         $cityModel = new \App\Models\Cities();
 
-        // 1) coba kolom umum 'province_id'
-        $cities = $cityModel->where('province_id', $province_id)->orderBy('name', 'ASC')->findAll();
+        // ✅ Ambil kota berdasarkan province_id
+        $cities = $cityModel
+            ->where('province_id', $province_id)
+            ->orderBy('name', 'ASC')
+            ->findAll();
 
-        // 2) kalau kosong, coba alternatif 'id_provinsi' (beberapa DB pakai nama ini)
-        if (empty($cities)) {
-            $cities = $cityModel->where('id_provinsi', $province_id)->orderBy('name', 'ASC')->findAll();
-        }
-
-        // 3) jika masih kosong, balikin pesan (bukan error http) tapi array kosong
         return $this->response->setJSON($cities);
     } catch (\Throwable $e) {
-        // log error supaya bisa dilihat di writable/logs
         log_message('error', 'getCitiesByProvince error: ' . $e->getMessage());
         return $this->response->setStatusCode(500)->setJSON(['error' => 'Terjadi kesalahan server saat memuat kota.']);
     }
 }
-
 
 
 }
