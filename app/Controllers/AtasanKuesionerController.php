@@ -11,7 +11,7 @@ use App\Models\Provincies;
 use App\Models\Cities;
 use App\Models\AccountModel;
 use App\Models\LogActivityModel;
-use App\Models\ResponseModel;
+use App\Models\ResponseAtasanModel;
 
 class AtasanKuesionerController extends BaseController
 {
@@ -24,7 +24,7 @@ class AtasanKuesionerController extends BaseController
     public function __construct()
     {
         $this->questionnaireModel = new KuesionerModel();
-        $this->answerModel = new AnswerModel();
+        $this->answerModel        = new ResponseAtasanModel();
         $this->detailAccountModel = new DetailaccountAtasan();
         $this->accountModel = new AccountModel();
         $this->logActivityModel = new LogActivityModel();
@@ -322,12 +322,11 @@ class AtasanKuesionerController extends BaseController
         ]);
     }
 
-    private function mapStatusForView($internalStatus, $questionnaireId, $userId)
+       private function mapStatusForView($internalStatus, $questionnaireId, $userId)
     {
-        if ($internalStatus === 'completed') {
-            return 'Finish';
-        }
-        $progress = $this->answerModel->calculateProgress($questionnaireId, $userId);
+        if ($internalStatus === 'completed') return 'Finish';
+
+        $progress = $this->answerModel->calculateProgress($questionnaireId, $userId, []);
         return $progress > 0 ? 'On Going' : 'Belum Mengisi';
     }
 

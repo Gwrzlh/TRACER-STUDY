@@ -1,15 +1,312 @@
+/* ===== Page Container ===== */
+.bg-white {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+/* ===== Header Section ===== */
+.text-2xl {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.text-2xl i {
+    color: #3b82f6;
+}
+
+/* ===== Export Button ===== */
+.bg-green-500 {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #22c55e; /* Hijau lebih cerah seperti di pengguna.css */
+    color: white;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem; /* Border radius lebih rounded */
+    font-weight: 600; /* Font weight lebih bold */
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.3s ease; /* Transisi lebih smooth */
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2); /* Shadow lebih prominent */
+    margin-bottom: 1.5rem;
+    border: none;
+    cursor: pointer;
+}
+
+.bg-green-500:hover,
+.bg-green-600 {
+    background-color: #16a34a; /* Hijau lebih gelap untuk hover */
+    transform: translateY(-2px); /* Transform lebih besar */
+    box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3); /* Shadow lebih besar saat hover */
+    color: white;
+    text-decoration: none;
+}
+
+/* ===== Table Container ===== */
+.overflow-x-auto {
+    overflow-x: auto;
+    margin-top: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+}
+
+/* ===== Table Styles ===== */
 table {
-  border-collapse: collapse;
-  width: 100%;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.875rem;
+    background-color: white;
 }
-th, td {
-  text-align: left;
-  padding: 8px;
+
+.min-w-full {
+    min-width: 100%;
 }
-th {
-  background-color: #f3f4f6;
-  font-weight: 600;
+
+/* ===== Table Header ===== */
+thead {
+    background-color: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
 }
-tr:nth-child(even) {
-  background-color: #fafafa;
+
+thead tr th {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    border-right: 1px solid #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+thead tr th:last-child {
+    border-right: none;
+}
+
+/* ===== Table Body ===== */
+tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+tbody tr:last-child {
+    border-bottom: none;
+}
+
+tbody td {
+    padding: 0.875rem 1rem;
+    color: #374151;
+    vertical-align: middle;
+    border-right: 1px solid #f3f4f6;
+    word-wrap: break-word;
+    max-width: 200px;
+}
+
+tbody td:last-child {
+    border-right: none;
+}
+
+/* ===== Specific Column Styling ===== */
+tbody td:nth-child(1) {
+    text-align: center;
+    font-weight: 600;
+    color: #1e40af;
+}
+
+tbody td:nth-child(4) {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+tbody td:nth-child(6),
+tbody td:nth-child(7),
+tbody td:nth-child(8),
+tbody td:nth-child(9) {
+    text-align: center;
+}
+
+/* ===== Empty State ===== */
+.text-center.py-4 {
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+
+.text-gray-500 {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+/* ===== Striped Rows (optional alternative) ===== */
+tbody tr:nth-child(even) {
+    background-color: transparent;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #fafafa;
+}
+
+/* ===== Scrollbar Styling ===== */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ===== Animation ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bg-white {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+    .text-2xl {
+        font-size: 1.25rem;
+    }
+
+    .bg-green-500 {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    table {
+        font-size: 0.8125rem;
+    }
+
+    thead tr th,
+    tbody td {
+        padding: 0.75rem 0.875rem;
+    }
+
+    /* Hide less important columns on mobile */
+    thead tr th:nth-child(2),
+    tbody td:nth-child(2),
+    thead tr th:nth-child(10),
+    tbody td:nth-child(10),
+    thead tr th:nth-child(15),
+    tbody td:nth-child(15),
+    thead tr th:nth-child(16),
+    tbody td:nth-child(16) {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    table {
+        font-size: 0.75rem;
+    }
+
+    thead tr th,
+    tbody td {
+        padding: 0.625rem 0.75rem;
+    }
+
+    /* Hide more columns on very small screens */
+    thead tr th:nth-child(6),
+    tbody td:nth-child(6),
+    thead tr th:nth-child(9),
+    tbody td:nth-child(9),
+    thead tr th:nth-child(13),
+    tbody td:nth-child(13),
+    thead tr th:nth-child(14),
+    tbody td:nth-child(14) {
+        display: none;
+    }
+}
+
+/* ===== Print Styles ===== */
+@media print {
+    .bg-green-500 {
+        display: none;
+    }
+
+    table {
+        font-size: 10pt;
+    }
+
+    thead {
+        background-color: #f3f4f6 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+/* ===== Focus States ===== */
+.bg-green-500:focus-visible {
+    outline: 2px solid #10b981;
+    outline-offset: 2px;
+}
+
+/* ===== Additional Utility ===== */
+.font-medium {
+    font-weight: 500;
+}
+
+.shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.rounded-xl {
+    border-radius: 0.75rem;
+}
+
+.p-6 {
+    padding: 1.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+/* ===== Border Styles ===== */
+.border {
+    border: 1px solid #e5e7eb;
+}
+
+.border-gray-200 {
+    border-color: #e5e7eb;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.rounded-md {
+    border-radius: 0.375rem;
 }

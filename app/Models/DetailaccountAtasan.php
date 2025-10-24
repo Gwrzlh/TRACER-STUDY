@@ -12,7 +12,7 @@ class DetailaccountAtasan extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['nama_lengkap','id_jabatan','notlp','id_account'];
+    protected $allowedFields    = ['nama_lengkap','id_jabatan','notlp','id_account','id_perusahaan'];
 
     protected bool $allowEmptyInserts = false;
 
