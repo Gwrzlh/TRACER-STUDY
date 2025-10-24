@@ -10,8 +10,15 @@
                 <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2" style="height: 60px;">
             </div>
             <div class="header-text">
-                <h1 class="dashboard-title">Dashboard Kaprodi</h1>
-                <p class="dashboard-subtitle">Halo <?= esc(session()->get('username')) ?> (Kaprodi)</p>
+                <!-- Ambil dari pengaturan dashboard -->
+                <h1 class="dashboard-title">
+                    <?= esc($dashboard['judul'] ?? 'Dashboard Kaprodi') ?>
+                </h1>
+                <p class="dashboard-subtitle">
+                    <?= !empty($dashboard['deskripsi']) 
+                        ? $dashboard['deskripsi'] 
+                        : 'Halo ' . esc(session()->get('username')) . ' (Kaprodi)' ?>
+                </p>
             </div>
         </div>
         <div class="header-decoration"></div>
@@ -30,7 +37,9 @@
                 </div>
             </div>
             <div class="card-content">
-                <h3 class="card-title">Jumlah Kuesioner Aktif</h3>
+                <h3 class="card-title">
+                    <?= esc($dashboard['judul_kuesioner'] ?? 'Jumlah Kuesioner Aktif') ?>
+                </h3>
                 <p class="card-value"><?= esc($kuesionerCount ?? 0) ?></p>
                 <div class="card-progress">
                     <div class="progress-bar kuesioner-progress"></div>
@@ -49,7 +58,10 @@
                 </div>
             </div>
             <div class="card-content">
-                <h3 class="card-title">Jumlah Alumni <?= esc($kaprodi['nama_prodi']) ?></h3>
+                <h3 class="card-title">
+                    <?= esc($dashboard['judul_data_alumni'] ?? 'Jumlah Alumni') ?>
+                    <?= esc($kaprodi->nama_prodi ?? '') ?>
+                </h3>
                 <p class="card-value"><?= esc($alumniCount ?? 0) ?></p>
                 <div class="card-progress">
                     <div class="progress-bar alumni-progress"></div>
@@ -68,7 +80,9 @@
                 </div>
             </div>
             <div class="card-content">
-                <h3 class="card-title">Akreditasi</h3>
+                <h3 class="card-title">
+                    <?= esc($dashboard['judul_profil'] ?? 'Akreditasi') ?>
+                </h3>
                 <p class="card-value"><?= esc($akreditasiAlumni ?? 0) ?></p>
                 <div class="card-progress">
                     <div class="progress-bar akreditasi-progress"></div>
@@ -87,7 +101,9 @@
                 </div>
             </div>
             <div class="card-content">
-                <h3 class="card-title">AMI</h3>
+                <h3 class="card-title">
+                    <?= esc($dashboard['judul_ami'] ?? 'AMI') ?>
+                </h3>
                 <p class="card-value"><?= esc($amiAlumni ?? 0) ?></p>
                 <div class="card-progress">
                     <div class="progress-bar ami-progress"></div>
@@ -95,8 +111,9 @@
             </div>
         </div>
     </div>
+</div>
 
-<!-- Add FontAwesome for icons -->
+<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <?= $this->endSection() ?>
