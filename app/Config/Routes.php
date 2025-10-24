@@ -441,6 +441,16 @@ $routes->post('pengaturan-atasan/save', 'PengaturanAtasan::save');
 $routes->get('pengaturan-jabatanlainnya', 'PengaturanJabatanLainnya::index');
 $routes->post('pengaturan-jabatanlainnya/save', 'PengaturanJabatanLainnya::save');
 
+//pengaturan dashboard
+
+$routes->get('pengaturan-dashboard/dashboard-alumni', 'PengaturanDashboard::dashboardAlumni');
+$routes->post('pengaturan-dashboard/dashboard-alumni/save', 'PengaturanDashboard::saveDashboardAlumni');
+// Pengaturan Dashboard Kaprodi
+$routes->get('pengaturan-dashboard/dashboard-kaprodi', 'PengaturanDashboardKaprodi::index');
+$routes->post('pengaturan-dashboard/dashboard-kaprodi/save', 'PengaturanDashboardKaprodi::save');
+
+
+
 
 // ajax conditional_logic 
 
