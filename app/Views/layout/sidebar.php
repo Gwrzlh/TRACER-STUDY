@@ -1,4 +1,4 @@
-<?php
+<?php 
 $currentRoute = service('request')->uri->getPath();
 ?>
 <!DOCTYPE html>
@@ -17,6 +17,7 @@ $currentRoute = service('request')->uri->getPath();
   <div class="flex">
     <!-- Sidebar -->
     <aside class="sidebar-container flex flex-col h-screen">
+
       <!-- Logo -->
       <div class="sidebar-logo shrink-0">
         <img src="/images/logo.png" alt="Logo POLBAN" class="logo-img" />
@@ -25,9 +26,10 @@ $currentRoute = service('request')->uri->getPath();
 
       <!-- Menu -->
       <nav class="flex-grow overflow-y-auto mt-4 space-y-2 px-4">
+
         <!-- Dashboard -->
         <a href="<?= base_url('admin/dashboard') ?>"
-          class="sidebar-link <?= str_contains($currentRoute, 'dashboard') ? 'active' : '' ?>">
+          class="sidebar-link <?= str_contains($currentRoute, 'admin/dashboard') ? 'active' : '' ?>">
           <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z" />
@@ -35,36 +37,14 @@ $currentRoute = service('request')->uri->getPath();
           <span>Dashboard</span>
         </a>
 
-        <!-- Pengguna -->
-        <a href="<?= base_url('admin/pengguna') ?>"
-          class="sidebar-link <?= str_contains($currentRoute, 'admin/pengguna') ? 'active' : '' ?>">
-          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-          </svg>
-          <span>Pengguna</span>
-        </a>
-
-        <!-- Kuesioner -->
-        <a href="<?= base_url('admin/questionnaire') ?>"
-          class="sidebar-link <?= str_contains($currentRoute, 'admin/questionnaire') ? 'active' : '' ?>">
-          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M9 8h6"></path>
-          </svg>
-          <span>Kuesioner</span>
-        </a>
-
-        <!-- Organisasi -->
+        <!-- ORGANISASI -->
         <details class="group" <?= str_contains($currentRoute, 'organisasi') ? 'open' : '' ?>>
           <summary class="sidebar-link <?= str_contains($currentRoute, 'organisasi') ? 'active' : '' ?>">
             <div class="flex items-center gap-2">
-              <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"></path>
-              </svg>
-              <span>Organisasi</span>
+              <i class="fa-solid fa-sitemap icon"></i>
+              <span>Organisasi Panel</span>
             </div>
-            <svg class="w-4 h-4 transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
+            <i class="fa-solid fa-chevron-down w-4 h-4 transition-transform duration-300 group-open:rotate-180"></i>
           </summary>
           <div class="ml-8 mt-1 space-y-1">
             <a href="<?= base_url('satuanorganisasi') ?>" class="submenu">Satuan Organisasi</a>
@@ -83,7 +63,7 @@ $currentRoute = service('request')->uri->getPath();
 
         <!-- Kontak -->
         <a href="<?= base_url('admin/kontak') ?>"
-          class="sidebar-link <?= str_contains($currentRoute, 'admin/kontak') ? 'active' : '' ?>">
+          class="sidebar-link <?= str_contains($currentRoute, 'kontak') ? 'active' : '' ?>">
           <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
           </svg>
@@ -109,79 +89,124 @@ $currentRoute = service('request')->uri->getPath();
           </svg>
           <span>Pengaturan Situs</span>
         </a>
+        <!-- KUESIONER -->
+        <details class="group" <?= (
+          str_contains($currentRoute, 'admin/pengguna') ||
+          str_contains($currentRoute, 'admin/questionnaire')
+        ) ? 'open' : '' ?>>
+          <summary class="sidebar-link <?= (
+            str_contains($currentRoute, 'admin/pengguna') ||
+            str_contains($currentRoute, 'admin/questionnaire')
+          ) ? 'active' : '' ?>">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-clipboard-list icon"></i>
+              <span>Kuesioner Panel</span>
+            </div>
+            <i class="fa-solid fa-chevron-down w-4 h-4 transition-transform duration-300 group-open:rotate-180"></i>
+          </summary>
 
-        <!-- Laporan -->
-        <a href="<?= base_url('admin/laporan') ?>"
-          class="sidebar-link <?= str_contains($currentRoute, 'admin/laporan') ? 'active' : '' ?>">
-          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6.586a2 2 0 0 0 1.414-.586l6.414-6.414A2 2 0 0 0 21 13.586V4a2 2 0 0 0-2-2H6zM8 6h8v2H8V6zm0 4h5v2H8v-2zm0 4h3v2H8v-2z" />
-            <path d="M18.414 12 13 17.414V20h2.586L21 14.586 18.414 12z" />
-          </svg>
-          <span>Laporan</span>
-        </a>
+          <div class="ml-8 mt-1 space-y-1">
+            <a href="<?= base_url('admin/pengguna') ?>"
+              class="submenu <?= str_contains($currentRoute, 'admin/pengguna') ? 'active' : '' ?>">
+              Pengguna
+            </a>
+            <a href="<?= base_url('admin/questionnaire') ?>"
+              class="submenu <?= str_contains($currentRoute, 'admin/questionnaire') ? 'active' : '' ?>">
+              Kuesioner
+            </a>
+          </div>
+        </details>
 
-        <!-- Email Template -->
-        <a href="<?= base_url('admin/emailtemplate') ?>" class="sidebar-link <?= str_contains($currentRoute, 'admin/emailtemplate') ? 'active' : '' ?>">
-          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M2 4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4zm2 0v16h16V4H4zm2 2h12v2H6V6zm0 4h12v2H6v-2zm0 4h8v2H6v-2z" />
-          </svg>
-          <span>Email</span>
-        </a>
+        <!-- WELCOME PANEL -->
+        <details class="group" <?= (
+          str_contains($currentRoute, 'admin/laporan') ||
+          str_contains($currentRoute, 'admin/welcome-page') ||
+          str_contains($currentRoute, 'admin/kontak') ||
+          str_contains($currentRoute, 'admin/tentang') ||
+          str_contains($currentRoute, 'admin/emailtemplate') ||
+          str_contains($currentRoute, 'admin/respon')
+        ) ? 'open' : '' ?>>
+          <summary class="sidebar-link <?= (
+            str_contains($currentRoute, 'admin/laporan') ||
+            str_contains($currentRoute, 'admin/welcome-page') ||
+            str_contains($currentRoute, 'admin/kontak') ||
+            str_contains($currentRoute, 'admin/tentang') ||
+            str_contains($currentRoute, 'admin/emailtemplate') ||
+            str_contains($currentRoute, 'admin/respon')
+          ) ? 'active' : '' ?>">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-window-restore icon"></i>
+              <span>Welcome Panel</span>
+            </div>
+            <i class="fa-solid fa-chevron-down w-4 h-4 transition-transform duration-300 group-open:rotate-180"></i>
+          </summary>
 
         <!-- Log Aktivitas -->
         <a href="<?= base_url('admin/log_activities') ?>"
-          class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities') ? 'active' : '' ?>">
+          class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities') && !str_contains($currentRoute, 'admin/log_activities/dashboard') ? 'active' : '' ?>">
           <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
           </svg>
           <span>Aktivitas Pengguna</span>
         </a>
+          <div class="ml-8 mt-1 space-y-1">
+            <a href="<?= base_url('admin/laporan') ?>" class="submenu <?= str_contains($currentRoute, 'admin/laporan') ? 'active' : '' ?>">Laporan</a>
+            <a href="<?= base_url('admin/welcome-page') ?>" class="submenu <?= str_contains($currentRoute, 'admin/welcome-page') ? 'active' : '' ?>">Welcome Page</a>
+            <a href="<?= base_url('admin/kontak') ?>" class="submenu <?= str_contains($currentRoute, 'admin/kontak') ? 'active' : '' ?>">Kontak</a>
+            <a href="<?= base_url('admin/tentang/edit') ?>" class="submenu <?= str_contains($currentRoute, 'admin/tentang') ? 'active' : '' ?>">Tentang</a>
+            <a href="<?= base_url('admin/emailtemplate') ?>" class="submenu <?= str_contains($currentRoute, 'admin/emailtemplate') ? 'active' : '' ?>">Email</a>
+          </div>
+        </details>
 
-        <!-- Log Dashboard -->
-        <a href="<?= base_url('admin/log_activities/dashboard') ?>"
-          class="sidebar-link <?= str_contains($currentRoute, 'admin/log_activities/dashboard') ? 'active' : '' ?>">
-          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
-          </svg>
-          <span>Log Dashboard</span>
-        </a>
+        <!-- LAINNYA -->
+        <details class="group" <?= (
+          str_contains($currentRoute, 'pengaturan-situs') ||
+          str_contains($currentRoute, 'admin/log_activities') ||
+          str_contains($currentRoute, 'admin/profil') ||
+          str_contains($currentRoute, 'admin/respon')
+        ) ? 'open' : '' ?>>
+          <summary class="sidebar-link <?= (
+            str_contains($currentRoute, 'pengaturan-situs') ||
+            str_contains($currentRoute, 'admin/log_activities') ||
+            str_contains($currentRoute, 'admin/profil') ||
+            str_contains($currentRoute, 'admin/respon')
+          ) ? 'active' : '' ?>">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-ellipsis-h icon"></i>
+              <span>Lainnya</span>
+            </div>
+            <i class="fa-solid fa-chevron-down w-4 h-4 transition-transform duration-300 group-open:rotate-180"></i>
+          </summary>
 
-      <!-- Respon Dropdown -->
-<div x-data="{ open: <?= str_contains($currentRoute, 'admin/respon') ? 'true' : 'false' ?> }" class="sidebar-dropdown">
-  <button @click="open = !open" class="sidebar-link flex justify-between w-full">
-    <div class="flex items-center">
-      <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13h2l3 9a1 1 0 001 .6h9a1 1 0 001-.8l2.4-8H6"></path>
-      </svg>
-      <span>Respon</span>
-    </div>
-    <svg :class="{ 'rotate-180': open }" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
+          <div class="ml-8 mt-1 space-y-1">
+            <a href="<?= base_url('pengaturan-situs') ?>" class="submenu <?= str_contains($currentRoute, 'pengaturan-situs') ? 'active' : '' ?>">Pengaturan Situs</a>
+            <a href="<?= base_url('admin/log_activities') ?>" class="submenu <?= str_contains($currentRoute, 'admin/log_activities') ? 'active' : '' ?>">Aktivitas Pengguna</a>
+            <a href="<?= base_url('admin/log_activities/dashboard') ?>" class="submenu <?= str_contains($currentRoute, 'admin/log_activities/dashboard') ? 'active' : '' ?>">Log Dashboard</a>
+            <a href="<?= base_url('admin/profil') ?>" class="submenu <?= str_contains($currentRoute, 'admin/profil') ? 'active' : '' ?>">Profil</a>
+            <a href="<?= base_url('pengaturan-dashboard/dashboard-alumni') ?>"
+              class="submenu <?= str_contains($currentRoute, 'pengaturan-dashboard') ? 'active' : '' ?>">Pengaturan Dashboard</a>
 
-  <div x-show="open" class="ml-6 mt-2 space-y-1" x-cloak>
-    <a href="<?= base_url('admin/respon') ?>"
-       class="sidebar-sublink <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">
-      Respon Alumni
-    </a>
+            <!-- Respon Dropdown -->
+            <details class="group" <?= str_contains($currentRoute, 'admin/respon') ? 'open' : '' ?>>
+              <summary class="submenu flex items-center justify-between <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">
+                <span>Respon</span>
+                <i class="fa-solid fa-chevron-down w-4 h-4 transition-transform duration-300 group-open:rotate-180"></i>
+              </summary>
 
-    <a href="<?= base_url('admin/respon/atasan') ?>"
-       class="sidebar-sublink <?= str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">
-      Respon Atasan
-    </a>
-  </div>
-</div>
+              <div class="ml-6 mt-1 space-y-1">
+                <a href="<?= base_url('admin/respon') ?>"
+                  class="submenu <?= str_contains($currentRoute, 'admin/respon') && !str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">
+                  Respon Alumni
+                </a>
+                <a href="<?= base_url('admin/respon/atasan') ?>"
+                  class="submenu <?= str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">
+                  Respon Atasan
+                </a>
+              </div>
+            </details>
+          </div>
+        </details>
 
-        <!-- Profil -->
-        <a href="<?= base_url('admin/profil') ?>"
-          class="sidebar-link <?= str_contains($currentRoute, 'admin/profil') ? 'active' : '' ?>">
-          <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M5.121 17.804A9 9 0 1112 21a9 9 0 01-6.879-3.196zM12 12a3 3 0 100-6 3 3 0 000 6z" />
-          </svg>
-          <span>Profil</span>
-        </a>
       </nav>
 
       <?php
@@ -209,14 +234,14 @@ $currentRoute = service('request')->uri->getPath();
         <form action="/logout" method="get">
           <button type="submit"
             style="background-color: <?= get_setting('logout_button_color', '#dc3545') ?>;
-             color: <?= get_setting('logout_button_text_color', '#ffffff') ?>;
-             padding: 10px 20px;
-             font-weight: 600;
-             border-radius: 8px;
-             width: 100%; text-align:center;"
+                   color: <?= get_setting('logout_button_text_color', '#ffffff') ?>;
+                   padding: 10px 20px;
+                   font-weight: 600;
+                   border-radius: 8px;
+                   width: 100%; text-align:center;"
             onmouseover="this.style.backgroundColor='<?= get_setting('logout_button_hover_color', '#a71d2a') ?>';"
             onmouseout="this.style.backgroundColor='<?= get_setting('logout_button_color', '#dc3545') ?>';">
-            <?= esc(get_setting('logout_button_text', 'Logout')) ?>
+            Logout
           </button>
         </form>
       </div>
@@ -251,7 +276,6 @@ $currentRoute = service('request')->uri->getPath();
           }
         });
       </script>
-
     </aside>
 
     <!-- Main Content -->

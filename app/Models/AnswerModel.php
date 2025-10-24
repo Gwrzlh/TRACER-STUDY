@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use CodeIgniter\Model;
@@ -42,9 +41,7 @@ class AnswerModel extends Model
 
     public function getProgress($questionnaire_id, $user_id)
     {
-        $answered = $this->where(['questionnaire_id' => $questionnaire_id, 'user_id' => $user_id])->countAllResults();
-        $totalQuestions = (new QuestionModel())->where('questionnaires_id', $questionnaire_id)->countAllResults();
-        return $totalQuestions > 0 ? ($answered / $totalQuestions) * 100 : 0;
+        return $this->calculateProgress($questionnaire_id, $user_id);
     }
 
     public function getUserAnswers($questionnaire_id, $user_id, bool $forAdmin = false): array
@@ -87,7 +84,7 @@ class AnswerModel extends Model
             'created_at'       => $now,
         ];
 
-        log_message('debug', '[saveAnswer] Saving answer for question_id: ' . $question_id . ', user: ' . $user_id);
+        log_message('debug', '[saveAnswer] Saving answer for question_id: ' . $question_id . ', user: ' . $user_id . ', answer: ' . json_encode($answer));
 
         $existing = $this->where([
             'user_id'          => $user_id,
@@ -208,26 +205,20 @@ class AnswerModel extends Model
             return false;
         }
 
-        $answers = $this->where([
-            'user_id'          => $user_id,
-            'questionnaire_id' => $questionnaire_id
-        ])->findAll();
-        $previousAnswers = [];
-        foreach ($answers as $ans) {
-            $previousAnswers[$ans['question_id']] = $ans['answer_text'];
-        }
-
+        $answers = $this->getAnswers($questionnaire_id, $user_id);
         $totalRelevantQuestions = 0;
         $answeredRelevantQuestions = 0;
 
         foreach ($structure['pages'] as $page) {
-            $isPageRelevant = $this->evaluatePageConditions($page, $previousAnswers);
+            $isPageRelevant = $this->evaluatePageConditions($page, $answers);
 
             if ($isPageRelevant) {
-                foreach ($page['questions'] as $question) {
-                    $totalRelevantQuestions++;
-                    if (isset($previousAnswers[$question['id']]) && !empty($previousAnswers[$question['id']])) {
-                        $answeredRelevantQuestions++;
+                foreach ($page['sections'] as $section) {
+                    foreach ($section['questions'] as $question) {
+                        $totalRelevantQuestions++;
+                        if (isset($answers[$question['id']]) && !empty($answers[$question['id']])) {
+                            $answeredRelevantQuestions++;
+                        }
                     }
                 }
             }
@@ -238,22 +229,183 @@ class AnswerModel extends Model
         return $isComplete;
     }
 
-    private function evaluatePageConditions($page, $previousAnswers)
+    // === METHOD BARU UNTUK MENDUKUNG CONDITIONAL LOGIC ===
+    public function evaluatePageConditions($page, $previousAnswers)
     {
-        if (empty($page['conditions'])) {
+        $conditionsJson = $page['conditional_logic'] ?? '[]';
+        log_message('debug', "[AnswerModel] Evaluating conditions for page_id: {$page['id']}, raw conditions: " . $conditionsJson);
+
+        if (empty($conditionsJson) || $conditionsJson === '[]') {
+            log_message('debug', "[AnswerModel] No conditions for page_id: {$page['id']}, returning true");
             return true;
         }
 
-        $conditions = $page['conditions'];
-        preg_match_all('/question_(\d+) == "([^"]+)"/', $conditions, $matches);
-        for ($i = 0; $i < count($matches[0]); $i++) {
-            $qId = $matches[1][$i];
-            $expected = $matches[2][$i];
-            if (isset($previousAnswers[$qId]) && $previousAnswers[$qId] == $expected) {
+        try {
+            $conditions = json_decode($conditionsJson, true);
+            if (!$conditions || !is_array($conditions)) {
+                log_message('error', "[AnswerModel] Invalid conditions JSON for page_id: {$page['id']}, JSON: " . $conditionsJson);
+                return true; // Default to showing page if JSON is invalid
+            }
+
+            $logic_type = $conditions['logic_type'] ?? 'any';
+            $conds = isset($conditions['conditions']) ? $conditions['conditions'] : $conditions;
+
+            if (!is_array($conds) || empty($conds)) {
+                log_message('debug', "[AnswerModel] No valid conditions for page_id: {$page['id']}, returning true");
                 return true;
             }
+
+            $pass = $logic_type === 'all' ? true : false;
+            foreach ($conds as $condition) {
+                $field = $condition['field'] ?? '';
+                $operator = $condition['operator'] ?? '';
+                $value = $condition['value'] ?? '';
+
+                if (!$field || !$operator) {
+                    log_message('warning', "[AnswerModel] Skipping invalid condition for page_id: {$page['id']}, field: {$field}, operator: {$operator}");
+                    continue;
+                }
+
+                $answer = $previousAnswers[$field] ?? null;
+                $answer_values = is_array(json_decode($answer, true)) ? json_decode($answer, true) : [$answer];
+
+                if ($answer === null || empty($answer_values)) {
+                    log_message('warning', "[AnswerModel] No answer found for field {$field} in page_id: {$page['id']}");
+                    if ($logic_type === 'all') {
+                        $pass = false;
+                        break;
+                    }
+                    continue;
+                }
+
+                $match = false;
+                $expected = strtolower($value);
+                $answer_values_lower = array_map('strtolower', array_filter($answer_values));
+
+                switch ($operator) {
+                    case 'is':
+                        $match = in_array($expected, $answer_values_lower);
+                        break;
+                    case 'is_not':
+                        $match = !in_array($expected, $answer_values_lower);
+                        break;
+                    case 'contains':
+                        $match = array_filter($answer_values_lower, fn($v) => strpos($v, $expected) !== false) ? true : false;
+                        break;
+                    case 'not_contains':
+                        $match = array_filter($answer_values_lower, fn($v) => strpos($v, $expected) === false) ? true : false;
+                        break;
+                    case 'greater':
+                        $match = array_filter($answer_values, fn($v) => is_numeric($v) && floatval($v) > floatval($value)) ? true : false;
+                        break;
+                    case 'less':
+                        $match = array_filter($answer_values, fn($v) => is_numeric($v) && floatval($v) < floatval($value)) ? true : false;
+                        break;
+                    default:
+                        log_message('warning', "[AnswerModel] Unknown operator {$operator} for field {$field} in page_id: {$page['id']}");
+                }
+
+                log_message('debug', "[AnswerModel] Condition result for field {$field}: operator={$operator}, expected={$value}, answer=" . json_encode($answer_values) . ", match={$match}");
+
+                if ($logic_type === 'all') {
+                    if (!$match) {
+                        $pass = false;
+                        break;
+                    }
+                } else {
+                    if ($match) {
+                        $pass = true;
+                        break;
+                    }
+                }
+            }
+
+            log_message('debug', "[AnswerModel] Page_id {$page['id']} evaluation result: " . ($pass ? 'true' : 'false') . ", logic_type: {$logic_type}");
+            return $pass;
+        } catch (\Exception $e) {
+            log_message('error', "[AnswerModel] Failed to parse conditions JSON for page_id: {$page['id']}, error: " . $e->getMessage());
+            return true; // Default to showing page on error
         }
-        return false;
+    }
+
+    public function getNextPage($current_page_id, $questionnaire_id, $user_id)
+    {
+        $questionnaireModel = new \App\Models\QuestionnairModel();
+        $structure = $questionnaireModel->getQuestionnaireStructure($questionnaire_id, $user_id);
+
+        if (empty($structure['pages'])) {
+            log_message('error', "[AnswerModel] No pages found for questionnaire_id: {$questionnaire_id}");
+            return null;
+        }
+
+        $current_page_found = false;
+        $user_answers = $this->getAnswers($questionnaire_id, $user_id);
+
+        foreach ($structure['pages'] as $page) {
+            if ($current_page_found && $this->evaluatePageConditions($page, $user_answers)) {
+                log_message('debug', "[AnswerModel] Found next valid page: {$page['id']}");
+                return $page['id'];
+            }
+            if ($page['id'] == $current_page_id) {
+                $current_page_found = true;
+            }
+        }
+
+        log_message('debug', "[AnswerModel] No valid next page found after page_id: {$current_page_id}");
+        return null;
+    }
+
+    // === METHOD BARU UNTUK ATASAN KUESIONER ===
+    public function getAnswers($questionnaireId, $userId)
+    {
+        return $this->getUserAnswers($questionnaireId, $userId, true);
+    }
+
+    public function saveAnswers($questionnaireId, $userId, $answers)
+    {
+        foreach ($answers as $questionId => $value) {
+            $this->saveAnswer($userId, $questionnaireId, $questionId, $value);
+        }
+    }
+
+    public function isCompleted($questionnaireId, $userId)
+    {
+        return $this->validateLogicalCompletion($questionnaireId, $userId);
+    }
+
+    public function calculateProgress($questionnaireId, $userId, $structure = null)
+    {
+        if (!$structure) {
+            $questionnaireModel = new \App\Models\QuestionnairModel();
+            $structure = $questionnaireModel->getQuestionnaireStructure($questionnaireId, $userId);
+        }
+
+        if (empty($structure) || empty($structure['pages'])) {
+            log_message('error', '[calculateProgress] No structure or pages found for questionnaire ' . $questionnaireId);
+            return 0;
+        }
+
+        $totalRelevant = 0;
+        $answeredRelevant = 0;
+        $userAnswers = $this->getAnswers($questionnaireId, $userId);
+
+        foreach ($structure['pages'] as $page) {
+            $pageVisible = $this->evaluatePageConditions($page, $userAnswers);
+            if (!$pageVisible) continue;
+
+            foreach ($page['sections'] as $section) {
+                foreach ($section['questions'] as $question) {
+                    $totalRelevant++;
+                    if (isset($userAnswers[$question['id']]) && !empty($userAnswers[$question['id']])) {
+                        $answeredRelevant++;
+                    }
+                }
+            }
+        }
+
+        $progress = $totalRelevant > 0 ? round(($answeredRelevant / $totalRelevant) * 100) : 0;
+        log_message('debug', '[calculateProgress] Q_ID: ' . $questionnaireId . ', User: ' . $userId . ', Progress: ' . $progress . '% (Answered/Relevant: ' . $answeredRelevant . '/' . $totalRelevant . ')');
+        return $progress;
     }
 
     public function batchUpdateStatus($questionnaire_id, $user_id, $status)
@@ -350,101 +502,6 @@ class AnswerModel extends Model
 
         return $db->transStatus();
     }
-
-    // === METHOD BARU UNTUK ATASAN KUESIONER (TANPA MENGGANGGU ALUR LAMA) ===
-
-    /**
-     * Mendapatkan jawaban dalam format sederhana untuk fill.php (seperti getUserAnswers tapi tanpa prefix 'q_')
-     * @param int $questionnaireId
-     * @param int $userId
-     * @return array [question_id => answer_text]
-     */
-    public function getAnswers($questionnaireId, $userId)
-    {
-        return $this->getUserAnswers($questionnaireId, $userId, true); // forAdmin = true → tanpa 'q_'
-    }
-
-    /**
-     * Menyimpan semua jawaban sekaligus (untuk save() di controller)
-     * @param int $questionnaireId
-     * @param int $userId
-     * @param array $answers [question_id => value]
-     */
-    public function saveAnswers($questionnaireId, $userId, $answers)
-    {
-        foreach ($answers as $questionId => $value) {
-            $this->saveAnswer($userId, $questionnaireId, $questionId, $value);
-        }
-    }
-
-    /**
-     * Mengecek apakah kuesioner sudah selesai (gunakan validateLogicalCompletion)
-     * @param int $questionnaireId
-     * @param int $userId
-     * @return bool
-     */
-    public function isCompleted($questionnaireId, $userId)
-    {
-        return $this->validateLogicalCompletion($questionnaireId, $userId);
-    }
-
-    /**
-     * Hitung progress dengan struktur dinamis (gunakan getQuestionnaireStructure)
-     * @param int $questionnaireId
-     * @param int $userId
-     * @param array|null $structure (opsional, jika sudah ada)
-     * @return int
-     */
-    public function calculateProgress($questionnaireId, $userId, $structure = null)
-    {
-        if (!$structure) {
-            $questionnaireModel = new \App\Models\QuestionnairModel();
-            $structure = $questionnaireModel->getQuestionnaireStructure($questionnaireId, $userId);
-        }
-
-        if (empty($structure) || empty($structure['pages'])) {
-            log_message('error', '[calculateProgress] No structure or pages found for questionnaire ' . $questionnaireId);
-            return 0;
-        }
-
-        $totalRelevant = 0;
-        $answeredRelevant = 0;
-        $userAnswers = $this->getAnswers($questionnaireId, $userId);
-
-        foreach ($structure['pages'] as $page) {
-            $pageVisible = $this->evaluatePageConditions($page, $userAnswers);
-            if (!$pageVisible) continue;
-
-            // Periksa apakah ada 'sections' di dalam page
-            $sections = $page['sections'] ?? [];
-            if (empty($sections)) {
-                log_message('debug', '[calculateProgress] No sections found in page ' . ($page['id'] ?? 'unknown'));
-                continue;
-            }
-
-            foreach ($sections as $section) {
-                // Periksa apakah ada 'questions' di dalam section
-                $questions = $section['questions'] ?? [];
-                if (empty($questions)) {
-                    log_message('debug', '[calculateProgress] No questions found in section ' . ($section['id'] ?? 'unknown'));
-                    continue;
-                }
-
-                foreach ($questions as $question) {
-                    $totalRelevant++;
-                    if (isset($userAnswers[$question['id']]) && !empty($userAnswers[$question['id']])) {
-                        $answeredRelevant++;
-                    }
-                }
-            }
-        }
-
-        $progress = $totalRelevant > 0 ? round(($answeredRelevant / $totalRelevant) * 100) : 0;
-        log_message('debug', '[calculateProgress] Q_ID: ' . $questionnaireId . ', User: ' . $userId . ', Progress: ' . $progress . '% (Answered/Relevant: ' . $answeredRelevant . '/' . $totalRelevant . ')');
-        return $progress;
-    }
-
-    // === END OF NEW METHODS ===
 
     // Dates
     protected $useTimestamps = false;

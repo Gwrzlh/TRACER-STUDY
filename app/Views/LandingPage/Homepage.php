@@ -39,7 +39,6 @@ $settings = [
         color: #111827;
       }
 
-      /* Hero */
       .hero-carousel .carousel-item {
         height: 100vh;
         min-height: 500px;
@@ -91,7 +90,6 @@ $settings = [
         line-height: 1.8;
       }
 
-      /* Carousel */
       .carousel-control-prev-icon,
       .carousel-control-next-icon {
         background-color: rgba(0,0,0,0.6);
@@ -112,44 +110,73 @@ $settings = [
         opacity: 1;
       }
 
-      /* Modern Video Card */
+      /* 🎬 Modern Video Showcase */
       .video-section {
         margin-top: 60px;
-        background: #f3f4f6;
-        border-radius: 20px;
-        padding: 40px 20px;
+        background: linear-gradient(135deg, #f9fafb 0%, #e0f2fe 100%);
+        border-radius: 25px;
+        padding: 60px 20px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.08);
       }
 
+      .video-title {
+        font-weight: 800;
+        font-size: 1.6rem;
+        color: #1e3a8a;
+        margin-bottom: 35px;
+        position: relative;
+        display: inline-block;
+      }
+
+      .video-title::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 3px;
+        background: linear-gradient(90deg, #2563eb, #06b6d4);
+        border-radius: 2px;
+      }
+
+      .video-grid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+      }
+
       .video-card {
-        background: #fff;
-        border-radius: 16px;
+        position: relative;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.3);
         overflow: hidden;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        transition: all 0.4s ease;
+        max-width: 900px;
+        width: 100%;
       }
 
       .video-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        transform: translateY(-5px) scale(1.01);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        border-color: rgba(37,99,235,0.5);
       }
 
       .video-card iframe,
       .video-card video {
+        width: 100%;
         border: none;
-        border-radius: 16px;
-      }
-
-      .video-title {
-        font-weight: 700;
-        font-size: 1.4rem;
-        color: #1e3a8a;
-        margin-bottom: 25px;
+        border-radius: 20px;
       }
 
       @media (max-width: 768px) {
         .hero-overlay h1 { font-size: 1.5rem; }
         .hero-overlay p { font-size: 0.9rem; }
+        .video-title { font-size: 1.3rem; }
       }
     </style>
 </head>
@@ -165,10 +192,10 @@ $settings = [
            style="background-image: url('<?= base_url($data['image_path']) ?>'); background-size: cover; background-position: center;">
         <div class="hero-overlay">
           <div>
-            <h1 class="animate_animated animate_fadeInDown"><?= esc($data['title_1']) ?></h1>
-            <p class="animate_animated animatefadeInLeft animate_delay-1s"><?= $data['desc_1'] ?></p>
+            <h1 class="animate__animated animate__fadeInDown"><?= esc($data['title_1']) ?></h1>
+            <p class="animate__animated animate__fadeInLeft animate__delay-1s"><?= $data['desc_1'] ?></p>
             <a href="<?= base_url('/login') ?>"
-               class="animate_animated animatebounceIn animate_delay-2s"
+               class="animate__animated animate__bounceIn animate__delay-2s"
                style="background-color: <?= esc($settings['survey_button_color']) ?>;
                       color: <?= esc($settings['survey_button_text_color']) ?>;
                       padding: 10px 26px;
@@ -191,8 +218,8 @@ $settings = [
            style="background-image: url('<?= base_url($data['image_path_2']) ?>'); background-size: cover; background-position: center;">
         <div class="hero-overlay">
           <div>
-            <h1 class="animate_animated animate_fadeInDown"><?= esc($data['title_2']) ?></h1>
-            <p class="animate_animated animatefadeInRight animate_delay-1s"><?= $data['desc_2'] ?></p>
+            <h1 class="animate__animated animate__fadeInDown"><?= esc($data['title_2']) ?></h1>
+            <p class="animate__animated animate__fadeInRight animate__delay-1s"><?= $data['desc_2'] ?></p>
           </div>
         </div>
       </div>
@@ -215,38 +242,39 @@ $settings = [
 <!-- Section 2 -->
 <section class="bg-white">
   <div class="container text-center">
-    <h2 class="section-title animate_animated animate_lightSpeedInLeft"><?= esc($data['title_3']) ?></h2>
-    <p class="section-desc animate_animated animatefadeInUp animate_delay-1s"><?= $data['desc_3'] ?></p>
+    <h2 class="section-title animate__animated animate__lightSpeedInLeft"><?= esc($data['title_3']) ?></h2>
+    <p class="section-desc animate__animated animate__fadeInUp animate__delay-1s"><?= $data['desc_3'] ?></p>
 
-    <!-- ✅ Modern Video Section -->
+    <!-- ✅ Modern Enhanced Video Section -->
     <?php if (!empty($data['youtube_url']) || !empty($data['video_path'])): ?>
-      <div class="video-section animate_animated animatezoomInUp animate_delay-2s">
-        <h3 class="video-title">🎬 Tonton Video Kami</h3>
+      <div class="video-section animate__animated animate__fadeInUp animate__delay-2s">
+        <h3 class="video-title">🎥 Saksikan Video Kami</h3>
+        <div class="video-grid">
 
-        <!-- YouTube Video -->
-        <?php if (!empty($data['youtube_url'])): ?>
-          <div class="video-card mx-auto mb-4" style="max-width: 850px;">
-            <div class="ratio ratio-16x9">
-              <iframe 
-                  src="<?= esc($data['youtube_url']) ?>" 
-                  title="YouTube video"
-                  allowfullscreen>
-              </iframe>
+          <?php if (!empty($data['youtube_url'])): ?>
+            <div class="video-card">
+              <div class="ratio ratio-16x9">
+                <iframe 
+                    src="<?= esc($data['youtube_url']) ?>" 
+                    title="YouTube video"
+                    allowfullscreen>
+                </iframe>
+              </div>
             </div>
-          </div>
-        <?php endif; ?>
+          <?php endif; ?>
 
-        <!-- Uploaded Video -->
-        <?php if (!empty($data['video_path'])): ?>
-          <div class="video-card mx-auto" style="max-width: 850px;">
-            <div class="ratio ratio-16x9">
-              <video controls>
-                <source src="<?= base_url($data['video_path']) ?>" type="video/mp4">
-                Browser kamu tidak mendukung pemutaran video.
-              </video>
+          <?php if (!empty($data['video_path'])): ?>
+            <div class="video-card">
+              <div class="ratio ratio-16x9">
+                <video controls>
+                  <source src="<?= base_url($data['video_path']) ?>" type="video/mp4">
+                  Browser kamu tidak mendukung pemutaran video.
+                </video>
+              </div>
             </div>
-          </div>
-        <?php endif; ?>
+          <?php endif; ?>
+
+        </div>
       </div>
     <?php endif; ?>
   </div>
@@ -254,7 +282,6 @@ $settings = [
 
 <?= view('layout/footer') ?>
 
-<!-- Bootstrap Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

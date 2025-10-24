@@ -35,7 +35,9 @@ $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
     $routes->post('tambahPengguna/post', 'PenggunaController::store');
     $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
     $routes->post('update/(:num)', 'PenggunaController::update/$1');
-    $routes->post('delete/(:num)', 'PenggunaController::delete/$1');
+    $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
+   $routes->match(['post', 'delete'], 'delete/(:num)', 'PenggunaController::delete/$1');
+
     $routes->match(['post', 'delete'], 'deleteMultiple', 'PenggunaController::deleteMultiple');
     $routes->post('exportSelected', 'PenggunaController::exportSelected');
     
@@ -442,6 +444,16 @@ $routes->post('pengaturan-atasan/save', 'PengaturanAtasan::save');
 $routes->get('pengaturan-jabatanlainnya', 'PengaturanJabatanLainnya::index');
 $routes->post('pengaturan-jabatanlainnya/save', 'PengaturanJabatanLainnya::save');
 
+//pengaturan dashboard
+
+$routes->get('pengaturan-dashboard/dashboard-alumni', 'PengaturanDashboard::dashboardAlumni');
+$routes->post('pengaturan-dashboard/dashboard-alumni/save', 'PengaturanDashboard::saveDashboardAlumni');
+// Pengaturan Dashboard Kaprodi
+$routes->get('pengaturan-dashboard/dashboard-kaprodi', 'PengaturanDashboardKaprodi::index');
+$routes->post('pengaturan-dashboard/dashboard-kaprodi/save', 'PengaturanDashboardKaprodi::save');
+
+
+
 
 // ajax conditional_logic 
 
@@ -655,10 +667,6 @@ $routes->get('atasan/kuesioner', 'AtasanKuesionerController::index');
 $routes->get('/atasan/perusahaan', 'AtasanController::perusahaan');
 $routes->get('/atasan/perusahaan/detail/(:num)', 'AtasanController::detailPerusahaan/$1');
 $routes->get('/atasan/perusahaan/edit/(:num)', 'AtasanController::editPerusahaan/$1');
-$routes->post('/atasan/perusahaan/update/(:num)', 'AtasanController::updatePerusahaan/$1');
-$routes->get('/atasan/perusahaan/delete/(:num)', 'AtasanController::hapusPerusahaan/$1');
-$routes->get('/atasan/perusahaan/tambah', 'AtasanController::tambahPerusahaan');
-$routes->post('/atasan/perusahaan/simpan', 'AtasanController::simpanPerusahaan');
 $routes->get('atasan/perusahaan/getCitiesByProvince/(:num)', 'AtasanController::getCitiesByProvince/$1');
 
 

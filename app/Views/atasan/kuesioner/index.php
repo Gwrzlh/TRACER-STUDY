@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 
-<link rel="stylesheet" href="<?= base_url('css/alumni/kuesioner/index.css') ?>">
+<link rel="stylesheet" href="<?= base_url('css/atasan/kuesioner/index.css') ?>">
 
 <h3 class="page-title">Daftar Kuesioner Atasan</h3>
 

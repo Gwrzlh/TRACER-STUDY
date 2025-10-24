@@ -174,9 +174,10 @@
                                     </a>
                                     <form action="<?= base_url('admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display:inline;" onsubmit="return confirm('Hapus pengguna ini?')">
                                         <?= csrf_field() ?>
-                                        <button type="submit" class="btn btn-sm btn-delete">
-                                            <i class="fas fa-trash"></i> Hapus
-                                        </button>
+                                        <button type="button" class="btn btn-sm btn-delete btn-delete-single"
+                                            data-id="<?= esc($acc['id']) ?>">
+                                        <i class="fas fa-trash"></i> Hapus
+                                    </button>
                                     </form>
                                 </td>
 
