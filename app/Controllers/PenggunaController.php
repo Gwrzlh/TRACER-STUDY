@@ -23,7 +23,6 @@ use App\Models\DetailaccountJabatanLLnya;
 use App\Models\LogActivityModel;
 use App\Models\ResponseModel;
 use App\Models\AnswerModel;
-
 use Exception;
 
 class PenggunaController extends BaseController
@@ -157,6 +156,7 @@ class PenggunaController extends BaseController
         $cityModel = new Cities();
         $provincesModel = new Provincies();
         $jabatanModel = new JabatanModels();
+        $perusahaanModel = new DetailaccountPerusahaan();
         // Tambahkan ini
 
         $data = [
@@ -173,7 +173,7 @@ class PenggunaController extends BaseController
         $roles = $rolesModel->findAll();
 
         $accountModel = new Accounts();
-
+        $perusahaanList = $perusahaanModel->findAll();
         // Jika ada filter role
         if ($roleId) {
             $accountModel->where('id_role', $roleId);
@@ -221,7 +221,8 @@ class PenggunaController extends BaseController
             'datajurusan'   => $datajurusan,
             'dataProdi'   => $dataprodi,
             'provinces'  => $provinces,
-            'jabatan'   => $jabatan
+            'jabatan'   => $jabatan,
+            'perusahaanList' => $perusahaanList,
 
         ];
 
@@ -264,7 +265,15 @@ class PenggunaController extends BaseController
         // RULE VALIDASI DASAR
         $rules = [
             'username' => 'required|is_unique[account.username]',
-            'email'    => 'required|valid_email|is_unique[account.email]',
+
+            'email' => [
+                    'rules'  => 'required|valid_email|is_unique[account.email]',
+                    'errors' => [
+                        'required'   => 'Email wajib diisi.',
+                        'valid_email'=> 'Format email tidak valid.',
+                         'is_unique'  => 'Email sudah terdaftar.'
+        ]
+    ],
             'password' => 'required|min_length[6]',
             'group'    => 'required|in_list[1,2,6,7,8,9]',
             'status'   => 'required',
@@ -296,6 +305,7 @@ class PenggunaController extends BaseController
                 'atasan_nama_lengkap' => 'required|min_length[3]',
                 'atasan_jabatan'      => 'required|numeric',
                 'atasan_notlp'        => 'required|min_length[10]',
+                'perusahaan_atasan'      => 'required|numeric',
             ]);
         } elseif ($group == 9) {
             $rules = array_merge($rules, [
@@ -308,10 +318,17 @@ class PenggunaController extends BaseController
         }
 
         // VALIDASI
-        if (!$this->validate($rules)) {
-            session()->setFlashdata('error', 'Email telah terdaftarx. Gagal menambahkan akun.');
-            session()->setFlashdata('errors', $validation->getErrors());
-            return redirect()->to('/admin/pengguna'); // redirect ke index
+        if (! $this->validate($rules)) {
+            // Tangkap semua error dari validator
+            $errors = $validation->getErrors();
+
+            // Simpan ke session agar bisa ditampilkan di view
+            session()->setFlashdata('errors', $errors);
+
+            // Opsional: beri pesan umum, tapi jangan spesifik salah email
+            session()->setFlashdata('error', 'Gagal menambahkan akun. Periksa input anda.');
+
+            return redirect()->to('/admin/pengguna')->withInput();
         }
 
         try {
@@ -387,6 +404,7 @@ class PenggunaController extends BaseController
                         'id_jabatan'   => $this->request->getPost('atasan_jabatan'),
                         'notlp'        => $this->request->getPost('atasan_notlp'),
                         'id_account'   => $accountId,
+                        'id_perusahaan' => $this->request->getPost('perusahaan_atasan'),
                     ]);
                     break;
                 case 9: // Jabatan Lainnya
@@ -442,9 +460,12 @@ class PenggunaController extends BaseController
         $cityModel = new Cities();
         $provincesModel = new Provincies();
         $jabatanModels = new JabatanModels();
+        $perusahaanModel = new DetailaccountPerusahaan();
 
         $roles = $roleModels->findAll();
         $dataAccount = $accountModel->find($id);
+
+        $perusahaanList = $perusahaanModel->findAll();
 
 
         if (!$dataAccount) {
@@ -516,7 +537,8 @@ class PenggunaController extends BaseController
             'cities' => $cities,
             'kotaPerusahaan' => $kotaPerusahaan,
             'provinces' => $provincesModel->findAll(),
-            'jabatan' => $jabatanModels->findAll(), // Tambahkan data jabatan
+            'jabatan' => $jabatanModels->findAll(),
+            'perusahaanList' => $perusahaanList
         ]);
     }
 
@@ -587,6 +609,7 @@ class PenggunaController extends BaseController
                     'atasan_nama_lengkap' => 'required',
                     'atasan_jabatan'      => 'required',
                     'atasan_notlp'        => 'required|numeric',
+                    'perusahaan_atasan'   => 'required|numeric',
                 ]);
                 break;
             case '9': // Jabatan Lainnya
@@ -771,6 +794,7 @@ class PenggunaController extends BaseController
                     'nama_lengkap' => $this->request->getPost('atasan_nama_lengkap'),
                     'id_jabatan' => $this->request->getPost('atasan_jabatan'),
                     'notlp' => $this->request->getPost('atasan_notlp'),
+                    'id_perusahaan' => $this->request->getPost('perusahaan_atasan'),
 
                 ];
                 if (!$detailAtasan->insert($atasanData)) {
@@ -864,6 +888,7 @@ class PenggunaController extends BaseController
                     'nama_lengkap' => $this->request->getPost('atasan_nama_lengkap'),
                     'id_jabatan'   => $this->request->getPost('atasan_jabatan'),
                     'notlp'       => $this->request->getPost('atasan_notlp'),
+                    'id_perusahaan' => $this->request->getPost('perusahaan_atasan'),
                 ];
                 if (!$detailAtasan->where('id_account', $accountId)->set($atasanData)->update()) {
                     throw new Exception('Failed to update atasan detail');

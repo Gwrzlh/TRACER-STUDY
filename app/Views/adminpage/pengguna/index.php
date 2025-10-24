@@ -24,22 +24,27 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
-            <?php if (session()->getFlashdata('error')): ?>
-                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i> <?= session()->getFlashdata('error') ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <?php endif; ?>
-            <?php if (session()->getFlashdata('errorLogs')): ?>
-                <div class="alert alert-danger shadow-sm">
-                    <strong><i class="fas fa-times-circle me-2"></i> Data Gagal Import:</strong>
-                    <ul class="mb-0 mt-2">
-                        <?php foreach (session()->getFlashdata('errorLogs') as $log): ?>
-                            <li><i class="fas fa-times text-danger me-1"></i> <?= esc($log) ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
+            <?php if(session()->getFlashdata('errors')): ?>
+                    <div class="alert alert-danger">
+                        <ul>
+                            <?php foreach(session()->getFlashdata('errors') as $field => $error): ?>
+                                <li><?= esc($error) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+           <?php if (session()->getFlashdata('errorLogs')): ?>
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <strong><i class="fas fa-times-circle me-2"></i> Data Gagal Import:</strong>
+        <ul class="mb-0 mt-2">
+            <?php foreach (session()->getFlashdata('errorLogs') as $log): ?>
+                <li><i class="fas fa-times text-danger me-1"></i> <?= esc($log) ?></li>
+            <?php endforeach; ?>
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+
             <!-- 🔔 END ALERT -->
 
             <!-- ====== TOP CONTROLS ====== -->
