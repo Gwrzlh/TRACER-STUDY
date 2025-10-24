@@ -1,4 +1,4 @@
-<?php
+<?php 
 $currentRoute = service('request')->uri->getPath();
 ?>
 <!DOCTYPE html>
@@ -17,6 +17,7 @@ $currentRoute = service('request')->uri->getPath();
   <div class="flex">
     <!-- Sidebar -->
     <aside class="sidebar-container flex flex-col h-screen">
+
       <!-- Logo -->
       <div class="sidebar-logo shrink-0">
         <img src="/images/logo.png" alt="Logo POLBAN" class="logo-img" />
@@ -67,7 +68,7 @@ $currentRoute = service('request')->uri->getPath();
           <div class="ml-8 mt-1 space-y-1">
             <a href="<?= base_url('admin/pengguna') ?>"
               class="submenu <?= str_contains($currentRoute, 'admin/pengguna') ? 'active' : '' ?>">
-              Pengguna 
+              Pengguna
             </a>
             <a href="<?= base_url('admin/questionnaire') ?>"
               class="submenu <?= str_contains($currentRoute, 'admin/questionnaire') ? 'active' : '' ?>">
@@ -106,7 +107,6 @@ $currentRoute = service('request')->uri->getPath();
             <a href="<?= base_url('admin/kontak') ?>" class="submenu <?= str_contains($currentRoute, 'admin/kontak') ? 'active' : '' ?>">Kontak</a>
             <a href="<?= base_url('admin/tentang/edit') ?>" class="submenu <?= str_contains($currentRoute, 'admin/tentang') ? 'active' : '' ?>">Tentang</a>
             <a href="<?= base_url('admin/emailtemplate') ?>" class="submenu <?= str_contains($currentRoute, 'admin/emailtemplate') ? 'active' : '' ?>">Email</a>
-            <a href="<?= base_url('admin/respon') ?>" class="submenu <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">Respon</a>
           </div>
         </details>
 
@@ -114,12 +114,14 @@ $currentRoute = service('request')->uri->getPath();
         <details class="group" <?= (
           str_contains($currentRoute, 'pengaturan-situs') ||
           str_contains($currentRoute, 'admin/log_activities') ||
-          str_contains($currentRoute, 'admin/profil')
+          str_contains($currentRoute, 'admin/profil') ||
+          str_contains($currentRoute, 'admin/respon')
         ) ? 'open' : '' ?>>
           <summary class="sidebar-link <?= (
             str_contains($currentRoute, 'pengaturan-situs') ||
             str_contains($currentRoute, 'admin/log_activities') ||
-            str_contains($currentRoute, 'admin/profil')
+            str_contains($currentRoute, 'admin/profil') ||
+            str_contains($currentRoute, 'admin/respon')
           ) ? 'active' : '' ?>">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-ellipsis-h icon"></i>
@@ -133,6 +135,27 @@ $currentRoute = service('request')->uri->getPath();
             <a href="<?= base_url('admin/log_activities') ?>" class="submenu <?= str_contains($currentRoute, 'admin/log_activities') ? 'active' : '' ?>">Aktivitas Pengguna</a>
             <a href="<?= base_url('admin/log_activities/dashboard') ?>" class="submenu <?= str_contains($currentRoute, 'admin/log_activities/dashboard') ? 'active' : '' ?>">Log Dashboard</a>
             <a href="<?= base_url('admin/profil') ?>" class="submenu <?= str_contains($currentRoute, 'admin/profil') ? 'active' : '' ?>">Profil</a>
+            <a href="<?= base_url('pengaturan-dashboard/dashboard-alumni') ?>"
+              class="submenu <?= str_contains($currentRoute, 'pengaturan-dashboard') ? 'active' : '' ?>">Pengaturan Dashboard</a>
+
+            <!-- Respon Dropdown -->
+            <details class="group" <?= str_contains($currentRoute, 'admin/respon') ? 'open' : '' ?>>
+              <summary class="submenu flex items-center justify-between <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">
+                <span>Respon</span>
+                <i class="fa-solid fa-chevron-down w-4 h-4 transition-transform duration-300 group-open:rotate-180"></i>
+              </summary>
+
+              <div class="ml-6 mt-1 space-y-1">
+                <a href="<?= base_url('admin/respon') ?>"
+                  class="submenu <?= str_contains($currentRoute, 'admin/respon') && !str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">
+                  Respon Alumni
+                </a>
+                <a href="<?= base_url('admin/respon/atasan') ?>"
+                  class="submenu <?= str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">
+                  Respon Atasan
+                </a>
+              </div>
+            </details>
           </div>
         </details>
 
@@ -163,11 +186,11 @@ $currentRoute = service('request')->uri->getPath();
         <form action="/logout" method="get">
           <button type="submit"
             style="background-color: <?= get_setting('logout_button_color', '#dc3545') ?>;
-             color: <?= get_setting('logout_button_text_color', '#ffffff') ?>;
-             padding: 10px 20px;
-             font-weight: 600;
-             border-radius: 8px;
-             width: 100%; text-align:center;"
+                   color: <?= get_setting('logout_button_text_color', '#ffffff') ?>;
+                   padding: 10px 20px;
+                   font-weight: 600;
+                   border-radius: 8px;
+                   width: 100%; text-align:center;"
             onmouseover="this.style.backgroundColor='<?= get_setting('logout_button_hover_color', '#a71d2a') ?>';"
             onmouseout="this.style.backgroundColor='<?= get_setting('logout_button_color', '#dc3545') ?>';">
             <?= esc(get_setting('logout_button_text', 'Logout')) ?>
