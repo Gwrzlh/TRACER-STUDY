@@ -60,7 +60,6 @@ $settings = [
         padding: 20px;
       }
 
-      /* Teks lebih kecil */
       .hero-overlay h1 {
         font-size: 2rem;
         font-weight: 700;
@@ -73,7 +72,6 @@ $settings = [
         color: #e5e7eb;
       }
 
-      /* Section */
       section {
         padding: 80px 20px;
       }
@@ -93,7 +91,7 @@ $settings = [
         line-height: 1.8;
       }
 
-      /* Carousel Controls & Indicators */
+      /* Carousel */
       .carousel-control-prev-icon,
       .carousel-control-next-icon {
         background-color: rgba(0,0,0,0.6);
@@ -114,14 +112,44 @@ $settings = [
         opacity: 1;
       }
 
-      /* Responsive */
+      /* Modern Video Card */
+      .video-section {
+        margin-top: 60px;
+        background: #f3f4f6;
+        border-radius: 20px;
+        padding: 40px 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      }
+
+      .video-card {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .video-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+      }
+
+      .video-card iframe,
+      .video-card video {
+        border: none;
+        border-radius: 16px;
+      }
+
+      .video-title {
+        font-weight: 700;
+        font-size: 1.4rem;
+        color: #1e3a8a;
+        margin-bottom: 25px;
+      }
+
       @media (max-width: 768px) {
-        .hero-overlay h1 {
-          font-size: 1.5rem;
-        }
-        .hero-overlay p {
-          font-size: 0.9rem;
-        }
+        .hero-overlay h1 { font-size: 1.5rem; }
+        .hero-overlay p { font-size: 0.9rem; }
       }
     </style>
 </head>
@@ -132,16 +160,15 @@ $settings = [
 <!-- Hero Carousel -->
 <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
   <div class="carousel-inner">
-    <!-- Slide 1 -->
     <div class="carousel-item active">
-      <div class="w-100 h-100 animate_animated animatefadeIn animate_slow" 
+      <div class="w-100 h-100" 
            style="background-image: url('<?= base_url($data['image_path']) ?>'); background-size: cover; background-position: center;">
         <div class="hero-overlay">
           <div>
-            <h1 class="animate_animated animatefadeInDown animate_slow"><?= esc($data['title_1']) ?></h1>
-            <p class="animate_animated animatefadeInLeft animatedelay-1s animate_slow"><?= $data['desc_1'] ?></p>
+            <h1 class="animate_animated animate_fadeInDown"><?= esc($data['title_1']) ?></h1>
+            <p class="animate_animated animatefadeInLeft animate_delay-1s"><?= $data['desc_1'] ?></p>
             <a href="<?= base_url('/login') ?>"
-               class="animate_animated animatebounceIn animatedelay-2s animate_slow"
+               class="animate_animated animatebounceIn animate_delay-2s"
                style="background-color: <?= esc($settings['survey_button_color']) ?>;
                       color: <?= esc($settings['survey_button_text_color']) ?>;
                       padding: 10px 26px;
@@ -159,27 +186,24 @@ $settings = [
       </div>
     </div>
 
-    <!-- Slide 2 -->
     <div class="carousel-item">
-      <div class="w-100 h-100 animate_animated animatefadeIn animate_slow" 
+      <div class="w-100 h-100" 
            style="background-image: url('<?= base_url($data['image_path_2']) ?>'); background-size: cover; background-position: center;">
         <div class="hero-overlay">
           <div>
-            <h1 class="animate_animated animatefadeInDown animate_slow"><?= esc($data['title_2']) ?></h1>
-            <p class="animate_animated animatefadeInRight animatedelay-1s animate_slow"><?= $data['desc_2'] ?></p>
+            <h1 class="animate_animated animate_fadeInDown"><?= esc($data['title_2']) ?></h1>
+            <p class="animate_animated animatefadeInRight animate_delay-1s"><?= $data['desc_2'] ?></p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Indicators -->
   <div class="carousel-indicators">
     <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
     <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
   </div>
 
-  <!-- Controls -->
   <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
     <span class="carousel-control-prev-icon"></span>
   </button>
@@ -191,28 +215,38 @@ $settings = [
 <!-- Section 2 -->
 <section class="bg-white">
   <div class="container text-center">
-    <h2 class="section-title animate_animated animatelightSpeedInLeft animate_slow"><?= esc($data['title_3']) ?></h2>
-    <p class="section-desc animate_animated animatefadeInUp animatedelay-1s animate_slow"><?= $data['desc_3'] ?></p>
+    <h2 class="section-title animate_animated animate_lightSpeedInLeft"><?= esc($data['title_3']) ?></h2>
+    <p class="section-desc animate_animated animatefadeInUp animate_delay-1s"><?= $data['desc_3'] ?></p>
 
-    <!-- ✅ YouTube Video -->
-    <?php if (!empty($data['youtube_url'])): ?>
-      <div class="ratio ratio-16x9 mx-auto mt-4 animate_animated animatezoomInUp animatedelay-2s animate_slow" style="max-width: 800px;">
-        <iframe 
-            src="<?= esc($data['youtube_url']) ?>" 
-            title="YouTube video"
-            allowfullscreen
-            class="rounded shadow">
-        </iframe>
-      </div>
-    <?php endif; ?>
+    <!-- ✅ Modern Video Section -->
+    <?php if (!empty($data['youtube_url']) || !empty($data['video_path'])): ?>
+      <div class="video-section animate_animated animatezoomInUp animate_delay-2s">
+        <h3 class="video-title">🎬 Tonton Video Kami</h3>
 
-    <!-- ✅ Uploaded Video (video_path) -->
-    <?php if (!empty($data['video_path'])): ?>
-      <div class="ratio ratio-16x9 mx-auto mt-4 animate_animated animatezoomInUp animatedelay-2s animate_slow" style="max-width: 800px;">
-        <video controls class="rounded shadow w-100">
-          <source src="<?= base_url($data['video_path']) ?>" type="video/mp4">
-          Browser kamu tidak mendukung pemutaran video.
-        </video>
+        <!-- YouTube Video -->
+        <?php if (!empty($data['youtube_url'])): ?>
+          <div class="video-card mx-auto mb-4" style="max-width: 850px;">
+            <div class="ratio ratio-16x9">
+              <iframe 
+                  src="<?= esc($data['youtube_url']) ?>" 
+                  title="YouTube video"
+                  allowfullscreen>
+              </iframe>
+            </div>
+          </div>
+        <?php endif; ?>
+
+        <!-- Uploaded Video -->
+        <?php if (!empty($data['video_path'])): ?>
+          <div class="video-card mx-auto" style="max-width: 850px;">
+            <div class="ratio ratio-16x9">
+              <video controls>
+                <source src="<?= base_url($data['video_path']) ?>" type="video/mp4">
+                Browser kamu tidak mendukung pemutaran video.
+              </video>
+            </div>
+          </div>
+        <?php endif; ?>
       </div>
     <?php endif; ?>
   </div>

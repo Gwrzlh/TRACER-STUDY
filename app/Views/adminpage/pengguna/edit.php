@@ -448,6 +448,18 @@ echo "</div>";
                                     <input type="text" class="form-control" name="atasan_notlp" id="atasan_notlp"
                                            value="<?= old('atasan_notlp', isset($detail['notlp']) ? $detail['notlp'] : '') ?>">
                                 </div>
+                                <div>
+                                    <label for="perusahaan_atasan" class="form-label">Perusahaan:</label>
+                                    <select name="perusahaan_atasan" id="perusahaan_atasan" class="form-select">
+                                        <option value="">-- Pilih Perusahaan --</option>
+                                        <?php foreach ($perusahaanList as $perusahaan): ?>
+                                            <option value="<?= $perusahaan['id'] ?>"
+                                                    <?= old('perusahaan_atasan', isset($detail['id_perusahaan']) ? $detail['id_perusahaan'] : '') == $perusahaan['id'] ? 'selected' : '' ?>>
+                                                <?= $perusahaan['nama_perusahaan'] ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>    
+                                </div>
                             </div>
 
                             <!-- Form detail Jabatan Lainnya (Role ID: 9) -->
