@@ -1,43 +1,60 @@
-/* Sidebar */
+/* ==========================
+   SIDEBAR CONTAINER
+========================== */
 .sidebar-container {
+  position: fixed;
+  top: 1rem;
+  left: 1.5rem;
+  bottom: 1rem;
   width: 18rem;
-  background-color: white;
+  background-color: #ffffff;
   border-radius: 1.5rem;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  position: fixed;
-  top: 1rem;
-  left: 1.5rem;
-  bottom: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   z-index: 50;
 }
 
 /* Scrollbar transparan */
-.sidebar-container::-webkit-scrollbar { width: 0; background: transparent; }
-.sidebar-container { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+.sidebar-container::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+.sidebar-container {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
 
-/* Logo */
+/* ==========================
+   LOGO
+========================== */
 .sidebar-logo {
-  padding: 1rem 0;
-  font-weight: bold;
-  font-size: 1.25rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 1rem 0;
+  font-weight: 700;
+  font-size: 1.25rem;
   border-bottom: 1px solid #e5e7eb;
 }
-.logo-img { width: 2rem; height: 2rem; object-fit: contain; }
+.logo-img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+}
 
-/* Semua link menu */
-.sidebar-link,
-details[open] > summary {
+/* ==========================
+   LINK MENU & DROPDOWN
+========================== */
+
+/* Menu biasa */
+.sidebar-link {
   display: flex;
   align-items: center;
-  gap: 1rem;          /* jarak ikon dan teks */
+  gap: 1rem;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   text-decoration: none;
@@ -45,12 +62,26 @@ details[open] > summary {
   transition: all 0.2s ease-in-out;
 }
 
-.sidebar-link:hover,
-details[open] > summary:hover {
-  background-color: #f3f4f6;
-  color: black;
+/* Dropdown (summary) */
+details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* teks kiri, panah kanan */
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
+/* Hover effect */
+.sidebar-link:hover,
+details > summary:hover {
+  background-color: #f3f4f6;
+  color: #000000;
+}
+
+/* Active & Open state */
 .sidebar-link.active,
 details[open] > summary.active {
   background-color: #e5e7eb;
@@ -58,16 +89,18 @@ details[open] > summary.active {
   font-weight: 600;
 }
 
-/* Ikon konsisten */
+/* Ikon */
 .icon,
 .sidebar-link svg {
   width: 1.5rem;
   height: 1.5rem;
-  min-width: 1.5rem; /* memastikan semua ikon sejajar */
+  min-width: 1.5rem;
   flex-shrink: 0;
 }
 
-/* Submenu */
+/* ==========================
+   SUBMENU
+========================== */
 .submenu {
   display: flex;
   align-items: center;
@@ -76,16 +109,30 @@ details[open] > summary.active {
   border-radius: 0.25rem;
   color: #4b5563;
   text-decoration: none;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
-.submenu:hover { color: black; }
 
-/* Profil */
+.submenu:hover {
+  color: #000000;
+}
+
+.submenu.active {
+  background-color: #e5e7eb;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+/* ==========================
+   PROFIL (BAGIAN BAWAH)
+========================== */
 .profile-img {
   width: 3rem;
   height: 3rem;
   border-radius: 9999px;
   border: 1px solid #e5e7eb;
+  object-fit: cover;
 }
+
 .status-indicator {
   position: absolute;
   bottom: 0;
@@ -93,26 +140,36 @@ details[open] > summary.active {
   width: 0.75rem;
   height: 0.75rem;
   background-color: #ef4444;
+  border: 2px solid #ffffff;
   border-radius: 9999px;
-  border: 2px solid white;
 }
 
-/* Logout Button */
+/* ==========================
+   LOGOUT BUTTON
+========================== */
 .logout-btn {
   width: 100%;
   background-color: #f97316;
-  color: white;
+  color: #ffffff;
   font-size: 0.875rem;
+  font-weight: 600;
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
-  transition: background-color 0.2s ease;
+  text-align: center;
+  transition: background-color 0.2s ease-in-out;
 }
-.logout-btn:hover { background-color: #ea580c; }
 
-/* Main content */
+.logout-btn:hover {
+  background-color: #ea580c;
+}
+
+/* ==========================
+   MAIN CONTENT AREA
+========================== */
 main {
-  margin-left: 19.5rem;
+  margin-left: 19.5rem; /* offset sidebar */
   padding: 2rem;
   min-height: 100vh;
   overflow: auto;
+  background-color: #f8fafc;
 }

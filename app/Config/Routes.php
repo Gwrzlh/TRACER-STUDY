@@ -36,6 +36,8 @@ $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
     $routes->post('update/(:num)', 'PenggunaController::update/$1');
     $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
+$routes->match(['post', 'delete'], 'delete/(:num)', 'PenggunaController::delete/$1');
+
     $routes->match(['post', 'delete'], 'deleteMultiple', 'PenggunaController::deleteMultiple');
     $routes->post('exportSelected', 'PenggunaController::exportSelected');
     
@@ -413,6 +415,7 @@ $routes->group('alumni', ['filter' => 'alumniAuth'], static function ($routes) {
     $routes->post('questionnaires/save-answer', 'UserQuestionController::saveAnswer');
 });
 
+$routes->post('/alumni/delete-riwayat', 'AlumniController::deleteRiwayat');
 
 
 $routes->get('email-test', 'EmailTest::index');
@@ -489,6 +492,9 @@ $routes->get('laporan/(:num)', 'AdminLaporan::showAll/$1');    // filter laporan
 
 $routes->group('admin/respon', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('/', 'AdminRespon::index');
+     $routes->get('atasan', 'AdminResponAtasan::index');
+     $routes->get('atasan/detail/(:num)', 'AdminResponAtasan::detail/$1'); 
+    $routes->get('atasan/delete/(:num)', 'AdminResponAtasan::delete/$1');
     $routes->get('export', 'AdminRespon::exportExcel');
 
     // Tambahan baru
@@ -656,6 +662,16 @@ $routes->group('atasan', function ($routes) {
 // --- Atasan ---
 $routes->get('atasan/dashboard', 'AtasanController::dashboard');
 $routes->get('atasan/kuesioner', 'AtasanKuesionerController::index');
+// =============== ATASAN ===============
+// ================= ATASAN CRUD PERUSAHAAN =================
+$routes->get('/atasan/perusahaan', 'AtasanController::perusahaan');
+$routes->get('/atasan/perusahaan/detail/(:num)', 'AtasanController::detailPerusahaan/$1');
+$routes->get('/atasan/perusahaan/edit/(:num)', 'AtasanController::editPerusahaan/$1');
+$routes->get('atasan/perusahaan/getCitiesByProvince/(:num)', 'AtasanController::getCitiesByProvince/$1');
+
+
+
+
 
 // --- Kuesioner Atasan ---
 $routes->group('atasan/kuesioner', ['namespace' => 'App\Controllers'], function ($routes) {

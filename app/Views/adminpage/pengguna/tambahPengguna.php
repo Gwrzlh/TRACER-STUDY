@@ -372,6 +372,15 @@
                                     <label for="atasan_notlp" class="form-label">No.Hp</label>
                                     <input type="text" class="form-control" name="atasan_notlp" id="atasan_notlp">
                                 </div>
+                                <div class="mb-3">
+                                   <label for="perusahaan_atasan" class="form-label">Perusahaan</label>
+                                   <select name="perusahaan_atasan" id="perusahaan_atasan" class="form-select"> <option value="">-- Pilih Perusahaan --</option>
+                                       <?php foreach ($perusahaanList as $perusahaan): ?>
+                                           <option value="<?= esc($perusahaan['id']) ?>"><?= esc($perusahaan['nama_perusahaan']) ?></option>
+                                       <?php endforeach; ?>
+                                    </select>
+                                      
+                                </div>
                             </div>
 
                             <!-- Form detail Jabatan Lainnya (Role ID: 9) -->

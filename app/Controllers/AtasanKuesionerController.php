@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\AnswerModel;
-use App\Models\KuesionerModel;
+use App\Models\KuesionerModel; // pastikan model ini sesuai dengan yang kamu pakai untuk atasan
 use App\Models\DetailaccountAtasan;
 use App\Models\Jurusan;
 use App\Models\Prodi;
@@ -12,7 +12,7 @@ use App\Models\Provincies;
 use App\Models\Cities;
 use App\Models\AccountModel;
 use App\Models\LogActivityModel;
-use App\Models\ResponseModel;
+use App\Models\ResponseAtasanModel;
 
 class AtasanKuesionerController extends BaseController
 {
@@ -25,267 +25,258 @@ class AtasanKuesionerController extends BaseController
     public function __construct()
     {
         $this->questionnaireModel = new KuesionerModel();
-        $this->answerModel        = new AnswerModel();
+        $this->answerModel        = new ResponseAtasanModel();
         $this->detailAccountModel = new DetailaccountAtasan();
         $this->accountModel       = new AccountModel();
         $this->logActivityModel   = new LogActivityModel();
     }
 
-    /**
-     * Daftar semua kuesioner atasan
-     */
- public function index()
-{
-    if (!session()->get('logged_in')) {
-        return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
-    }
-
-    $userId   = session()->get('id_account');
-    $userData = session()->get();
-
-    $questionnaires = $this->questionnaireModel->getAccessibleQuestionnaires($userData);
-
-    $data = [];
-    foreach ($questionnaires as $q) {
-        if ($q['is_active'] === 'inactive') continue;
-
-        // ✅ Hanya tampilkan kuesioner yang punya conditional_logic id_role = 8
-        if (!$this->conditionalHasRoleAtasan($q['conditional_logic'])) continue;
-
-        $statusPengisian = $this->answerModel->getStatus($q['id'], $userId) ?: 'Belum Mengisi';
-        $progress = ($statusPengisian === 'On Going')
-            ? $this->answerModel->getProgress($q['id'], $userId)
-            : 0;
-
-        $data[] = [
-            'id'          => $q['id'],
-            'judul'       => $q['title'],
-            'statusIsi'   => $statusPengisian,
-            'progress'    => $progress,
-            'is_active'   => $q['is_active'],
-            'conditional' => $q['conditional_logic'] ?? '-',
-        ];
-    }
-
-    return view('atasan/kuesioner/index', ['data' => $data]);
-}
-
-/**
- * Mengecek apakah conditional logic berisi Id Role = Atasan.
- */
-private function conditionalHasRoleAtasan($conditionalLogic)
-{
-    if (empty($conditionalLogic)) return false;
-
-    // Decode JSON dari database
-    $decoded = json_decode($conditionalLogic, true);
-    if (json_last_error() !== JSON_ERROR_NONE) return false;
-
-    // Telusuri semua rule di dalam conditional logic
-    foreach ($decoded as $rule) {
-        $field = strtolower($rule['field'] ?? '');
-        $value = trim(strtolower($rule['value'] ?? ''));
-
-        // ✅ Pastikan field = id_role dan value = 8
-        if ($field === 'id_role' && $value === '8') {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-
-    /**
-     * Mulai isi kuesioner atasan
-     */
-    public function mulai($q_id)
+    public function index()
     {
-        if (!session()->get('logged_in')) return redirect()->to('/login');
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
+        }
 
         $userId   = session()->get('id_account');
         $userData = session()->get();
-        $q_id     = (int)$q_id;
 
-        $questionnaire = $this->questionnaireModel->find($q_id);
-        if (!$questionnaire) {
-            return redirect()->back()->with('error', 'Kuesioner tidak ditemukan.');
-        }
+        // Filter kuesioner: hanya tampilkan jika role_id == 8 ada di conditional logic
+        $questionnaires = $this->questionnaireModel->getAccessibleQuestionnaires($userData);
+        $filteredQuestionnaires = [];
 
-        // cek syarat akses
-        if (!$this->questionnaireModel->checkConditions($questionnaire['conditional_logic'] ?? '', $userData)) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses ke kuesioner ini.');
-        }
+        foreach ($questionnaires as $q) {
+            $conditional = $q['conditional_logic'] ?? '';
+            if (empty($conditional) || $conditional === '[]') {
+                // Skip jika tidak ada conditional logic
+                continue;
+            }
 
-        // cek status
-        $status = $this->answerModel->getStatus($q_id, $userId);
-        if ($status === 'Finish') {
-            return redirect()->to("/atasan/kuesioner/lihat/$q_id");
-        }
-
-        // ambil jawaban sebelumnya
-        $previous_answers = $this->answerModel->getUserAnswers($q_id, $userId);
-
-        // ambil struktur pertanyaan
-        $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $userData, $previous_answers);
-        if (empty($structure['pages'])) {
-            return view('atasan/kuesioner/error', ['message' => 'Tidak ada pertanyaan yang tersedia untuk Anda.']);
-        }
-
-        $progress = $this->answerModel->getProgress($q_id, $userId);
-
-        session()->set("current_q_id", $q_id);
-
-        return view('atasan/kuesioner/fill', [
-            'structure'        => $structure,
-            'user_id'          => $userId,
-            'q_id'             => $q_id,
-            'progress'         => $progress,
-            'previous_answers' => $previous_answers
-        ]);
-    }
-
-    /**
-     * Lanjutkan isi kuesioner
-     */
-    public function lanjutkan($q_id)
-    {
-        return $this->mulai($q_id);
-    }
-
-    /**
-     * Review / lihat hasil kuesioner
-     */
-   public function lihat($q_id)
-{
-    $user_data = session()->get();
-
-    // pastikan format id sama dengan alumni
-    $userId = $user_data['id_account'] ?? $user_data['id'];
-
-    $data['structure'] = $this->questionnaireModel->getQuestionnaireStructure(
-        $q_id,
-        $user_data,
-        $this->answerModel->getUserAnswers($q_id, $userId)
-    );
-
-    if (!$data['structure']) {
-        return redirect()->to('/atasan/kuesioner')
-            ->with('error', 'Kuesioner tidak ditemukan atau tidak dapat diakses.');
-    }
-
-    $data['q_id']             = $q_id;
-    $data['progress']         = $this->answerModel->getProgress($q_id, $userId);
-    $data['previous_answers'] = $this->answerModel->getUserAnswers($q_id, $userId);
-
-    return view('atasan/kuesioner/review', $data);
-}
-
-
-
-    /**
-     * Simpan jawaban kuesioner
-     */
-public function save($q_id)
-{
-    $user_id = session()->get('id_account');
-    $answers = $this->request->getPost('answer');
-    $files   = $this->request->getFiles();
-
-    if (empty($answers) && empty($files)) {
-        return redirect()->to("/atasan/kuesioner/mulai/$q_id")
-            ->with('error', 'Tidak ada jawaban yang disimpan.');
-    }
-
-    // --- Simpan jawaban (text/radio/checkbox/dropdown) ---
-    if (!empty($answers)) {
-        foreach ($answers as $question_id => $answer) {
-            if (empty($answer) && !is_array($answer)) continue;
-            if (is_array($answer)) $answer = json_encode($answer);
-            $this->answerModel->saveAnswer($user_id, $q_id, $question_id, $answer);
-        }
-    }
-
-    // --- Simpan file upload (jika ada) ---
-    if (!empty($files)) {
-        foreach ($files as $key => $file) {
-            if (preg_match('/answer_(\d+)/', $key, $matches)) {
-                $question_id = $matches[1];
-
-                if ($file && $file->isValid() && !$file->hasMoved()) {
-                    $upload_path = WRITEPATH . 'uploads/answers/';
-                    if (!is_dir($upload_path)) mkdir($upload_path, 0777, true);
-
-                    $new_name = $file->getRandomName();
-                    $file->move($upload_path, $new_name);
-                    $file_path = 'uploaded_file:' . $new_name;
-                    $this->answerModel->saveAnswer($user_id, $q_id, $question_id, $file_path);
+            // Cek apakah role_id == 8 ada di conditional logic
+            $conditions = is_string($conditional) ? json_decode($conditional, true) : $conditional;
+            $hasRole8 = false;
+            foreach ($conditions as $condition) {
+                if ($condition['field'] === 'role_id' && $condition['operator'] === 'is' && $condition['value'] === '8') {
+                    $hasRole8 = true;
+                    break;
                 }
             }
+
+            // Hanya masukkan questionnaire jika role_id == 8 ada dan semua kondisi match
+            if ($hasRole8 && $this->questionnaireModel->checkConditions($conditional, $userData)) {
+                $filteredQuestionnaires[] = $q;
+            }
         }
+
+        $data = [];
+        foreach ($filteredQuestionnaires as $q) {
+            if ($q['is_active'] !== 'active') continue;
+
+            $internalStatus = $this->answerModel->getStatus($q['id'], $userId) ?: 'draft';
+            $statusPengisian = $this->mapStatusForView($internalStatus, $q['id'], $userId);
+            $progress = $this->calculateProgressForView($statusPengisian, $q['id'], $userId, $userData);
+
+            $data[] = [
+                'id'          => $q['id'],
+                'judul'       => $q['title'],
+                'statusIsi'   => $statusPengisian,
+                'progress'    => $progress,
+                'is_active'   => $q['is_active'],
+            ];
+        }
+
+        return view('atasan/kuesioner/index', ['data' => $data]);
     }
 
-    // 🔹 Update status di tabel "responses", bukan "answers"
-    $responseModel = new \App\Models\ResponseModel();
-    $existingResponse = $responseModel
-        ->where('account_id', $user_id)
-        ->where('questionnaire_id', $q_id)
-        ->first();
-
-    if ($existingResponse) {
-        // Jika belum selesai, ubah status jadi On Going
-        if ($existingResponse['status'] !== 'completed') {
-            $responseModel->update($existingResponse['id'], [
-                'status'     => 'On Going',
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
+    public function mulai($q_id)
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
         }
-    } else {
-        // Jika belum ada respon sama sekali, buat baru
-        $responseModel->insert([
-            'account_id'       => $user_id,
-            'questionnaire_id' => $q_id,
-            'status'           => 'On Going',
-            'created_at'       => date('Y-m-d H:i:s')
+
+        $userId   = session()->get('id_account');
+        $userData = session()->get();
+
+        $questionnaire = $this->questionnaireModel->find($q_id);
+        if (!$questionnaire || $questionnaire['is_active'] !== 'active') {
+            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak ditemukan atau tidak aktif');
+        }
+
+        // Validasi akses: pastikan role_id == 8 ada di conditional
+        $conditional = $questionnaire['conditional_logic'] ?? '';
+        if (empty($conditional) || $conditional === '[]') {
+            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk atasan');
+        }
+
+        $conditions = is_string($conditional) ? json_decode($conditional, true) : $conditional;
+        $hasRole8 = false;
+        foreach ($conditions as $condition) {
+            if ($condition['field'] === 'role_id' && $condition['operator'] === 'is' && $condition['value'] === '8') {
+                $hasRole8 = true;
+                break;
+            }
+        }
+
+        if (!$hasRole8 || !$this->questionnaireModel->checkConditions($conditional, $userData)) {
+            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk Anda');
+        }
+
+        $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $userData);
+        $previousAnswers = $this->answerModel->getAnswers($q_id, $userId);
+        $status = $this->answerModel->getStatus($q_id, $userId);
+        $progress = $this->answerModel->calculateProgress($q_id, $userId, $structure); // Hitung progress
+
+        if ($status === 'completed' && !empty($questionnaire['announcement'])) {
+            $announcement = $this->sanitizeAnnouncementContent($questionnaire['announcement']);
+            return view('atasan/kuesioner/announcement', ['announcement' => $announcement]);
+        } elseif ($status === 'completed') {
+            return redirect()->to('atasan/kuesioner/lihat/' . $q_id);
+        }
+
+        return view('atasan/kuesioner/fill', [
+            'q_id' => $q_id,
+            'structure' => $structure,
+            'previous_answers' => $previousAnswers,
+            'progress' => $progress, // Kirim progress ke view
+            'announcement' => $questionnaire['announcement'] ? $this->sanitizeAnnouncementContent($questionnaire['announcement']) : null
         ]);
     }
 
-    // --- Log aktivitas ---
-    $this->logActivityModel->logAction(
-        'submit_questionnaire',
-        'Atasan ' . $user_id . ' mengisi kuesioner ID ' . $q_id
-    );
-
-    // --- Redirect ke halaman review ---
-    return redirect()->to("/atasan/kuesioner/lihat/$q_id")
-        ->with('success', 'Jawaban berhasil disimpan.');
-}
-
-
-    /**
-     * Landing respon (ringkasan hasil per tahun)
-     */
-    public function responseLanding()
+    public function lanjutkan($q_id)
     {
-        $responseModel = new ResponseModel();
+        return $this->mulai($q_id); // Re-use mulai() logic, progress sudah dihitung di sana
+    }
 
-        $yearsRaw = $responseModel->getAvailableYears() ?? [];
-        $allYears = array_column($yearsRaw, 'tahun');
-
-        $selectedYear = $this->request->getGet('tahun');
-        if (!$selectedYear && !empty($allYears)) {
-            $selectedYear = $allYears[0];
-        }
-        if (!$selectedYear) {
-            $selectedYear = date('Y');
+    public function save($q_id)
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
         }
 
-        $data = [
-            'selectedYear' => $selectedYear,
-            'allYears'     => $allYears,
-            'data'         => $responseModel->getSummaryByYear($selectedYear)
-        ];
+        $userId   = session()->get('id_account');
+        $userData = session()->get();
 
-        return view('LandingPage/respon', $data);
+        $questionnaire = $this->questionnaireModel->find($q_id);
+        if (!$questionnaire || $questionnaire['is_active'] !== 'active') {
+            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak ditemukan atau tidak aktif');
+        }
+
+        // Validasi akses sama seperti mulai()
+        $conditional = $questionnaire['conditional_logic'] ?? '';
+        if (empty($conditional) || $conditional === '[]') {
+            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk atasan');
+        }
+
+        $conditions = is_string($conditional) ? json_decode($conditional, true) : $conditional;
+        $hasRole8 = false;
+        foreach ($conditions as $condition) {
+            if ($condition['field'] === 'role_id' && $condition['operator'] === 'is' && $condition['value'] === '8') {
+                $hasRole8 = true;
+                break;
+            }
+        }
+
+        if (!$hasRole8 || !$this->questionnaireModel->checkConditions($conditional, $userData)) {
+            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk Anda');
+        }
+
+        // Handle file uploads
+        $files = $this->request->getFiles();
+        $answers = $this->request->getPost('answer') ?? []; // Adjust to match form input name
+        foreach ($files as $field => $file) {
+            if ($file->isValid() && !$file->hasMoved()) {
+                $newName = $file->getRandomName();
+                $file->move(FCPATH . 'uploads/answers/', $newName);
+                $questionId = str_replace('files_', '', $field);
+                $answers[$questionId] = $newName;
+            }
+        }
+
+        // Simpan jawaban
+        $this->answerModel->saveAnswers($q_id, $userId, $answers);
+
+        // Cek completion
+        if ($this->answerModel->isCompleted($q_id, $userId)) {
+            $this->answerModel->setQuestionnaireCompleted($q_id, $userId, true);
+            if (!empty($questionnaire['announcement'])) {
+                return redirect()->to('atasan/kuesioner/lihat/' . $q_id)->with('announcement', $questionnaire['announcement']);
+            }
+            return redirect()->to('atasan/kuesioner/lihat/' . $q_id)->with('success', 'Kuesioner selesai');
+        }
+
+        return redirect()->to('atasan/kuesioner/lanjutkan/' . $q_id)->with('success', 'Jawaban disimpan');
+    }
+
+    public function lihat($q_id)
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
+        }
+
+        $userId   = session()->get('id_account');
+        $userData = session()->get();
+
+        $questionnaire = $this->questionnaireModel->find($q_id);
+        if (!$questionnaire || $questionnaire['is_active'] !== 'active') {
+            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak ditemukan atau tidak aktif');
+        }
+
+        $conditional = $questionnaire['conditional_logic'] ?? '';
+        if (empty($conditional) || $conditional === '[]') {
+            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk atasan');
+        }
+
+        $conditions = is_string($conditional) ? json_decode($conditional, true) : $conditional;
+        $hasRole8 = false;
+        foreach ($conditions as $condition) {
+            if ($condition['field'] === 'role_id' && $condition['operator'] === 'is' && $condition['value'] === '8') {
+                $hasRole8 = true;
+                break;
+            }
+        }
+
+        if (!$hasRole8 || !$this->questionnaireModel->checkConditions($conditional, $userData)) {
+            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk Anda');
+        }
+
+        $status = $this->answerModel->getStatus($q_id, $userId);
+        if ($status !== 'completed') {
+            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner belum selesai');
+        }
+
+        $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $userData);
+        $answers = $this->answerModel->getAnswers($q_id, $userId);
+        $progress = $this->answerModel->calculateProgress($q_id, $userId, $structure); // Hitung progress untuk review
+
+        $announcement = session()->getFlashdata('announcement') ? $this->sanitizeAnnouncementContent(session()->getFlashdata('announcement')) : null;
+
+        return view('atasan/kuesioner/review', [
+            'q_id' => $q_id,
+            'structure' => $structure,
+            'answers' => $answers,
+            'progress' => $progress, // Kirim progress ke review jika diperlukan
+            'announcement' => $announcement
+        ]);
+    }
+
+       private function mapStatusForView($internalStatus, $questionnaireId, $userId)
+    {
+        if ($internalStatus === 'completed') return 'Finish';
+
+        $progress = $this->answerModel->calculateProgress($questionnaireId, $userId, []);
+        return $progress > 0 ? 'On Going' : 'Belum Mengisi';
+    }
+
+    private function calculateProgressForView($viewStatus, $questionnaireId, $userId, $userData)
+    {
+        if ($viewStatus === 'Finish') {
+            return 100;
+        }
+        $structure = $this->questionnaireModel->getQuestionnaireStructure($questionnaireId, $userData);
+        return $this->answerModel->calculateProgress($questionnaireId, $userId, $structure);
+    }
+
+    private function sanitizeAnnouncementContent($content)
+    {
+        return esc($content, 'html');
     }
 }

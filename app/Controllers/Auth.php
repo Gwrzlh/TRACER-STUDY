@@ -49,6 +49,11 @@ class Auth extends Controller
                     ->where('id_account', $user['id'])
                     ->get()
                     ->getRowArray();
+            } elseif ($user['id_role'] == 8) { // Atasan
+                $detail = $db->table('detailaccount_atasan')
+                    ->where('id_account', $user['id'])
+                    ->get()
+                    ->getRowArray();
             }
 
             $sessionData = [
