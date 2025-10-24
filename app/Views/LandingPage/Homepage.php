@@ -39,7 +39,6 @@ $settings = [
         color: #111827;
       }
 
-      /* Hero */
       .hero-carousel .carousel-item {
         height: 100vh;
         min-height: 500px;
@@ -60,7 +59,6 @@ $settings = [
         padding: 20px;
       }
 
-      /* Teks lebih kecil */
       .hero-overlay h1 {
         font-size: 2rem;
         font-weight: 700;
@@ -73,7 +71,6 @@ $settings = [
         color: #e5e7eb;
       }
 
-      /* Section */
       section {
         padding: 80px 20px;
       }
@@ -93,7 +90,6 @@ $settings = [
         line-height: 1.8;
       }
 
-      /* Carousel Controls & Indicators */
       .carousel-control-prev-icon,
       .carousel-control-next-icon {
         background-color: rgba(0,0,0,0.6);
@@ -114,14 +110,73 @@ $settings = [
         opacity: 1;
       }
 
-      /* Responsive */
+      /* 🎬 Modern Video Showcase */
+      .video-section {
+        margin-top: 60px;
+        background: linear-gradient(135deg, #f9fafb 0%, #e0f2fe 100%);
+        border-radius: 25px;
+        padding: 60px 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      }
+
+      .video-title {
+        font-weight: 800;
+        font-size: 1.6rem;
+        color: #1e3a8a;
+        margin-bottom: 35px;
+        position: relative;
+        display: inline-block;
+      }
+
+      .video-title::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 3px;
+        background: linear-gradient(90deg, #2563eb, #06b6d4);
+        border-radius: 2px;
+      }
+
+      .video-grid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+      }
+
+      .video-card {
+        position: relative;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.3);
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        transition: all 0.4s ease;
+        max-width: 900px;
+        width: 100%;
+      }
+
+      .video-card:hover {
+        transform: translateY(-5px) scale(1.01);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        border-color: rgba(37,99,235,0.5);
+      }
+
+      .video-card iframe,
+      .video-card video {
+        width: 100%;
+        border: none;
+        border-radius: 20px;
+      }
+
       @media (max-width: 768px) {
-        .hero-overlay h1 {
-          font-size: 1.5rem;
-        }
-        .hero-overlay p {
-          font-size: 0.9rem;
-        }
+        .hero-overlay h1 { font-size: 1.5rem; }
+        .hero-overlay p { font-size: 0.9rem; }
+        .video-title { font-size: 1.3rem; }
       }
     </style>
 </head>
@@ -132,16 +187,15 @@ $settings = [
 <!-- Hero Carousel -->
 <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
   <div class="carousel-inner">
-    <!-- Slide 1 -->
     <div class="carousel-item active">
-      <div class="w-100 h-100 animate_animated animatefadeIn animate_slow" 
+      <div class="w-100 h-100" 
            style="background-image: url('<?= base_url($data['image_path']) ?>'); background-size: cover; background-position: center;">
         <div class="hero-overlay">
           <div>
-            <h1 class="animate_animated animatefadeInDown animate_slow"><?= esc($data['title_1']) ?></h1>
-            <p class="animate_animated animatefadeInLeft animatedelay-1s animate_slow"><?= $data['desc_1'] ?></p>
+            <h1 class="animate__animated animate__fadeInDown"><?= esc($data['title_1']) ?></h1>
+            <p class="animate__animated animate__fadeInLeft animate__delay-1s"><?= $data['desc_1'] ?></p>
             <a href="<?= base_url('/login') ?>"
-               class="animate_animated animatebounceIn animatedelay-2s animate_slow"
+               class="animate__animated animate__bounceIn animate__delay-2s"
                style="background-color: <?= esc($settings['survey_button_color']) ?>;
                       color: <?= esc($settings['survey_button_text_color']) ?>;
                       padding: 10px 26px;
@@ -159,27 +213,24 @@ $settings = [
       </div>
     </div>
 
-    <!-- Slide 2 -->
     <div class="carousel-item">
-      <div class="w-100 h-100 animate_animated animatefadeIn animate_slow" 
+      <div class="w-100 h-100" 
            style="background-image: url('<?= base_url($data['image_path_2']) ?>'); background-size: cover; background-position: center;">
         <div class="hero-overlay">
           <div>
-            <h1 class="animate_animated animatefadeInDown animate_slow"><?= esc($data['title_2']) ?></h1>
-            <p class="animate_animated animatefadeInRight animatedelay-1s animate_slow"><?= $data['desc_2'] ?></p>
+            <h1 class="animate__animated animate__fadeInDown"><?= esc($data['title_2']) ?></h1>
+            <p class="animate__animated animate__fadeInRight animate__delay-1s"><?= $data['desc_2'] ?></p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Indicators -->
   <div class="carousel-indicators">
     <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
     <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
   </div>
 
-  <!-- Controls -->
   <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
     <span class="carousel-control-prev-icon"></span>
   </button>
@@ -191,28 +242,39 @@ $settings = [
 <!-- Section 2 -->
 <section class="bg-white">
   <div class="container text-center">
-    <h2 class="section-title animate_animated animatelightSpeedInLeft animate_slow"><?= esc($data['title_3']) ?></h2>
-    <p class="section-desc animate_animated animatefadeInUp animatedelay-1s animate_slow"><?= $data['desc_3'] ?></p>
+    <h2 class="section-title animate__animated animate__lightSpeedInLeft"><?= esc($data['title_3']) ?></h2>
+    <p class="section-desc animate__animated animate__fadeInUp animate__delay-1s"><?= $data['desc_3'] ?></p>
 
-    <!-- ✅ YouTube Video -->
-    <?php if (!empty($data['youtube_url'])): ?>
-      <div class="ratio ratio-16x9 mx-auto mt-4 animate_animated animatezoomInUp animatedelay-2s animate_slow" style="max-width: 800px;">
-        <iframe 
-            src="<?= esc($data['youtube_url']) ?>" 
-            title="YouTube video"
-            allowfullscreen
-            class="rounded shadow">
-        </iframe>
-      </div>
-    <?php endif; ?>
+    <!-- ✅ Modern Enhanced Video Section -->
+    <?php if (!empty($data['youtube_url']) || !empty($data['video_path'])): ?>
+      <div class="video-section animate__animated animate__fadeInUp animate__delay-2s">
+        <h3 class="video-title">🎥 Saksikan Video Kami</h3>
+        <div class="video-grid">
 
-    <!-- ✅ Uploaded Video (video_path) -->
-    <?php if (!empty($data['video_path'])): ?>
-      <div class="ratio ratio-16x9 mx-auto mt-4 animate_animated animatezoomInUp animatedelay-2s animate_slow" style="max-width: 800px;">
-        <video controls class="rounded shadow w-100">
-          <source src="<?= base_url($data['video_path']) ?>" type="video/mp4">
-          Browser kamu tidak mendukung pemutaran video.
-        </video>
+          <?php if (!empty($data['youtube_url'])): ?>
+            <div class="video-card">
+              <div class="ratio ratio-16x9">
+                <iframe 
+                    src="<?= esc($data['youtube_url']) ?>" 
+                    title="YouTube video"
+                    allowfullscreen>
+                </iframe>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <?php if (!empty($data['video_path'])): ?>
+            <div class="video-card">
+              <div class="ratio ratio-16x9">
+                <video controls>
+                  <source src="<?= base_url($data['video_path']) ?>" type="video/mp4">
+                  Browser kamu tidak mendukung pemutaran video.
+                </video>
+              </div>
+            </div>
+          <?php endif; ?>
+
+        </div>
       </div>
     <?php endif; ?>
   </div>
@@ -220,7 +282,6 @@ $settings = [
 
 <?= view('layout/footer') ?>
 
-<!-- Bootstrap Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

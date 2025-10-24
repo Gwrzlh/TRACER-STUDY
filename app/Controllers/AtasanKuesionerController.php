@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\AnswerModel;
-use App\Models\KuesionerModel; // pastikan model ini sesuai dengan yang kamu pakai untuk atasan
+use App\Models\KuesionerModel;
 use App\Models\DetailaccountAtasan;
 use App\Models\Jurusan;
 use App\Models\Prodi;
@@ -25,10 +24,10 @@ class AtasanKuesionerController extends BaseController
     public function __construct()
     {
         $this->questionnaireModel = new KuesionerModel();
-        $this->answerModel        = new AnswerModel();
+        $this->answerModel = new AnswerModel();
         $this->detailAccountModel = new DetailaccountAtasan();
-        $this->accountModel       = new AccountModel();
-        $this->logActivityModel   = new LogActivityModel();
+        $this->accountModel = new AccountModel();
+        $this->logActivityModel = new LogActivityModel();
     }
 
     public function index()
@@ -37,7 +36,7 @@ class AtasanKuesionerController extends BaseController
             return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
         }
 
-        $userId   = session()->get('id_account');
+        $userId = session()->get('id_account');
         $userData = session()->get();
 
         // Filter kuesioner: hanya tampilkan jika role_id == 8 ada di conditional logic
@@ -47,7 +46,6 @@ class AtasanKuesionerController extends BaseController
         foreach ($questionnaires as $q) {
             $conditional = $q['conditional_logic'] ?? '';
             if (empty($conditional) || $conditional === '[]') {
-                // Skip jika tidak ada conditional logic
                 continue;
             }
 
@@ -61,7 +59,6 @@ class AtasanKuesionerController extends BaseController
                 }
             }
 
-            // Hanya masukkan questionnaire jika role_id == 8 ada dan semua kondisi match
             if ($hasRole8 && $this->questionnaireModel->checkConditions($conditional, $userData)) {
                 $filteredQuestionnaires[] = $q;
             }
@@ -76,11 +73,11 @@ class AtasanKuesionerController extends BaseController
             $progress = $this->calculateProgressForView($statusPengisian, $q['id'], $userId, $userData);
 
             $data[] = [
-                'id'          => $q['id'],
-                'judul'       => $q['title'],
-                'statusIsi'   => $statusPengisian,
-                'progress'    => $progress,
-                'is_active'   => $q['is_active'],
+                'id' => $q['id'],
+                'judul' => $q['title'],
+                'statusIsi' => $statusPengisian,
+                'progress' => $progress,
+                'is_active' => $q['is_active'],
             ];
         }
 
@@ -93,9 +90,10 @@ class AtasanKuesionerController extends BaseController
             return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
         }
 
-        $userId   = session()->get('id_account');
+        $userId = session()->get('id_account');
         $userData = session()->get();
 
+        // Validasi kuesioner
         $questionnaire = $this->questionnaireModel->find($q_id);
         if (!$questionnaire || $questionnaire['is_active'] !== 'active') {
             return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak ditemukan atau tidak aktif');
@@ -120,30 +118,68 @@ class AtasanKuesionerController extends BaseController
             return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk Anda');
         }
 
+        // Cek status kuesioner
+        $status = $this->answerModel->getStatus($q_id, $userId);
+        if ($status === 'completed') {
+            if (!empty($questionnaire['announcement'])) {
+                $announcement = $this->sanitizeAnnouncementContent($questionnaire['announcement']);
+                return view('atasan/kuesioner/announcement', ['announcement' => $announcement]);
+            }
+            return redirect()->to("atasan/kuesioner/lihat/$q_id");
+        }
+
+        // Ambil struktur kuesioner dan jawaban sebelumnya
         $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $userData);
         $previousAnswers = $this->answerModel->getAnswers($q_id, $userId);
-        $status = $this->answerModel->getStatus($q_id, $userId);
-        $progress = $this->answerModel->calculateProgress($q_id, $userId, $structure); // Hitung progress
 
-        if ($status === 'completed' && !empty($questionnaire['announcement'])) {
-            $announcement = $this->sanitizeAnnouncementContent($questionnaire['announcement']);
-            return view('atasan/kuesioner/announcement', ['announcement' => $announcement]);
-        } elseif ($status === 'completed') {
-            return redirect()->to('atasan/kuesioner/lihat/' . $q_id);
+        // Cari halaman pertama yang memenuhi conditional logic
+        $currentPageId = $this->request->getGet('page');
+        if (!$currentPageId) {
+            foreach ($structure['pages'] as $page) {
+                if ($this->answerModel->evaluatePageConditions($page, $previousAnswers)) {
+                    $currentPageId = $page['id'];
+                    break;
+                }
+            }
         }
+
+        if (!$currentPageId) {
+            log_message('error', "[AtasanKuesionerController] No valid page found for q_id: $q_id, user_id: $userId");
+            return redirect()->to('atasan/kuesioner')->with('error', 'Tidak ada halaman yang memenuhi kondisi.');
+        }
+
+        // Validasi halaman saat ini
+        $currentPage = null;
+        foreach ($structure['pages'] as $page) {
+            if ($page['id'] == $currentPageId && $this->answerModel->evaluatePageConditions($page, $previousAnswers)) {
+                $currentPage = $page;
+                break;
+            }
+        }
+
+        if (!$currentPage) {
+            $nextPageId = $this->answerModel->getNextPage($currentPageId, $q_id, $userId);
+            if ($nextPageId) {
+                return redirect()->to("atasan/kuesioner/mulai/$q_id?page=$nextPageId");
+            }
+            return redirect()->to('atasan/kuesioner')->with('error', 'Halaman tidak valid atau tidak memenuhi kondisi.');
+        }
+
+        $progress = $this->answerModel->calculateProgress($q_id, $userId, $structure);
 
         return view('atasan/kuesioner/fill', [
             'q_id' => $q_id,
             'structure' => $structure,
             'previous_answers' => $previousAnswers,
-            'progress' => $progress, // Kirim progress ke view
-            'announcement' => $questionnaire['announcement'] ? $this->sanitizeAnnouncementContent($questionnaire['announcement']) : null
+            'progress' => $progress,
+            'announcement' => $questionnaire['announcement'] ? $this->sanitizeAnnouncementContent($questionnaire['announcement']) : null,
+            'current_page_id' => $currentPageId // Kirim current_page_id ke view untuk navigasi
         ]);
     }
 
     public function lanjutkan($q_id)
     {
-        return $this->mulai($q_id); // Re-use mulai() logic, progress sudah dihitung di sana
+        return $this->mulai($q_id); // Re-use mulai() logic
     }
 
     public function save($q_id)
@@ -152,15 +188,16 @@ class AtasanKuesionerController extends BaseController
             return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
         }
 
-        $userId   = session()->get('id_account');
+        $userId = session()->get('id_account');
         $userData = session()->get();
 
+        // Validasi kuesioner
         $questionnaire = $this->questionnaireModel->find($q_id);
         if (!$questionnaire || $questionnaire['is_active'] !== 'active') {
             return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak ditemukan atau tidak aktif');
         }
 
-        // Validasi akses sama seperti mulai()
+        // Validasi akses
         $conditional = $questionnaire['conditional_logic'] ?? '';
         if (empty($conditional) || $conditional === '[]') {
             return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk atasan');
@@ -181,11 +218,11 @@ class AtasanKuesionerController extends BaseController
 
         // Handle file uploads
         $files = $this->request->getFiles();
-        $answers = $this->request->getPost('answer') ?? []; // Adjust to match form input name
+        $answers = $this->request->getPost('answer') ?? [];
         foreach ($files as $field => $file) {
             if ($file->isValid() && !$file->hasMoved()) {
                 $newName = $file->getRandomName();
-                $file->move(FCPATH . 'uploads/answers/', $newName);
+                $file->move(FCPATH . 'Uploads/answers/', $newName);
                 $questionId = str_replace('files_', '', $field);
                 $answers[$questionId] = $newName;
             }
@@ -194,16 +231,39 @@ class AtasanKuesionerController extends BaseController
         // Simpan jawaban
         $this->answerModel->saveAnswers($q_id, $userId, $answers);
 
-        // Cek completion
-        if ($this->answerModel->isCompleted($q_id, $userId)) {
-            $this->answerModel->setQuestionnaireCompleted($q_id, $userId, true);
-            if (!empty($questionnaire['announcement'])) {
-                return redirect()->to('atasan/kuesioner/lihat/' . $q_id)->with('announcement', $questionnaire['announcement']);
+        // Log penyimpanan
+        log_message('debug', "[AtasanKuesionerController] Saved answers for q_id: $q_id, user_id: $userId, answers: " . json_encode($answers));
+
+        // Cek apakah kuesioner selesai
+        $currentPageId = $this->request->getPost('logical_end_page');
+        if ($this->request->getPost('is_logically_complete') === '1') {
+            if ($this->answerModel->setQuestionnaireCompleted($q_id, $userId, true)) {
+                if (!empty($questionnaire['announcement'])) {
+                    return redirect()->to("atasan/kuesioner/lihat/$q_id")->with('announcement', $questionnaire['announcement']);
+                }
+                return redirect()->to("atasan/kuesioner/lihat/$q_id")->with('success', 'Kuesioner selesai');
             }
-            return redirect()->to('atasan/kuesioner/lihat/' . $q_id)->with('success', 'Kuesioner selesai');
+            return redirect()->to("atasan/kuesioner/mulai/$q_id?page=$currentPageId")->with('error', 'Validasi kuesioner gagal.');
         }
 
-        return redirect()->to('atasan/kuesioner/lanjutkan/' . $q_id)->with('success', 'Jawaban disimpan');
+        // Cari halaman berikutnya
+        $nextPageId = $this->answerModel->getNextPage($currentPageId, $q_id, $userId);
+        if ($nextPageId) {
+            log_message('debug', "[AtasanKuesionerController] Redirecting to next page: $nextPageId for q_id: $q_id");
+            return redirect()->to("atasan/kuesioner/mulai/$q_id?page=$nextPageId")->with('success', 'Jawaban disimpan');
+        }
+
+        // Jika tidak ada halaman berikutnya, anggap selesai
+        if ($this->answerModel->isCompleted($q_id, $userId)) {
+            if ($this->answerModel->setQuestionnaireCompleted($q_id, $userId, true)) {
+                if (!empty($questionnaire['announcement'])) {
+                    return redirect()->to("atasan/kuesioner/lihat/$q_id")->with('announcement', $questionnaire['announcement']);
+                }
+                return redirect()->to("atasan/kuesioner/lihat/$q_id")->with('success', 'Kuesioner selesai');
+            }
+        }
+
+        return redirect()->to("atasan/kuesioner/mulai/$q_id?page=$currentPageId")->with('success', 'Jawaban disimpan');
     }
 
     public function lihat($q_id)
@@ -212,14 +272,16 @@ class AtasanKuesionerController extends BaseController
             return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
         }
 
-        $userId   = session()->get('id_account');
+        $userId = session()->get('id_account');
         $userData = session()->get();
 
+        // Validasi kuesioner
         $questionnaire = $this->questionnaireModel->find($q_id);
         if (!$questionnaire || $questionnaire['is_active'] !== 'active') {
             return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak ditemukan atau tidak aktif');
         }
 
+        // Validasi akses
         $conditional = $questionnaire['conditional_logic'] ?? '';
         if (empty($conditional) || $conditional === '[]') {
             return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk atasan');
@@ -238,14 +300,16 @@ class AtasanKuesionerController extends BaseController
             return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk Anda');
         }
 
+        // Cek status kuesioner
         $status = $this->answerModel->getStatus($q_id, $userId);
         if ($status !== 'completed') {
             return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner belum selesai');
         }
 
+        // Ambil data untuk review
         $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $userData);
         $answers = $this->answerModel->getAnswers($q_id, $userId);
-        $progress = $this->answerModel->calculateProgress($q_id, $userId, $structure); // Hitung progress untuk review
+        $progress = $this->answerModel->calculateProgress($q_id, $userId, $structure);
 
         $announcement = session()->getFlashdata('announcement') ? $this->sanitizeAnnouncementContent(session()->getFlashdata('announcement')) : null;
 
@@ -253,7 +317,7 @@ class AtasanKuesionerController extends BaseController
             'q_id' => $q_id,
             'structure' => $structure,
             'answers' => $answers,
-            'progress' => $progress, // Kirim progress ke review jika diperlukan
+            'progress' => $progress,
             'announcement' => $announcement
         ]);
     }
