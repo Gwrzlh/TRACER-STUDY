@@ -44,4 +44,11 @@ class SiteSettingModel extends Model
             ]);
         }
     }
+    public function saveSettings($data)
+{
+    foreach ($data as $key => $value) {
+        $this->saveSetting($key, $value);
+    }
+}
+
 }

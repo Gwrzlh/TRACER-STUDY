@@ -97,5 +97,6 @@ class Autoload extends AutoloadConfig
      *
      * @var list<string>
      */
-        public $helpers = ['site'];
+        public $helpers = ['site' , 'form', 'url', 'log'];
+
 }

@@ -97,6 +97,10 @@
 
                 <!-- 🎛️ BUTTONS -->
                 <div class="button-container d-flex gap-2 flex-wrap">
+                    <a href="<?= base_url('admin/pengguna/errorLogs') ?>" class="btn btn-outline-danger">
+    <i class="fas fa-bug"></i> Riwayat Error
+</a>
+
                     <a href="<?= base_url('admin/pengguna/tambahPengguna') ?>" class="btn btn-primary btn-add">
                         <i class="fas fa-user-plus"></i> <?= get_setting('pengguna_button_text', 'Tambah Pengguna') ?>
                     </a>

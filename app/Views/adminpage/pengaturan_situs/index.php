@@ -37,8 +37,8 @@
            Pengaturan Atasan
       </a>
       
-    <a href="<?= base_url('pengaturan-jabatanlainya') ?>" 
-       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-jabatanlainya') ? 'active' : '' ?>">
+    <a href="<?= base_url('pengaturan-jabatanlainnya') ?>" 
+       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-jabatanlainnya') ? 'active' : '' ?>">
         Pengaturan Jabatan Lainnya
     </a>
 </div>
