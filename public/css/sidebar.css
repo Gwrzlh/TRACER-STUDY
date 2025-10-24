@@ -39,6 +39,7 @@
   font-weight: 700;
   font-size: 1.25rem;
   border-bottom: 1px solid #e5e7eb;
+  color: #1f2937;
 }
 .logo-img {
   width: 2rem;
@@ -50,7 +51,7 @@
    LINK MENU & DROPDOWN
 ========================== */
 
-/* Menu biasa */
+/* Menu utama */
 .sidebar-link {
   display: flex;
   align-items: center;
@@ -60,25 +61,24 @@
   text-decoration: none;
   color: #374151;
   transition: all 0.2s ease-in-out;
+  cursor: pointer;
 }
 
-/* Dropdown (summary) */
-details > summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* teks kiri, panah kanan */
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
+/* Ikon */
+.icon,
+.sidebar-link i,
+.sidebar-link svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  min-width: 1.25rem;
+  flex-shrink: 0;
 }
 
 /* Hover effect */
 .sidebar-link:hover,
 details > summary:hover {
   background-color: #f3f4f6;
-  color: #000000;
+  color: #111827;
 }
 
 /* Active & Open state */
@@ -89,13 +89,29 @@ details[open] > summary.active {
   font-weight: 600;
 }
 
-/* Ikon */
-.icon,
-.sidebar-link svg {
-  width: 1.5rem;
-  height: 1.5rem;
-  min-width: 1.5rem;
-  flex-shrink: 0;
+/* Dropdown summary */
+details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: #374151;
+  transition: all 0.2s ease-in-out;
+  list-style: none;
+  cursor: pointer;
+}
+
+details > summary::-webkit-details-marker {
+  display: none; /* hilangkan marker default */
+}
+
+/* Panah dropdown */
+details > summary i.fa-chevron-down {
+  transition: transform 0.3s ease;
+}
+details[open] > summary i.fa-chevron-down {
+  transform: rotate(180deg);
 }
 
 /* ==========================
@@ -105,7 +121,7 @@ details[open] > summary.active {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.5rem 0.5rem 2.5rem; /* indentasi submenu */
+  padding: 0.5rem 0.5rem 0.5rem 2.5rem;
   border-radius: 0.25rem;
   color: #4b5563;
   text-decoration: none;
@@ -113,13 +129,30 @@ details[open] > summary.active {
 }
 
 .submenu:hover {
-  color: #000000;
+  background-color: #f3f4f6;
+  color: #111827;
 }
 
 .submenu.active {
   background-color: #e5e7eb;
   color: #2563eb;
   font-weight: 500;
+}
+
+/* Submenu bertingkat (misalnya submenu dalam "Respon") */
+.submenu details > summary {
+  padding-left: 2.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+.submenu details[open] > summary {
+  color: #2563eb;
+}
+
+/* Submenu level 2 */
+.submenu details div a.submenu {
+  padding-left: 3rem;
 }
 
 /* ==========================
@@ -139,7 +172,7 @@ details[open] > summary.active {
   right: 0;
   width: 0.75rem;
   height: 0.75rem;
-  background-color: #ef4444;
+  background-color: #22c55e;
   border: 2px solid #ffffff;
   border-radius: 9999px;
 }
@@ -149,27 +182,58 @@ details[open] > summary.active {
 ========================== */
 .logout-btn {
   width: 100%;
-  background-color: #f97316;
+  background-color: #dc3545;
   color: #ffffff;
   font-size: 0.875rem;
   font-weight: 600;
   padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   text-align: center;
   transition: background-color 0.2s ease-in-out;
 }
 
 .logout-btn:hover {
-  background-color: #ea580c;
+  background-color: #a71d2a;
+}
+
+/* ==========================
+   MODAL FOTO PROFIL
+========================== */
+#profileModal {
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+#profileModal.show {
+  opacity: 1;
 }
 
 /* ==========================
    MAIN CONTENT AREA
 ========================== */
 main {
-  margin-left: 19.5rem; /* offset sidebar */
+  margin-left: 20rem; /* sesuai lebar sidebar (18rem + margin kiri-kanan) */
   padding: 2rem;
   min-height: 100vh;
   overflow: auto;
   background-color: #f8fafc;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* ==========================
+   RESPONSIVE
+========================== */
+@media (max-width: 1024px) {
+  .sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 16rem;
+    border-radius: 0;
+  }
+
+  main {
+    margin-left: 0;
+    padding: 1rem;
+  }
 }
