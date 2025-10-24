@@ -24,12 +24,15 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
-            <?php if (session()->getFlashdata('error')): ?>
-                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i> <?= session()->getFlashdata('error') ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            <?php endif; ?>
+            <?php if(session()->getFlashdata('errors')): ?>
+                    <div class="alert alert-danger">
+                        <ul>
+                            <?php foreach(session()->getFlashdata('errors') as $field => $error): ?>
+                                <li><?= esc($error) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
            <?php if (session()->getFlashdata('errorLogs')): ?>
     <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
         <strong><i class="fas fa-times-circle me-2"></i> Data Gagal Import:</strong>
@@ -171,9 +174,10 @@
                                     </a>
                                     <form action="<?= base_url('admin/pengguna/delete/' . $acc['id']) ?>" method="post" style="display:inline;" onsubmit="return confirm('Hapus pengguna ini?')">
                                         <?= csrf_field() ?>
-                                        <button type="submit" class="btn btn-sm btn-delete">
-                                            <i class="fas fa-trash"></i> Hapus
-                                        </button>
+                                        <button type="button" class="btn btn-sm btn-delete btn-delete-single"
+                                            data-id="<?= esc($acc['id']) ?>">
+                                        <i class="fas fa-trash"></i> Hapus
+                                    </button>
                                     </form>
                                 </td>
 
