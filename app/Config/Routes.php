@@ -35,7 +35,9 @@ $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
     $routes->post('tambahPengguna/post', 'PenggunaController::store');
     $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
     $routes->post('update/(:num)', 'PenggunaController::update/$1');
-    $routes->post('delete/(:num)', 'PenggunaController::delete/$1');
+    $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
+$routes->match(['post', 'delete'], 'delete/(:num)', 'PenggunaController::delete/$1');
+
     $routes->match(['post', 'delete'], 'deleteMultiple', 'PenggunaController::deleteMultiple');
     $routes->post('exportSelected', 'PenggunaController::exportSelected');
     
