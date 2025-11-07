@@ -1,3 +1,4 @@
+<!-- pengaturan admin -->
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 <link rel="stylesheet" href="<?= base_url('css/pengaturan_situs.css') ?>">
