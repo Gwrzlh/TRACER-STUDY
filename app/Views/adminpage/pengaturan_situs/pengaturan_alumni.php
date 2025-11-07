@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="<?= base_url('css/pengaturan_situs.css') ?>">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<div class="container mt-4">
+<div class="container-fluid mt-4">
     <?php if (session()->getFlashdata('success')): ?>
         <script>
             Swal.fire({
@@ -16,154 +16,205 @@
         </script>
     <?php endif; ?>
 
- 
-<!-- tabs -->
-<div class="tab-container">
-    <a href="<?= base_url('pengaturan-situs') ?>" 
-       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-situs') ? 'active' : '' ?>">
-        Pengaturan Admin
-    </a>
-    <a href="<?= base_url('pengaturan-alumni') ?>" 
-       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-alumni') ? 'active' : '' ?>">
-        Pengaturan Alumni
-    </a>
-      <a href="<?= base_url('pengaturan-kaprodi') ?>" 
-           class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-kaprodi') ? 'active' : '' ?>">
-            Pengaturan Kaprodi
-        </a>
-      <a href="<?= base_url('pengaturan-atasan') ?>" 
-           class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-atasan') ? 'active' : '' ?>">
-           Pengaturan Atasan
-      </a>
-      
-    <a href="<?= base_url('pengaturan-jabatanlainya') ?>" 
-       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-jabatanlainya') ? 'active' : '' ?>">
-        Pengaturan Jabatan Lainnya
-    </a>
-</div>
-
     <form action="<?= base_url('pengaturan-alumni/save') ?>" method="post">
-        <div class="card">
-            <div class="card-header">
-                <h5>Pengaturan Tombol Dashboard</h5>
+        <!-- MAIN CARD dengan Navbar di Header -->
+        <div class="main-card">
+            <div class="main-card-header">
+                <h5 class="header-title">Pengaturan Sistem</h5>
+                <div class="tab-container-inline">
+                    <a href="<?= base_url('pengaturan-situs') ?>" 
+                       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-situs') ? 'active' : '' ?>">
+                        Pengaturan Admin
+                    </a>
+                    <a href="<?= base_url('pengaturan-alumni') ?>" 
+                       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-alumni') ? 'active' : '' ?>">
+                        Pengaturan Alumni
+                    </a>
+                    <a href="<?= base_url('pengaturan-kaprodi') ?>" 
+                       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-kaprodi') ? 'active' : '' ?>">
+                        Pengaturan Kaprodi
+                    </a>
+                    <a href="<?= base_url('pengaturan-atasan') ?>" 
+                       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-atasan') ? 'active' : '' ?>">
+                       Pengaturan Atasan
+                    </a>
+                    <a href="<?= base_url('pengaturan-jabatanlainnya') ?>" 
+                       class="tab-link <?= (service('uri')->getSegment(1) == 'pengaturan-jabatanlainnya') ? 'active' : '' ?>">
+                        Pengaturan Jabatan Lainnya
+                    </a>
+                </div>
             </div>
-            <div class="card-body p-4">
-
-                <!-- Profil -->
-                <h5 class="mb-3">Tombol Dashboard - Lihat Profil</h5>
-                <div class="mb-3">
-                    <label for="dashboard_profil_button_text" class="form-label">Teks Tombol</label>
-                    <input type="text" name="dashboard_profil_button_text" id="dashboard_profil_button_text"
-                           value="<?= esc($settings['dashboard_profil_button_text'] ?? 'Lihat Profil') ?>" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="dashboard_profil_button_color" class="form-label">Warna Tombol</label>
-                    <input type="color" name="dashboard_profil_button_color" id="dashboard_profil_button_color"
-                           value="<?= esc($settings['dashboard_profil_button_color'] ?? '#0d6efd') ?>" class="form-control form-control-color">
-                </div>
-                <div class="mb-3">
-                    <label for="dashboard_profil_button_text_color" class="form-label">Warna Teks</label>
-                    <input type="color" name="dashboard_profil_button_text_color" id="dashboard_profil_button_text_color"
-                           value="<?= esc($settings['dashboard_profil_button_text_color'] ?? '#ffffff') ?>" class="form-control form-control-color">
-                </div>
-                <div class="mb-3">
-                    <label for="dashboard_profil_button_hover_color" class="form-label">Warna Hover</label>
-                    <input type="color" name="dashboard_profil_button_hover_color" id="dashboard_profil_button_hover_color"
-                           value="<?= esc($settings['dashboard_profil_button_hover_color'] ?? '#0b5ed7') ?>" class="form-control form-control-color">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Preview Tombol Profil</label><br>
-                    <button type="button" id="profilPreview" class="preview-btn"
-                            style="background-color: <?= esc($settings['dashboard_profil_button_color'] ?? '#0d6efd') ?>;
-                                   color: <?= esc($settings['dashboard_profil_button_text_color'] ?? '#ffffff') ?>;">
-                        <?= esc($settings['dashboard_profil_button_text'] ?? 'Lihat Profil') ?>
-                    </button>
-                </div>
-
-                <hr class="my-4">
-
-                <!-- Kuesioner -->
-                <h5 class="mb-3">Tombol Dashboard - Isi Kuesioner</h5>
-                <div class="mb-3">
-                    <label for="dashboard_kuesioner_button_text" class="form-label">Teks Tombol</label>
-                    <input type="text" name="dashboard_kuesioner_button_text" id="dashboard_kuesioner_button_text"
-                           value="<?= esc($settings['dashboard_kuesioner_button_text'] ?? 'Isi Kuesioner') ?>" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="dashboard_kuesioner_button_color" class="form-label">Warna Tombol</label>
-                    <input type="color" name="dashboard_kuesioner_button_color" id="dashboard_kuesioner_button_color"
-                           value="<?= esc($settings['dashboard_kuesioner_button_color'] ?? '#198754') ?>" class="form-control form-control-color">
-                </div>
-                <div class="mb-3">
-                    <label for="dashboard_kuesioner_button_text_color" class="form-label">Warna Teks</label>
-                    <input type="color" name="dashboard_kuesioner_button_text_color" id="dashboard_kuesioner_button_text_color"
-                           value="<?= esc($settings['dashboard_kuesioner_button_text_color'] ?? '#ffffff') ?>" class="form-control form-control-color">
-                </div>
-                <div class="mb-3">
-                    <label for="dashboard_kuesioner_button_hover_color" class="form-label">Warna Hover</label>
-                    <input type="color" name="dashboard_kuesioner_button_hover_color" id="dashboard_kuesioner_button_hover_color"
-                           value="<?= esc($settings['dashboard_kuesioner_button_hover_color'] ?? '#157347') ?>" class="form-control form-control-color">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Preview Tombol Kuesioner</label><br>
-                    <button type="button" id="kuesionerPreview" class="preview-btn"
-                            style="background-color: <?= esc($settings['dashboard_kuesioner_button_color'] ?? '#198754') ?>;
-                                   color: <?= esc($settings['dashboard_kuesioner_button_text_color'] ?? '#ffffff') ?>;">
-                        <?= esc($settings['dashboard_kuesioner_button_text'] ?? 'Isi Kuesioner') ?>
-                    </button>
-                </div>
-
-                <hr class="my-4">
-
-                <!-- Logout -->
-                <h5 class="mb-3">Tombol Dashboard - Logout</h5>
-                <div class="mb-3">
-                  <label for="dashboard_logout_button_text" class="form-label">Teks Tombol</label>
-                  <input type="text" name="dashboard_logout_button_text" id="dashboard_logout_button_text"
-                         value="<?= esc($settings['dashboard_logout_button_text'] ?? 'Logout') ?>" class="form-control">
-                </div>
-                <div class="mb-3">
-                  <label for="dashboard_logout_button_color" class="form-label">Warna Background</label>
-                  <input type="color" name="dashboard_logout_button_color" id="dashboard_logout_button_color"
-                         value="<?= esc($settings['dashboard_logout_button_color'] ?? '#dc2626') ?>" class="form-control form-control-color">
-                </div>
-                <div class="mb-3">
-                  <label for="dashboard_logout_button_text_color" class="form-label">Warna Teks</label>
-                  <input type="color" name="dashboard_logout_button_text_color" id="dashboard_logout_button_text_color"
-                         value="<?= esc($settings['dashboard_logout_button_text_color'] ?? '#ffffff') ?>" class="form-control form-control-color">
-                </div>
-                <div class="mb-3">
-                  <label for="dashboard_logout_button_hover_color" class="form-label">Warna Hover</label>
-                  <input type="color" name="dashboard_logout_button_hover_color" id="dashboard_logout_button_hover_color"
-                         value="<?= esc($settings['dashboard_logout_button_hover_color'] ?? '#b91c1c') ?>" class="form-control form-control-color">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Preview Tombol Logout</label><br>
-                  <button type="button" id="logoutPreview"
-                          style="background-color: <?= esc($settings['dashboard_logout_button_color'] ?? '#dc2626') ?>;
-                                 color: <?= esc($settings['dashboard_logout_button_text_color'] ?? '#ffffff') ?>;
-                                 border: none;
-                                 padding: 8px 16px;
-                                 border-radius: 8px;
-                                 font-weight: 600;
-                                 cursor: pointer;
-                                 transition: 0.2s;">
-                    <?= esc($settings['dashboard_logout_button_text'] ?? 'Logout') ?> →
-                  </button>
-                </div>
+            
+            <div class="main-card-body">
                 
-<!-- Pagination -->
-<h5 class="mb-3">Pengaturan Lihat Teman</h5>
-<div class="mb-3">
-    <label for="lihat_teman_pagination_limit" class="form-label">Jumlah Data per Halaman Lihat Teman</label>
-    <input type="number" min="1" max="100" name="lihat_teman_pagination_limit" id="lihat_teman_pagination_limit"
-           value="<?= esc($settings['lihat_teman_pagination_limit'] ?? 10) ?>" class="form-control" style="width: 150px;">
-    
-</div>
+                <!-- Card: Tombol Dashboard - Lihat Profil -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h6 class="settings-card-title">Tombol Dashboard - Lihat Profil</h6>
+                    </div>
+                    <div class="settings-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="dashboard_profil_button_text" class="form-label">Teks Tombol</label>
+                                <input type="text" name="dashboard_profil_button_text" id="dashboard_profil_button_text"
+                                       value="<?= esc($settings['dashboard_profil_button_text'] ?? 'Lihat Profil') ?>" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-4">
+                                <label for="dashboard_profil_button_color" class="form-label">Warna Tombol</label>
+                                <input type="color" name="dashboard_profil_button_color" id="dashboard_profil_button_color"
+                                       value="<?= esc($settings['dashboard_profil_button_color'] ?? '#0d6efd') ?>" class="form-control-color">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="dashboard_profil_button_text_color" class="form-label">Warna Teks</label>
+                                <input type="color" name="dashboard_profil_button_text_color" id="dashboard_profil_button_text_color"
+                                       value="<?= esc($settings['dashboard_profil_button_text_color'] ?? '#ffffff') ?>" class="form-control-color">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="dashboard_profil_button_hover_color" class="form-label">Warna Hover</label>
+                                <input type="color" name="dashboard_profil_button_hover_color" id="dashboard_profil_button_hover_color"
+                                       value="<?= esc($settings['dashboard_profil_button_hover_color'] ?? '#0b5ed7') ?>" class="form-control-color">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">Preview Tombol Profil</label><br>
+                            <button type="button" id="profilPreview"
+                                    style="background-color: <?= esc($settings['dashboard_profil_button_color'] ?? '#0d6efd') ?>;
+                                           color: <?= esc($settings['dashboard_profil_button_text_color'] ?? '#ffffff') ?>;
+                                           border: none;
+                                           padding: 10px 20px;
+                                           border-radius: 8px;
+                                           font-weight: 600;
+                                           font-size: 14px;
+                                           cursor: pointer;
+                                           transition: 0.2s;">
+                                <?= esc($settings['dashboard_profil_button_text'] ?? 'Lihat Profil') ?>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Tombol Dashboard - Isi Kuesioner -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h6 class="settings-card-title">Tombol Dashboard - Isi Kuesioner</h6>
+                    </div>
+                    <div class="settings-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="dashboard_kuesioner_button_text" class="form-label">Teks Tombol</label>
+                                <input type="text" name="dashboard_kuesioner_button_text" id="dashboard_kuesioner_button_text"
+                                       value="<?= esc($settings['dashboard_kuesioner_button_text'] ?? 'Isi Kuesioner') ?>" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-4">
+                                <label for="dashboard_kuesioner_button_color" class="form-label">Warna Tombol</label>
+                                <input type="color" name="dashboard_kuesioner_button_color" id="dashboard_kuesioner_button_color"
+                                       value="<?= esc($settings['dashboard_kuesioner_button_color'] ?? '#198754') ?>" class="form-control-color">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="dashboard_kuesioner_button_text_color" class="form-label">Warna Teks</label>
+                                <input type="color" name="dashboard_kuesioner_button_text_color" id="dashboard_kuesioner_button_text_color"
+                                       value="<?= esc($settings['dashboard_kuesioner_button_text_color'] ?? '#ffffff') ?>" class="form-control-color">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="dashboard_kuesioner_button_hover_color" class="form-label">Warna Hover</label>
+                                <input type="color" name="dashboard_kuesioner_button_hover_color" id="dashboard_kuesioner_button_hover_color"
+                                       value="<?= esc($settings['dashboard_kuesioner_button_hover_color'] ?? '#157347') ?>" class="form-control-color">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">Preview Tombol Kuesioner</label><br>
+                            <button type="button" id="kuesionerPreview"
+                                    style="background-color: <?= esc($settings['dashboard_kuesioner_button_color'] ?? '#198754') ?>;
+                                           color: <?= esc($settings['dashboard_kuesioner_button_text_color'] ?? '#ffffff') ?>;
+                                           border: none;
+                                           padding: 10px 20px;
+                                           border-radius: 8px;
+                                           font-weight: 600;
+                                           font-size: 14px;
+                                           cursor: pointer;
+                                           transition: 0.2s;">
+                                <?= esc($settings['dashboard_kuesioner_button_text'] ?? 'Isi Kuesioner') ?>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Tombol Dashboard - Logout -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h6 class="settings-card-title">Tombol Dashboard - Logout</h6>
+                    </div>
+                    <div class="settings-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="dashboard_logout_button_text" class="form-label">Teks Tombol</label>
+                                <input type="text" name="dashboard_logout_button_text" id="dashboard_logout_button_text"
+                                       value="<?= esc($settings['dashboard_logout_button_text'] ?? 'Logout') ?>" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-4">
+                                <label for="dashboard_logout_button_color" class="form-label">Warna Background</label>
+                                <input type="color" name="dashboard_logout_button_color" id="dashboard_logout_button_color"
+                                       value="<?= esc($settings['dashboard_logout_button_color'] ?? '#dc2626') ?>" class="form-control-color">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="dashboard_logout_button_text_color" class="form-label">Warna Teks</label>
+                                <input type="color" name="dashboard_logout_button_text_color" id="dashboard_logout_button_text_color"
+                                       value="<?= esc($settings['dashboard_logout_button_text_color'] ?? '#ffffff') ?>" class="form-control-color">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="dashboard_logout_button_hover_color" class="form-label">Warna Hover</label>
+                                <input type="color" name="dashboard_logout_button_hover_color" id="dashboard_logout_button_hover_color"
+                                       value="<?= esc($settings['dashboard_logout_button_hover_color'] ?? '#b91c1c') ?>" class="form-control-color">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">Preview Tombol Logout</label><br>
+                            <button type="button" id="logoutPreview"
+                                    style="background-color: <?= esc($settings['dashboard_logout_button_color'] ?? '#dc2626') ?>;
+                                           color: <?= esc($settings['dashboard_logout_button_text_color'] ?? '#ffffff') ?>;
+                                           border: none;
+                                           padding: 10px 20px;
+                                           border-radius: 8px;
+                                           font-weight: 600;
+                                           font-size: 14px;
+                                           cursor: pointer;
+                                           transition: 0.2s;">
+                                <?= esc($settings['dashboard_logout_button_text'] ?? 'Logout') ?> →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Pengaturan Lihat Teman -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h6 class="settings-card-title">Pengaturan Lihat Teman</h6>
+                    </div>
+                    <div class="settings-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="lihat_teman_pagination_limit" class="form-label">Jumlah Data per Halaman Lihat Teman</label>
+                                <input type="number" min="1" max="100" name="lihat_teman_pagination_limit" id="lihat_teman_pagination_limit"
+                                       value="<?= esc($settings['lihat_teman_pagination_limit'] ?? 10) ?>" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        </div>
-        <div class="text-end mt-4">
-            <button type="submit" class="btn btn-success">💾 Simpan Pengaturan Alumni</button>
+            
+            <!-- Card Footer -->
+            <div class="main-card-footer">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Simpan Pengaturan Alumni
+                </button>
+            </div>
         </div>
     </form>
 </div>
