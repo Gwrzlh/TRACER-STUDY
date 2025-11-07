@@ -249,8 +249,8 @@
                     <img src="/images/logo.png" alt="Tracer Study" style="height: 60px;">
                 </div>
                 <div>
-                    <h1 class="dashboard-title">Dashboard Atasan</h1>
-                    <p style="color: var(--gray-600);">Selamat datang kembali, <?= session('username') ?></p>
+                   <h1 class="dashboard-title"><?= esc($judul_dashboard) ?></h1>
+                    <p style="color: var(--gray-600);"><?= ($deskripsi) ?></p>
                 </div>
             </div>
         </div>
@@ -269,7 +269,8 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-building"></i></div>
-                <div class="stat-title">Total Perusahaan</div>
+               <div class="stat-title"><?= esc($judul_kuesioner) ?></div>
+
                 <div class="stat-value"><?= $totalPerusahaan ?></div>
                 <div class="stat-percentage">+1.8% dari bulan lalu</div>
             </div>
@@ -277,7 +278,7 @@
 
         <!-- Chart -->
         <div class="card-chart">
-            <h2>Grafik Pertumbuhan Alumni</h2>
+            <h2><?= esc($judul_profil) ?></h2>
             <div class="chart-wrapper">
                 <canvas id="companyChart"></canvas>
             </div>
@@ -285,7 +286,7 @@
 
       <!-- Tabel Ringkasan -->
 <div class="card-table">
-    <h2>Daftar Alumni Terbaru</h2>
+  <h2><?= esc($judul_data_alumni) ?></h2>
     <table id="companyTable">
         <thead>
             <tr>
