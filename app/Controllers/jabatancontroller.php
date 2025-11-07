@@ -12,106 +12,120 @@ use App\Models\DetailaccountKaprodi;
 class JabatanController extends Controller
 {
     public function dashboard()
-    {
+{
+    // Cek role hanya untuk Jabatan Lainnya
+    if (session('role_id') != 9) {
+        return redirect()->to('/login')->with('error', 'Akses ditolak.');
+    }
 
-        // Cek role hanya untuk Jabatan Lainnya
-        if (session('role_id') != 9) {
-            return redirect()->to('/login')->with('error', 'Akses ditolak.');
-        }
+    $db = \Config\Database::connect();
+    $questionModel = new QuestionModel();
+    $alumniModel   = new DetailaccountAlumni();
+    $kaprodiModel  = new DetailaccountKaprodi();
+    $prodiModel    = new Prodi();
+    $jurusanModel  = new \App\Models\Jurusan();
+    $dashboardModel = new \App\Models\PengaturanDashboardModel();
 
-        $db = \Config\Database::connect();
-        $questionModel = new QuestionModel();
-        $alumniModel   = new DetailaccountAlumni();
-        $kaprodiModel  = new DetailaccountKaprodi();
-        $prodiModel    = new Prodi();
-        $jurusanModel  = new \App\Models\Jurusan();
+    // 🔹 Ambil pengaturan dashboard dari tabel dashboard_alumni
+    $dashboardSetting = $dashboardModel->where('tipe', 'jabatan_lainnya')->first();
 
-        // --- Statistik AMI & Akreditasi ---
-        $totalPertanyaanAmi = $questionModel->where('is_for_ami', 1)->countAllResults();
-        $totalPertanyaanAkreditasi = $questionModel->where('is_for_accreditation', 1)->countAllResults();
+    // --- Statistik AMI & Akreditasi ---
+    $totalPertanyaanAmi = $questionModel->where('is_for_ami', 1)->countAllResults();
+    $totalPertanyaanAkreditasi = $questionModel->where('is_for_accreditation', 1)->countAllResults();
 
-        $totalJawabanAmi = $db->table('answers a')
-            ->join('questions q', 'q.id = a.question_id')
-            ->where('q.is_for_ami', 1)
-            ->where('a.status', 'completed')
-            ->countAllResults();
+    $totalJawabanAmi = $db->table('answers a')
+        ->join('questions q', 'q.id = a.question_id')
+        ->where('q.is_for_ami', 1)
+        ->where('a.status', 'completed')
+        ->countAllResults();
 
-        $totalJawabanAkreditasi = $db->table('answers a')
-            ->join('questions q', 'q.id = a.question_id')
-            ->where('q.is_for_accreditation', 1)
-            ->where('a.status', 'completed')
-            ->countAllResults();
+    $totalJawabanAkreditasi = $db->table('answers a')
+        ->join('questions q', 'q.id = a.question_id')
+        ->where('q.is_for_accreditation', 1)
+        ->where('a.status', 'completed')
+        ->countAllResults();
 
-        $grafikAmi = $db->table('answers a')
-            ->select('q.question_text, COUNT(a.id) as total')
-            ->join('questions q', 'q.id = a.question_id')
-            ->where('q.is_for_ami', 1)
-            ->where('a.status', 'completed')
-            ->groupBy('q.id')
-            ->get()->getResultArray();
+    // --- Grafik AMI ---
+    $grafikAmi = $db->table('answers a')
+        ->select('q.question_text, COUNT(a.id) as total')
+        ->join('questions q', 'q.id = a.question_id')
+        ->where('q.is_for_ami', 1)
+        ->where('a.status', 'completed')
+        ->groupBy('q.id')
+        ->get()->getResultArray();
 
-        $grafikAkreditasi = $db->table('answers a')
-            ->select('q.question_text, COUNT(a.id) as total')
-            ->join('questions q', 'q.id = a.question_id')
-            ->where('q.is_for_accreditation', 1)
-            ->where('a.status', 'completed')
-            ->groupBy('q.id')
-            ->get()->getResultArray();
+    // --- Grafik Akreditasi ---
+    $grafikAkreditasi = $db->table('answers a')
+        ->select('q.question_text, COUNT(a.id) as total')
+        ->join('questions q', 'q.id = a.question_id')
+        ->where('q.is_for_accreditation', 1)
+        ->where('a.status', 'completed')
+        ->groupBy('q.id')
+        ->get()->getResultArray();
 
-        // --- Nested Data Jurusan → Prodi → Alumni ---
-        $jurusans = $jurusanModel->findAll();
-        $dashboardData = [];
+    // --- Nested Data Jurusan → Prodi → Alumni ---
+    $jurusans = $jurusanModel->findAll();
+    $dashboardData = [];
 
-        foreach ($jurusans as $jurusan) {
-            $prodis = $prodiModel->where('id_jurusan', $jurusan['id'])->findAll();
-            $prodiData = [];
+    foreach ($jurusans as $jurusan) {
+        $prodis = $prodiModel->where('id_jurusan', $jurusan['id'])->findAll();
+        $prodiData = [];
 
-            foreach ($prodis as $prodi) {
-                // Ambil alumni per prodi
-                $alumni = $alumniModel->db->table('detailaccount_alumni da')
-                    ->select('da.*, account.username, jurusan.nama_jurusan, prodi.nama_prodi, provinsi.name as nama_provinsi, cities.name as nama_cities')
-                    ->join('account', 'account.id = da.id_account', 'left')
-                    ->join('jurusan', 'jurusan.id = da.id_jurusan', 'left')
-                    ->join('prodi', 'prodi.id = da.id_prodi', 'left')
-                    ->join('provinces provinsi', 'provinsi.id = da.id_provinsi', 'left')
-                    ->join('cities', 'cities.id = da.id_cities', 'left')
-                    ->where('da.id_prodi', $prodi['id'])
-                    ->get()->getResultArray();
+        foreach ($prodis as $prodi) {
+            // Ambil alumni per prodi
+            $alumni = $alumniModel->db->table('detailaccount_alumni da')
+                ->select('da.*, account.username, jurusan.nama_jurusan, prodi.nama_prodi, provinsi.name as nama_provinsi, cities.name as nama_cities')
+                ->join('account', 'account.id = da.id_account', 'left')
+                ->join('jurusan', 'jurusan.id = da.id_jurusan', 'left')
+                ->join('prodi', 'prodi.id = da.id_prodi', 'left')
+                ->join('provinces provinsi', 'provinsi.id = da.id_provinsi', 'left')
+                ->join('cities', 'cities.id = da.id_cities', 'left')
+                ->where('da.id_prodi', $prodi['id'])
+                ->get()->getResultArray();
 
-                // Ambil kaprodi per prodi
-                $kaprodi = $kaprodiModel->db->table('detailaccount_kaprodi dk')
-                    ->select('dk.*, account.username, jurusan.nama_jurusan, prodi.nama_prodi')
-                    ->join('account', 'account.id = dk.id_account', 'left')
-                    ->join('jurusan', 'jurusan.id = dk.id_jurusan', 'left')
-                    ->join('prodi', 'prodi.id = dk.id_prodi', 'left')
-                    ->where('dk.id_prodi', $prodi['id'])
-                    ->get()->getResultArray();
+            // Ambil kaprodi per prodi
+            $kaprodi = $kaprodiModel->db->table('detailaccount_kaprodi dk')
+                ->select('dk.*, account.username, jurusan.nama_jurusan, prodi.nama_prodi')
+                ->join('account', 'account.id = dk.id_account', 'left')
+                ->join('jurusan', 'jurusan.id = dk.id_jurusan', 'left')
+                ->join('prodi', 'prodi.id = dk.id_prodi', 'left')
+                ->where('dk.id_prodi', $prodi['id'])
+                ->get()->getResultArray();
 
-                $prodiData[] = [
-                    'prodi' => $prodi,
-                    'alumni' => $alumni,
-                    'kaprodi' => $kaprodi
-                ];
-            }
-
-            $dashboardData[] = [
-                'jurusan' => $jurusan,
-                'prodis'  => $prodiData
+            $prodiData[] = [
+                'prodi' => $prodi,
+                'alumni' => $alumni,
+                'kaprodi' => $kaprodi
             ];
         }
 
-        $data = [
-            'totalPertanyaanAmi'        => $totalPertanyaanAmi,
-            'totalPertanyaanAkreditasi' => $totalPertanyaanAkreditasi,
-            'totalJawabanAmi'           => $totalJawabanAmi,
-            'totalJawabanAkreditasi'    => $totalJawabanAkreditasi,
-            'grafikAmi'                 => $grafikAmi,
-            'grafikAkreditasi'          => $grafikAkreditasi,
-            'dashboardData'             => $dashboardData
+        $dashboardData[] = [
+            'jurusan' => $jurusan,
+            'prodis'  => $prodiData
         ];
-
-        return view('jabatan/dashboard', $data);
     }
+
+    // 🔹 Data untuk dikirim ke view
+    $data = [
+        // Statistik
+        'totalPertanyaanAmi'        => $totalPertanyaanAmi,
+        'totalPertanyaanAkreditasi' => $totalPertanyaanAkreditasi,
+        'totalJawabanAmi'           => $totalJawabanAmi,
+        'totalJawabanAkreditasi'    => $totalJawabanAkreditasi,
+        'grafikAmi'                 => $grafikAmi,
+        'grafikAkreditasi'          => $grafikAkreditasi,
+        'dashboardData'             => $dashboardData,
+
+        // Pengaturan teks (bisa diubah dari menu pengaturan)
+        'judul'       => $dashboardSetting['judul'] ?? 'Dashboard Jabatan Lainnya',
+        'deskripsi'   => $dashboardSetting['deskripsi'] ?? 'Halo jabatan 👋',
+        'judul_ami'   => $dashboardSetting['judul_ami'] ?? 'AMI',
+        'judul_profil'=> $dashboardSetting['judul_profil'] ?? 'Akreditasi',
+    ];
+
+    return view('jabatan/dashboard', $data);
+}
+
 
 
     /**
