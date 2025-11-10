@@ -6,6 +6,7 @@ use CodeIgniter\Controller;
 
 class AtasanController extends Controller
 {
+
     // =========================
     // 🏠 DASHBOARD ATASAN
     // =========================
@@ -32,7 +33,50 @@ class AtasanController extends Controller
             'totalPerusahaan' => $totalPerusahaan,
             'alumni' => $alumni
         ]);
+
     }
+
+    $db = \Config\Database::connect();
+    $pengaturanModel = new \App\Models\PengaturanDashboardModel();
+
+    // 🔹 Ambil pengaturan dashboard untuk tipe "atasan"
+    $dashboard = $pengaturanModel->where('tipe', 'atasan')->first();
+
+    // 🔹 Ambil jumlah perusahaan (role_id = 7)
+    $totalPerusahaan = (int) $db->table('account')
+        ->where('id_role', 7)
+        ->countAllResults();
+
+    // 🔹 Ambil 5 alumni terbaru
+    $alumni = $db->table('detailaccount_alumni')
+        ->select('nama_lengkap, nim, id_jurusan, id_prodi, tahun_kelulusan, ipk, id_cities')
+        ->orderBy('id', 'DESC')
+        ->limit(5)
+        ->get()
+        ->getResultArray();
+
+    // 🔹 Ambil foto header (jika ada)
+    $fotoHeader = $dashboard['foto'] ?? '/images/logo.png';
+
+    // 🔹 Siapkan data yang akan dikirim ke view
+    $data = [
+        'totalPerusahaan' => $totalPerusahaan,
+        'alumni' => $alumni,
+        'judul_dashboard' => $dashboard['judul'] ?? 'Dashboard Atasan',
+        'deskripsi'       => $dashboard['deskripsi'] ?? 'Halo atasan 👋',
+        'judul_kuesioner' => $dashboard['judul_kuesioner' ] ?? 'Total Perusahaan',
+        'judul_profil'          => $dashboard[ 'judul_profil' ] ?? 'Grafik Pertumbuhan Alumni',
+        'judul_data_alumni'=> $dashboard[ 'judul_data_alumni'] ?? 'Daftar Alumni Terbaru',
+        'card_4'          => $dashboard['card_4'] ?? '',
+        'card_5'          => $dashboard['card_5'] ?? '',
+        'card_6'          => $dashboard['card_6'] ?? '',
+        'card_7'          => $dashboard['card_7'] ?? '',
+        'fotoHeader'      => $fotoHeader,
+    ];
+
+    return view('atasan/dashboard', $data);
+}
+
 
     // =========================
     // 📊 KUESIONER (opsional)

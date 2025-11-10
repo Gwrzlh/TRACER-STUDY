@@ -451,7 +451,12 @@ $routes->post('pengaturan-dashboard/dashboard-alumni/save', 'PengaturanDashboard
 // Pengaturan Dashboard Kaprodi
 $routes->get('pengaturan-dashboard/dashboard-kaprodi', 'PengaturanDashboardKaprodi::index');
 $routes->post('pengaturan-dashboard/dashboard-kaprodi/save', 'PengaturanDashboardKaprodi::save');
-
+$routes->get('pengaturan-dashboard/dashboard-admin', 'PengaturanDashboardAdmin::index');
+$routes->post('pengaturan-dashboard/dashboard-admin/save', 'PengaturanDashboardAdmin::save');
+$routes->get('pengaturan-dashboard/dashboard-jabatanlainnya', 'PengaturanDashboardJabatanLainnya::index');
+$routes->post('pengaturan-dashboard/dashboard-jabatanlainnya/save', 'PengaturanDashboardJabatanLainnya::save');
+$routes->get('pengaturan-dashboard/dashboard-atasan', 'PengaturanDashboardAtasan::index');
+$routes->post('pengaturan-dashboard/dashboard-atasan/save', 'PengaturanDashboardAtasan::save');
 
 
 
