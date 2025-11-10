@@ -1,8 +1,20 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
-<div class="container mx-auto p-6">
-    <h2 class="text-2xl font-bold mb-4">📋 Respon Kuesioner Atasan</h2>
+<link rel="stylesheet" href="<?= base_url('css/respon/atasan.css') ?>">
+
+<div class="page-header mb-4">
+    <div class="header-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+    </div>
+    <h2 class="header-title">Respon Kuesioner Atasan</h2>
+</div>
 
     <!-- Filter Form -->
     <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -31,7 +43,7 @@
         <!-- Tombol -->
         <div class="flex gap-2 items-center">
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                🔍 Terapkan
+                 Terapkan
             </button>
             <a href="<?= base_url('admin/respon/atasan') ?>" 
                class="bg-gray-300 px-3 py-2 rounded hover:bg-gray-400 text-gray-800">
