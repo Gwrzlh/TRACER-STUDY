@@ -124,10 +124,12 @@
                 </div>
 
             <!-- JS -->
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
                     const baseUrl = "<?= base_url('admin/questionnaire') ?>";
+
+                    // 🔹 Delete confirmation
                     document.querySelectorAll(".delete-questionnaire").forEach(button => {
                         button.addEventListener("click", function() {
                             const id = this.getAttribute("data-id");
@@ -147,8 +149,28 @@
                             });
                         });
                     });
+
+                    // 🔹 Flash message alert (otomatis muncul di index)
+                    <?php if (session()->getFlashdata('success')): ?>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: '<?= esc(session()->getFlashdata('success')) ?>',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    <?php elseif (session()->getFlashdata('error')): ?>
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: '<?= esc(session()->getFlashdata('error')) ?>',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    <?php endif; ?>
                 });
             </script>
+
         </div>
     </div>
 </div>

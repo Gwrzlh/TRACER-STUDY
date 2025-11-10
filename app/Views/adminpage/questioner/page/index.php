@@ -83,6 +83,53 @@
                         </table>
                     <?php endif; ?>
                 </div>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // ✅ Alert hapus (sudah ada, biarkan)
+    document.querySelectorAll(".delete-page").forEach(el => {
+        el.addEventListener("click", function() {
+            const pageId = this.dataset.id;
+            Swal.fire({
+                title: 'Yakin ingin menghapus?',
+                text: "Halaman beserta pertanyaan di dalamnya akan terhapus permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '<?= base_url('admin/questionnaire/' . (isset($questionnaire['id']) ? $questionnaire['id'] : 0) . '/pages') ?>/' + pageId + '/delete';
+                }
+            });
+        });
+    });
+
+    // ✅ Alert sukses setelah redirect (flashdata dari session)
+    <?php if (session()->getFlashdata('success')): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '<?= session()->getFlashdata('success') ?>',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    <?php endif; ?>
+
+    <?php if (session()->getFlashdata('error')): ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '<?= session()->getFlashdata('error') ?>',
+            showConfirmButton: true
+        });
+    <?php endif; ?>
+});
+</script>
+
             </div>
 
             <!-- JS (tidak berubah) -->

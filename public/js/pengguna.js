@@ -30,34 +30,46 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // === HAPUS TUNGGAL ===
+    // === HAPUS TUNGGAL (pakai SweetAlert2) ===
     document.querySelectorAll('.btn-delete-single').forEach(btn => {
         btn.addEventListener('click', function () {
             const id = this.getAttribute('data-id');
-            if (confirm('Yakin ingin menghapus pengguna ini?')) {
-                const form = document.createElement('form');
-                form.method = 'post';
-                form.action = `${window.location.origin}/admin/pengguna/delete/${id}`;
 
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '<?= csrf_token() ?>';
-                csrfInput.value = '<?= csrf_hash() ?>';
+            Swal.fire({
+                title: "Yakin ingin menghapus?",
+                text: "Data pengguna ini akan dihapus permanen.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Ya, hapus!",
+                cancelButtonText: "Batal"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'post';
+                    form.action = `${window.location.origin}/admin/pengguna/delete/${id}`;
 
-                const methodInput = document.createElement('input');
-                methodInput.type = 'hidden';
-                methodInput.name = '_method';
-                methodInput.value = 'DELETE';
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '<?= csrf_token() ?>';
+                    csrfInput.value = '<?= csrf_hash() ?>';
 
-                form.appendChild(csrfInput);
-                form.appendChild(methodInput);
-                document.body.appendChild(form);
-                form.submit();
-            }
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+
+                    form.appendChild(csrfInput);
+                    form.appendChild(methodInput);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
         });
     });
 
-    // === ALERT ===
+    // === ALERT CUSTOM ===
     window.showAlert = function (msg) {
         const old = document.getElementById('alert-popup');
         if (old) old.remove();
