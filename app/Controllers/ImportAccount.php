@@ -71,7 +71,7 @@ class ImportAccount extends BaseController
                     case 'alumni':
                         $idJurusan = $this->mapJurusan($row[5] ?? null);
                         if (!$idJurusan) {
-                            $errorLogs[] = "Baris " . ($i + 2) . ": Jurusan '" . ($row[5] ?? '-') . "' tidak ditemukan di database.";
+                            $errorLogs[] = "Baris " . ($i + 2) . ": Jurusan '" . ($row[5] ?? '-') . "' tidak ditemukan.";
                             $accountModel->delete($accountId); // rollback akun
                             continue 2;
                         }
@@ -120,7 +120,7 @@ class ImportAccount extends BaseController
     // Ambil jurusan dari kolom ke-5 (index 4)
     $idJurusan = $this->mapJurusan($row[4] ?? null);
     if (!$idJurusan) {
-        $errorLogs[] = "Baris " . ($i + 2) . ": Jurusan '" . ($row[4] ?? '-') . "' tidak ditemukan di database.";
+        $errorLogs[] = "Baris " . ($i + 2) . ": Jurusan '" . ($row[4] ?? '-') . "' tidak ditemukan.";
         $accountModel->delete($accountId);
         continue 2;
     }

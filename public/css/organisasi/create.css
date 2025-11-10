@@ -55,7 +55,7 @@
     background-color: #fff; /* input putih */
 }
 
-/* Button */
+/* Button (Legacy - jika masih digunakan di tempat lain) */
 .btn-primary-custom {
     background-color: #001BB7;
     color: white;
@@ -83,6 +83,49 @@
     background-color: #cc7a00;
 }
 
+/* Form Actions Container */
+.form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 10px;
+}
+
+/* Button Custom Base */
+.btn-custom {
+    padding: 0.6rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+/* Button Simpan - Biru */
+.save-btn {
+    background-color: #001BB7;
+    color: white;
+}
+
+.save-btn:hover {
+    background-color: #001099;
+    color: white;
+}
+
+/* Button Batal - Orange */
+.cancel-btn {
+    background-color: #FFA500;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #cc7a00;
+    color: white;
+}
+
 /* Alert */
 .alert {
     margin-bottom: 20px;
@@ -91,4 +134,26 @@
 .alert ul {
     margin-bottom: 0;
     padding-left: 20px;
+}
+
+/* Label Required Indicator */
+.form-label.required::after {
+    content: " *";
+    color: red;
+}
+
+/* Textarea */
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Select Dropdown */
+select.form-control {
+    cursor: pointer;
+}
+
+/* Form Group Spacing */
+.mb-3 {
+    margin-bottom: 1rem;
 }
