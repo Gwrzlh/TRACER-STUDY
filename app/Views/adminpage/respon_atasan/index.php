@@ -81,7 +81,6 @@
                             </td>
                             <td class="px-4 py-2">
                                 <?php
-                                    // Ambil updated_at dari DB (diasumsikan UTC) dan set timezone Asia/Jakarta
                                     $dt = new DateTime($res['updated_at'], new DateTimeZone('UTC'));
                                     $dt->setTimezone(new DateTimeZone('Asia/Jakarta'));
                                     echo $dt->format('d M Y H:i');
@@ -90,9 +89,11 @@
                             <td class="px-4 py-2 text-center">
                                 <a href="<?= base_url('admin/respon/atasan/detail/' . $res['id']) ?>"
                                    class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs">Detail</a>
-                                <a href="<?= base_url('admin/respon/atasan/delete/' . $res['id']) ?>"
-                                   onclick="return confirm('Yakin ingin menghapus data ini?')"
-                                   class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs">Hapus</a>
+                                <button type="button" 
+                                    onclick="confirmDelete('<?= base_url('admin/respon/atasan/delete/' . $res['id']) ?>')" 
+                                    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs">
+                                    Hapus
+                                </button>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -101,5 +102,38 @@
         </table>
     </div>
 </div>
+
+<!-- ✅ SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+// Konfirmasi hapus pakai SweetAlert2
+function confirmDelete(url) {
+    Swal.fire({
+        title: 'Yakin ingin menghapus?',
+        text: "Data yang dihapus tidak dapat dikembalikan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = url;
+        }
+    });
+}
+
+// Notifikasi sukses jika ada flashdata
+<?php if (session()->getFlashdata('success')): ?>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil!',
+    text: '<?= session()->getFlashdata('success') ?>',
+    showConfirmButton: false,
+    timer: 2000
+});
+<?php endif; ?>
+</script>
 
 <?= $this->endSection() ?>
