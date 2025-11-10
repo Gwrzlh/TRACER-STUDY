@@ -662,17 +662,24 @@ $routes->group('jabatan', ['filter' => 'jabatanAuth'], function ($routes) {
 $routes->group('atasan', function ($routes) {
     // Dashboard perusahaan
     $routes->get('dashboard', 'AtasanController::dashboard');
+        // 🔹 Tambah Alumni
+    $routes->get('perusahaan/tambah-alumni', 'AtasanController::tambahAlumni');
+    $routes->post('perusahaan/simpan-alumni/(:num)', 'AtasanController::simpanAlumni/$1');
+
+    // 🔹 Response Alumni
+    $routes->get('perusahaan/response-alumni', 'AtasanController::responseAlumni');
+      // Response Alumni
+    $routes->get('perusahaan/response-alumni', 'AtasanController::responseAlumni');
+    $routes->get('perusahaan/response-alumni/lihat/(:num)', 'AtasanController::Lihatjawaban/$1');
 });
+$routes->get('atasan/perusahaan/search-alumni', 'AtasanController::searchAlumni');
 
 // --- Atasan ---
 $routes->get('atasan/dashboard', 'AtasanController::dashboard');
 $routes->get('atasan/kuesioner', 'AtasanKuesionerController::index');
 // =============== ATASAN ===============
-// ================= ATASAN CRUD PERUSAHAAN =================
 $routes->get('/atasan/perusahaan', 'AtasanController::perusahaan');
-$routes->get('/atasan/perusahaan/detail/(:num)', 'AtasanController::detailPerusahaan/$1');
-$routes->get('/atasan/perusahaan/edit/(:num)', 'AtasanController::editPerusahaan/$1');
-$routes->get('atasan/perusahaan/getCitiesByProvince/(:num)', 'AtasanController::getCitiesByProvince/$1');
+
 
 
 

@@ -46,12 +46,32 @@ $currentRoute = service('request')->uri->getPath();
             </svg>
             <span>Kuesioner</span>
           </a>
-          <!-- 🏢 Perusahaan -->
-<a href="<?= base_url('atasan/perusahaan') ?>"
-  class="sidebar-link <?= str_contains($currentRoute, 'perusahaan') ? 'active' : '' ?>">
-  <i class="fa-solid fa-building w-5 text-gray-700"></i>
-  <span>Perusahaan</span>
-</a>
+<!-- 🏢 Perusahaan (Dropdown Menu) -->
+<li class="sidebar-item has-sub <?= str_contains($currentRoute, 'perusahaan') ? 'active open' : '' ?>">
+  <a href="#" class="sidebar-link sidebar-toggle d-flex justify-content-between align-items-center">
+    <span>
+      <i class="fa-solid fa-building w-5 text-gray-700 me-2"></i> Perusahaan
+    </span>
+    <i class="fa-solid fa-chevron-down small toggle-icon"></i>
+  </a>
+
+  <ul class="submenu" style="<?= str_contains($currentRoute, 'perusahaan') ? 'display: block;' : 'display: none;' ?>">
+    <li class="submenu-item <?= str_contains($currentRoute, 'tambah-alumni') ? 'active' : '' ?>">
+      <a href="<?= base_url('atasan/perusahaan/tambah-alumni') ?>">
+        <i class="fa-solid fa-user-plus me-2 text-gray-600"></i> Tambah Alumni
+      </a>
+    </li>
+
+    <li class="submenu-item <?= str_contains($currentRoute, 'response-alumni') ? 'active' : '' ?>">
+      <a href="<?= base_url('atasan/perusahaan/response-alumni') ?>">
+        <i class="fa-solid fa-chart-bar me-2 text-gray-600"></i> Response Alumni
+      </a>
+    </li>
+  </ul>
+</li>
+
+
+
         </nav>
       </div>
 
@@ -136,5 +156,37 @@ $currentRoute = service('request')->uri->getPath();
     </main>
   </div>
 </body>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const dropdownLinks = document.querySelectorAll(".sidebar-item.has-sub > .sidebar-toggle");
+
+  dropdownLinks.forEach(link => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      const parent = this.closest(".sidebar-item");
+      const submenu = parent.querySelector(".submenu");
+      const icon = this.querySelector(".toggle-icon");
+
+      const isOpen = submenu.style.display === "block";
+
+      // Tutup semua dropdown lain
+      document.querySelectorAll(".sidebar-item.has-sub").forEach(item => {
+        item.classList.remove("open");
+        const sub = item.querySelector(".submenu");
+        const ic = item.querySelector(".toggle-icon");
+        if (sub) sub.style.display = "none";
+        if (ic) ic.style.transform = "rotate(0deg)";
+      });
+
+      // Buka/tutup dropdown ini
+      submenu.style.display = isOpen ? "none" : "block";
+      parent.classList.toggle("open");
+      icon.style.transform = isOpen ? "rotate(0deg)" : "rotate(180deg)";
+    });
+  });
+});
+</script>
+
 
 </html>
