@@ -11,29 +11,10 @@ class AtasanController extends Controller
     // 🏠 DASHBOARD ATASAN
     // =========================
     public function dashboard()
-    {
-        if (session('role_id') != 8) {
-            return redirect()->to('/login')->with('error', 'Akses ditolak.');
-        }
-
-        $db = \Config\Database::connect();
-
-        // Total perusahaan (role 7)
-        $totalPerusahaan = (int) $db->table('account')->where('id_role', 7)->countAllResults();
-
-        // Data alumni terbaru
-        $alumni = $db->table('detailaccount_alumni')
-            ->select('nama_lengkap, nim, id_jurusan, id_prodi, tahun_kelulusan, ipk, id_cities')
-            ->orderBy('id', 'DESC')
-            ->limit(5)
-            ->get()
-            ->getResultArray();
-
-        return view('atasan/dashboard', [
-            'totalPerusahaan' => $totalPerusahaan,
-            'alumni' => $alumni
-        ]);
-
+{
+    // 🔒 Batasi hanya untuk role Atasan
+    if (session('role_id') != 8) {
+        return redirect()->to('/login')->with('error', 'Akses ditolak.');
     }
 
     $db = \Config\Database::connect();
@@ -415,7 +396,7 @@ public function responseAlumni()
     ]);
 }
 
-    public function Lihatjawaban($id)
+ public function Lihatjawaban($id)
 {
     if (session('role_id') != 8) {
         return redirect()->to('/login')->with('error', 'Akses ditolak.');
@@ -423,9 +404,9 @@ public function responseAlumni()
 
     $db = \Config\Database::connect();
 
-    // Ambil data utama response
+    // Ambil data respon utama
     $response = $db->table('responses r')
-        ->select('r.*, a.nama_lengkap, q.nama_kuesioner')
+        ->select('r.*, a.nama_lengkap, q.title AS nama_kuesioner')
         ->join('detailaccount_alumni a', 'a.id_account = r.account_id', 'left')
         ->join('questionnaires q', 'q.id = r.questionnaire_id', 'left')
         ->where('r.id', $id)
@@ -436,11 +417,12 @@ public function responseAlumni()
         return redirect()->back()->with('error', 'Data jawaban tidak ditemukan.');
     }
 
-    // Ambil isi jawaban (kalau ada tabel jawaban)
-    $answers = $db->table('response_answers ra')
-        ->select('ra.question_id, qs.pertanyaan, ra.answer_text')
-        ->join('questions qs', 'qs.id = ra.question_id', 'left')
-        ->where('ra.response_id', $id)
+    // Ambil daftar jawaban + teks pertanyaan
+    $answers = $db->table('answers a')
+        ->select('a.question_id, qs.question_text AS pertanyaan, a.answer_text')
+        ->join('questions qs', 'qs.id = a.question_id', 'left')
+        ->where('a.user_id', $response['account_id'])
+        ->where('a.questionnaire_id', $response['questionnaire_id'])
         ->get()
         ->getResultArray();
 
@@ -449,6 +431,7 @@ public function responseAlumni()
         'answers'  => $answers
     ]);
 }
+
 public function suggestionAlumni()
 {
     $keyword = $this->request->getGet('q');
