@@ -55,6 +55,16 @@ $routes->get('test-log', function() {
     echo "Cek tabel error_logs di database!";
 });
 
+$routes->group('admin/relasi-atasan-alumni', ['filter' => 'adminAuth'], function ($routes) {
+    $routes->get('/', 'RelasiAtasanAlumniController::index'); // Halaman utama
+    $routes->get('tambah', 'RelasiAtasanAlumniController::create');
+    $routes->post('store', 'RelasiAtasanAlumniController::store');
+    $routes->post('update/(:num)','RelasiAtasanAlumniController::update/$1'); // Simpan relasi
+    $routes->post('delete/(:num)', 'RelasiAtasanAlumniController::delete/$1');
+    $routes->post('fetch-alumni', 'RelasiAtasanAlumniController::fetchAlumni'); 
+});
+
+
 // ===============================
 // ADMIN ROUTES
 // ===============================
