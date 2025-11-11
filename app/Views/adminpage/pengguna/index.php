@@ -172,6 +172,16 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // === FLASH MESSAGES ===
+
+    <?php if (session()->getFlashdata('errorWajib')): ?>
+    Swal.fire({
+        icon: 'warning',
+        title: 'Data Wajib!',
+        text: '<?= esc(session()->getFlashdata('errorWajib')) ?>',
+        confirmButtonText: 'OK'
+    });
+<?php endif; ?>
+
     <?php if (session()->getFlashdata('success')): ?>
         Swal.fire({
             icon: 'success',
