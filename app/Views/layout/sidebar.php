@@ -67,7 +67,9 @@ $currentRoute = service('request')->uri->getPath();
             <a href="<?= base_url('admin/pengguna') ?>"
               class="submenu <?= str_contains($currentRoute, 'admin/pengguna') ? 'active' : '' ?>">Pengguna</a>
             <a href="<?= base_url('admin/questionnaire') ?>"
-              class="submenu <?= str_contains($currentRoute, 'admin/questionnaire') ? 'active' : '' ?>">Kuesioner</a>
+              class="submenu <?= str_contains($currentRoute, 'admin/questionnaire') ? 'active' : '' ?>">
+              Kuesioner
+            </a>
           </div>
         </details>
 
