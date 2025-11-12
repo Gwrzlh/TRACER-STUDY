@@ -472,7 +472,7 @@ class KaprodiQuestionnairController extends BaseController
         ]);
     }
 
-    public function manageSectionQuestions($questionnaire_id, $page_id, $section_id)
+   public function manageSectionQuestions($questionnaire_id, $page_id, $section_id)
     {
         $questionModel = new QuestionModel();
         $sectionModel = new SectionModel();
@@ -489,9 +489,15 @@ class KaprodiQuestionnairController extends BaseController
 
 
         if (!$questionnaire || !$page || !$section) {
-            return redirect()->to('admin/questionnaire')
-                ->with('error', 'Data tidak ditemukan.');
-        }
+    if ($this->request->isAJAX()) {
+        return $this->response->setJSON([
+            'status' => 'error',
+            'message' => 'Data tidak ditemukan.'
+        ]);
+    }
+    return redirect()->to('kaprodi/kuesioner')->with('error', 'Data tidak ditemukan.');
+}
+
 
         // Ambil semua pertanyaan di section ini
         $questions = $questionModel
@@ -648,52 +654,52 @@ class KaprodiQuestionnairController extends BaseController
     {
         log_message('debug', 'POST Data: ' . print_r($this->request->getPost(), true));
 
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'question_text' => 'required',
-            'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
-            'is_required' => 'permit_empty|in_list[0,1]',
-            'order_no' => 'required|integer',
-            'options' => 'permit_empty',
-            'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-            'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
-            'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-            'scale_min_label' => 'permit_empty',
-            'scale_max_label' => 'permit_empty',
-            'allowed_types' => 'permit_empty',
-            'max_file_size' => 'permit_empty|integer',
-            'matrix_rows' => 'permit_empty',
-            'matrix_columns' => 'permit_empty',
-            'user_field_name' => 'permit_empty|alpha_dash',
-        ]);
+    $validation = \Config\Services::validation();
+    $validation->setRules([
+        'question_text' => 'required',
+        'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
+        'is_required' => 'permit_empty|in_list[0,1]',
+        'order_no' => 'required|integer',
+        'options' => 'permit_empty',
+        'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
+        'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_min_label' => 'permit_empty',
+        'scale_max_label' => 'permit_empty',
+        'allowed_types' => 'permit_empty',
+        'max_file_size' => 'permit_empty|integer',
+        'matrix_rows' => 'permit_empty',
+        'matrix_columns' => 'permit_empty',
+        'user_field_name' => 'permit_empty|alpha_dash',
+    ]);
 
-        if (!$validation->withRequest($this->request)->run()) {
-            log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
-            return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
-        }
+    if (!$validation->withRequest($this->request)->run()) {
+        log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
+        return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
+    }
 
-        $type = $this->request->getPost('question_type');
+    $type = $this->request->getPost('question_type');
         if ($type === 'user_field') {
             $userFieldName = $this->request->getPost('user_field_name');
             if (empty($userFieldName)) {
                 return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'User field name is required for user_field type']]);
             }
             // Validate against available fields (hardcoded for simplicity)
-            $availableFields = ['nama_lengkap', 'email', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
+            $availableFields = ['nama_lengkap','email', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
             if (!in_array($userFieldName, $availableFields)) {
                 return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'Invalid user field name']]);
             }
         }
 
-        $questionModel = new QuestionModel();
-        $maxOrder = $questionModel->where([
-            'questionnaires_id' => $questionnaire_id,
-            'page_id' => $page_id,
-            'section_id' => $section_id
-        ])->selectMax('order_no')->first()['order_no'] ?? 0;
+    $questionModel = new QuestionModel();
+    $maxOrder = $questionModel->where([
+        'questionnaires_id' => $questionnaire_id,
+        'page_id' => $page_id,
+        'section_id' => $section_id
+    ])->selectMax('order_no')->first()['order_no'] ?? 0;
 
-        $db = \Config\Database::connect();
-        $db->transStart();
+    $db = \Config\Database::connect();
+    $db->transStart();
 
         try {
             $questionModel = new QuestionModel();
@@ -719,21 +725,21 @@ class KaprodiQuestionnairController extends BaseController
             $type = $data['question_type'];
             log_message('debug', 'Processing special type: ' . $type);
 
-            if ($type === 'scale') {
-                $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
-                $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
-                $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
-                $data['scale_min_label'] = $this->request->getPost('scale_min_label');
-                $data['scale_max_label'] = $this->request->getPost('scale_max_label');
-                log_message('debug', 'Scale settings saved: min=' . $data['scale_min'] . ', max=' . $data['scale_max'] . ', step=' . $data['scale_step']);
-            } elseif ($type === 'file') {
-                $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
-                $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
-                log_message('debug', 'File settings saved: types=' . $data['allowed_types'] . ', size=' . $data['max_file_size']);
-            } elseif ($type === 'user_field') {
-                $data['user_field_name'] = $this->request->getPost('user_field_name');
-            }
-
+        if ($type === 'scale') {
+            $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
+            $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
+            $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
+            $data['scale_min_label'] = $this->request->getPost('scale_min_label');
+            $data['scale_max_label'] = $this->request->getPost('scale_max_label');
+            log_message('debug', 'Scale settings saved: min=' . $data['scale_min'] . ', max=' . $data['scale_max'] . ', step=' . $data['scale_step']);
+        } elseif ($type === 'file') {
+            $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
+            $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
+            log_message('debug', 'File settings saved: types=' . $data['allowed_types'] . ', size=' . $data['max_file_size']);
+        } elseif ($type === 'user_field') {
+            $data['user_field_name'] = $this->request->getPost('user_field_name');
+        }
+        
 
             // Insert question
             $question_id = $questionModel->insert($data);
@@ -821,39 +827,39 @@ class KaprodiQuestionnairController extends BaseController
 
     public function updateQuestion($questionnaire_id, $page_id, $section_id, $question_id)
     {
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'question_id' => 'required|integer',
-            'question_text' => 'required',
-            'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
-            'is_required' => 'permit_empty|in_list[0,1]',
-            'order_no' => 'permit_empty|integer',
-            'options' => 'permit_empty',
-            'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-            'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
-            'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
-            'scale_min_label' => 'permit_empty',
-            'scale_max_label' => 'permit_empty',
-            'allowed_types' => 'permit_empty',
-            'max_file_size' => 'permit_empty|integer',
-            'matrix_rows' => 'permit_empty',
-            'matrix_columns' => 'permit_empty',
-            'user_field_name' => 'permit_empty|alpha_dash',
-        ]);
+    $validation = \Config\Services::validation();
+    $validation->setRules([
+        'question_id' => 'required|integer',
+        'question_text' => 'required',
+        'question_type' => 'required|in_list[text,textarea,email,number,phone,radio,checkbox,dropdown,date,time,datetime,scale,matrix,file,user_field]',
+        'is_required' => 'permit_empty|in_list[0,1]',
+        'order_no' => 'permit_empty|integer',
+        'options' => 'permit_empty',
+        'scale_min' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_max' => 'permit_empty|integer|greater_than[1]|less_than[101]',
+        'scale_step' => 'permit_empty|integer|greater_than[0]|less_than[11]',
+        'scale_min_label' => 'permit_empty',
+        'scale_max_label' => 'permit_empty',
+        'allowed_types' => 'permit_empty',
+        'max_file_size' => 'permit_empty|integer',
+        'matrix_rows' => 'permit_empty',
+        'matrix_columns' => 'permit_empty',
+        'user_field_name' => 'permit_empty|alpha_dash',
+    ]);
 
-        if (!$validation->withRequest($this->request)->run()) {
-            log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
-            return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
-        }
+    if (!$validation->withRequest($this->request)->run()) {
+        log_message('error', 'Validation errors: ' . print_r($validation->getErrors(), true));
+        return $this->response->setJSON(['status' => 'error', 'message' => $validation->getErrors()]);
+    }
 
-        $type = $this->request->getPost('question_type');
+    $type = $this->request->getPost('question_type');
         if ($type === 'user_field') {
             $userFieldName = $this->request->getPost('user_field_name');
             if (empty($userFieldName)) {
                 return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'User field name is required for user_field type']]);
             }
             // Validate against available fields (hardcoded for simplicity)
-            $availableFields = ['nama_lengkap', 'email', 'nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
+            $availableFields = ['nama_lengkap','email','nim', 'id_jurusan', 'id_prodi', 'angkatan', 'tahun_kelulusan', 'ipk', 'alamat', 'alamat2', 'kodepos', 'jenisKelamin', 'notlp', 'id_provinsi', 'id_cities'];
             if (!in_array($userFieldName, $availableFields)) {
                 return $this->response->setJSON(['status' => 'error', 'message' => ['user_field_name' => 'Invalid user field name']]);
             }
@@ -883,20 +889,20 @@ class KaprodiQuestionnairController extends BaseController
 
             $data['condition_json'] = null;
 
-            // Special type handling
-            $type = $data['question_type'];
-            if ($type === 'scale') {
-                $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
-                $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
-                $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
-                $data['scale_min_label'] = $this->request->getPost('scale_min_label');
-                $data['scale_max_label'] = $this->request->getPost('scale_max_label');
-            } elseif ($type === 'file') {
-                $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
-                $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
-            } elseif ($type === 'user_field') {
-                $data['user_field_name'] = $this->request->getPost('user_field_name');
-            }
+        // Special type handling
+        $type = $data['question_type'];
+        if ($type === 'scale') {
+            $data['scale_min'] = (int)($this->request->getPost('scale_min') ?? 1);
+            $data['scale_max'] = (int)($this->request->getPost('scale_max') ?? 5);
+            $data['scale_step'] = max(1, (int)($this->request->getPost('scale_step') ?? 1));
+            $data['scale_min_label'] = $this->request->getPost('scale_min_label');
+            $data['scale_max_label'] = $this->request->getPost('scale_max_label');
+        } elseif ($type === 'file') {
+            $data['allowed_types'] = $this->request->getPost('allowed_types') ?? 'pdf,doc,docx';
+            $data['max_file_size'] = $this->request->getPost('max_file_size') ?? 5;
+        }elseif($type === 'user_field') {
+            $data['user_field_name'] = $this->request->getPost('user_field_name');
+        }
 
             $questionModel->update($question_id, $data);
 
@@ -1102,5 +1108,138 @@ class KaprodiQuestionnairController extends BaseController
             'status' => 'success',
             'question' => $question
         ]);
+    }
+      public function duplicate($questionnaire_id, $page_id, $section_id, $question_id)
+    {
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        try {
+            $questionModel = new QuestionModel();
+            $optionModel = new QuestionOptionModel();
+            $matrixRowModel = new MatrixRowModel();
+            $matrixColumnModel = new MatrixColumnModels();
+
+            // Ambil pertanyaan asli
+            $question = $questionModel
+                ->where('id', $question_id)
+                ->where('questionnaires_id', $questionnaire_id)
+                ->where('page_id', $page_id)
+                ->where('section_id', $section_id)
+                ->first();
+
+            if (!$question) {
+                log_message('error', "Question not found for ID: $question_id");
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Question not found']);
+            }
+
+            // Hitung order_no baru (max + 1)
+            $maxOrder = $questionModel->where([
+                'questionnaires_id' => $questionnaire_id,
+                'page_id' => $page_id,
+                'section_id' => $section_id
+            ])->selectMax('order_no')->first()['order_no'] ?? 0;
+
+            // Siapkan data untuk question baru
+            $newQuestionData = [
+                'questionnaires_id' => $question['questionnaires_id'],
+                'page_id' => $question['page_id'],
+                'section_id' => $question['section_id'],
+                'question_text' => $question['question_text'] . ' (Copy)',
+                'question_type' => $question['question_type'],
+                'is_required' => $question['is_required'],
+                'order_no' => $maxOrder + 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+                'condition_json' => $question['condition_json'], // Copy conditional logic
+            ];
+
+            // Tambah field khusus berdasarkan tipe
+            if ($question['question_type'] === 'scale') {
+                $newQuestionData['scale_min'] = $question['scale_min'];
+                $newQuestionData['scale_max'] = $question['scale_max'];
+                $newQuestionData['scale_step'] = $question['scale_step'];
+                $newQuestionData['scale_min_label'] = $question['scale_min_label'];
+                $newQuestionData['scale_max_label'] = $question['scale_max_label'];
+            } elseif ($question['question_type'] === 'file') {
+                $newQuestionData['allowed_types'] = $question['allowed_types'];
+                $newQuestionData['max_file_size'] = $question['max_file_size'];
+            }
+
+            // Insert question baru
+            $newQuestionId = $questionModel->insert($newQuestionData);
+            log_message('debug', 'New question inserted: ID=' . $newQuestionId);
+
+            // Copy options (radio, checkbox, dropdown)
+            if (in_array($question['question_type'], ['radio', 'checkbox', 'dropdown'])) {
+                $options = $optionModel->where('question_id', $question_id)
+                    ->orderBy('order_number', 'ASC')
+                    ->findAll();
+
+                if (!empty($options)) {
+                    $optionsToInsert = [];
+                    foreach ($options as $opt) {
+                        $optionsToInsert[] = [
+                            'question_id' => $newQuestionId,
+                            'option_text' => $opt['option_text'],
+                            'option_value' => $opt['option_value'],
+                            'next_question_id' => $opt['next_question_id'],
+                            'order_number' => $opt['order_number']
+                        ];
+                    }
+                    $optionModel->insertBatch($optionsToInsert);
+                    log_message('debug', 'Options copied: ' . json_encode($optionsToInsert));
+                }
+            }
+
+            // Copy matrix rows dan columns
+            if ($question['question_type'] === 'matrix') {
+                $rows = $matrixRowModel->where('question_id', $question_id)
+                    ->orderBy('order_no', 'ASC')
+                    ->findAll();
+                $columns = $matrixColumnModel->where('question_id', $question_id)
+                    ->orderBy('order_no', 'ASC')
+                    ->findAll();
+
+                // Insert rows
+                foreach ($rows as $row) {
+                    $matrixRowModel->insert([
+                        'question_id' => $newQuestionId,
+                        'row_text' => $row['row_text'],
+                        'order_no' => $row['order_no']
+                    ]);
+                }
+
+                // Insert columns
+                foreach ($columns as $col) {
+                    $matrixColumnModel->insert([
+                        'question_id' => $newQuestionId,
+                        'column_text' => $col['column_text'],
+                        'order_no' => $col['order_no']
+                    ]);
+                }
+                log_message('debug', 'Matrix rows and columns copied for question ID: ' . $newQuestionId);
+            }
+
+            if ($db->transStatus() === false) {
+                log_message('error', 'Transaction failed during duplicate');
+                $db->transRollback();
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to duplicate question']);
+            }
+
+            $db->transComplete();
+            log_message('debug', 'Question duplicated successfully: ID=' . $newQuestionId);
+
+            // Return ID baru untuk trigger edit modal
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Question duplicated successfully',
+                'new_question_id' => $newQuestionId
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Exception in duplicateSectionQuestion: ' . $e->getMessage());
+            $db->transRollback();
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to duplicate question: ' . $e->getMessage()]);
+        }
     }
 }
