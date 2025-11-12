@@ -46,29 +46,31 @@ $currentRoute = service('request')->uri->getPath();
             </svg>
             <span>Kuesioner</span>
           </a>
-<!-- 🏢 Perusahaan (Dropdown Menu) -->
-<li class="sidebar-item has-sub <?= str_contains($currentRoute, 'perusahaan') ? 'active open' : '' ?>">
-  <a href="#" class="sidebar-link sidebar-toggle d-flex justify-content-between align-items-center">
-    <span>
-      <i class="fa-solid fa-building w-5 text-gray-700 me-2"></i> Perusahaan
-    </span>
-    <i class="fa-solid fa-chevron-down small toggle-icon"></i>
-  </a>
+<!-- 👥 Alumni -->
+ <a href="<?= base_url('atasan/alumni') ?>"
+            class="sidebar-link <?= str_contains($currentRoute, 'alumni') ? 'active' : '' ?>">
+            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M9 8h6"></path>
+            </svg>
+            <span>Alumni</span>
+          </a>
 
-  <ul class="submenu" style="<?= str_contains($currentRoute, 'perusahaan') ? 'display: block;' : 'display: none;' ?>">
-    <li class="submenu-item <?= str_contains($currentRoute, 'tambah-alumni') ? 'active' : '' ?>">
-      <a href="<?= base_url('atasan/perusahaan/tambah-alumni') ?>">
-        <i class="fa-solid fa-user-plus me-2 text-gray-600"></i> Tambah Alumni
-      </a>
-    </li>
+<!-- 🔔 Notifikasi -->
+<a href="<?= base_url('atasan/notifikasi') ?>"
+  class="sidebar-link <?= str_contains($currentRoute, 'notifikasi') ? 'active' : '' ?> relative">
+  <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round"
+      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C8.67 6.165 8 7.388 8 9v5.159c0 .538-.214 1.055-.595 1.436L6 17h5m4 0v1a3 3 0 11-6 0v-1m6 0H9" />
+  </svg>
+  <span>Notifikasi</span>
 
-    <li class="submenu-item <?= str_contains($currentRoute, 'response-alumni') ? 'active' : '' ?>">
-      <a href="<?= base_url('atasan/perusahaan/response-alumni') ?>">
-        <i class="fa-solid fa-chart-bar me-2 text-gray-600"></i> Response Alumni
-      </a>
-    </li>
-  </ul>
-</li>
+  <!-- 🔴 Badge Count -->
+  <span id="notifBadge"
+        style="display:none;"
+        class="absolute top-1 right-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+  </span>
+</a>
+
 
 
 
@@ -187,6 +189,32 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const badge = document.getElementById("notifBadge");
+
+  function updateNotifCount() {
+    fetch("<?= base_url('atasan/getNotifCount') ?>")
+      .then(res => res.json())
+      .then(data => {
+        if (data.jumlah > 0) {
+          badge.textContent = data.jumlah;
+          badge.style.display = "inline-block";
+        } else {
+          badge.style.display = "none";
+        }
+      })
+      .catch(err => console.error("Error cek notifikasi:", err));
+  }
+
+  // pertama kali dijalankan
+  updateNotifCount();
+
+  // update setiap 30 detik
+  setInterval(updateNotifCount, 30000);
+});
+</script>
+
 
 
 </html>

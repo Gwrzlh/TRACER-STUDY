@@ -13,9 +13,16 @@ use App\Models\DetailaccountKaprodi;
 use App\Models\DetailaccountPerusahaan;
 use App\Models\DetailaccountAtasan;
 use App\Models\DetailaccountJabatanLLnya;
+use App\Models\PesanModel;
 
 class AdminController extends BaseController
 {
+    protected $pesanModel;
+    public function __construct()
+    {
+         $this->pesanModel = new PesanModel();
+    }
+    
     public function index()
     {
         return view('adminpage/index');                             
@@ -309,5 +316,166 @@ public function ubahPassword()
 
     return redirect()->to(base_url('admin/profil'))->with('success', 'Password berhasil diubah');
 }
+public function kirimPeringatanPenilaian()
+{
+    $db = db_connect();
+    $idAdmin = session()->get('id');
+    $idAtasan = $this->request->getPost('id_atasan'); // kalau dikirim individual
+    $pesanModel = $this->pesanModel;
+
+    // Jika $idAtasan dikirim, berarti kirim individual
+    if ($idAtasan) {
+        $this->kirimPeringatanUntukAtasan($idAtasan, $idAdmin);
+        return redirect()->back()->with('success', 'Peringatan berhasil dikirim ke atasan.');
+    }
+
+    // Kalau tidak ada id_atasan, berarti kirim ke semua
+    $atasanList = $db->table('detailaccount_atasan da')
+        ->select('da.id AS id_atasan, acc.id AS id_account')
+        ->join('account acc', 'acc.id = da.id_account', 'left')
+        ->get()->getResultArray();
+
+    foreach ($atasanList as $atasan) {
+        $this->kirimPeringatanUntukAtasan($atasan['id_account'], $idAdmin);
+    }
+
+    return redirect()->back()->with('success', 'Peringatan otomatis berhasil dikirim ke semua atasan.');
+}
+
+private function sendEmailBrevo(string $toEmail, string $subject, string $htmlContent): void
+{
+    $apiKey = getenv('BREVO_API_KEY');
+
+    $data = [
+        "sender" => [
+            "email" => "tspolban@gmail.com",
+            "name"  => "Tracer Study Polban"
+        ],
+        "to" => [["email" => $toEmail]],
+        "subject"     => $subject,
+        "htmlContent" => $htmlContent
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "https://api.brevo.com/v3/smtp/email");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "accept: application/json",
+        "api-key: {$apiKey}",
+        "content-type: application/json",
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if (curl_errno($ch)) {
+        log_message('error', 'Brevo API Error: ' . curl_error($ch));
+    } else {
+        log_message('info', "Brevo API Response ({$httpCode}): " . $response);
+    }
+
+    curl_close($ch);
+}
+public function peringatan()
+{
+    $db = db_connect();
+
+    // Ambil semua atasan
+    $atasanList = $db->table('detailaccount_atasan da')
+        ->select('da.id AS id_atasan, da.nama_lengkap AS nama_atasan, acc.id AS id_account, acc.email')
+        ->join('account acc', 'acc.id = da.id_account', 'left')
+        ->get()->getResultArray();
+
+    $dataPeringatan = [];
+
+    foreach ($atasanList as $atasan) {
+        // Alumni yang belum dinilai oleh atasan ini
+        $alumniBelumDinilai = $db->table('atasan_alumni aa')
+            ->select('al.id, al.nama_lengkap, al.nim, p.nama_prodi')
+            ->join('detailaccount_alumni al', 'al.id = aa.id_alumni', 'left')
+            ->join('prodi p', 'p.id = al.id_prodi', 'left')
+            ->where('aa.id_atasan', $atasan['id_atasan'])
+            ->whereNotIn('al.id', function ($builder) use ($atasan) {
+                return $builder->select('id_alumni')
+                    ->from('penilaian_alumni')
+                    ->where('id_atasan', $atasan['id_atasan']);
+            })
+            ->get()
+            ->getResultArray();
+
+        if (!empty($alumniBelumDinilai)) {
+            $dataPeringatan[] = [
+                'atasan' => $atasan,
+                'alumni' => $alumniBelumDinilai
+            ];
+        }
+    }
+
+    return view('adminpage/peringatan/index', [
+        'peringatan' => $dataPeringatan
+    ]);
+}
+private function kirimPeringatanUntukAtasan($idAtasan, $idAdmin)
+{
+    $db = db_connect();
+    $pesanModel = $this->pesanModel;
+
+    $atasan = $db->table('account')->where('id', $idAtasan)->get()->getRowArray();
+    $detailAtasan = $db->table('detailaccount_atasan')->where('id_account', $idAtasan)->get()->getRowArray();
+
+    if (!$atasan || !$detailAtasan) {
+        log_message('error', "Data atasan tidak ditemukan: idAtasan={$idAtasan}");
+        return;
+    }
+
+    // Cari alumni belum dinilai
+    $alumni = $db->table('atasan_alumni aa')
+        ->select('al.nama_lengkap')
+        ->join('detailaccount_alumni al', 'al.id = aa.id_alumni', 'left')
+        ->where('aa.id_atasan', $detailAtasan['id'])
+        ->whereNotIn('al.id', function ($builder) use ($detailAtasan) {
+            return $builder->select('id_alumni')
+                ->from('penilaian_alumni')
+                ->where('id_atasan', $detailAtasan['id']);
+        })
+        ->get()
+        ->getResultArray();
+
+    // Buat daftar alumni, walau kosong
+    $daftarAlumni = !empty($alumni) ? implode(', ', array_column($alumni, 'nama_lengkap')) : 'Tidak ada alumni yang perlu dinilai.';
+
+    // Simpan pesan dashboard
+    $pesanModel->insert([
+        'id_pengirim' => $idAdmin,
+        'id_penerima' => $idAtasan,
+        'pesan'       => "Anda belum memberikan penilaian kepada alumni: {$daftarAlumni}",
+        'status'      => 'terkirim',
+        'created_at'  => date('Y-m-d H:i:s'),
+    ]);
+
+    // Kirim email jika email tersedia
+    if (!empty($atasan['email'])) {
+        $subject = '🔔 Peringatan Penilaian Alumni Belum Dilakukan';
+        $message = "
+            <p>Halo <b>{$detailAtasan['nama_lengkap']}</b>,</p>
+            <p>Berikut alumni yang belum Anda nilai:</p>
+            <ul><li>" . (!empty($alumni) ? implode('</li><li>', array_column($alumni, 'nama_lengkap')) : 'Tidak ada') . "</li></ul>
+            <p>Silakan segera menilai melalui dashboard Anda.</p>
+            <br>
+            <p>Salam,<br><b>Tracer Study Polban</b></p>
+        ";
+
+        log_message('info', "Kirim email ke: {$atasan['email']} dengan daftar alumni: {$daftarAlumni}");
+        $this->sendEmailBrevo($atasan['email'], $subject, $message);
+    } else {
+        log_message('warning', "Atasan id={$idAtasan} tidak memiliki email. Tidak dapat mengirim notifikasi email.");
+    }
+}
 
 }
+
+
+
+

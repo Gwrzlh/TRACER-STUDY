@@ -31,6 +31,8 @@ class Filters extends BaseConfig
         'jabatanAuth' => \App\Filters\jabatanAuth::class,
         'alumniSurveyor'   => \App\Filters\AlumniSurveyor::class,
         'logActivity' => \App\Filters\LogActivityMiddleware::class,
+        'atasanFilter' => \App\Filters\AtasanFilter::class,
+        
     ];
 
     /**

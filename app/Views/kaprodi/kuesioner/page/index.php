@@ -6,6 +6,33 @@
     <div class="page-wrapper">
         <div class="page-container">
             <?= $this->include('kaprodi/kuesioner/breadcupp') ?>
+
+            <!-- SweetAlert2 CDN -->
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+            <!-- 🔔 Notifikasi flashdata -->
+            <?php if (session()->getFlashdata('success')): ?>
+                <script>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: '<?= esc(session()->getFlashdata('success')) ?>',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                </script>
+            <?php elseif (session()->getFlashdata('error')): ?>
+                <script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: '<?= esc(session()->getFlashdata('error')) ?>',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                </script>
+            <?php endif; ?>
+
             <!-- Judul -->
             <h2 class="page-title">📑 Halaman Kuesioner: <?= esc($questionnaire['title']) ?></h2>
             <p class="text-muted"><?= esc($questionnaire['deskripsi']) ?></p>
@@ -44,12 +71,11 @@
 
                                     // Debug per halaman
                                     echo "<tr style='background:#fff8dc;'><td colspan='4'>
-    <strong>DEBUG:</strong> Page ID={$page['id']}, created_by={$page['created_by']}, 
-    session_id={$sessionId}, canEdit=" . ($canEdit ? 'true' : 'false') . ",
-    canAddChild=" . ($canAddChild ? 'true' : 'false') . "
-    </td></tr>";
+                                        <strong>DEBUG:</strong> Page ID={$page['id']}, created_by={$page['created_by']}, 
+                                        session_id={$sessionId}, canEdit=" . ($canEdit ? 'true' : 'false') . ",
+                                        canAddChild=" . ($canAddChild ? 'true' : 'false') . "
+                                    </td></tr>";
                                     ?>
-
 
                                     <tr>
                                         <td><?= esc($page['order_no']) ?></td>
@@ -91,7 +117,6 @@
 </div>
 
 <!-- SweetAlert konfirmasi hapus -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll(".delete-page").forEach(el => {
