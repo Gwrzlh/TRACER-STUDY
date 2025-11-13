@@ -2,7 +2,7 @@
 <?= $this->extend($layout) ?>
 
 <?= $this->section('content') ?>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- Profil Alumni -->
 <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-7xl mx-auto">
   <div class="flex items-center mb-6">
@@ -192,6 +192,29 @@
 
     fotoPreview.addEventListener('click', openModal);
   });
+</script>
+<script>
+  // ✅ SweetAlert2 untuk notifikasi flashdata sukses
+  <?php if (session()->getFlashdata('success')): ?>
+    Swal.fire({
+      icon: 'success',
+      title: 'Berhasil!',
+      text: '<?= esc(session()->getFlashdata('success')) ?>',
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'OK'
+    });
+  <?php endif; ?>
+
+  // ✅ SweetAlert2 untuk notifikasi gagal (opsional)
+  <?php if (session()->getFlashdata('error')): ?>
+    Swal.fire({
+      icon: 'error',
+      title: 'Gagal!',
+      text: '<?= esc(session()->getFlashdata('error')) ?>',
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Coba Lagi'
+    });
+  <?php endif; ?>
 </script>
 
 <?= $this->endSection() ?>

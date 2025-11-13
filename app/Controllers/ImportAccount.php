@@ -148,7 +148,7 @@ class ImportAccount extends BaseController
                     case 'jabatan lainnya':
                         $idJurusan = $this->mapJurusan($row[5] ?? null);
                         if (!$idJurusan) {
-                            $errorLogs[] = "Baris " . ($i + 2) . ": Jurusan '" . ($row[5] ?? '-') . "' tidak ditemukan di database.";
+                            $errorLogs[] = "Baris " . ($i + 2) . ": Jurusan '" . ($row[5] ?? '-') . "' tidak ditemukan.";
                             $accountModel->delete($accountId);
                             continue 2;
                         }
