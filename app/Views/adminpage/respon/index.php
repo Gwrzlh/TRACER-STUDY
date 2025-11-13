@@ -6,28 +6,28 @@
     <div style="max-width: 1280px; margin: 0 auto; padding: 32px;">
 
         <!-- Breadcrumb Navigation -->
-<div class="breadcrumb-nav mb-6">
-    <a href="<?= base_url('admin/respon') ?>" class="breadcrumb-item <?= (uri_string() == 'admin/respon' || uri_string() == 'admin/respon/') ? 'active' : '' ?>">
-        <svg class="breadcrumb-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        <span>Respon</span>
-    </a>
-    <span class="breadcrumb-separator">›</span>
-    <a href="<?= base_url('admin/respon/ami') ?>" class="breadcrumb-item <?= (uri_string() == 'admin/respon/ami') ? 'active' : '' ?>">
-        <svg class="breadcrumb-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-        </svg>
-        <span>AMI</span>
-    </a>
-    <span class="breadcrumb-separator">›</span>
-    <a href="<?= base_url('admin/respon/akreditasi') ?>" class="breadcrumb-item <?= (uri_string() == 'admin/respon/akreditasi') ? 'active' : '' ?>">
-        <svg class="breadcrumb-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0h2a2 2 0 012 2h2a2 2 0 002-2v-6a2 2 0 00-2-2h-2a2 2 0 00-2 2v6z"/>
-        </svg>
-        <span>Akreditasi</span>
-    </a>
-</div>
+        <div class="breadcrumb-nav mb-6">
+            <a href="<?= base_url('admin/respon') ?>" class="breadcrumb-item <?= (uri_string() == 'admin/respon' || uri_string() == 'admin/respon/') ? 'active' : '' ?>">
+                <svg class="breadcrumb-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span>Respon</span>
+            </a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="<?= base_url('admin/respon/ami') ?>" class="breadcrumb-item <?= (uri_string() == 'admin/respon/ami') ? 'active' : '' ?>">
+                <svg class="breadcrumb-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                </svg>
+                <span>AMI</span>
+            </a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="<?= base_url('admin/respon/akreditasi') ?>" class="breadcrumb-item <?= (uri_string() == 'admin/respon/akreditasi') ? 'active' : '' ?>">
+                <svg class="breadcrumb-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0h2a2 2 0 012 2h2a2 2 0 002-2v-6a2 2 0 00-2-2h-2a2 2 0 00-2 2v6z"/>
+                </svg>
+                <span>Akreditasi</span>
+            </a>
+        </div>
 
         <div class="respon-container">
             <div class="respon-header">
@@ -38,59 +38,45 @@
             <div class="filter-card">
                 <form method="get" action="<?= base_url('admin/respon') ?>" class="filter-form">
                     <div class="filter-grid">
-                        <!-- Row 1 -->
                         <div class="filter-group">
                             <input type="text" name="nim" class="filter-input" placeholder="NIM" value="<?= esc($selectedNim) ?>">
                         </div>
                         <div class="filter-group">
                             <input type="text" name="nama" class="filter-input" placeholder="Nama Alumni" value="<?= esc($selectedNama) ?>">
                         </div>
-                        <!-- Row 1 -->
                         <div class="filter-group">
                             <select name="jurusan" class="filter-select">
                                 <option value="" disabled selected>-- Jurusan --</option>
                                 <option value="all" <?= $selectedJurusan == 'all' ? 'selected' : '' ?>>Semua Jurusan</option>
                                 <?php foreach ($allJurusan as $j): ?>
-                                    <option value="<?= $j['id'] ?>" <?= $selectedJurusan == $j['id'] ? 'selected' : '' ?>>
-                                        <?= esc($j['nama_jurusan']) ?>
-                                    </option>
+                                    <option value="<?= $j['id'] ?>" <?= $selectedJurusan == $j['id'] ? 'selected' : '' ?>><?= esc($j['nama_jurusan']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
-
                         <div class="filter-group">
                             <select name="prodi" class="filter-select">
                                 <option value="" disabled selected>-- Prodi --</option>
                                 <option value="all" <?= $selectedProdi == 'all' ? 'selected' : '' ?>>Semua Prodi</option>
                                 <?php foreach ($allProdi as $p): ?>
-                                    <option value="<?= $p['id'] ?>" <?= $selectedProdi == $p['id'] ? 'selected' : '' ?>>
-                                        <?= esc($p['nama_prodi']) ?> (<?= esc($p['nama_jurusan'] ?? '-') ?>)
-                                    </option>
+                                    <option value="<?= $p['id'] ?>" <?= $selectedProdi == $p['id'] ? 'selected' : '' ?>><?= esc($p['nama_prodi']) ?> (<?= esc($p['nama_jurusan'] ?? '-') ?>)</option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
-
-                        <!-- Row 2 -->
                         <div class="filter-group">
                             <select name="angkatan" class="filter-select">
                                 <option value="" disabled selected>-- Tahun Masuk --</option>
                                 <option value="all" <?= $selectedAngkatan == 'all' ? 'selected' : '' ?>>Semua Tahun Masuk</option>
                                 <?php foreach ($allAngkatan as $a): ?>
-                                    <option value="<?= $a['angkatan'] ?>" <?= $selectedAngkatan == $a['angkatan'] ? 'selected' : '' ?>>
-                                        <?= esc($a['angkatan']) ?>
-                                    </option>
+                                    <option value="<?= $a['angkatan'] ?>" <?= $selectedAngkatan == $a['angkatan'] ? 'selected' : '' ?>><?= esc($a['angkatan']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
-
                         <div class="filter-group">
                             <select name="year" class="filter-select">
                                 <option value="" disabled selected>-- Tahun Lulus --</option>
                                 <option value="all" <?= $selectedYear == 'all' ? 'selected' : '' ?>>Semua Tahun Lulus</option>
                                 <?php foreach ($allYears as $y): ?>
-                                    <option value="<?= $y['tahun_kelulusan'] ?>" <?= $selectedYear == $y['tahun_kelulusan'] ? 'selected' : '' ?>>
-                                        <?= esc($y['tahun_kelulusan']) ?>
-                                    </option>
+                                    <option value="<?= $y['tahun_kelulusan'] ?>" <?= $selectedYear == $y['tahun_kelulusan'] ? 'selected' : '' ?>><?= esc($y['tahun_kelulusan']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -103,9 +89,6 @@
                                 <option value="Belum" <?= $selectedStatus == 'Belum' ? 'selected' : '' ?>>Belum Mengisi</option>
                             </select>
                         </div>
-
-
-                        <!-- Row 3 -->
                         <div class="filter-group">
                             <select name="sort_by" class="filter-select">
                                 <option value="" disabled selected>-- Urutkan Berdasarkan --</option>
@@ -117,7 +100,6 @@
                                 <option value="status" <?= ($filters['sort_by'] ?? '') == 'status' ? 'selected' : '' ?>>Status</option>
                             </select>
                         </div>
-
                         <div class="filter-group">
                             <select name="sort_order" class="filter-select">
                                 <option value="asc" <?= ($filters['sort_order'] ?? '') == 'asc' ? 'selected' : '' ?>>Ascending (A–Z / 0–9)</option>
@@ -137,18 +119,9 @@
 
             <!-- Summary Counter -->
             <div class="summary-counter">
-                <div class="counter-item counter-success">
-                    <span class="counter-label">Sudah</span>
-                    <span class="counter-value"><?= $totalCompleted ?? 0 ?></span>
-                </div>
-                <div class="counter-item counter-primary">
-                    <span class="counter-label">Ongoing</span>
-                    <span class="counter-value"><?= $totalOngoing ?? 0 ?></span>
-                </div>
-                <div class="counter-item counter-danger">
-                    <span class="counter-label">Belum Mengisi</span>
-                    <span class="counter-value"><?= $totalBelum ?? 0 ?></span>
-                </div>
+                <div class="counter-item counter-success"><span class="counter-label">Sudah</span><span class="counter-value"><?= $totalCompleted ?? 0 ?></span></div>
+                <div class="counter-item counter-primary"><span class="counter-label">Ongoing</span><span class="counter-value"><?= $totalOngoing ?? 0 ?></span></div>
+                <div class="counter-item counter-danger"><span class="counter-label">Belum Mengisi</span><span class="counter-value"><?= $totalBelum ?? 0 ?></span></div>
             </div>
 
             <!-- Table -->
@@ -176,14 +149,14 @@
                                 <?php foreach ($responses as $res): ?>
                                     <tr>
                                         <td class="text-center"><?= $no++ ?></td>
-                                        <td class="nim-cell"><?= esc($res['nim'] ?? '-') ?></td>
-                                        <td class="nama-cell"><?= esc($res['nama_lengkap'] ?? '-') ?></td>
+                                        <td><?= esc($res['nim'] ?? '-') ?></td>
+                                        <td><?= esc($res['nama_lengkap'] ?? '-') ?></td>
                                         <td><?= esc($res['nama_jurusan'] ?? '-') ?></td>
                                         <td><?= esc($res['nama_prodi'] ?? '-') ?></td>
                                         <td class="text-center"><?= esc($res['angkatan'] ?? '-') ?></td>
                                         <td class="text-center"><?= esc($res['tahun_kelulusan'] ?? '-') ?></td>
-                                        <td class="kuesioner-cell"><?= esc($res['judul_kuesioner'] ?? '-') ?></td>
-                                        <td class="status-cell">
+                                        <td><?= esc($res['judul_kuesioner'] ?? '-') ?></td>
+                                        <td>
                                             <?php if (($res['status'] ?? '') === 'completed'): ?>
                                                 <span class="status-badge status-success">Sudah</span>
                                             <?php elseif (($res['status'] ?? '') === 'draft'): ?>
@@ -192,20 +165,11 @@
                                                 <span class="status-badge status-danger">Belum Mengisi</span>
                                             <?php endif; ?>
                                         </td>
-
-                                        <td class="date-cell"><?= esc($res['submitted_at'] ?? '-') ?></td>
-                                        <td class="action-cell">
+                                        <td><?= esc($res['submitted_at'] ?? '-') ?></td>
+                                        <td>
                                             <?php if (!empty($res['response_id']) && ($res['status'] ?? '') === 'completed'): ?>
-                                                <!-- Debug: Output $res to check available keys -->
-                                                <?php // Remove this after debugging 
-                                                ?>
-                                                <?php // echo '<pre>'; var_dump($res); echo '</pre>'; 
-                                                ?>
-                                                <a href="<?= base_url('admin/respon/allow_edit/' . $res['questionnaire_id'] . '/' . $res['id_account']) ?>"
-                                                    class="action-btn"
-                                                    onclick="return confirm('Izinkan alumni mengedit jawaban ini?')">Edit Jawaban</a>
-                                                <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>"
-                                                    class="action-btn">Jawaban</a>
+                                                <a href="<?= base_url('admin/respon/allow_edit/' . $res['questionnaire_id'] . '/' . $res['id_account']) ?>" class="action-btn">Edit Jawaban</a>
+                                                <a href="<?= base_url('admin/respon/detail/' . $res['response_id']) ?>" class="action-btn">Jawaban</a>
                                             <?php else: ?>
                                                 <span class="no-action">-</span>
                                             <?php endif; ?>
@@ -213,102 +177,112 @@
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <tr>
-                                    <td colspan="11" class="no-data">Tidak ada data</td>
-                                </tr>
+                                <tr><td colspan="11" class="no-data">Tidak ada data</td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <?php if (session()->getFlashdata('success')): ?>
-                <div class="alert alert-success">
-                    <?= session()->getFlashdata('success') ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (session()->getFlashdata('error')): ?>
-                <div class="alert alert-danger">
-                    <?= session()->getFlashdata('error') ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (session()->getFlashdata('info')): ?>
-                <div class="alert alert-info">
-                    <?= session()->getFlashdata('info') ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (session()->getFlashdata('warning')): ?>
-                <div class="alert alert-warning">
-                    <?= session()->getFlashdata('warning') ?>
-                </div>
-            <?php endif; ?>
-
+            <!-- Pagination -->
             <?php if ($totalPages > 1): ?>
-                <?php
-                $queryParams = $_GET;
-                unset($queryParams['page']); // hapus page lama
-                ?>
+                <?php $queryParams = $_GET; unset($queryParams['page']); ?>
                 <div class="d-flex justify-content-end mt-3">
                     <ul class="pagination">
-                        <!-- Previous -->
                         <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
                             <a class="page-link" href="<?= $currentPage > 1 ? base_url('admin/respon?page=' . ($currentPage - 1) . '&' . http_build_query($queryParams)) : '#' ?>">Previous</a>
                         </li>
-
-                        <!-- Page numbers -->
                         <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                             <li class="page-item <?= ($i == $currentPage) ? 'active' : '' ?>">
                                 <a class="page-link" href="<?= base_url('admin/respon?page=' . $i . '&' . http_build_query($queryParams)) ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
-
-                        <!-- Next -->
                         <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
                             <a class="page-link" href="<?= $currentPage < $totalPages ? base_url('admin/respon?page=' . ($currentPage + 1) . '&' . http_build_query($queryParams)) : '#' ?>">Next</a>
                         </li>
                     </ul>
                 </div>
             <?php endif; ?>
-
         </div>
-
     </div>
 </div>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const jurusanSelect = document.querySelector('select[name="jurusan"]');
-        const prodiSelect = document.querySelector('select[name="prodi"]');
+document.addEventListener('DOMContentLoaded', function () {
+    const jurusanSelect = document.querySelector('select[name="jurusan"]');
+    const prodiSelect = document.querySelector('select[name="prodi"]');
 
-        if (jurusanSelect && prodiSelect) {
-            jurusanSelect.addEventListener('change', function() {
-                const jurusanId = this.value;
+    if (jurusanSelect && prodiSelect) {
+        jurusanSelect.addEventListener('change', function () {
+            const jurusanId = this.value;
+            prodiSelect.innerHTML = '<option value="">-- Semua Prodi --</option>';
 
-                // Kosongkan prodi dulu
-                prodiSelect.innerHTML = '<option value="">-- Semua Prodi --</option>';
+            const url = jurusanId && jurusanId !== 'all'
+                ? `/admin/respon/getProdiByJurusan/${jurusanId}`
+                : `/admin/respon/getProdiByJurusan/all`;
 
-                // Kalau user pilih semua jurusan → ambil semua prodi
-                const url = jurusanId && jurusanId !== 'all' ?
-                    `/admin/respon/getProdiByJurusan/${jurusanId}` :
-                    `/admin/respon/getProdiByJurusan/all`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(p => {
+                        const option = document.createElement('option');
+                        option.value = p.id;
+                        option.textContent = p.nama_prodi;
+                        prodiSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    }
 
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(p => {
-                            const option = document.createElement('option');
-                            option.value = p.id;
-                            option.textContent = p.nama_prodi;
-                            prodiSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Error:', error));
+    // SweetAlert2 konfirmasi izin edit
+    document.querySelectorAll('.action-btn[href*="allow_edit"]').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const url = this.getAttribute('href');
+
+            Swal.fire({
+                title: 'Izinkan alumni mengedit?',
+                text: 'Alumni akan dapat mengubah jawaban kuesioner mereka.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, izinkan',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
             });
-        }
+        });
     });
+});
 </script>
+<!-- ✅ SweetAlert2 Notifikasi setelah simpan -->
+<?php if (session()->getFlashdata('success')): ?>
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil!',
+    text: '<?= session()->getFlashdata('success') ?>',
+    showConfirmButton: false,
+    timer: 2000
+});
+</script>
+<?php endif; ?>
 
-
+<?php if (session()->getFlashdata('error')): ?>
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal!',
+    text: '<?= session()->getFlashdata('error') ?>',
+    showConfirmButton: true
+});
+</script>
+<?php endif; ?>
 <?= $this->endSection() ?>

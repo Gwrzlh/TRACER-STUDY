@@ -160,6 +160,13 @@ $currentRoute = service('request')->uri->getPath();
             <a href="<?= base_url('pengaturan-dashboard/dashboard-alumni') ?>" class="submenu <?= str_contains($currentRoute, 'pengaturan-dashboard') ? 'active' : '' ?>">Pengaturan Dashboard</a>
           </div>
         </details>
+        <!-- 🔔 Kirim Peringatan -->
+<a href="<?= base_url('admin/peringatan') ?>"
+   class="sidebar-link <?= str_contains($currentRoute, 'peringatan') ? 'active' : '' ?>">
+   <i class="fa-solid fa-bell"></i>
+   <span>Kirim Peringatan</span>
+</a>
+
 
       </nav>
 

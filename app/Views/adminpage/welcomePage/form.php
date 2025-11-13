@@ -9,13 +9,6 @@
       <h1 class="text-3xl font-bold text-gray-900">Edit Landing Page</h1>
     </div>
 
-    <!-- Notifikasi -->
-    <?php if (session()->getFlashdata('success')): ?>
-      <div class="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg mb-6 font-medium">
-        ✅ <?= session()->getFlashdata('success') ?>
-      </div>
-    <?php endif; ?>
-
     <!-- Form Card -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
       
@@ -182,6 +175,21 @@
   </div>
 </div>
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+<?php if (session()->getFlashdata('success')): ?>
+Swal.fire({
+  icon: 'success',
+  title: 'Berhasil!',
+  text: '<?= esc(session()->getFlashdata('success')) ?>',
+  showConfirmButton: false,
+  timer: 2000,
+  timerProgressBar: true
+});
+<?php endif; ?>
+</script>
+
 <!-- Preview + Reset Script -->
 <script>
 function previewImage(inputId, previewId, resetId, defaultSrc) {
@@ -209,8 +217,6 @@ function previewImage(inputId, previewId, resetId, defaultSrc) {
 previewImage('image_input', 'preview_image', 'reset_image', "<?= esc($welcome['image_path']) ?>");
 previewImage('image_input_2', 'preview_image_2', 'reset_image_2', "<?= !empty($welcome['image_path_2']) ? esc($welcome['image_path_2']) : '/images/placeholder.png' ?>");
 
-
-// === Preview + Reset Video File ===
 const videoInput = document.getElementById('video_file');
 const videoContainer = document.getElementById('video_preview_container');
 const videoPreview = document.getElementById('video_preview');
@@ -248,8 +254,6 @@ if (videoReset) {
   });
 }
 
-
-// === YouTube Preview ===
 const youtubeInput = document.getElementById('youtube_url');
 const youtubePreview = document.getElementById('youtube_preview');
 const youtubeContainer = document.getElementById('youtube_preview_container');
@@ -291,12 +295,11 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-
-<!-- TinyMCE Self-hosted -->
+<!-- TinyMCE -->
 <script src="<?= base_url('tinymce/tinymce.min.js'); ?>"></script>
 <script>
 tinymce.init({
-    selector: '#desc_1_editor, #desc_2_editor, #desc_3_editor',
+    selector: '#desc_1_editor, #desc_2_editor',
     license_key: 'gpl',
     height: 250,
     menubar: false,
