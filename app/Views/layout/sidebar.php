@@ -1,9 +1,14 @@
 <?php 
 $currentRoute = service('request')->uri->getPath();
+$session = session();
+$foto = $session->get('foto');
+$fotoPath = FCPATH . 'uploads/foto_admin/' . ($foto ?? '');
+$fotoUrl = ($foto && file_exists($fotoPath))
+  ? base_url('uploads/foto_admin/' . $foto)
+  : base_url('uploads/default.png');
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <title><?= $title ?? 'Dashboard' ?></title>
@@ -74,10 +79,6 @@ $currentRoute = service('request')->uri->getPath();
               class="submenu <?= str_contains($currentRoute, 'admin/questionnaire') ? 'active' : '' ?>">
               Kuesioner
             </a>
-            <a href="<?= base_url('admin/relasi-atasan-alumni') ?>"
-              class="submenu <?= str_contains($currentRoute, 'admin/relasi-atasan-alumni/') ? 'active' : '' ?>">
-             Atasan Alumni
-            </a>
           </div>
         </details>
 
@@ -139,8 +140,7 @@ $currentRoute = service('request')->uri->getPath();
             <a href="<?= base_url('admin/log_activities') ?>" class="submenu <?= str_contains($currentRoute, 'admin/log_activities') ? 'active' : '' ?>">Aktivitas Pengguna</a>
             <a href="<?= base_url('admin/log_activities/dashboard') ?>" class="submenu <?= str_contains($currentRoute, 'admin/log_activities/dashboard') ? 'active' : '' ?>">Log Dashboard</a>
             <a href="<?= base_url('admin/profil') ?>" class="submenu <?= str_contains($currentRoute, 'admin/profil') ? 'active' : '' ?>">Profil</a>
-            <a href="<?= base_url('pengaturan-dashboard/dashboard-alumni') ?>"
-              class="submenu <?= str_contains($currentRoute, 'pengaturan-dashboard') ? 'active' : '' ?>">Pengaturan Dashboard</a>
+            <a href="<?= base_url('pengaturan-dashboard/dashboard-alumni') ?>" class="submenu <?= str_contains($currentRoute, 'pengaturan-dashboard') ? 'active' : '' ?>">Pengaturan Dashboard</a>
 
             <!-- Respon Dropdown -->
             <details class="group" <?= str_contains($currentRoute, 'admin/respon') ? 'open' : '' ?>>
@@ -150,40 +150,18 @@ $currentRoute = service('request')->uri->getPath();
               </summary>
 
               <div class="ml-6 mt-1 space-y-1">
-                <a href="<?= base_url('admin/respon') ?>"
-                  class="submenu <?= str_contains($currentRoute, 'admin/respon') && !str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">
-                  Respon Alumni
-                </a>
-                <a href="<?= base_url('admin/respon/atasan') ?>"
-                  class="submenu <?= str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">
-                  Respon Atasan
-                </a>
+                <a href="<?= base_url('admin/respon') ?>" class="submenu <?= str_contains($currentRoute, 'admin/respon') && !str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">Respon Alumni</a>
+                <a href="<?= base_url('admin/respon/atasan') ?>" class="submenu <?= str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">Respon Atasan</a>
               </div>
             </details>
           </div>
         </details>
-        <!-- 🔔 Kirim Peringatan -->
-<a href="<?= base_url('admin/peringatan') ?>"
-   class="sidebar-link <?= str_contains($currentRoute, 'peringatan') ? 'active' : '' ?>">
-   <i class="fa-solid fa-bell"></i>
-   <span>Kirim Peringatan</span>
-</a>
-
 
       </nav>
 
-      <?php
-      $session = session();
-      $foto = $session->get('foto');
-      $fotoPath = FCPATH . 'uploads/foto_admin/' . ($foto ?? '');
-      $fotoUrl = ($foto && file_exists($fotoPath))
-        ? base_url('uploads/foto_admin/' . $foto)
-        : base_url('uploads/default.png');
-      ?>
-
       <!-- Profile + Logout -->
       <div class="shrink-0 bg-white pt-4 pb-2 px-4 space-y-2 border-t">
-        <div class="flex items-center gap-4 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition" id="profileSidebarBtn">
+        <div id="profileSidebarBtn" class="flex items-center gap-4 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition">
           <div class="relative">
             <img id="sidebarFoto" src="<?= $fotoUrl ?>" class="w-12 h-12 rounded-full shadow-md border object-cover">
             <span class="status-indicator"></span>
@@ -247,5 +225,4 @@ $currentRoute = service('request')->uri->getPath();
     </main>
   </div>
 </body>
-
 </html>

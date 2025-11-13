@@ -172,9 +172,6 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     });
 
 
-    // // --- Perusahaan ---
-    // $routes->get('perusahaan/dashboard', 'PerusahaanController::dashboard');
-
 
 
     // Tentang
@@ -705,7 +702,20 @@ $routes->get('getNotifCount', 'AtasanController::getNotifCount');
 // $routes->get('atasan/dashboard', 'AtasanController::dashboard');
 $routes->get('atasan/kuesioner', 'AtasanKuesionerController::index', ['filter' => 'atasanFilter']);
 // =============== ATASAN ===============
+
 // $routes->get('/atasan/perusahaan', 'AtasanController::perusahaan');
+
+// ================= ATASAN CRUD PERUSAHAAN =================
+$routes->get('/', 'Home::index');
+
+// ================= ATASAN CRUD PERUSAHAAN =================
+$routes->get('/atasan/perusahaan', 'AtasanController::perusahaan');
+$routes->get('/atasan/perusahaan/detail/(:num)', 'AtasanController::detailPerusahaan/$1');
+$routes->get('/atasan/perusahaan/edit/(:num)', 'AtasanController::editPerusahaan/$1');
+$routes->get('/atasan/perusahaan/getCitiesByProvince/(:num)', 'AtasanController::getCitiesByProvince/$1');
+
+// ================= PERUSAHAAN DASHBOARD =================
+$routes->get('/perusahaan/dashboard', 'PerusahaanController::dashboard');
 
 
 
