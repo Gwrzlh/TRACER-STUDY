@@ -13,7 +13,11 @@
         <label class="block text-sm font-medium text-gray-700">Pilih Atasan</label>
         <select name="id_atasan" id="id_atasan" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
           <option value="">-- Pilih Atasan --</option>
-          <?php foreach ($atasan as $a): ?>
+          <?php
+
+        use PhpParser\Builder\Method;
+
+ foreach ($atasan as $a): ?>
             <option value="<?= esc($a['id']) ?>"><?= esc($a['nama_lengkap']) ?></option>
           <?php endforeach; ?>
         </select>
@@ -80,49 +84,67 @@
       </div>
     </form>
   </div>
-
-  <div class="bg-white p-6 rounded-xl shadow-sm">
+<!-- -------table atasan alumni------- -->
+  <div class="bg-white p-6 rounded-xl shadow-sm mt-6">
+  <h3 class="text-lg font-semibold mb-4">Daftar Relasi Atasan ↔ Alumni</h3>
   <table class="min-w-full border border-gray-200">
     <thead class="bg-gray-100">
       <tr>
-        <th class="p-3 text-left">Atasan</th>
-        <th class="p-3 text-left">Alumni</th>
-        <th class="p-3 text-center">Aksi</th>
+        <th class="p-3 text-left border-r">Atasan</th>
+        <th class="p-3 text-left border-r">Alumni</th>
+        <th class="p-3 text-center w-24">Aksi</th>
       </tr>
     </thead>
     <tbody>
-      <?php foreach ($grouped as $id_atasan => $data): ?>
-      <tr class="border-b hover:bg-gray-50">
-        <td class="p-3 font-semibold text-gray-800">
-          <?= $data['nama_atasan'] ?>
-        </td>
-
-        <td class="p-3">
-          <div class="flex flex-wrap gap-2">
-            <?php foreach ($data['alumni'] as $alumni): ?>
-              <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
-                <?= $alumni ?>
-              </span>
-            <?php endforeach; ?>
-          </div>
-        </td>
-
-        <td class="p-3 text-center space-x-2">
-          <!-- EDIT -->
-          <!-- <a href="<?= base_url('admin/relasi-atasan-alumni/edit/'.$id_atasan) ?>"
-            class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm">
-            Edit
-          </a> -->
-
-          <!-- HAPUS SEMUA RELASI ATASAN INI -->
-          <a href="<?= base_url('admin/relasi-atasan-alumni/delete/'.$id_atasan) ?>"
-            onclick="return confirm('Yakin ingin menghapus semua relasi alumni untuk atasan ini?')"
-            class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm">
-            Hapus
-          </a>
-        </td>
-      </tr>
-      <?php endforeach; ?>
+      <?php if (empty($grouped)): ?>
+        <tr>
+          <td colspan="3" class="p-4 text-center text-gray-500">
+            Belum ada relasi. Silakan tambahkan relasi di form atas.
+          </td>
+        </tr>
+      <?php else: ?>
+        <?php foreach ($grouped as $id_atasan => $data): ?>
+          <?php $alumniCount = count($data['alumni']); ?>
+          <?php foreach ($data['alumni'] as $index => $alumni): ?>
+            <tr class="border-b hover:bg-gray-50">
+              
+              <!-- Kolom Atasan (hanya tampil sekali per group) -->
+              <?php if ($index === 0): ?>
+                <td rowspan="<?= $alumniCount ?>" 
+                    class="p-3 font-semibold text-gray-800 bg-gray-50 border-r align-top">
+                  <?= esc($data['nama_atasan']) ?>
+                </td>
+              <?php endif; ?>
+              
+              <!-- Kolom Alumni (satu per row) -->
+              <td class="p-3 border-r">
+                <div class="flex items-center gap-2">
+                  <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                    <?= esc($alumni['nama_alumni']) ?>
+                  </span>
+                  <?php if (isset($alumni['nim_alumni'])): ?>
+                    <span class="text-xs text-gray-500">
+                      (NIM: <?= esc($alumni['nim_alumni']) ?>)
+                    </span>
+                  <?php endif; ?>
+                </div>
+              </td>
+              
+              <!-- Kolom Aksi (tombol hapus per alumni) -->
+              <td class="p-3 text-center">
+                <a href="<?= base_url('admin/relasi-atasan-alumni/delete/' . $alumni['id_relasi'])?>"
+                   class="inline-flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm transition-colors shadow-sm"
+                   onclick="return confirm('Yakin hapus relasi:\n<?= esc($alumni['nama_alumni']) ?> ↔ <?= esc($data['nama_atasan']) ?>?')"
+                   title="Hapus relasi ini">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </a>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </tbody>
   </table>
 </div>

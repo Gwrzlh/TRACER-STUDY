@@ -60,7 +60,7 @@ $routes->group('admin/relasi-atasan-alumni', ['filter' => 'adminAuth'], function
     $routes->get('tambah', 'RelasiAtasanAlumniController::create');
     $routes->post('store', 'RelasiAtasanAlumniController::store');
     $routes->post('update/(:num)','RelasiAtasanAlumniController::update/$1'); // Simpan relasi
-    $routes->post('delete/(:num)', 'RelasiAtasanAlumniController::delete/$1');
+    $routes->get('delete/(:num)', 'RelasiAtasanAlumniController::delete/$1');
     $routes->post('fetch-alumni', 'RelasiAtasanAlumniController::fetchAlumni'); 
 });
 
