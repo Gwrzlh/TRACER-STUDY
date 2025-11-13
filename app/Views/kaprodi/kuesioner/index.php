@@ -78,10 +78,14 @@
                 </div>
             </div>
 
+            <!-- SweetAlert2 -->
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
                     const baseUrl = "<?= base_url('kaprodi/kuesioner') ?>";
+
+                    // ====== KONFIRMASI HAPUS ======
                     document.querySelectorAll(".delete-questionnaire").forEach(button => {
                         button.addEventListener("click", function() {
                             const id = this.getAttribute("data-id");
@@ -101,6 +105,16 @@
                             });
                         });
                     });
+
+                    // ====== ALERT BERHASIL EDIT ======
+                    <?php if (session()->getFlashdata('success')): ?>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: '<?= esc(session()->getFlashdata('success')) ?>',
+                            confirmButtonColor: '#16a34a'
+                        });
+                    <?php endif; ?>
                 });
             </script>
         </div>
