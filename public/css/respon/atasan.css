@@ -1,0 +1,326 @@
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.header-icon {
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1f2937;
+    flex-shrink: 0;
+}
+
+.header-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.header-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+/* Filter Form Container */
+form.grid {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    form.grid.md\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Select Dropdown */
+form select.w-full {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+form select.w-full:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Button Container */
+.flex.gap-2 {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Button Terapkan (Biru) */
+button.bg-blue-600 {
+    background-color: #2563eb;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button.bg-blue-600:hover {
+    background-color: #1d4ed8;
+}
+
+/* Button Reset (Abu-abu) */
+a.bg-gray-300 {
+    background-color: #d1d5db;
+    color: #1f2937;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+a.bg-gray-300:hover {
+    background-color: #9ca3af;
+}
+
+/* Table Container */
+.overflow-x-auto {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+/* Table */
+table.min-w-full {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem; /* Diperbesar dari 0.875rem */
+    text-align: left;
+    border: 1px solid #e5e7eb;
+}
+
+/* Table Header */
+thead.bg-gray-100 {
+    background-color: #f3f4f6;
+}
+
+thead.bg-gray-100 th {
+    padding: 0.875rem 1rem; /* Diperbesar dari 0.5rem 1rem */
+    color: #374151;
+    font-weight: 600;
+    font-size: 0.95rem; /* Tambahkan font-size konsisten */
+    border: 1px solid #e5e7eb;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Table Body */
+tbody td {
+    padding: 0.875rem 1rem; /* Diperbesar dari 0.5rem 1rem */
+    border: 1px solid #e5e7eb;
+    color: #1f2937;
+    font-size: 0.95rem; /* Tambahkan font-size konsisten */
+    vertical-align: middle; /* Align content vertically */
+}
+
+tbody tr.border-t:hover {
+    background-color: #f9fafb;
+}
+
+/* Table Column - Number */
+tbody td:first-child,
+thead th:first-child {
+    text-align: center;
+    width: 50px; /* Fixed width untuk kolom # */
+}
+
+/* Table Column - Aksi */
+tbody td:last-child,
+thead th:last-child {
+    text-align: center;
+    min-width: 180px; /* Minimum width untuk kolom aksi */
+}
+
+/* Status Badges */
+span.bg-green-100 {
+    background-color: #d1fae5;
+    color: #065f46;
+    padding: 0.375rem 0.75rem; /* Diperbesar dari 0.25rem 0.5rem */
+    font-size: 0.85rem; /* Diperbesar dari 0.75rem */
+    font-weight: 500;
+    border-radius: 0.375rem; /* Diperbesar dari 0.25rem */
+    display: inline-block;
+    white-space: nowrap;
+}
+
+span.bg-yellow-100 {
+    background-color: #fef3c7;
+    color: #92400e;
+    padding: 0.375rem 0.75rem; /* Diperbesar dari 0.25rem 0.5rem */
+    font-size: 0.85rem; /* Diperbesar dari 0.75rem */
+    font-weight: 500;
+    border-radius: 0.375rem; /* Diperbesar dari 0.25rem */
+    display: inline-block;
+    white-space: nowrap;
+}
+
+span.bg-red-100 {
+    background-color: #fee2e2;
+    color: #991b1b;
+    padding: 0.375rem 0.75rem; /* Diperbesar dari 0.25rem 0.5rem */
+    font-size: 0.85rem; /* Diperbesar dari 0.75rem */
+    font-weight: 500;
+    border-radius: 0.375rem; /* Diperbesar dari 0.25rem */
+    display: inline-block;
+    white-space: nowrap;
+}
+
+/* Action Buttons - Detail (Biru) */
+a.bg-blue-500 {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.5rem 1rem; /* Diperbesar */
+    border-radius: 0.375rem;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 0.875rem; /* Diperbesar */
+    font-weight: 500;
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem; /* Jarak antar button jika wrap */
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+a.bg-blue-500:hover {
+    background-color: #2563eb;
+}
+
+/* Action Buttons - Hapus (Merah) */
+a.bg-red-500 {
+    background-color: #ef4444;
+    color: white;
+    padding: 0.5rem 1rem; /* Diperbesar */
+    border-radius: 0.375rem;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 0.875rem; /* Diperbesar */
+    font-weight: 500;
+    margin-bottom: 0.25rem; /* Jarak antar button jika wrap */
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+a.bg-red-500:hover {
+    background-color: #dc2626;
+}
+
+/* Text Utilities */
+.text-center {
+    text-align: center;
+}
+
+.text-gray-500 {
+    color: #6b7280;
+}
+
+.text-gray-700 {
+    color: #374151;
+}
+
+.text-gray-800 {
+    color: #1f2937;
+}
+
+/* Spacing Utilities */
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+/* Border Utilities */
+.border {
+    border: 1px solid #e5e7eb;
+}
+
+.rounded {
+    border-radius: 0.375rem;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+/* Shadow */
+.shadow {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive Table */
+@media (max-width: 1200px) {
+    table.min-w-full {
+        font-size: 0.875rem;
+    }
+    
+    thead.bg-gray-100 th,
+    tbody td {
+        padding: 0.75rem 0.875rem;
+        font-size: 0.875rem;
+    }
+    
+    a.bg-blue-500,
+    a.bg-red-500 {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}

@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="<?= base_url('css/pengaturan_situs.css') ?>">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="<?= base_url('tinymce/tinymce.min.js') ?>"></script>
+
 <!-- 🔹 Tabs Navigasi -->
 <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
@@ -37,8 +38,9 @@
         </a>
     </li>
 </ul>
+
 <div class="container mt-4">
-    <h2 class="mb-3">Pengaturan Dashboard Kaprodi</h2>
+    <h2 class="mb-3">Pengaturan Dashboard Admin</h2>
 
     <?php if (session()->getFlashdata('success')): ?>
         <script>
@@ -52,63 +54,93 @@
         </script>
     <?php endif; ?>
 
-    <form action="<?= base_url('pengaturan-dashboard/dashboard-kaprodi/save') ?>" method="post">
+    <form action="<?= base_url('pengaturan-dashboard/dashboard-admin/save') ?>" method="post">
         <input type="hidden" name="id" value="<?= esc($dashboard['id'] ?? '') ?>">
 
         <!-- Judul Dashboard -->
         <div class="mb-3">
             <label for="judul" class="form-label">Judul Dashboard</label>
             <input type="text" name="judul" class="form-control" id="judul"
-                value="<?= esc($dashboard['judul'] ?? 'Dashboard Kaprodi') ?>" required>
+                value="<?= esc($dashboard['judul'] ?? 'Dashboard Admin') ?>" required>
         </div>
 
         <!-- Teks Sapaan -->
         <div class="mb-3">
             <label for="deskripsi" class="form-label">Teks Sapaan / Subjudul</label>
-            <textarea id="deskripsi" name="deskripsi"><?= esc($dashboard['deskripsi'] ?? 'Halo kaprodi1 (Kaprodi)') ?></textarea>
+            <textarea id="deskripsi" name="deskripsi"><?= esc($dashboard['deskripsi'] ?? 'Halo Admin! Selamat datang di sistem tracer study.') ?></textarea>
         </div>
 
         <hr>
 
-        <!-- Card 1: Kuesioner Aktif -->
-        <h5 class="mt-4">Card 1: Kuesioner Aktif</h5>
+        <!-- CARD 1 -->
+        <h5 class="mt-4">Card 1: Total Survei</h5>
         <div class="mb-3">
-            <label for="judul_kuesioner" class="form-label">Judul Card</label>
-            <input type="text" name="judul_kuesioner" class="form-control" id="judul_kuesioner"
-                value="<?= esc($dashboard['judul_kuesioner'] ?? 'Jumlah Kuesioner Aktif') ?>" required>
+            <label class="form-label">Judul Card</label>
+            <input type="text" name="card_1" class="form-control"
+                value="<?= esc($dashboard['judul_kuesioner'] ?? 'Total Survei') ?>">
         </div>
 
         <hr>
 
-        <!-- Card 2: Alumni -->
+        <!-- CARD 2 -->
         <h5 class="mt-4">Card 2: Alumni</h5>
         <div class="mb-3">
-            <label for="judul_data_alumni" class="form-label">Judul Card</label>
-            <input type="text" name="judul_data_alumni" class="form-control" id="judul_data_alumni"
-                value="<?= esc($dashboard['judul_data_alumni'] ?? 'Jumlah Alumni') ?>" required>
+            <label class="form-label">Judul Card</label>
+            <input type="text" name="card_2" class="form-control"
+                value="<?= esc($dashboard['judul_data_alumni'] ?? 'Alumni') ?>">
         </div>
 
         <hr>
 
-        <!-- Card 3: Akreditasi -->
-        <h5 class="mt-4">Card 3: Akreditasi</h5>
+        <!-- CARD 3 -->
+        <h5 class="mt-4">Card 3: Admin</h5>
         <div class="mb-3">
-            <label for="judul_profil" class="form-label">Judul Card</label>
-            <input type="text" name="judul_profil" class="form-control" id="judul_profil"
-                value="<?= esc($dashboard['judul_profil'] ?? 'Akreditasi') ?>" required>
+            <label class="form-label">Judul Card</label>
+            <input type="text" name="card_3" class="form-control"
+                value="<?= esc($dashboard['judul_profil'] ?? 'Admin') ?>">
         </div>
 
         <hr>
 
-        <!-- Card 4: AMI -->
-        <h5 class="mt-4">Card 4: AMI</h5>
+        <!-- CARD 4 -->
+        <h5 class="mt-4">Card 4: Kaprodi</h5>
         <div class="mb-3">
-            <label for="judul_ami" class="form-label">Judul Card</label>
-            <input type="text" name="judul_ami" class="form-control" id="judul_ami"
-                value="<?= esc($dashboard['judul_ami'] ?? 'AMI') ?>" required>
+            <label class="form-label">Judul Card</label>
+            <input type="text" name="card_4" class="form-control"
+                value="<?= esc($dashboard['judul_ami'] ?? 'Kaprodi') ?>">
         </div>
 
-        <button type="submit" class="btn btn-primary">Simpan</button>
+        <hr>
+
+        <!-- CARD 5 -->
+        <h5 class="mt-4">Card 5: Perusahaan</h5>
+        <div class="mb-3">
+            <label class="form-label">Judul Card</label>
+            <input type="text" name="card_5" class="form-control"
+                value="<?= esc($dashboard['card_5'] ?? 'Perusahaan') ?>">
+        </div>
+
+        <hr>
+
+        <!-- CARD 6 -->
+        <h5 class="mt-4">Card 6: Atasan</h5>
+        <div class="mb-3">
+            <label class="form-label">Judul Card</label>
+            <input type="text" name="card_6" class="form-control"
+                value="<?= esc($dashboard['card_6'] ?? 'Atasan') ?>">
+        </div>
+
+        <hr>
+
+        <!-- CARD 7 -->
+        <h5 class="mt-4">Card 7: Jabatan Lainnya</h5>
+        <div class="mb-3">
+            <label class="form-label">Judul Card</label>
+            <input type="text" name="card_7" class="form-control"
+                value="<?= esc($dashboard['card_7'] ?? 'Jabatan Lainnya') ?>">
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Simpan</button>
     </form>
 </div>
 

@@ -5,18 +5,6 @@
 <link rel="stylesheet" href="<?= base_url('css/alumni/lihatteman.css') ?>">
 
 <div class="container mt-4">
-    <!-- Flash Message -->
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?= session()->getFlashdata('success') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php elseif (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <?= session()->getFlashdata('error') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
 
     <h3 class="mb-3">Teman Satu Jurusan & Prodi</h3>
     <p>Jurusan: <b><?= esc($jurusan) ?></b> | Prodi: <b><?= esc($prodi) ?></b></p>
@@ -78,11 +66,38 @@
                     <?php endif; ?>
                 </tbody>
             </table>
+
             <div class="mt-3">
-    <?= $pager->links('default', 'bootstrap5') ?>
-</div>
+                <?= $pager->links('default', 'bootstrap5') ?>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- ✅ Tambahkan SweetAlert2 di bawah -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+<?php if (session()->getFlashdata('success')): ?>
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '<?= esc(session()->getFlashdata('success')) ?>',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+    });
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('error')): ?>
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: '<?= esc(session()->getFlashdata('error')) ?>',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Tutup'
+    });
+<?php endif; ?>
+</script>
 
 <?= $this->endSection() ?>

@@ -489,7 +489,8 @@
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="toast-container"></div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/questioner/question/index.js"></script>
 <script>
@@ -631,62 +632,113 @@ handleStickyState();
         });
     });
 
-    // Question actions
-    document.addEventListener("click", function(e) {
-        if (e.target.closest(".delete-question")) {
-            const questionId = e.target.closest(".delete-question").dataset.questionId;
-            if (confirm("Are you sure you want to delete this question?")) {
+    // ==== Question Actions ====
+document.addEventListener("click", function (e) {
+    // === Hapus Pertanyaan ===
+    const deleteBtn = e.target.closest(".delete-question");
+    if (deleteBtn) {
+        const questionId = deleteBtn.dataset.questionId;
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This question will be permanently deleted!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel",
+        }).then((result) => {
+            if (result.isConfirmed) {
                 showLoadingToast();
                 fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/delete/") ?>${questionId}`, {
                     method: "POST",
                     headers: {
                         "X-Requested-With": "XMLHttpRequest",
                         "X-CSRF-TOKEN": document.querySelector('[name="csrf_test_name"]').value,
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ question_id: questionId })
+                    body: JSON.stringify({ question_id: questionId }),
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        showNotification("Question deleted successfully", "success");
-                        document.querySelector(`.question-item[data-question-id="${questionId}"]`).remove();
-                    } else {
-                        showNotification(data.message || "Failed to delete question", "error");
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    showNotification("An error occurred", "error");
-                });
+                    .then((response) => response.json())
+                    .then((data) => {
+                        Swal.close();
+                        if (data.status === "success") {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Deleted!",
+                                text: "Question deleted successfully.",
+                                timer: 1500,
+                                showConfirmButton: false,
+                            });
+                            document.querySelector(`.question-item[data-question-id="${questionId}"]`)?.remove();
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Failed",
+                                text: data.message || "Failed to delete question.",
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        Swal.close();
+                        console.error("Error:", error);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "An error occurred while deleting the question.",
+                        });
+                    });
             }
-        }
+        });
+        return; // penting agar tidak lanjut ke handler lain
+    }
 
-        if (e.target.closest(".duplicate-question")) {
-            const questionId = e.target.closest(".duplicate-question").dataset.questionId;
-            showLoadingToast();
-            fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/duplicate/") ?>${questionId}`, {
-                method: "POST",
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                    "X-CSRF-TOKEN": document.querySelector('[name="csrf_test_name"]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
+    // === Duplikasi Pertanyaan ===
+    const duplicateBtn = e.target.closest(".duplicate-question");
+    if (duplicateBtn) {
+        const questionId = duplicateBtn.dataset.questionId;
+
+        showLoadingToast();
+        fetch(`<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section_id}/questions/duplicate/") ?>${questionId}`, {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRF-TOKEN": document.querySelector('[name="csrf_test_name"]').value,
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                Swal.close();
                 if (data.status === "success") {
-                    showNotification("Question duplicated successfully", "success");
-                    location.reload();
+                    Swal.fire({
+                        icon: "success",
+                        title: "Duplicated!",
+                        text: "Question duplicated successfully.",
+                        timer: 1500,
+                        showConfirmButton: false,
+                    }).then(() => {
+                        location.reload();
+                    });
                 } else {
-                    showNotification(data.message || "Failed to duplicate question", "error");
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        text: data.message || "Failed to duplicate question.",
+                    });
                 }
             })
-            .catch(error => {
+            .catch((error) => {
+                Swal.close();
                 console.error("Error:", error);
-                showNotification("An error occurred", "error");
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "An error occurred while duplicating the question.",
+                });
             });
-        }
-    });
+    }
+});
 
     // Form submission
     questionForm.addEventListener("submit", function(e) {

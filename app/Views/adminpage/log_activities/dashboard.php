@@ -135,5 +135,41 @@ function runCleanup() {
     }
 }
 </script>
+<!-- Tambahkan SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function runArchive() {
+    Swal.fire({
+        title: 'Arsipkan Log?',
+        text: 'Log yang lebih lama dari 30 hari akan diarsipkan.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, arsipkan!',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#ffc107',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '<?= base_url('admin/log_activities/manual-archive') ?>';
+        }
+    });
+}
 
-<?= $this->endSection(); ?>
+function runCleanup() {
+    Swal.fire({
+        title: 'Hapus Log Lama?',
+        text: 'Log lama akan dihapus sesuai kebijakan retensi.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '<?= base_url('admin/log_activities/manual-cleanup') ?>';
+        }
+    });
+}
+</script>
+<?php $this->endSection(); ?>

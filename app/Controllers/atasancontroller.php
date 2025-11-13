@@ -3,37 +3,120 @@
 namespace App\Controllers;
 
 use CodeIgniter\Controller;
+use App\Models\PesanModel;
 
 class AtasanController extends Controller
 {
-    public function dashboard()
+      protected $pesanModel;
+   public function __construct()
     {
-        // Hanya atasan yang boleh masuk
-        if (session('role_id') != 8) {
-            return redirect()->to('/login')->with('error', 'Akses ditolak.');
-        }
-
-        $db = \Config\Database::connect();
-
-        // Ambil jumlah perusahaan dari tabel `account` yang berstatus role perusahaan (id_role = 7)
-        $totalPerusahaan = (int) $db->table('account')->where('id_role', 7)->countAllResults();
-
-        // Ambil data alumni terbaru dari detailaccount_alumni
-        $alumni = $db->table('detailaccount_alumni')
-            ->select('nama_lengkap, nim, id_jurusan, id_prodi, tahun_kelulusan, ipk, id_cities')
-            ->orderBy('id', 'DESC')
-            ->limit(5)
-            ->get()
-            ->getResultArray();
-
-        return view('atasan/dashboard', [
-            'totalPerusahaan' => $totalPerusahaan,
-            'alumni' => $alumni
-        ]);
+         $this->pesanModel = new PesanModel();
+    }
+    // =========================
+    // 🏠 DASHBOARD ATASAN
+    // =========================
+public function dashboard()
+{
+    if (session('role_id') != 8) {
+        return redirect()->to('/login')->with('error', 'Akses ditolak.');
     }
 
+    $db = \Config\Database::connect();
+    $pengaturanModel = new \App\Models\PengaturanDashboardModel();
+
+    // 🔹 Ambil pengaturan dashboard untuk tipe "atasan"
+    $dashboard = $pengaturanModel->where('tipe', 'atasan')->first();
+
+    // 🔹 Cari ID atasan berdasarkan account login
+    $atasan = $db->table('detailaccount_atasan')
+        ->select('id')
+        ->where('id_account', session('id_account'))
+        ->get()
+        ->getRow();
+
+    if (!$atasan) {
+        return redirect()->to('/login')->with('error', 'Data atasan tidak ditemukan.');
+    }
+
+    // 🔹 Ambil jumlah perusahaan (role_id = 7)
+    $totalPerusahaan = (int) $db->table('account')
+        ->where('id_role', 7)
+        ->countAllResults();
+
+    // 🔹 Ambil alumni yang sudah direlasikan ke atasan ini
+    $alumni = $db->table('atasan_alumni aa')
+        ->select('
+            da.nama_lengkap,
+            da.nim,
+            j.nama_jurusan,
+            p.nama_prodi,
+            da.tahun_kelulusan,
+            da.ipk,
+            c.name AS kota
+        ')
+        ->join('detailaccount_alumni da', 'da.id = aa.id_alumni', 'left')
+        ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
+        ->join('prodi p', 'p.id = da.id_prodi', 'left')
+        ->join('cities c', 'c.id = da.id_cities', 'left')
+        ->where('aa.id_atasan', $atasan->id)
+        ->orderBy('da.id', 'DESC')
+        ->limit(5)
+        ->get()
+        ->getResultArray();
+
+    // 🔹 Data untuk grafik (jumlah alumni per tahun kelulusan)
+    $chartData = $db->table('atasan_alumni aa')
+        ->select('da.tahun_kelulusan, COUNT(da.id) AS total')
+        ->join('detailaccount_alumni da', 'da.id = aa.id_alumni', 'left')
+        ->where('aa.id_atasan', $atasan->id)
+        ->groupBy('da.tahun_kelulusan')
+        ->orderBy('da.tahun_kelulusan', 'ASC')
+        ->get()
+        ->getResultArray();
+
+    // 🔹 Ambil data penilaian alumni (pakai sistem bintang baru)
+    $penilaian = $db->table('penilaian_alumni pa')
+        ->select('
+            da.nama_lengkap,
+            da.nim,
+            p.nama_prodi,
+            pa.kelengkapan,
+            pa.kejelasan,
+            pa.konsistensi,
+            pa.refleksi,
+            pa.catatan,
+            pa.created_at,
+            ROUND((pa.kelengkapan + pa.kejelasan + pa.konsistensi + pa.refleksi) / 4, 1) AS rata_rata
+        ')
+        ->join('detailaccount_alumni da', 'da.id = pa.id_alumni', 'left')
+        ->join('prodi p', 'p.id = da.id_prodi', 'left')
+        ->where('pa.id_atasan', $atasan->id)
+        ->orderBy('pa.created_at', 'DESC')
+        ->get()
+        ->getResultArray();
+
+    // 🔹 Siapkan data ke view
+    $data = [
+        'totalPerusahaan'   => $totalPerusahaan,
+        'alumni'            => $alumni,
+        'chartData'         => $chartData,
+        'penilaian'         => $penilaian,
+        'judul_dashboard'   => $dashboard['judul'] ?? 'Dashboard Atasan',
+        'deskripsi'         => $dashboard['deskripsi'] ?? 'Halo atasan 👋',
+        'judul_kuesioner'   => $dashboard['judul_kuesioner'] ?? 'Total Perusahaan',
+        'judul_profil'      => $dashboard['judul_profil'] ?? 'Grafik Pertumbuhan Alumni',
+        'judul_data_alumni' => $dashboard['judul_data_alumni'] ?? 'Daftar Alumni Anda',
+        'fotoHeader'        => $dashboard['foto'] ?? '/images/logo.png',
+    ];
+
+    return view('atasan/dashboard', $data);
+}
+
+
+
+
     // =========================
-    // Tambahan untuk Kuesioner
+    // 📊 KUESIONER (opsional)
     // =========================
     public function kuesionerMulai($id)
     {
@@ -52,159 +135,285 @@ class AtasanController extends Controller
         $data['judul'] = "Lihat Jawaban Kuesioner ID: " . $id;
         return view('atasan/kuesioner/form', $data);
     }
-// ===============================
-// 🏢 MENU PERUSAHAAN (SATU PER ATASAN)
-// ===============================
-public function perusahaan()
+
+// ======================================
+// 👥 MENU ALUMNI - LIHAT DAN NILAI
+// ======================================
+public function alumni()
 {
     if (session('role_id') != 8) {
         return redirect()->to('/login')->with('error', 'Akses ditolak.');
     }
 
     $db = \Config\Database::connect();
-    $idAtasan = session('id_account');
+    $idAccount = session('id_account');
 
-    // 🔹 Ambil perusahaan yang terhubung ke atasan (berdasarkan id_perusahaan)
-    $perusahaan = $db->table('detailaccount_atasan da')
-        ->select('dp.*, provinces.name AS provinsi, cities.name AS kota')
-        ->join('detailaccoount_perusahaan dp', 'dp.id = da.id_perusahaan', 'left')
-        ->join('provinces', 'provinces.id = dp.id_provinsi', 'left')
-        ->join('cities', 'cities.id = dp.id_kota', 'left')
-        ->where('da.id_account', $idAtasan)
+    // Ambil data atasan
+    $atasan = $db->table('detailaccount_atasan')
+        ->where('id_account', $idAccount)
         ->get()
-        ->getRowArray();
+        ->getRow();
 
-    // ✅ Tetap render index, tapi dengan kondisi apakah sudah punya perusahaan atau belum
-    return view('atasan/perusahaan/index', [
-        'perusahaan' => $perusahaan,
-        'message'    => !$perusahaan ? 'Belum ada perusahaan yang terhubung dengan akun Anda.' : null
-    ]);
-}
-
-
-public function detailPerusahaan($id)
-{
-    if (session('role_id') != 8) {
-        return redirect()->to('/login')->with('error', 'Akses ditolak.');
+    if (!$atasan) {
+        return redirect()->back()->with('error', 'Data atasan tidak ditemukan.');
     }
 
-    $db = \Config\Database::connect();
-    $idAtasan = session('id_account');
+    // Ambil data alumni + status kuesioner + status penilaian
+    $alumni = $db->table('atasan_alumni aa')
+        ->select("
+            al.id, 
+            al.nama_lengkap, 
+            al.nim, 
+            al.tahun_kelulusan, 
+            al.ipk,
+            p.nama_prodi,
 
-    // 🔹 Pastikan perusahaan yang diakses memang milik atasan
-   $perusahaan = $db->table('detailaccount_atasan da')
-    ->join('detailaccoount_perusahaan dp', 'dp.id = da.id_perusahaan', 'left')
-    ->join('provinces p', 'p.id = dp.id_provinsi', 'left')   // join provinsi
-    ->join('cities c', 'c.id = dp.id_kota', 'left')          // join kota
-    ->where('da.id_account', $idAtasan)
-    ->where('dp.id', $id)
-    ->select('dp.*, p.name AS provinsi, c.name AS kota')      // ambil nama provinsi & kota
-    ->get()
-    ->getRowArray();
+            -- Hitung jumlah kuesioner yang diselesaikan
+            (
+                SELECT COUNT(r.id)
+                FROM responses r
+                JOIN account acc2 ON acc2.id = r.account_id
+                WHERE acc2.id = al.id_account
+                AND r.status = 'completed'
+            ) AS total_responses,
 
+            -- Data penilaian (bisa null)
+            pa.id AS id_penilaian,
+            pa.kelengkapan, 
+            pa.kejelasan, 
+            pa.konsistensi, 
+            pa.refleksi, 
+            pa.catatan,
 
-    if (!$perusahaan) {
-        return redirect()->to('/atasan/perusahaan')->with('error', 'Anda tidak memiliki akses ke perusahaan ini.');
-    }
-
-    // 🔹 Ambil alumni yang bekerja di perusahaan ini
-    $alumni = $db->table('riwayat_pekerjaan')
-        ->select('
-            detailaccount_alumni.nama_lengkap, 
-            riwayat_pekerjaan.jabatan, 
-            riwayat_pekerjaan.tahun_masuk, 
-            riwayat_pekerjaan.tahun_keluar, 
-            riwayat_pekerjaan.masih
-        ')
-        ->join('detailaccount_alumni', 'detailaccount_alumni.id_account = riwayat_pekerjaan.id_alumni', 'left')
-        ->where('riwayat_pekerjaan.perusahaan', $perusahaan['nama_perusahaan'])
+            -- Rata-rata jika ada data
+            CASE 
+                WHEN pa.id IS NOT NULL THEN 
+                    ROUND((pa.kelengkapan + pa.kejelasan + pa.konsistensi + pa.refleksi)/4,1)
+                ELSE NULL
+            END AS rata_rata
+        ")
+        ->join('detailaccount_alumni al', 'al.id = aa.id_alumni', 'left')
+        ->join('prodi p', 'p.id = al.id_prodi', 'left')
+        ->join('penilaian_alumni pa', 'pa.id_alumni = al.id AND pa.id_atasan = aa.id_atasan', 'left')
+        ->where('aa.id_atasan', $atasan->id)
+        ->orderBy('al.nama_lengkap', 'ASC')
         ->get()
         ->getResultArray();
 
-    return view('atasan/perusahaan/detail', [
-        'perusahaan' => $perusahaan,
-        'alumni'     => $alumni
-    ]);
+    // Tambahkan status logika tambahan
+    foreach ($alumni as &$a) {
+        $a['boleh_dinilai'] = ($a['total_responses'] > 0);       // hanya bisa dinilai jika sudah isi kuesioner
+        $a['sudah_dinilai'] = !empty($a['id_penilaian']);        // hanya true jika ada data di penilaian_alumni
+    }
+
+    return view('atasan/alumni/index', ['alumni' => $alumni]);
 }
 
-public function editPerusahaan($id)
+
+
+// ======================================
+// 💬 SIMPAN PENILAIAN ALUMNI (BINTANG)
+// ======================================
+public function simpanPenilaian($idAlumni)
 {
     if (session('role_id') != 8) {
         return redirect()->to('/login')->with('error', 'Akses ditolak.');
     }
 
     $db = \Config\Database::connect();
-    $idAtasan = session('id_account');
+    $idAccountAtasan = session('id_account');
 
-    // 🔹 Pastikan hanya perusahaan milik atasan yang bisa di-edit
-    $perusahaan = $db->table('detailaccount_atasan da')
-        ->join('detailaccoount_perusahaan dp', 'dp.id = da.id_perusahaan', 'left')
-        ->where('da.id_account', $idAtasan)
-        ->where('dp.id', $id)
-        ->select('dp.*')
+    // ===============================
+    // 🧑‍💼 Ambil data atasan
+    // ===============================
+    $atasan = $db->table('detailaccount_atasan')
+        ->where('id_account', $idAccountAtasan)
         ->get()
-        ->getRowArray();
+        ->getRow();
 
-    if (!$perusahaan) {
-        return redirect()->to('/atasan/perusahaan')->with('error', 'Perusahaan tidak ditemukan atau bukan milik Anda.');
+    if (!$atasan) {
+        return redirect()->back()->with('error', 'Data atasan tidak ditemukan.');
     }
 
-    $provinsiModel = new \App\Models\Provincies();
-    $kotaModel = new \App\Models\Cities();
+    // ===============================
+    // 📋 Pastikan alumni sudah isi kuesioner minimal 1
+    // ===============================
+    $completed = $db->table('responses r')
+        ->join('account acc', 'acc.id = r.account_id')
+        ->join('detailaccount_alumni da', 'da.id_account = acc.id')
+        ->where('da.id', $idAlumni)
+        ->where('r.status', 'completed')
+        ->countAllResults();
 
+    if ($completed == 0) {
+        return redirect()->back()->with('error', 'Alumni belum menyelesaikan kuesioner, tidak dapat dinilai.');
+    }
+
+    // ===============================
+    // 📝 Ambil data input penilaian
+    // ===============================
     $data = [
-        'perusahaan' => $perusahaan,
-        'provinces'  => $provinsiModel->orderBy('name', 'ASC')->findAll(),
-        'cities'     => $kotaModel->where('province_id', $perusahaan['id_provinsi'])->orderBy('name', 'ASC')->findAll()
+        'id_atasan'   => $atasan->id,
+        'id_alumni'   => $idAlumni,
+        'kelengkapan' => $this->request->getPost('kelengkapan'),
+        'kejelasan'   => $this->request->getPost('kejelasan'),
+        'konsistensi' => $this->request->getPost('konsistensi'),
+        'refleksi'    => $this->request->getPost('refleksi'),
+        'catatan'     => $this->request->getPost('catatan'),
+        'created_at'  => date('Y-m-d H:i:s'),
     ];
 
-    return view('atasan/perusahaan/edit', $data);
+    // Hitung rata-rata penilaian
+    $rataRata = round((
+        ($data['kelengkapan'] + $data['kejelasan'] + $data['konsistensi'] + $data['refleksi']) / 4
+    ), 1);
+
+    // ===============================
+    // 💾 Simpan atau update penilaian
+    // ===============================
+    $cek = $db->table('penilaian_alumni')
+        ->where('id_atasan', $atasan->id)
+        ->where('id_alumni', $idAlumni)
+        ->get()
+        ->getRow();
+
+    if ($cek) {
+        $db->table('penilaian_alumni')->where('id', $cek->id)->update($data);
+        $pesanFlash = 'Penilaian berhasil diperbarui.';
+    } else {
+        $db->table('penilaian_alumni')->insert($data);
+        $pesanFlash = 'Penilaian berhasil disimpan.';
+    }
+
+    // ===============================
+    // ✉️ Kirim notifikasi otomatis ke alumni
+    // ===============================
+    $alumniAcc = $db->table('detailaccount_alumni')
+        ->select('id_account, nama_lengkap')
+        ->where('id', $idAlumni)
+        ->get()
+        ->getRow();
+
+    if ($alumniAcc && $alumniAcc->id_account) {
+        // Buat isi pesan otomatis
+        $isiPesan = "Atasan Anda telah memberikan penilaian terhadap kuesioner Anda.\n\n" .
+                    "⭐ Nilai rata-rata: {$rataRata}/5\n" .
+                    "🗒️ Catatan: " . ($data['catatan'] ?: 'Tidak ada catatan tambahan.');
+
+        // Insert ke tabel pesan (tanpa kolom 'judul' atau 'isi')
+        $db->table('pesan')->insert([
+            'id_pengirim' => $idAccountAtasan,
+            'id_penerima' => $alumniAcc->id_account,
+            'pesan'       => $isiPesan,
+            'status'      => 'terkirim',
+            'created_at'  => date('Y-m-d H:i:s'),
+            'updated_at'  => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    return redirect()->back()->with('success', $pesanFlash);
 }
 
-public function updatePerusahaan($id)
+
+
+
+    // ======================================
+    // 📊 REKAP PENILAIAN
+    // ======================================
+    public function rekapPenilaian()
+    {
+        if (session('role_id') != 8) {
+            return redirect()->to('/login')->with('error', 'Akses ditolak.');
+        }
+
+        $db = \Config\Database::connect();
+        $idAtasan = session('id_account');
+
+        $atasan = $db->table('detailaccount_atasan')
+            ->where('id_account', $idAtasan)
+            ->get()
+            ->getRow();
+
+        if (!$atasan) {
+            return redirect()->back()->with('error', 'Data atasan tidak ditemukan.');
+        }
+
+        $penilaian = $db->table('penilaian_alumni pa')
+            ->select("
+                da.nama_lengkap, da.nim, pr.nama_prodi,
+                pa.kelengkapan, pa.kejelasan, pa.konsistensi, pa.refleksi, pa.catatan, pa.created_at,
+                ROUND((pa.kelengkapan + pa.kejelasan + pa.konsistensi + pa.refleksi)/4,1) AS rata_rata
+            ")
+            ->join('detailaccount_alumni da', 'da.id = pa.id_alumni', 'left')
+            ->join('prodi pr', 'pr.id = da.id_prodi', 'left')
+            ->where('pa.id_atasan', $atasan->id)
+            ->orderBy('pa.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        return view('atasan/dashboard', ['penilaian' => $penilaian]);
+    }
+// =============================
+// 🔔 NOTIFIKASI UNTUK ATASAN
+// =============================
+
+public function notifikasi()
 {
-    if (session('role_id') != 8) {
-        return redirect()->to('/login')->with('error', 'Akses ditolak.');
-    }
+    $idAtasan = session()->get('id');
+    $pesan = $this->pesanModel
+        ->select('pesan.*, COALESCE(account.username, "Admin") as nama_pengirim')
+        ->join('account', 'account.id = pesan.id_pengirim', 'left')
+        ->where('id_penerima', $idAtasan)
+        ->orderBy('pesan.created_at', 'DESC')
+        ->findAll();
 
-    $model = new \App\Models\DetailaccountPerusahaan();
-
-    $data = [
-        'nama_perusahaan' => $this->request->getPost('nama_perusahaan'),
-        'alamat1'         => $this->request->getPost('alamat1'),
-        'alamat2'         => $this->request->getPost('alamat2'),
-        'id_provinsi'     => $this->request->getPost('id_provinsi'),
-        'id_kota'         => $this->request->getPost('id_kota'),
-        'kodepos'         => $this->request->getPost('kodepos'),
-        'noTlp'           => $this->request->getPost('noTlp'),
-    ];
-
-    $model->update($id, $data);
-
-    return redirect()->to('/atasan/perusahaan')->with('success', 'Data perusahaan berhasil diperbarui.');
+    return view('atasan/notifikasi', ['pesan' => $pesan]);
 }
 
-public function getCitiesByProvince($province_id = null)
+public function viewPesan($idPesan)
 {
-    if (!$province_id || !is_numeric($province_id)) {
-        return $this->response->setStatusCode(400)->setJSON(['error' => 'Provinsi tidak valid']);
+    $pesan = $this->pesanModel
+        ->select('pesan.*, COALESCE(account.username, "Admin") as nama_pengirim')
+        ->join('account', 'account.id = pesan.id_pengirim', 'left')
+        ->where('pesan.id_pesan', $idPesan)
+        ->first();
+
+    if (!$pesan) {
+        return redirect()->to('/atasan/notifikasi')->with('error', 'Pesan tidak ditemukan.');
     }
 
-    try {
-        $cityModel = new \App\Models\Cities();
+    // ubah status jadi dibaca
+    $this->pesanModel->update($idPesan, ['status' => 'dibaca']);
 
-        // ✅ Ambil kota berdasarkan province_id
-        $cities = $cityModel
-            ->where('province_id', $province_id)
-            ->orderBy('name', 'ASC')
-            ->findAll();
-
-        return $this->response->setJSON($cities);
-    } catch (\Throwable $e) {
-        log_message('error', 'getCitiesByProvince error: ' . $e->getMessage());
-        return $this->response->setStatusCode(500)->setJSON(['error' => 'Terjadi kesalahan server saat memuat kota.']);
-    }
+    return view('atasan/viewpesan', ['pesan' => $pesan]);
 }
 
+public function getNotifCount()
+{
+    $idAtasan = session()->get('id');
+    $pesan = $this->pesanModel
+        ->where('id_penerima', $idAtasan)
+        ->where('status', 'terkirim')
+        ->findAll();
+
+    return $this->response->setJSON(['jumlah' => count($pesan)]);
+}
+
+public function hapusNotifikasi($id)
+{
+    $pesan = $this->pesanModel->find($id);
+
+    if ($pesan && $pesan['id_penerima'] == session()->get('id')) {
+        $this->pesanModel->delete($id);
+        return redirect()->to('/atasan/notifikasi')->with('success', 'Pesan berhasil dihapus.');
+    }
+
+    return redirect()->to('/atasan/notifikasi')->with('error', 'Pesan tidak ditemukan atau bukan milik Anda.');
+}
+ public function tandaiDibaca($id_pesan)
+    {
+        $this->pesanModel->update($id_pesan, ['status' => 'dibaca']);
+        return redirect()->back()->with('success', 'Pesan ditandai sudah dibaca.');
+    }
 
 }

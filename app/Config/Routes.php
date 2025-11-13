@@ -55,6 +55,16 @@ $routes->get('test-log', function() {
     echo "Cek tabel error_logs di database!";
 });
 
+$routes->group('admin/relasi-atasan-alumni', ['filter' => 'adminAuth'], function ($routes) {
+    $routes->get('/', 'RelasiAtasanAlumniController::index'); // Halaman utama
+    $routes->get('tambah', 'RelasiAtasanAlumniController::create');
+    $routes->post('store', 'RelasiAtasanAlumniController::store');
+    $routes->post('update/(:num)','RelasiAtasanAlumniController::update/$1'); // Simpan relasi
+    $routes->post('delete/(:num)', 'RelasiAtasanAlumniController::delete/$1');
+    $routes->post('fetch-alumni', 'RelasiAtasanAlumniController::fetchAlumni'); 
+});
+
+
 // ===============================
 // ADMIN ROUTES
 // ===============================
@@ -63,6 +73,11 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('dashboard', 'AdminController::dashboard');
     $routes->get('welcome-page', 'AdminWelcomePage::index');
     $routes->post('welcome-page/update', 'AdminWelcomePage::update');
+      // 🔔 Kirim peringatan penilaian
+    $routes->post('kirim-peringatan-penilaian', 'AdminController::kirimPeringatanPenilaian');
+    $routes->get('peringatan', 'AdminController::peringatan');
+
+
 
     // Pengguna
     // $routes->group('pengguna', function ($routes) {
@@ -451,7 +466,12 @@ $routes->post('pengaturan-dashboard/dashboard-alumni/save', 'PengaturanDashboard
 // Pengaturan Dashboard Kaprodi
 $routes->get('pengaturan-dashboard/dashboard-kaprodi', 'PengaturanDashboardKaprodi::index');
 $routes->post('pengaturan-dashboard/dashboard-kaprodi/save', 'PengaturanDashboardKaprodi::save');
-
+$routes->get('pengaturan-dashboard/dashboard-admin', 'PengaturanDashboardAdmin::index');
+$routes->post('pengaturan-dashboard/dashboard-admin/save', 'PengaturanDashboardAdmin::save');
+$routes->get('pengaturan-dashboard/dashboard-jabatanlainnya', 'PengaturanDashboardJabatanLainnya::index');
+$routes->post('pengaturan-dashboard/dashboard-jabatanlainnya/save', 'PengaturanDashboardJabatanLainnya::save');
+$routes->get('pengaturan-dashboard/dashboard-atasan', 'PengaturanDashboardAtasan::index');
+$routes->post('pengaturan-dashboard/dashboard-atasan/save', 'PengaturanDashboardAtasan::save');
 
 
 
@@ -539,16 +559,13 @@ $routes->get('/respon', 'UserQuestionController::responseLanding');
 // =======================
 $routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
 
-    // DASHBOARD & SUPERVISI
+    // DASHBOARD & PROFIL
     $routes->get('dashboard', 'KaprodiController::dashboard');
-    $routes->get('supervisi', 'KaprodiController::supervisi');
-
-    // PROFIL KAPRODI
     $routes->get('profil', 'KaprodiController::profil');
     $routes->get('profil/edit', 'KaprodiController::editProfil');
     $routes->post('profil/update', 'KaprodiController::updateProfil');
 
-    // MENU QUESTIONER (lihat pertanyaan, flag, download)
+        // MENU QUESTIONER (lihat pertanyaan, flag, download)
     $routes->get('questioner', 'KaprodiController::questioner');
     $routes->get('questioner/pertanyaan/(:num)', 'KaprodiController::pertanyaan/$1');
     $routes->get('questioner/(:num)/download', 'KaprodiController::downloadPertanyaan/$1');
@@ -559,49 +576,56 @@ $routes->group('kaprodi', ['filter' => 'kaprodiAuth'], function ($routes) {
     // Shortcut: GET options via query string
     $routes->get('kuesioner/pages/getQuestionOptions', 'KaprodiQuestionnairController::getQuestionOptions');
 
-    // QUESTIONNAIRE CRUD (via KaprodiQuestionnairController)
+    // QUESTIONNAIRE
     $routes->group('kuesioner', function ($routes) {
-        $routes->get('', 'KaprodiQuestionnairController::index'); // daftar kuesioner
-        $routes->get('create', 'KaprodiQuestionnairController::create'); // form tambah
-        $routes->post('store', 'KaprodiQuestionnairController::store'); // simpan
-        $routes->get('(:num)', 'KaprodiQuestionnairController::show/$1'); // detail
-        $routes->get('(:num)/edit', 'KaprodiQuestionnairController::edit/$1'); // form edit
-        $routes->post('(:num)/update', 'KaprodiQuestionnairController::update/$1'); // update
-        $routes->get('(:num)/delete', 'KaprodiQuestionnairController::delete/$1'); // hapus
-        $routes->post('(:num)/toggle-status', 'KaprodiQuestionnairController::toggleStatus/$1');
-        $routes->get('(:num)/preview', 'KaprodiQuestionnairController::preview/$1');
+
+        // CRUD Kuesioner
+        $routes->get('', 'KaprodiQuestionnairController::index');
+        $routes->get('create', 'KaprodiQuestionnairController::create');
+        $routes->post('store', 'KaprodiQuestionnairController::store');
+        $routes->get('(:num)', 'KaprodiQuestionnairController::show/$1');
+        $routes->get('(:num)/edit', 'KaprodiQuestionnairController::edit/$1');
+        $routes->post('(:num)/update', 'KaprodiQuestionnairController::update/$1');
+        $routes->get('(:num)/delete', 'KaprodiQuestionnairController::delete/$1');
 
         // PAGE MANAGEMENT
-        $routes->group('(:num)/pages', function ($routes) {
-            $routes->get('', 'KaprodiPageController::index/$1');
-            $routes->get('create', 'KaprodiPageController::create/$1');
-            $routes->post('store', 'KaprodiPageController::store/$1');
-            $routes->get('(:num)/edit', 'KaprodiPageController::edit/$1/$2');
-            $routes->post('(:num)/update', 'KaprodiPageController::update/$1/$2');
-            $routes->get('(:num)/delete', 'KaprodiPageController::delete/$1/$2');
+        $routes->get('(:num)/pages', 'KaprodiPageController::index/$1');
+        $routes->get('(:num)/pages/create', 'KaprodiPageController::create/$1');
+        $routes->post('(:num)/pages/store', 'KaprodiPageController::store/$1');
+        $routes->get('(:num)/pages/(:num)/edit', 'KaprodiPageController::edit/$1/$2');
+        $routes->post('(:num)/pages/(:num)/update', 'KaprodiPageController::update/$1/$2');
 
-            // SECTION MANAGEMENT
-            $routes->group('(:num)/sections', function ($routes) {
-                $routes->get('', 'KaprodiSectionController::index/$1/$2');
-                $routes->get('create', 'KaprodiSectionController::create/$1/$2');
-                $routes->post('store', 'KaprodiSectionController::store/$1/$2');
-                $routes->get('(:num)/edit', 'KaprodiSectionController::edit/$1/$2/$3');
-                $routes->post('(:num)/update', 'KaprodiSectionController::update/$1/$2/$3');
-                $routes->post('(:num)/delete', 'KaprodiSectionController::delete/$1/$2/$3');
-                $routes->post('(:num)/moveDown', 'KaprodiSectionController::moveDown/$1/$2/$3');
-                $routes->post('(:num)/moveUp', 'KaprodiSectionController::moveUp/$1/$2/$3');
+        // SECTION MANAGEMENT
+        $routes->get('(:num)/pages/(:num)/sections', 'KaprodiSectionController::index/$1/$2');
+        $routes->get('(:num)/pages/(:num)/sections/create', 'KaprodiSectionController::create/$1/$2');
+        $routes->post('(:num)/pages/(:num)/sections/store', 'KaprodiSectionController::store/$1/$2');
+        $routes->get('(:num)/pages/(:num)/sections/(:num)/edit', 'KaprodiSectionController::edit/$1/$2/$3');
+        $routes->post('(:num)/pages/(:num)/sections/(:num)/update', 'KaprodiSectionController::update/$1/$2/$3');
 
-                // QUESTIONS PER SECTION
-                $routes->get('(:num)/questions', 'KaprodiQuestionnairController::manageSectionQuestions/$1/$2/$3');
-                $routes->get('(:num)/questions/get-op/(:num)', 'KaprodiQuestionnairController::getQuestionOptions/$1/$2/$3/$4');
-                $routes->get('(:num)/questions/get-conditions/(:num)', 'KaprodiQuestionnairController::getOption/$4');
-                $routes->post('(:num)/questions/store', 'KaprodiQuestionnairController::storeSectionQuestion/$1/$2/$3');
-                $routes->get('(:num)/questions/get/(:num)', 'KaprodiQuestionnairController::getQuestion/$1/$2/$3/$4');
-                $routes->post('(:num)/questions/delete/(:num)', 'KaprodiQuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
-                $routes->post('(:num)/questions/(:num)/update', 'KaprodiQuestionnairController::updateQuestion/$1/$2/$3/$4');
-            });
-        });
+     // QUESTIONS CRUD
+// Tampilkan semua pertanyaan di section
+$routes->get('(:num)/pages/(:num)/sections/(:num)/questions', 'KaprodiQuestionnairController::manageSectionQuestions/$1/$2/$3');
+
+// Simpan pertanyaan baru
+$routes->post('(:num)/pages/(:num)/sections/(:num)/questions/store', 'KaprodiQuestionnairController::storeSectionQuestion/$1/$2/$3');
+
+// Ambil data pertanyaan untuk edit
+$routes->get('(:num)/pages/(:num)/sections/(:num)/questions/(:num)', 'KaprodiQuestionnairController::getQuestion/$1/$2/$3/$4');
+
+// Update pertanyaan
+$routes->post('(:num)/pages/(:num)/sections/(:num)/questions/(:num)/update', 'KaprodiQuestionnairController::updateQuestion/$1/$2/$3/$4');
+
+// Hapus pertanyaan
+$routes->post('(:num)/pages/(:num)/sections/(:num)/questions/delete/(:num)', 'KaprodiQuestionnairController::deleteSectionQuestion/$1/$2/$3/$4');
+
+// Duplikat pertanyaan
+$routes->post('(:num)/pages/(:num)/sections/(:num)/questions/(:num)/duplicate', 'KaprodiQuestionnairController::duplicate/$1/$2/$3/$4');
+
     });
+
+
+      
+
 
     // AKREDITASI
     $routes->get('akreditasi', 'KaprodiController::akreditasi');
@@ -654,20 +678,35 @@ $routes->group('jabatan', ['filter' => 'jabatanAuth'], function ($routes) {
     $routes->get('detail-ami', 'JabatanController::detailAmi');
     $routes->get('detail-akreditasi', 'JabatanController::detailAkreditasi');
 });
-$routes->group('atasan', function ($routes) {
-    // Dashboard perusahaan
+$routes->group('atasan', ['filter' => 'atasanFilter'], function ($routes) {
+    // 🏠 Dashboard
     $routes->get('dashboard', 'AtasanController::dashboard');
+
+    // 👥 Menu Alumni
+    $routes->get('alumni', 'AtasanController::alumni'); // daftar alumni (lihat + nilai)
+    $routes->post('simpan-penilaian/(:num)', 'AtasanController::simpanPenilaian/$1'); // simpan nilai alumni
+
+    // 📊 Response Alumni
+    $routes->get('response-alumni', 'AtasanController::responseAlumni');
+    $routes->get('response-alumni/lihat/(:num)', 'AtasanController::Lihatjawaban/$1');
+    $routes->get('alumni/rekap', 'AtasanController::rekapPenilaian');
+
+    // 🔔 Notifikasi & Pesan
+$routes->get('notifikasi', 'AtasanController::notifikasi');
+$routes->get('viewPesan/(:num)', 'AtasanController::viewPesan/$1');
+$routes->get('hapusNotifikasi/(:num)', 'AtasanController::hapusNotifikasi/$1');
+$routes->get('getNotifCount', 'AtasanController::getNotifCount');
+ $routes->get('notifikasi/tandai/(:num)', 'AtasanController::tandaiDibaca/$1');
+
 });
 
+
 // --- Atasan ---
-$routes->get('atasan/dashboard', 'AtasanController::dashboard');
-$routes->get('atasan/kuesioner', 'AtasanKuesionerController::index');
+// $routes->get('atasan/dashboard', 'AtasanController::dashboard');
+$routes->get('atasan/kuesioner', 'AtasanKuesionerController::index', ['filter' => 'atasanFilter']);
 // =============== ATASAN ===============
-// ================= ATASAN CRUD PERUSAHAAN =================
-$routes->get('/atasan/perusahaan', 'AtasanController::perusahaan');
-$routes->get('/atasan/perusahaan/detail/(:num)', 'AtasanController::detailPerusahaan/$1');
-$routes->get('/atasan/perusahaan/edit/(:num)', 'AtasanController::editPerusahaan/$1');
-$routes->get('atasan/perusahaan/getCitiesByProvince/(:num)', 'AtasanController::getCitiesByProvince/$1');
+// $routes->get('/atasan/perusahaan', 'AtasanController::perusahaan');
+
 
 
 

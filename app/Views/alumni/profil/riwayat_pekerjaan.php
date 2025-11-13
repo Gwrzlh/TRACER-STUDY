@@ -2,6 +2,10 @@
 <?= $this->extend($layout) ?>
 
 <?= $this->section('content') ?>
+
+<!-- ✅ Tambahkan SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-6xl mx-auto">
     <h2 class="text-xl font-bold mb-4">Riwayat Pekerjaan</h2>
 
@@ -13,9 +17,9 @@
                 Kembali ke Profil
             </a>
 
-            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
-                onclick="return confirm('Apakah kamu yakin ingin menghapus data yang dipilih?')">
-                🗑️ Hapus yang Dipilih
+            <!-- Tombol hapus -->
+            <button type="button" id="btnDelete" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+                Hapus yang Dipilih
             </button>
         </div>
 
@@ -64,6 +68,35 @@
     // ✅ Pilih semua checkbox
     document.getElementById('selectAll')?.addEventListener('click', function() {
         document.querySelectorAll('.rowCheckbox').forEach(cb => cb.checked = this.checked);
+    });
+
+    // ✅ SweetAlert konfirmasi hapus
+    document.getElementById('btnDelete')?.addEventListener('click', function() {
+        const selected = document.querySelectorAll('.rowCheckbox:checked');
+        if (selected.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Tidak ada data dipilih!',
+                text: 'Silakan pilih minimal satu data untuk dihapus.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Yakin ingin menghapus?',
+            text: 'Data yang dipilih akan dihapus secara permanen!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('deleteForm').submit();
+            }
+        });
     });
 </script>
 

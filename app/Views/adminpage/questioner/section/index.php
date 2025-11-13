@@ -4,14 +4,14 @@
 <link rel="stylesheet" href="<?= base_url('css/questioner/section/index.css') ?>">
 
 <div class="pengguna-page">
-    <div class="page-wrapper" style="padding: 16px;">  <!-- Rapatkan padding -->
+    <div class="page-wrapper" style="padding: 16px;">
         <div class="page-container">
-            <!-- Breadcrumb (baru) -->
+            <!-- Breadcrumb -->
             <?= $this->include('adminpage/questioner/breadcrumb') ?>
 
             <h2 class="page-title">📑 Sunting Kuesioner Section</h2>
 
-            <!-- Top Controls (optimasi: flex, gap 12px, info-box inline) -->
+            <!-- Top Controls -->
             <div class="top-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px;">
                 <div class="controls-container" style="display: flex; align-items: center; gap: 12px;">
                     <div class="info-box" style="min-width: auto; padding: 8px 12px; font-size: 13px;">
@@ -27,25 +27,11 @@
                 </div>
             </div>
 
-            <!-- Flash Messages (rapatkan margin) -->
-            <?php if (session()->getFlashdata('success')): ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-bottom: 16px;">
-                    <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            <?php endif; ?>
-            <?php if (session()->getFlashdata('error')): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-bottom: 16px;">
-                    <i class="fas fa-exclamation-triangle me-2"></i><?= session()->getFlashdata('error') ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            <?php endif; ?>
-
-            <!-- Table Container (optimasi: card tipis) -->
+            <!-- Table Container -->
             <div class="table-container" style="border-radius: 8px; border: 1px solid #e5e7eb; overflow: hidden; margin-bottom: 0;">
                 <div class="table-wrapper" style="overflow-x: auto;">
                     <?php if (empty($sections)): ?>
-                        <div class="alert alert-warning" style="margin: 0; border-radius: 0;">  <!-- Rapatkan -->
+                        <div class="alert alert-warning" style="margin: 0; border-radius: 0;">
                             Belum ada section.
                         </div>
                     <?php else: ?>
@@ -107,11 +93,12 @@
                                                     class="btn-action btn-edit" title="Edit" style="margin: 0;">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
+
+                                                <!-- Hapus pakai SweetAlert -->
                                                 <form action="<?= base_url("admin/questionnaire/{$questionnaire_id}/pages/{$page_id}/sections/{$section['id']}/delete") ?>" 
-                                                      method="post" style="display: inline-block; margin: 0;" 
-                                                      onsubmit="return confirm('Yakin ingin menghapus section ini dan semua pertanyaannya?');">
+                                                      method="post" class="delete-form" style="display: inline-block; margin: 0;">
                                                     <?= csrf_field() ?>
-                                                    <button type="submit" class="btn-action btn-delete" title="Delete" style="margin: 0;">
+                                                    <button type="button" class="btn-action btn-delete delete-btn" title="Delete" style="margin: 0;">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
@@ -125,10 +112,54 @@
                 </div>
             </div>
 
-            <!-- JS (tidak berubah) -->
+            <!-- JS (SweetAlert2 + existing JS) -->
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
             <script>
-                // ... kode JS existing untuk move-up, move-down, duplicate (tidak ubah) ...
+                // ✅ SweetAlert2 flash messages
+                <?php if (session()->getFlashdata('success')): ?>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: '<?= esc(session()->getFlashdata('success')) ?>',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'OK',
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                <?php endif; ?>
+
+                <?php if (session()->getFlashdata('error')): ?>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: '<?= esc(session()->getFlashdata('error')) ?>',
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Tutup'
+                    });
+                <?php endif; ?>
+
+                // ✅ SweetAlert2 konfirmasi hapus
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const form = this.closest('form');
+                        Swal.fire({
+                            title: 'Yakin ingin menghapus?',
+                            text: 'Section ini dan semua pertanyaannya akan dihapus permanen!',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Ya, hapus!',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.submit();
+                            }
+                        });
+                    });
+                });
             </script>
         </div>
     </div>

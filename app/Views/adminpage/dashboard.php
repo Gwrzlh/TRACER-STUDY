@@ -364,18 +364,18 @@
     .stat-card:nth-child(6) { animation-delay: 0.6s; }
     .stat-card:nth-child(7) { animation-delay: 0.7s; }
 </style>
-
 <div class="dashboard-wrapper">
     <div class="dashboard-container">
 
-        <!-- HEADER SECTION -->
+        <!-- HEADER -->
         <div class="dashboard-header loading">
             <div class="header-content">
                 <div class="dashboard-logo">
-                   <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2" style="height: 60px;">
+                    <img src="/images/logo.png" alt="Tracer Study" class="logo mb-2" style="height: 60px;">
                 </div>
                 <div class="header-text">
-                    <h1 class="dashboard-title">Dashboard Admin Tracer Study</h1>
+                    <h1 class="dashboard-title"><?= esc($dashboard['judul'] ?? 'Dashboard Admin Tracer Study') ?></h1>
+                    <p class="dashboard-subtitle"><?= $dashboard['deskripsi'] ?? '' ?></p>
                 </div>
             </div>
         </div>
@@ -405,148 +405,87 @@
         </div>
 
         <!-- STATISTICS GRID -->
-<div class="stats-grid">
-    <div class="stat-card loading">
-        <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
-        <div class="stat-title">Total Survei</div>
-        <div class="stat-value"><?= $totalSurvei ?></div>
-        <div class="stat-trend">+2.5% dari bulan lalu</div>
-    </div>
+        <div class="stats-grid">
+            <div class="stat-card loading">
+                <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                <div class="stat-title"><?= esc($dashboard['judul_kuesioner'] ?? 'Total Survei') ?></div>
+                <div class="stat-value"><?= $totalSurvei ?></div>
+            </div>
 
-    <div class="stat-card loading">
-        <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
-        <div class="stat-title">Alumni</div>
-        <div class="stat-value"><?= $totalAlumni ?></div>
-        <div class="stat-trend">+5.2% dari bulan lalu</div>
-    </div>
+            <div class="stat-card loading">
+                <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="stat-title"><?= esc($dashboard['judul_data_alumni'] ?? 'Alumni') ?></div>
+                <div class="stat-value"><?= $totalAlumni ?></div>
+            </div>
 
-    <div class="stat-card loading">
-        <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
-        <div class="stat-title">Admin</div>
-        <div class="stat-value"><?= $totalAdmin ?></div>
-        <div class="stat-trend">Stabil</div>
-    </div>
+            <div class="stat-card loading">
+                <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
+                <div class="stat-title"><?= esc($dashboard['judul_profil'] ?? 'Admin') ?></div>
+                <div class="stat-value"><?= $totalAdmin ?></div>
+            </div>
 
-    <div class="stat-card loading">
-        <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-        <div class="stat-title">Kaprodi</div>
-        <div class="stat-value"><?= $totalKaprodi ?></div>
-        <div class="stat-trend">Stabil</div>
-    </div>
+            <div class="stat-card loading">
+                <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="stat-title"><?= esc($dashboard['judul_ami'] ?? 'Kaprodi') ?></div>
+                <div class="stat-value"><?= $totalKaprodi ?></div>
+            </div>
 
-    <div class="stat-card loading">
-        <div class="stat-icon"><i class="fas fa-building"></i></div>
-        <div class="stat-title">Perusahaan</div>
-        <div class="stat-value"><?= $totalPerusahaan ?></div>
-        <div class="stat-trend">+1.8% dari bulan lalu</div>
-    </div>
+            <div class="stat-card loading">
+                <div class="stat-icon"><i class="fas fa-building"></i></div>
+                <div class="stat-title"><?= esc($dashboard['card_5'] ?? 'Perusahaan') ?></div>
+                <div class="stat-value"><?= $totalPerusahaan ?></div>
+            </div>
 
-    <div class="stat-card loading">
-        <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
-        <div class="stat-title">Atasan</div>
-        <div class="stat-value"><?= $totalAtasan ?></div>
-        <div class="stat-trend">+3.1% dari bulan lalu</div>
-    </div>
+            <div class="stat-card loading">
+                <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="stat-title"><?= esc($dashboard['card_6'] ?? 'Atasan') ?></div>
+                <div class="stat-value"><?= $totalAtasan ?></div>
+            </div>
 
-    <div class="stat-card loading">
-        <div class="stat-icon"><i class="fas fa-users"></i></div>
-        <div class="stat-title">Jabatan Lainnya</div>
-        <div class="stat-value"><?= $totalAtasan ?></div>
-        <div class="stat-trend">+0.9% dari bulan lalu</div>
+            <div class="stat-card loading">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-title"><?= esc($dashboard['card_7'] ?? 'Jabatan Lainnya') ?></div>
+                <div class="stat-value"><?= $totalJabatanLainnya ?></div>
+            </div>
+        </div>
+
     </div>
 </div>
 
-
-<!-- Chart.js CDN -->
+<!-- Chart.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add loading animation to all cards
-        const cards = document.querySelectorAll('.loading');
-        cards.forEach((card, index) => {
-            setTimeout(() => {
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100);
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    const userRoleData = <?= json_encode($userRoleData) ?>;
+    const ctx = document.getElementById('userRoleChart').getContext('2d');
 
-        // Chart configuration
-        const userRoleData = <?= json_encode($userRoleData) ?>;
-        const ctx = document.getElementById('userRoleChart').getContext('2d');
-
-        const gradient1 = ctx.createLinearGradient(0, 0, 0, 200);
-        gradient1.addColorStop(0, '#10b981');
-        gradient1.addColorStop(1, '#059669');
-
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: userRoleData.labels,
-                datasets: [{
-                    data: userRoleData.data,
-                    backgroundColor: [
-                        '#3b82f6',  // Blue
-                        '#10b981',  // Green
-                        '#ef4444',  // Red
-                        '#8b5cf6',  // Purple
-                        '#f59e0b',  // Amber
-                        '#06b6d4',  // Cyan
-                        '#f97316'   // Orange
-                    ],
-                    borderWidth: 3,
-                    borderColor: '#ffffff',
-                    hoverBorderWidth: 4,
-                    hoverOffset: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '60%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: {
-                                size: 12,
-                                family: 'Inter'
-                            },
-                            padding: 20,
-                            color: '#374151'
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(17, 24, 39, 0.95)',
-                        titleColor: '#f9fafb',
-                        bodyColor: '#f9fafb',
-                        cornerRadius: 8,
-                        displayColors: true,
-                        boxPadding: 3
-                    }
-                },
-                animation: {
-                    animateScale: true,
-                    animateRotate: true,
-                    duration: 1000,
-                    easing: 'easeOutQuart'
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: userRoleData.labels,
+            datasets: [{
+                data: userRoleData.data,
+                backgroundColor: [
+                    '#3b82f6', '#10b981', '#ef4444', '#8b5cf6', '#f59e0b', '#06b6d4', '#f97316'
+                ],
+                borderWidth: 3,
+                borderColor: '#ffffff',
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { usePointStyle: true, color: '#374151' }
                 }
             }
-        });
-
-        // Add hover effects to stat cards
-        const statCards = document.querySelectorAll('.stat-card');
-        statCards.forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-4px) scale(1.02)';
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0) scale(1)';
-            });
-        });
+        }
     });
+});
 </script>
 
 <?= $this->endSection() ?>

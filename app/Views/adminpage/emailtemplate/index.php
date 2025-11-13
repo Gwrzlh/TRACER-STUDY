@@ -7,12 +7,6 @@
         <h2 class="email-template-title">Email Templates</h2>
     </div>
 
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="success-message">
-            <?= session()->getFlashdata('success') ?>
-        </div>
-    <?php endif; ?>
-
     <div class="email-template-card">
         <div class="table-container">
             <table class="email-template-table">
@@ -74,6 +68,38 @@ function toggleExpand(button) {
         icon.style.transform = 'rotate(180deg)';
     }
 }
+</script>
+
+<!-- Tambahkan SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function toggleExpand(button) {
+    const messageWrapper = button.closest('.message-wrapper');
+    const textarea = messageWrapper.querySelector('.message-input');
+    const icon = button.querySelector('.expand-icon');
+    
+    if (textarea.classList.contains('expanded')) {
+        textarea.classList.remove('expanded');
+        textarea.rows = 3;
+        icon.style.transform = 'rotate(0deg)';
+    } else {
+        textarea.classList.add('expanded');
+        textarea.rows = 6;
+        icon.style.transform = 'rotate(180deg)';
+    }
+}
+
+// ✅ Tampilkan SweetAlert jika ada flashdata sukses
+<?php if (session()->getFlashdata('success')): ?>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil!',
+    text: '<?= session()->getFlashdata('success') ?>',
+    showConfirmButton: false,
+    timer: 2000
+});
+<?php endif; ?>
 </script>
 
 <?= $this->endSection() ?>

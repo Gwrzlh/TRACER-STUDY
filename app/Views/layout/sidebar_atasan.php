@@ -46,12 +46,34 @@ $currentRoute = service('request')->uri->getPath();
             </svg>
             <span>Kuesioner</span>
           </a>
-          <!-- 🏢 Perusahaan -->
-<a href="<?= base_url('atasan/perusahaan') ?>"
-  class="sidebar-link <?= str_contains($currentRoute, 'perusahaan') ? 'active' : '' ?>">
-  <i class="fa-solid fa-building w-5 text-gray-700"></i>
-  <span>Perusahaan</span>
+<!-- 👥 Alumni -->
+ <a href="<?= base_url('atasan/alumni') ?>"
+            class="sidebar-link <?= str_contains($currentRoute, 'alumni') ? 'active' : '' ?>">
+            <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M9 8h6"></path>
+            </svg>
+            <span>Alumni</span>
+          </a>
+
+<!-- 🔔 Notifikasi -->
+<a href="<?= base_url('atasan/notifikasi') ?>"
+  class="sidebar-link <?= str_contains($currentRoute, 'notifikasi') ? 'active' : '' ?> relative">
+  <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round"
+      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C8.67 6.165 8 7.388 8 9v5.159c0 .538-.214 1.055-.595 1.436L6 17h5m4 0v1a3 3 0 11-6 0v-1m6 0H9" />
+  </svg>
+  <span>Notifikasi</span>
+
+  <!-- 🔴 Badge Count -->
+  <span id="notifBadge"
+        style="display:none;"
+        class="absolute top-1 right-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+  </span>
 </a>
+
+
+
+
         </nav>
       </div>
 
@@ -136,5 +158,63 @@ $currentRoute = service('request')->uri->getPath();
     </main>
   </div>
 </body>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const dropdownLinks = document.querySelectorAll(".sidebar-item.has-sub > .sidebar-toggle");
+
+  dropdownLinks.forEach(link => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      const parent = this.closest(".sidebar-item");
+      const submenu = parent.querySelector(".submenu");
+      const icon = this.querySelector(".toggle-icon");
+
+      const isOpen = submenu.style.display === "block";
+
+      // Tutup semua dropdown lain
+      document.querySelectorAll(".sidebar-item.has-sub").forEach(item => {
+        item.classList.remove("open");
+        const sub = item.querySelector(".submenu");
+        const ic = item.querySelector(".toggle-icon");
+        if (sub) sub.style.display = "none";
+        if (ic) ic.style.transform = "rotate(0deg)";
+      });
+
+      // Buka/tutup dropdown ini
+      submenu.style.display = isOpen ? "none" : "block";
+      parent.classList.toggle("open");
+      icon.style.transform = isOpen ? "rotate(0deg)" : "rotate(180deg)";
+    });
+  });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const badge = document.getElementById("notifBadge");
+
+  function updateNotifCount() {
+    fetch("<?= base_url('atasan/getNotifCount') ?>")
+      .then(res => res.json())
+      .then(data => {
+        if (data.jumlah > 0) {
+          badge.textContent = data.jumlah;
+          badge.style.display = "inline-block";
+        } else {
+          badge.style.display = "none";
+        }
+      })
+      .catch(err => console.error("Error cek notifikasi:", err));
+  }
+
+  // pertama kali dijalankan
+  updateNotifCount();
+
+  // update setiap 30 detik
+  setInterval(updateNotifCount, 30000);
+});
+</script>
+
+
 
 </html>
