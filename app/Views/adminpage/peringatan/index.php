@@ -147,5 +147,64 @@
     <?php endforeach; ?>
   <?php endif; ?>
 </div>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// --- Konfirmasi "Kirim Semua" ---
+document.querySelector('form[action="<?= base_url('admin/kirim-peringatan-penilaian') ?>"]:not(.d-inline)')?.addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  Swal.fire({
+    title: 'Kirim Semua Peringatan?',
+    text: 'Semua atasan yang belum menilai akan menerima email peringatan.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Kirim Semua',
+    cancelButtonText: 'Batal',
+    confirmButtonColor: '#2563eb',
+    cancelButtonColor: '#6b7280'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.submit();
+    }
+  });
+});
+
+// --- Konfirmasi "Kirim Sekarang" per atasan ---
+document.querySelectorAll('form.d-inline').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const namaAtasan = this.closest('.card').querySelector('.card-header b')?.textContent.trim() || 'atasan ini';
+
+    Swal.fire({
+      title: `Kirim Peringatan ke ${namaAtasan}?`,
+      text: 'Email akan dikirim ke atasan tersebut.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Kirim Sekarang',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.submit();
+      }
+    });
+  });
+});
+
+// --- Alert sukses otomatis setelah redirect ---
+<?php if (session()->getFlashdata('success')): ?>
+Swal.fire({
+  icon: 'success',
+  title: 'Berhasil!',
+  text: '<?= esc(session()->getFlashdata('success')) ?>',
+  timer: 2000,
+  showConfirmButton: false
+});
+<?php endif; ?>
+</script>
 
 <?= $this->endSection() ?>
