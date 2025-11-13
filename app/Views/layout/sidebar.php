@@ -48,15 +48,32 @@ $currentRoute = service('request')->uri->getPath();
           </div>
         </details>
 
-        <!-- KUESIONER -->
+        <!-- PENGGUNA PANEL (Gabungan Pengguna + Atasan Alumni) -->
         <details class="group" <?= (
           str_contains($currentRoute, 'admin/pengguna') ||
-          str_contains($currentRoute, 'admin/questionnaire')
+          str_contains($currentRoute, 'admin/relasi-atasan-alumni')
         ) ? 'open' : '' ?>>
           <summary class="sidebar-link <?= (
             str_contains($currentRoute, 'admin/pengguna') ||
-            str_contains($currentRoute, 'admin/questionnaire')
+            str_contains($currentRoute, 'admin/relasi-atasan-alumni')
           ) ? 'active' : '' ?>">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-users icon"></i>
+              <span>Pengguna Panel</span>
+            </div>
+            <i class="fa-solid fa-chevron-down w-4 h-4 transition-transform duration-300 group-open:rotate-180"></i>
+          </summary>
+          <div class="ml-8 mt-1 space-y-1">
+            <a href="<?= base_url('admin/pengguna') ?>" 
+              class="submenu <?= str_contains($currentRoute, 'admin/pengguna') ? 'active' : '' ?>">Pengguna</a>
+            <a href="<?= base_url('admin/relasi-atasan-alumni') ?>" 
+              class="submenu <?= str_contains($currentRoute, 'admin/relasi-atasan-alumni') ? 'active' : '' ?>">Atasan Alumni</a>
+          </div>
+        </details>
+
+        <!-- KUESIONER PANEL -->
+        <details class="group" <?= str_contains($currentRoute, 'admin/questionnaire') ? 'open' : '' ?>>
+          <summary class="sidebar-link <?= str_contains($currentRoute, 'admin/questionnaire') ? 'active' : '' ?>">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-clipboard-list icon"></i>
               <span>Kuesioner Panel</span>
@@ -64,18 +81,10 @@ $currentRoute = service('request')->uri->getPath();
             <i class="fa-solid fa-chevron-down w-4 h-4 transition-transform duration-300 group-open:rotate-180"></i>
           </summary>
           <div class="ml-8 mt-1 space-y-1">
-            <a href="<?= base_url('admin/pengguna') ?>"
-              class="submenu <?= str_contains($currentRoute, 'admin/pengguna') ? 'active' : '' ?>">Pengguna</a>
             <a href="<?= base_url('admin/questionnaire') ?>"
-              class="submenu <?= str_contains($currentRoute, 'admin/questionnaire') ? 'active' : '' ?>">
-              Kuesioner
-            </a>
+              class="submenu <?= str_contains($currentRoute, 'admin/questionnaire') ? 'active' : '' ?>">Kuesioner</a>
           </div>
         </details>
-          <a href="<?= base_url('admin/relasi-atasan-alumni') ?>"
-              class="submenu <?= str_contains($currentRoute, 'admin/relasi-atasan-alumni/') ? 'active' : '' ?>">
-             Atasan Alumni
-            </a>
 
         <!-- WELCOME PANEL -->
         <details class="group" <?= (
@@ -107,7 +116,7 @@ $currentRoute = service('request')->uri->getPath();
           </div>
         </details>
 
-        <!-- RESPON (dipisah) -->
+        <!-- RESPON PANEL -->
         <details class="group" <?= str_contains($currentRoute, 'admin/respon') ? 'open' : '' ?>>
           <summary class="sidebar-link <?= str_contains($currentRoute, 'admin/respon') ? 'active' : '' ?>">
             <div class="flex items-center gap-2">
@@ -118,13 +127,9 @@ $currentRoute = service('request')->uri->getPath();
           </summary>
           <div class="ml-8 mt-1 space-y-1">
             <a href="<?= base_url('admin/respon') ?>"
-              class="submenu <?= (str_contains($currentRoute, 'admin/respon') && !str_contains($currentRoute, 'admin/respon/atasan')) ? 'active' : '' ?>">
-              Respon Alumni
-            </a>
+              class="submenu <?= (str_contains($currentRoute, 'admin/respon') && !str_contains($currentRoute, 'admin/respon/atasan')) ? 'active' : '' ?>">Respon Alumni</a>
             <a href="<?= base_url('admin/respon/atasan') ?>"
-              class="submenu <?= str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">
-              Respon Atasan
-            </a>
+              class="submenu <?= str_contains($currentRoute, 'admin/respon/atasan') ? 'active' : '' ?>">Respon Atasan</a>
           </div>
         </details>
 
