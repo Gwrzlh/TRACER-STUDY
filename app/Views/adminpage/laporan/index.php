@@ -19,12 +19,6 @@
       </button>
     </div>
 
-    <!-- Notifikasi sukses -->
-    <?php if (session()->getFlashdata('success')): ?>
-      <div class="mb-6 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg font-medium">
-        ✅ <?= session()->getFlashdata('success') ?>
-      </div>
-    <?php endif; ?>
 
     <!-- Notifikasi error -->
     <?php if (session()->getFlashdata('error')): ?>
@@ -384,5 +378,27 @@ tinymce.init({
     license_key: 'gpl'
 });
 </script>
+<?php if (session()->getFlashdata('success')): ?>
+<script>
+Swal.fire({
+  icon: 'success',
+  title: 'Berhasil!',
+  text: "<?= session()->getFlashdata('success') ?>",
+  showConfirmButton: false,
+  timer: 1800
+});
+</script>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('error')): ?>
+<script>
+Swal.fire({
+  icon: 'error',
+  title: 'Gagal!',
+  text: "<?= session()->getFlashdata('error') ?>",
+  showConfirmButton: true,
+});
+</script>
+<?php endif; ?>
 
 <?= $this->endSection() ?>
