@@ -130,7 +130,7 @@ tr:hover td { background: var(--gray-50); }
             <div><img src="/images/logo.png" alt="Tracer Study" style="height: 64px;"></div>
             <div>
                 <h1 class="dashboard-title"><?= esc($judul_dashboard) ?></h1>
-                <p style="color: var(--gray-600);"><?= esc($deskripsi) ?></p>
+                <p style="color: var(--gray-600);"><?= ($deskripsi) ?></p>
             </div>
         </div>
     </div>
@@ -192,54 +192,6 @@ tr:hover td { background: var(--gray-50); }
             </tbody>
         </table>
     </div>
-
-    <!-- Rekap Penilaian Alumni -->
-    <div class="card-table">
-        <h2>🧾 Rekap Penilaian Alumni</h2>
-        <?php if (empty($penilaian)): ?>
-            <div class="alert alert-warning text-center">Belum ada penilaian yang tersimpan.</div>
-        <?php else: ?>
-            <table class="table table-bordered table-striped align-middle text-center">
-                <thead class="table-primary">
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Alumni</th>
-                        <th>NIM</th>
-                        <th>Prodi</th>
-                        <th>Nilai Rata-rata</th>
-                        <th>Catatan</th>
-                        <th>Tanggal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $no = 1; foreach ($penilaian as $p): ?>
-                        <?php 
-                            $rata2 = round(($p['kelengkapan'] + $p['kejelasan'] + $p['konsistensi'] + $p['refleksi']) / 4, 1);
-                            $stars = floor($rata2);
-                            $half = ($rata2 - $stars >= 0.5);
-                        ?>
-                        <tr>
-                            <td><?= $no++ ?></td>
-                            <td><?= esc($p['nama_lengkap']) ?></td>
-                            <td><?= esc($p['nim']) ?></td>
-                            <td><?= esc($p['nama_prodi'] ?? '-') ?></td>
-                            <td>
-                                <div class="text-warning fs-5">
-                                    <?= str_repeat('⭐', $stars) ?>
-                                    <?= $half ? '⭐' : '' ?>
-                                    <?= str_repeat('☆', 5 - $stars - ($half ? 1 : 0)) ?>
-                                    <div class="small text-muted"><?= $rata2 ?>/5</div>
-                                </div>
-                            </td>
-                            <td><?= esc($p['catatan']) ?></td>
-                            <td><?= date('d M Y', strtotime($p['created_at'])) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </div>
-</div>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

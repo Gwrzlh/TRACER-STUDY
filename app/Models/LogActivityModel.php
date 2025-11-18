@@ -17,24 +17,42 @@ class LogActivityModel extends Model
     protected bool $allowEmptyInserts = false;
 
     // ✅ Method untuk mencatat log
-    public function logAction($action_type, $description = null)
+      public function logAction($action_type, $description = null, $severity = 'INFO')
     {
         $request = \Config\Services::request();
+        $session = session();
+
+        // Ambil user_id dari session
+        $userId = $session->get('id');
+
+        // Jika user_id tidak ada, skip insert atau set 0/Guest jika perlu
+        if (!$userId) {
+            // Pilihan 1: skip insert
+            log_message('debug', "[LogActivityModel] Guest action skipped: $action_type");
+            return;
+
+            // Pilihan 2: pakai Guest (id=0 harus ada di tabel account)
+            // $userId = 0;
+        }
+
         $data = [
-            'user_id'     => session()->get('id') ?? null,
+            'user_id'     => $userId,
             'action_type' => $action_type,
             'description' => is_array($description) ? json_encode($description) : $description,
             'ip_adress'   => $request->getIPAddress() === '::1' ? 'localhost (::1)' : $request->getIPAddress(),
             'user_agent'  => $request->getUserAgent()->getAgentString(),
             'created_at'  => date('Y-m-d H:i:s'),
+            'severity'    => $severity,
         ];
+
         try {
             $this->insert($data);
-            log_message('debug', '[LogActivityModel] Log inserted: ' . json_encode($data));
+            log_message('debug', "[LogActivityModel] Log inserted: " . json_encode($data));
         } catch (\Exception $e) {
-            log_message('error', '[LogActivityModel] Failed to log: ' . $e->getMessage());
+            log_message('error', "[LogActivityModel] Failed to log action: " . $e->getMessage());
         }
     }
+
 
     // ✅ Builder untuk pagination (kembalikan query builder, bukan array)
     public function getLogsQuery($search = null, $date_range = null)
