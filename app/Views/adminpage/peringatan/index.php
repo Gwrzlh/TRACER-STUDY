@@ -1,210 +1,134 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-  /* 🎨 Custom styling */
-  .page-header {
-    background: linear-gradient(90deg, #0d6efd, #3b82f6);
-    color: white;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
-  }
+<link rel="stylesheet" href="<?= base_url('css/kirim_peringatan.css') ?>">
 
-  .card {
-    border: none;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-  }
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
-  }
+<div class="container">
 
-  .card-header {
-    border-top-left-radius: 12px !important;
-    border-top-right-radius: 12px !important;
-    font-weight: 600;
-    background: linear-gradient(90deg, #0d6efd, #007bff);
-  }
+  <!-- SweetAlert2 Success Alert -->
+  <?php if (session()->getFlashdata('success')): ?>
+    <script>
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '<?= session()->getFlashdata('success') ?>',
+        showConfirmButton: false,
+        timer: 1800
+      });
+    </script>
+  <?php endif; ?>
 
-  .btn-light.btn-sm {
-    background: white;
-    border: none;
-    color: #0d6efd;
-    font-weight: 600;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-  }
-
-  .btn-light.btn-sm:hover {
-    background: #e7f1ff;
-    color: #0a58ca;
-  }
-
-  .btn-primary.mb-3 {
-    background: linear-gradient(90deg, #3b82f6, #2563eb);
-    border: none;
-    border-radius: 10px;
-    padding: 10px 18px;
-    font-weight: 600;
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-    transition: all 0.3s ease;
-  }
-
-  .btn-primary.mb-3:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
-  }
-
-  ul {
-    margin-top: 8px;
-    margin-bottom: 0;
-  }
-
-  ul li {
-    background: #f8f9fa;
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin-bottom: 6px;
-    font-size: 0.95rem;
-    border-left: 4px solid #3b82f6;
-  }
-
-  .alert-info {
-    background: #e3f2fd;
-    color: #0d47a1;
-    font-weight: 500;
-    border: none;
-    border-radius: 10px;
-  }
-
-  .alert-success {
-    border-radius: 10px;
-  }
-</style>
-
-<div class="container mt-4">
-  <!-- 🏷️ Header -->
-  <div class="page-header d-flex justify-content-between align-items-center">
-    <div>
-      <h3 class="fw-bold mb-0"><i class="fa-solid fa-bell me-2"></i>Peringatan Penilaian Atasan</h3>
-      <p class="text-light mb-0">Daftar atasan yang belum menilai alumni mereka.</p>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h2 class="header-title">Peringatan Penilaian Atasan</h2>
+        <p class="header-subtitle">Daftar atasan yang belum menilai alumni mereka</p>
+      </div>
     </div>
     <form action="<?= base_url('admin/kirim-peringatan-penilaian') ?>" method="post">
       <?= csrf_field() ?>
-      <button type="submit" class="btn btn-light text-primary fw-semibold">
-        <i class="fa-solid fa-paper-plane me-1"></i> Kirim Semua
+      <button type="submit" class="btn-send-all">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+        Kirim Semua
       </button>
     </form>
   </div>
 
-  <!-- 🧾 Alert -->
-  <?php if (session()->getFlashdata('success')): ?>
-    <div class="alert alert-success mt-3">
-      <i class="fa fa-check-circle me-1"></i> <?= session()->getFlashdata('success') ?>
-    </div>
-  <?php endif; ?>
-
+  <!-- Empty State -->
   <?php if (empty($peringatan)): ?>
-    <div class="alert alert-info text-center mt-3">
-      🎉 Semua atasan sudah menilai alumni mereka. Tidak ada peringatan yang perlu dikirim.
+    <div class="empty-state-card">
+      <div class="empty-state-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <h4 class="empty-state-title">Semua Sudah Dinilai</h4>
+      <p class="empty-state-text">Semua atasan sudah menilai alumni mereka. Tidak ada peringatan yang perlu dikirim.</p>
     </div>
+
   <?php else: ?>
 
-    <!-- 📋 List atasan -->
-    <?php foreach ($peringatan as $p): ?>
-      <div class="card mb-4 shadow-sm">
-        <div class="card-header text-white d-flex justify-content-between align-items-center">
-          <div>
-            👔 <b><?= esc($p['atasan']['nama_atasan']) ?></b><br>
-            <small class="text-light"><?= esc($p['atasan']['email']) ?></small>
-          </div>
-          <form action="<?= base_url('admin/kirim-peringatan-penilaian') ?>" method="post" class="d-inline">
-            <?= csrf_field() ?>
-            <input type="hidden" name="id_atasan" value="<?= $p['atasan']['id_account'] ?>">
-            <button type="submit" class="btn btn-light btn-sm">
-              <i class="fa-solid fa-bell me-1"></i> Kirim Sekarang
-            </button>
-          </form>
-        </div>
+    <!-- List Peringatan -->
+    <div class="peringatan-list">
+      <?php foreach ($peringatan as $p): ?>
+        <div class="peringatan-card">
 
-        <div class="card-body">
-          <h6 class="text-secondary fw-bold mb-2">📋 Alumni yang belum dinilai:</h6>
-          <ul>
-            <?php foreach ($p['alumni'] as $a): ?>
-              <li>
-                <b><?= esc($a['nama_lengkap']) ?></b> 
-                <small class="text-muted"> (<?= esc($a['nim']) ?> • <?= esc($a['nama_prodi']) ?>)</small>
-              </li>
-            <?php endforeach; ?>
-          </ul>
+          <!-- Card Header -->
+          <div class="card-header">
+            <div class="atasan-info">
+              <div class="atasan-avatar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div class="atasan-details">
+                <h5 class="atasan-name"><?= esc($p['atasan']['nama_atasan']) ?></h5>
+                <p class="atasan-email"><?= esc($p['atasan']['email']) ?></p>
+              </div>
+            </div>
+
+            <!-- Kirim per atasan -->
+            <form action="<?= base_url('admin/kirim-peringatan-penilaian') ?>" method="post" class="form-inline">
+              <?= csrf_field() ?>
+              <input type="hidden" name="id_atasan" value="<?= $p['atasan']['id_account'] ?>">
+              <button type="submit" class="btn-send">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                Kirim Sekarang
+              </button>
+            </form>
+          </div>
+
+          <!-- Card Body -->
+          <div class="card-body">
+            <div class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 11l3 3L22 4"></path>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+              Alumni yang belum dinilai
+            </div>
+
+            <ul class="alumni-list">
+              <?php foreach ($p['alumni'] as $a): ?>
+                <li class="alumni-item">
+                  <div class="alumni-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <div class="alumni-info">
+                    <span class="alumni-name"><?= esc($a['nama_lengkap']) ?></span>
+                    <span class="alumni-meta"><?= esc($a['nim']) ?> • <?= esc($a['nama_prodi']) ?></span>
+                  </div>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+
+          </div>
         </div>
-      </div>
-    <?php endforeach; ?>
+      <?php endforeach; ?>
+    </div>
+
   <?php endif; ?>
 </div>
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-// --- Konfirmasi "Kirim Semua" ---
-document.querySelector('form[action="<?= base_url('admin/kirim-peringatan-penilaian') ?>"]:not(.d-inline)')?.addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  Swal.fire({
-    title: 'Kirim Semua Peringatan?',
-    text: 'Semua atasan yang belum menilai akan menerima email peringatan.',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Ya, Kirim Semua',
-    cancelButtonText: 'Batal',
-    confirmButtonColor: '#2563eb',
-    cancelButtonColor: '#6b7280'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.submit();
-    }
-  });
-});
-
-// --- Konfirmasi "Kirim Sekarang" per atasan ---
-document.querySelectorAll('form.d-inline').forEach(form => {
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const namaAtasan = this.closest('.card').querySelector('.card-header b')?.textContent.trim() || 'atasan ini';
-
-    Swal.fire({
-      title: `Kirim Peringatan ke ${namaAtasan}?`,
-      text: 'Email akan dikirim ke atasan tersebut.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Ya, Kirim Sekarang',
-      cancelButtonText: 'Batal',
-      confirmButtonColor: '#2563eb',
-      cancelButtonColor: '#6b7280'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.submit();
-      }
-    });
-  });
-});
-
-// --- Alert sukses otomatis setelah redirect ---
-<?php if (session()->getFlashdata('success')): ?>
-Swal.fire({
-  icon: 'success',
-  title: 'Berhasil!',
-  text: '<?= esc(session()->getFlashdata('success')) ?>',
-  timer: 2000,
-  showConfirmButton: false
-});
-<?php endif; ?>
-</script>
 
 <?= $this->endSection() ?>
