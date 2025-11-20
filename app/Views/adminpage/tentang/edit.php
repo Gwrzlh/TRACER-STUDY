@@ -9,12 +9,7 @@
       <h1 class="text-3xl font-bold text-gray-900">Edit Tentang</h1>
     </div>
 
-    <!-- Notifikasi sukses -->
-    <?php if (session()->getFlashdata('success')): ?>
-      <div class="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg mb-6 font-medium">
-        ✅ <?= esc(session()->getFlashdata('success')) ?>
-      </div>
-    <?php endif; ?>
+    
 
     <!-- Tabs Navigation -->
     <div class="mb-6 border-b border-gray-200">
@@ -229,7 +224,8 @@
 
   </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+ 
 <!-- TinyMCE JS (Self-hosted) -->
 <script src="<?= base_url('tinymce/tinymce.min.js'); ?>"></script>
 <script>
@@ -313,5 +309,15 @@ resetBtn2.addEventListener('click', () => {
     resetBtn2.classList.add('hidden');
 });
 </script>
+<?php if (session()->getFlashdata('success')): ?>
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil!',
+    text: '<?= esc(session()->getFlashdata('success')) ?>',
+    confirmButtonColor: '#3b82f6',
+});
+</script>
+<?php endif; ?>
 
 <?= $this->endSection() ?>
