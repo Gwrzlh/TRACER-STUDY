@@ -195,7 +195,7 @@ $settings = [
             <h1 class="animate__animated animate__fadeInDown"><?= esc($data['title_1']) ?></h1>
             <p class="animate__animated animate__fadeInLeft animate__delay-1s"><?= $data['desc_1'] ?></p>
             <a href="<?= base_url('/login') ?>"
-               class="animate__animated animate__bounceIn animate__delay-2s"
+               class="animate__animated animate__bounceIn animate__delay-0,8s"
                style="background-color: <?= esc($settings['survey_button_color']) ?>;
                       color: <?= esc($settings['survey_button_text_color']) ?>;
                       padding: 10px 26px;
