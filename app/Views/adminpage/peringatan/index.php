@@ -3,7 +3,24 @@
 
 <link rel="stylesheet" href="<?= base_url('css/kirim_peringatan.css') ?>">
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="container">
+
+  <!-- SweetAlert2 Success Alert -->
+  <?php if (session()->getFlashdata('success')): ?>
+    <script>
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '<?= session()->getFlashdata('success') ?>',
+        showConfirmButton: false,
+        timer: 1800
+      });
+    </script>
+  <?php endif; ?>
+
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-content">
@@ -30,16 +47,6 @@
     </form>
   </div>
 
-  <!-- Alert Success -->
-  <?php if (session()->getFlashdata('success')): ?>
-    <div class="alert alert-success">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"></polyline>
-      </svg>
-      <?= session()->getFlashdata('success') ?>
-    </div>
-  <?php endif; ?>
-
   <!-- Empty State -->
   <?php if (empty($peringatan)): ?>
     <div class="empty-state-card">
@@ -52,12 +59,14 @@
       <h4 class="empty-state-title">Semua Sudah Dinilai</h4>
       <p class="empty-state-text">Semua atasan sudah menilai alumni mereka. Tidak ada peringatan yang perlu dikirim.</p>
     </div>
+
   <?php else: ?>
 
     <!-- List Peringatan -->
     <div class="peringatan-list">
       <?php foreach ($peringatan as $p): ?>
         <div class="peringatan-card">
+
           <!-- Card Header -->
           <div class="card-header">
             <div class="atasan-info">
@@ -72,6 +81,8 @@
                 <p class="atasan-email"><?= esc($p['atasan']['email']) ?></p>
               </div>
             </div>
+
+            <!-- Kirim per atasan -->
             <form action="<?= base_url('admin/kirim-peringatan-penilaian') ?>" method="post" class="form-inline">
               <?= csrf_field() ?>
               <input type="hidden" name="id_atasan" value="<?= $p['atasan']['id_account'] ?>">
@@ -94,6 +105,7 @@
               </svg>
               Alumni yang belum dinilai
             </div>
+
             <ul class="alumni-list">
               <?php foreach ($p['alumni'] as $a): ?>
                 <li class="alumni-item">
@@ -110,10 +122,12 @@
                 </li>
               <?php endforeach; ?>
             </ul>
+
           </div>
         </div>
       <?php endforeach; ?>
     </div>
+
   <?php endif; ?>
 </div>
 

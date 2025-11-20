@@ -18,14 +18,7 @@
         </div>
     </div>
 
-    <!-- Flash Message -->
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success"><i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?></div>
-    <?php elseif (session()->getFlashdata('error')): ?>
-        <div class="alert alert-error"><i class="fas fa-exclamation-circle me-2"></i><?= session()->getFlashdata('error') ?></div>
-    <?php endif; ?>
-
-    <!-- Notifikasi -->
+    <!-- 🧾 Daftar Pesan -->
     <div class="messages-container">
         <?php if (empty($pesan)): ?>
             <div class="empty-state">
@@ -81,8 +74,7 @@
                             <span class="status-badge read"><i class="fas fa-check-double"></i> Sudah dibaca</span>
                         <?php endif; ?>
 
-                        <a href="<?= base_url('atasan/hapusNotifikasi/' . $p['id_pesan']) ?>" class="btn btn-delete"
-                            onclick="return confirm('Yakin ingin menghapus pesan ini?')">
+                        <a href="<?= base_url('atasan/hapusNotifikasi/' . $p['id_pesan']) ?>" class="btn btn-delete">
                             <i class="fas fa-trash"></i> <span>Hapus</span>
                         </a>
                     </div>
@@ -93,148 +85,86 @@
 </div>
 
 <style>
-    .container-fluid {
-        background: #f8fafc;
-        min-height: 100vh;
-        padding: 2rem;
-    }
-
-    .notification-header {
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-        margin-bottom: 1.5rem;
-        padding: 1.5rem;
-        border-left: 4px solid #0d6efd;
-    }
-
-    .header-content {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .header-icon {
-        background: #0d6efd;
-        color: white;
-        padding: 10px;
-        border-radius: 8px;
-        font-size: 1.5rem;
-    }
-
-    .header-text h2 {
-        font-weight: 700;
-        color: #0d1b2a;
-    }
-
-    .header-text p {
-        color: #6c757d;
-    }
-
-    .alert {
-        padding: 0.8rem 1rem;
-        border-radius: 6px;
-        margin-bottom: 1.5rem;
-    }
-
-    .alert-success {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .alert-error {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-    .messages-container {
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 4rem;
-        color: #6c757d;
-    }
-
-    .empty-icon {
-        font-size: 3rem;
-        color: #d0d0d0;
-        margin-bottom: 1rem;
-    }
-
-    .message-card {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #eee;
-        padding: 1rem 1.5rem;
-        transition: 0.3s;
-    }
-
-    .message-card.unread {
-        background: #eaf4ff;
-        border-left: 4px solid #0d6efd;
-    }
-
-    .message-card:hover {
-        background: #f9f9f9;
-    }
-
-    .message-content {
-        flex: 1;
-        margin-right: 1rem;
-    }
-
-    .message-subject {
-        font-weight: 600;
-        color: #0d1b2a;
-    }
-
-    .message-preview {
-        font-size: 0.9rem;
-        color: #6c757d;
-    }
-
-    .message-actions {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-    }
-
-    .btn {
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        text-decoration: none;
-    }
-
-    .btn-view {
-        background: #f8f9fa;
-        color: #333;
-        border: 1px solid #ddd;
-    }
-
-    .btn-mark-read {
-        background: #0d6efd;
-        color: white;
-    }
-
-    .btn-delete {
-        background: #dc3545;
-        color: white;
-    }
-
-    .status-badge.read {
-        background: #d1e7dd;
-        color: #0f5132;
-        padding: 6px 10px;
-        border-radius: 6px;
-    }
-
+    .container-fluid { background: #f8fafc; min-height: 100vh; padding: 2rem; }
+    .notification-header { background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); margin-bottom: 1.5rem; padding: 1.5rem; border-left: 4px solid #0d6efd; }
+    .header-content { display: flex; align-items: center; gap: 1rem; }
+    .header-icon { background: #0d6efd; color: white; padding: 10px; border-radius: 8px; font-size: 1.5rem; }
+    .header-text h2 { font-weight: 700; color: #0d1b2a; }
+    .header-text p { color: #6c757d; }
+    .messages-container { background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .empty-state { text-align: center; padding: 4rem; color: #6c757d; }
+    .empty-icon { font-size: 3rem; color: #d0d0d0; margin-bottom: 1rem; }
+    .message-card { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 1rem 1.5rem; transition: 0.3s; }
+    .message-card.unread { background: #eaf4ff; border-left: 4px solid #0d6efd; }
+    .message-card:hover { background: #f9f9f9; }
+    .message-content { flex: 1; margin-right: 1rem; }
+    .message-subject { font-weight: 600; color: #0d1b2a; }
+    .message-preview { font-size: 0.9rem; color: #6c757d; }
+    .message-actions { display: flex; gap: 0.5rem; align-items: center; }
+    .btn { padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; text-decoration: none; }
+    .btn-view { background: #f8f9fa; color: #333; border: 1px solid #ddd; }
+    .btn-mark-read { background: #0d6efd; color: white; }
+    .btn-delete { background: #dc3545; color: white; }
+    .status-badge.read { background: #d1e7dd; color: #0f5132; padding: 6px 10px; border-radius: 6px; }
 </style>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+// 🔹 Konfirmasi hapus
+document.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.preventDefault();
+        const url = btn.getAttribute('href');
+        Swal.fire({
+            title: 'Hapus Pesan Ini?',
+            text: 'Pesan yang dihapus tidak bisa dikembalikan.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#dc3545'
+        }).then(result => {
+            if (result.isConfirmed) window.location.href = url;
+        });
+    });
+});
+
+// 🔹 Konfirmasi tandai dibaca
+document.querySelectorAll('.btn-mark-read').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.preventDefault();
+        const url = btn.getAttribute('href');
+        Swal.fire({
+            title: 'Tandai pesan sudah dibaca?',
+            text: 'Status pesan akan berubah menjadi dibaca.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, tandai',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#0d6efd'
+        }).then(result => {
+            if (result.isConfirmed) window.location.href = url;
+        });
+    });
+});
+
+// 🔹 Flash message SweetAlert (tanpa alert hijau)
+<?php if (session()->getFlashdata('success')): ?>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil!',
+    text: '<?= esc(session()->getFlashdata('success')) ?>',
+    timer: 2000,
+    showConfirmButton: false
+});
+<?php elseif (session()->getFlashdata('error')): ?>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal!',
+    text: '<?= esc(session()->getFlashdata('error')) ?>'
+});
+<?php endif; ?>
+</script>
 
 <?= $this->endSection() ?>

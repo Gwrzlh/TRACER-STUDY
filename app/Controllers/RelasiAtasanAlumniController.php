@@ -11,40 +11,57 @@ use App\Models\Prodi;
 
 class RelasiAtasanAlumniController extends BaseController
 {
-   public function index()
+    public function index()
     {
         $atasanModel = new DetailaccountAtasan();
-        $alumniModel = new DetailaccountAlumni();
+        $prodiModel = new Prodi();
         $relasiModel = new RelasiAtasanAlumniModel();
-        $PordiModel = new Prodi();
+        
+        // Query dengan JOIN - PENTING: ambil atasan_alumni.id sebagai id_relasi
+        $relasi = $relasiModel
+            ->select('
+                atasan_alumni.id as id_relasi,
+                atasan_alumni.id_atasan,
+                detailaccount_atasan.nama_lengkap as nama_atasan,
+                detailaccount_alumni.nama_lengkap as nama_alumni,
+                detailaccount_alumni.nim as nim_alumni
+            ')
+            ->join('detailaccount_atasan', 'atasan_alumni.id_atasan = detailaccount_atasan.id')
+            ->join('detailaccount_alumni', 'atasan_alumni.id_alumni = detailaccount_alumni.id')
+            ->orderBy('detailaccount_atasan.nama_lengkap', 'ASC')
+            ->findAll();
+        
+        // Grouping by atasan
 
-
-        $db = \Config\Database::connect(); // hubungkan DB sekali
-
-        // pastikan builder pakai alias yang benar
-        $builder = $db->table('atasan_alumni AS aa');
-
-        $builder->select('aa.id_atasan, at.nama_lengkap AS nama_atasan, al.nama_lengkap AS nama_alumni');
-        $builder->join('detailaccount_atasan AS at', 'aa.id_atasan = at.id', 'left');
-        $builder->join('detailaccount_alumni AS al', 'aa.id_alumni = al.id', 'left');
-        $builder->orderBy('at.nama_lengkap', 'ASC');
-
-        $relasi = $builder->get()->getResultArray();
-
-        // Grouping alumni berdasarkan atasan
+        $atasanList = $atasanModel->findAll();
+        $prodiList = $prodiModel->findAll();
         $grouped = [];
         foreach ($relasi as $row) {
-            $grouped[$row['id_atasan']]['nama_atasan'] = $row['nama_atasan'];
-            $grouped[$row['id_atasan']]['alumni'][] = $row['nama_alumni'];
+            $id_atasan = $row['id_atasan'];
+            
+            if (!isset($grouped[$id_atasan])) {
+                $grouped[$id_atasan] = [
+                    'nama_atasan' => $row['nama_atasan'],
+                    'alumni' => []
+                ];
+            }
+            
+            // Simpan id_relasi untuk setiap alumni
+            $grouped[$id_atasan]['alumni'][] = [
+                'id_relasi' => $row['id_relasi'],
+                'nama_alumni' => $row['nama_alumni'],
+                'nim_alumni' => $row['nim_alumni'] ?? '-'
+            ];
         }
-        $prodiList = $PordiModel->findAll();
-        return view('adminpage/atasan_alumni/index', [
-            'atasan' => $atasanModel->findAll(),
-            // kita tidak perlu menampilkan semua alumni awalnya; tapi untuk fallback:
-            'alumni' => [],
+        
+        // Data lainnya (sesuaikan dengan controller Anda)
+        $data = [
             'grouped' => $grouped,
+            'atasan' => $atasanList,
             'prodiList' => $prodiList
-        ]);
+        ];
+        
+        return view('adminpage/atasan_alumni/index', $data);
     }
 
     // AJAX: return list alumni JSON sesuai filter
@@ -128,9 +145,8 @@ class RelasiAtasanAlumniController extends BaseController
         return redirect()->back()->with('success', 'Relasi berhasil ditambahkan.');
     }
 
-    public function delete($id)
+    public function delete($id = null)
     {
-        // Allow id to be passed either as a route parameter or via POST (e.g., AJAX/form)
         $id = $id ?? $this->request->getPost('id');
 
         if (empty($id)) {
@@ -138,18 +154,31 @@ class RelasiAtasanAlumniController extends BaseController
         }
 
         $relasiModel = new RelasiAtasanAlumniModel();
-        $relasiModel->delete($id);
-        return redirect()->back()->with('success', 'Relasi berhasil dihapus.');
+        
+        // Cek apakah relasi ada
+        $relasi = $relasiModel->find($id);
+        if (!$relasi) {
+            return redirect()->back()->with('error', 'Relasi tidak ditemukan di database.');
+        }
+        
+        // Hapus relasi
+        if ($relasiModel->delete($id)) {
+            return redirect()->back()->with('success', 'Relasi berhasil dihapus.');
+        } else {
+            return redirect()->back()->with('error', 'Gagal menghapus relasi.');
+        }
     }
-    public function update($id)
-    {
-        $this->db->table('atasan_alumni')->where('id', $id)->update([
-            'id_atasan' => $this->request->getPost('id_atasan'),
-            'id_alumni' => $this->request->getPost('id_alumni'),
-        ]);
 
-        return redirect()->back()->with('success', 'Relasi berhasil diperbarui.');
-    }
+    // ------ kayaknya ini ga perlu ------
+    // public function update($id)
+    // {
+    //     $this->db->table('atasan_alumni')->where('id', $id)->update([
+    //         'id_atasan' => $this->request->getPost('id_atasan'),
+    //         'id_alumni' => $this->request->getPost('id_alumni'),
+    //     ]);
+
+    //     return redirect()->back()->with('success', 'Relasi berhasil diperbarui.');
+    // }
 
 
 }

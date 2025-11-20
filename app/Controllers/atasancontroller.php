@@ -158,55 +158,28 @@ public function alumni()
         return redirect()->back()->with('error', 'Data atasan tidak ditemukan.');
     }
 
-    // Ambil data alumni + status kuesioner + status penilaian
+    // Ambil alumni bawahan atasan
     $alumni = $db->table('atasan_alumni aa')
         ->select("
-            al.id, 
-            al.nama_lengkap, 
-            al.nim, 
-            al.tahun_kelulusan, 
-            al.ipk,
+            al.*,
+            j.nama_jurusan,
             p.nama_prodi,
-
-            -- Hitung jumlah kuesioner yang diselesaikan
-            (
-                SELECT COUNT(r.id)
-                FROM responses r
-                JOIN account acc2 ON acc2.id = r.account_id
-                WHERE acc2.id = al.id_account
-                AND r.status = 'completed'
-            ) AS total_responses,
-
-            -- Data penilaian (bisa null)
-            pa.id AS id_penilaian,
-            pa.kelengkapan, 
-            pa.kejelasan, 
-            pa.konsistensi, 
-            pa.refleksi, 
-            pa.catatan,
-
-            -- Rata-rata jika ada data
-            CASE 
-                WHEN pa.id IS NOT NULL THEN 
-                    ROUND((pa.kelengkapan + pa.kejelasan + pa.konsistensi + pa.refleksi)/4,1)
-                ELSE NULL
-            END AS rata_rata
+            prov.name AS nama_provinsi,
+            ct.name AS nama_kota
         ")
         ->join('detailaccount_alumni al', 'al.id = aa.id_alumni', 'left')
+        ->join('jurusan j', 'j.id = al.id_jurusan', 'left')
         ->join('prodi p', 'p.id = al.id_prodi', 'left')
-        ->join('penilaian_alumni pa', 'pa.id_alumni = al.id AND pa.id_atasan = aa.id_atasan', 'left')
+        ->join('provinces prov', 'prov.id = al.id_provinsi', 'left')
+        ->join('cities ct', 'ct.id = al.id_cities', 'left')
         ->where('aa.id_atasan', $atasan->id)
         ->orderBy('al.nama_lengkap', 'ASC')
         ->get()
         ->getResultArray();
 
-    // Tambahkan status logika tambahan
-    foreach ($alumni as &$a) {
-        $a['boleh_dinilai'] = ($a['total_responses'] > 0);       // hanya bisa dinilai jika sudah isi kuesioner
-        $a['sudah_dinilai'] = !empty($a['id_penilaian']);        // hanya true jika ada data di penilaian_alumni
-    }
-
-    return view('atasan/alumni/index', ['alumni' => $alumni]);
+    return view('atasan/alumni/index', [
+        'alumni' => $alumni
+    ]);
 }
 
 

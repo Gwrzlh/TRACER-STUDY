@@ -36,7 +36,7 @@ $routes->group('admin/pengguna', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('editPengguna/(:num)', 'PenggunaController::edit/$1');
     $routes->post('update/(:num)', 'PenggunaController::update/$1');
     $routes->delete('delete/(:num)', 'PenggunaController::delete/$1');
-$routes->match(['post', 'delete'], 'delete/(:num)', 'PenggunaController::delete/$1');
+   $routes->match(['post', 'delete'], 'delete/(:num)', 'PenggunaController::delete/$1');
 
     $routes->match(['post', 'delete'], 'deleteMultiple', 'PenggunaController::deleteMultiple');
     $routes->post('exportSelected', 'PenggunaController::exportSelected');
@@ -60,7 +60,7 @@ $routes->group('admin/relasi-atasan-alumni', ['filter' => 'adminAuth'], function
     $routes->get('tambah', 'RelasiAtasanAlumniController::create');
     $routes->post('store', 'RelasiAtasanAlumniController::store');
     $routes->post('update/(:num)','RelasiAtasanAlumniController::update/$1'); // Simpan relasi
-    $routes->post('delete/(:num)', 'RelasiAtasanAlumniController::delete/$1');
+    $routes->get('delete/(:num)', 'RelasiAtasanAlumniController::delete/$1');
     $routes->post('fetch-alumni', 'RelasiAtasanAlumniController::fetchAlumni'); 
 });
 
@@ -171,9 +171,6 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('delete/(:num)', 'TipeOrganisasiController::delete/$1');
     });
 
-
-    // // --- Perusahaan ---
-    // $routes->get('perusahaan/dashboard', 'PerusahaanController::dashboard');
 
 
 
@@ -705,7 +702,20 @@ $routes->get('getNotifCount', 'AtasanController::getNotifCount');
 // $routes->get('atasan/dashboard', 'AtasanController::dashboard');
 $routes->get('atasan/kuesioner', 'AtasanKuesionerController::index', ['filter' => 'atasanFilter']);
 // =============== ATASAN ===============
+
 // $routes->get('/atasan/perusahaan', 'AtasanController::perusahaan');
+
+// ================= ATASAN CRUD PERUSAHAAN =================
+$routes->get('/', 'Home::index');
+
+// ================= ATASAN CRUD PERUSAHAAN =================
+$routes->get('/atasan/perusahaan', 'AtasanController::perusahaan');
+$routes->get('/atasan/perusahaan/detail/(:num)', 'AtasanController::detailPerusahaan/$1');
+$routes->get('/atasan/perusahaan/edit/(:num)', 'AtasanController::editPerusahaan/$1');
+$routes->get('/atasan/perusahaan/getCitiesByProvince/(:num)', 'AtasanController::getCitiesByProvince/$1');
+
+// ================= PERUSAHAAN DASHBOARD =================
+$routes->get('/perusahaan/dashboard', 'PerusahaanController::dashboard');
 
 
 

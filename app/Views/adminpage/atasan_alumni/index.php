@@ -81,60 +81,74 @@
     </form>
   </div>
 
-  <div class="bg-white p-6 rounded-xl shadow-sm">
-  <table class="min-w-full border border-gray-200">
-    <thead class="bg-gray-100">
-      <tr>
-        <th class="p-3 text-left">Atasan</th>
-        <th class="p-3 text-left">Alumni</th>
-        <th class="p-3 text-center">Aksi</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php foreach ($grouped as $id_atasan => $data): ?>
-      <tr class="border-b hover:bg-gray-50">
-        <td class="p-3 font-semibold text-gray-800">
-          <?= $data['nama_atasan'] ?>
-        </td>
+  <!-- -------table atasan alumni------- -->
+  <div class="bg-white p-6 rounded-xl shadow-sm mt-6">
+    <h3 class="text-lg font-semibold mb-4">Daftar Relasi Atasan ↔ Alumni</h3>
+    <table class="min-w-full border border-gray-200">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="p-3 text-left border-r">Atasan</th>
+          <th class="p-3 text-left border-r">Alumni</th>
+          <th class="p-3 text-center w-24">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if (empty($grouped)): ?>
+          <tr>
+            <td colspan="3" class="p-4 text-center text-gray-500">
+              Belum ada relasi. Silakan tambahkan relasi di form atas.
+            </td>
+          </tr>
+        <?php else: ?>
+          <?php foreach ($grouped as $id_atasan => $data): ?>
+            <?php $alumniCount = count($data['alumni']); ?>
+            <?php foreach ($data['alumni'] as $index => $alumni): ?>
+              <tr class="border-b hover:bg-gray-50">
+                <?php if ($index === 0): ?>
+                  <td rowspan="<?= $alumniCount ?>" class="p-3 font-semibold text-gray-800 bg-gray-50 border-r align-top">
+                    <?= esc($data['nama_atasan']) ?>
+                  </td>
+                <?php endif; ?>
 
-        <td class="p-3">
-          <div class="flex flex-wrap gap-2">
-            <?php foreach ($data['alumni'] as $alumni): ?>
-              <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
-                <?= $alumni ?>
-              </span>
+                <td class="p-3 border-r">
+                  <div class="flex items-center gap-2">
+                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                      <?= esc($alumni['nama_alumni']) ?>
+                    </span>
+                    <?php if (isset($alumni['nim_alumni'])): ?>
+                      <span class="text-xs text-gray-500">(NIM: <?= esc($alumni['nim_alumni']) ?>)</span>
+                    <?php endif; ?>
+                  </div>
+                </td>
+
+                <td class="p-3 text-center">
+                  <a href="<?= base_url('admin/relasi-atasan-alumni/delete/' . $alumni['id_relasi'])?>"
+                     class="btn-delete inline-flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm transition-colors shadow-sm"
+                     data-nama="<?= esc($alumni['nama_alumni']) ?>"
+                     data-atasan="<?= esc($data['nama_atasan']) ?>"
+                     title="Hapus relasi ini">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </a>
+                </td>
+              </tr>
             <?php endforeach; ?>
-          </div>
-        </td>
-
-        <td class="p-3 text-center space-x-2">
-          <!-- EDIT -->
-          <!-- <a href="<?= base_url('admin/relasi-atasan-alumni/edit/'.$id_atasan) ?>"
-            class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm">
-            Edit
-          </a> -->
-
-          <!-- HAPUS SEMUA RELASI ATASAN INI -->
-          <a href="<?= base_url('admin/relasi-atasan-alumni/delete/'.$id_atasan) ?>"
-            onclick="return confirm('Yakin ingin menghapus semua relasi alumni untuk atasan ini?')"
-            class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm">
-            Hapus
-          </a>
-        </td>
-      </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </tbody>
+    </table>
+  </div>
 </div>
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Vanilla JS: fetch + DOM -->
+<!-- JS Function -->
 <script>
 (function(){
-  // helper: ambil CSRF dari input csrf di form (CI4)
+  // --- Helper: ambil CSRF dari form (CI4) ---
   function getCsrfToken() {
-    const csrfInput = document.querySelector('#form-relasi input[name^="<?= csrf_token() ? '' : '' ?>"]') || document.querySelector('#form-relasi input[name]');
-    // fallback: cari input bernama csrf_test_name atau whatever token name
     const all = document.querySelectorAll('#form-relasi input[type="hidden"]');
     for (const i of all) {
       if (i.name && i.name.toLowerCase().includes('csrf')) return {name: i.name, value: i.value};
@@ -148,6 +162,7 @@
   const btnTambah = document.getElementById('btn-tambah-alumni');
   const formRelasi = document.getElementById('form-relasi');
 
+  // --- Fetch alumni berdasarkan filter ---
   async function fetchAlumni() {
     const angkatan = document.getElementById('filter_angkatan').value;
     const id_prodi  = document.getElementById('filter_prodi').value;
@@ -174,12 +189,7 @@
       if (!res.ok) throw new Error('HTTP error ' + res.status);
       const data = await res.json();
 
-      // clear dropdown
-      alumniDropdown.innerHTML = '';
-      const opt0 = document.createElement('option');
-      opt0.value = '';
-      opt0.textContent = '-- Pilih Alumni --';
-      alumniDropdown.appendChild(opt0);
+      alumniDropdown.innerHTML = '<option value="">-- Pilih Alumni --</option>';
 
       if (Array.isArray(data) && data.length) {
         data.forEach(item => {
@@ -188,16 +198,31 @@
           o.textContent = item.text;
           alumniDropdown.appendChild(o);
         });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Data ditemukan!',
+          text: data.length + ' alumni berhasil dimuat.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+
       } else {
-        const o = document.createElement('option');
-        o.value = '';
-        o.textContent = 'Tidak ada alumni ditemukan';
-        alumniDropdown.appendChild(o);
+        alumniDropdown.innerHTML = '<option value="">Tidak ada alumni ditemukan</option>';
+        Swal.fire({
+          icon: 'info',
+          title: 'Tidak ditemukan',
+          text: 'Tidak ada alumni dengan filter yang dimasukkan.'
+        });
       }
 
     } catch (err) {
       console.error(err);
-      alert('Gagal mengambil data alumni. Cek console untuk detail.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: 'Terjadi kesalahan saat mengambil data alumni.'
+      });
     }
   }
 
@@ -206,23 +231,22 @@
     fetchAlumni();
   });
 
-  // Tambah alumni ke list terpilih
+  // --- Tambah alumni ke daftar ---
   btnTambah.addEventListener('click', function(e){
     e.preventDefault();
     const sel = alumniDropdown.value;
     const text = alumniDropdown.options[alumniDropdown.selectedIndex]?.text || '';
-    if (!sel) return alert('Pilih alumni dahulu.');
-
-    // cegah duplicate
-    if (document.querySelector('#selected-alumni-list [data-id="'+sel+'"]')) {
-      return alert('Alumni sudah dipilih.');
+    if (!sel) {
+      return Swal.fire({icon: 'warning', title: 'Pilih alumni dahulu!'});
     }
 
-    // buat badge
+    if (document.querySelector('#selected-alumni-list [data-id="'+sel+'"]')) {
+      return Swal.fire({icon: 'info', title: 'Alumni sudah dipilih!'});
+    }
+
     const span = document.createElement('span');
     span.setAttribute('data-id', sel);
     span.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-200 text-gray-800 text-sm';
-
     const txt = document.createElement('span');
     txt.textContent = text;
     span.appendChild(txt);
@@ -232,7 +256,6 @@
     btnRm.className = 'ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-500 text-white text-xs';
     btnRm.innerHTML = '✕';
     btnRm.addEventListener('click', function(){
-      // remove hidden input & badge
       const hid = document.getElementById('input-alumni-'+sel);
       if (hid) hid.remove();
       span.remove();
@@ -241,19 +264,64 @@
     span.appendChild(btnRm);
     selectedList.appendChild(span);
 
-    // buat hidden input untuk submit
     const hidden = document.createElement('input');
     hidden.type = 'hidden';
     hidden.name = 'id_alumni[]';
     hidden.value = sel;
     hidden.id = 'input-alumni-'+sel;
     formRelasi.appendChild(hidden);
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Berhasil!',
+      text: 'Alumni berhasil ditambahkan ke daftar.',
+      timer: 1500,
+      showConfirmButton: false
+    });
   });
 
-  // Optional: auto fetch on page load
-  // fetchAlumni();
+  // --- Konfirmasi hapus relasi dengan SweetAlert2 ---
+  document.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const url = this.href;
+      const nama = this.dataset.nama;
+      const atasan = this.dataset.atasan;
 
+      Swal.fire({
+        title: 'Yakin hapus relasi?',
+        text: `${nama} ↔ ${atasan}`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = url;
+        }
+      });
+    });
+  });
 })();
+
+
+<?php if (session()->getFlashdata('success')): ?>
+Swal.fire({
+  icon: 'success',
+  title: 'Berhasil!',
+  text: '<?= esc(session()->getFlashdata('success')) ?>',
+  timer: 2000,
+  showConfirmButton: false
+});
+<?php elseif (session()->getFlashdata('error')): ?>
+Swal.fire({
+  icon: 'error',
+  title: 'Gagal!',
+  text: '<?= esc(session()->getFlashdata('error')) ?>'
+});
+<?php endif; ?>
 </script>
 
 <?= $this->endSection() ?>
