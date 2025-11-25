@@ -23,7 +23,33 @@ class DetailaccountAtasan extends Model
         $builder->join('jabatan', 'jabatan.id = detailaccount_atasan.id_jabatan');
         return $builder->get()->getResult();
     }
-     
+     public function getAlumniBinaan($idDetailAtasan)
+    {
+        $sql = "SELECT 
+                    da.id,
+                    da.nama_lengkap, 
+                    da.id_account,
+                    da.nim, 
+                    COALESCE(j.nama_jurusan, '-') as nama_jurusan,
+                    COALESCE(p.nama_prodi, '-') as nama_prodi
+                FROM atasan_alumni aa
+                JOIN detailaccount_alumni da ON da.id = aa.id_alumni
+                LEFT JOIN jurusan j ON j.id = da.id_jurusan
+                LEFT JOIN prodi p ON p.id = da.id_prodi
+                WHERE aa.id_atasan = ?
+                ORDER BY da.nama_lengkap ASC";
+
+        return $this->db->query($sql, [$idDetailAtasan])->getResultArray();
+    }
+
+    public function getDetailAtasanId($id_account)
+    {
+        return $this->db->table('detailaccount_atasan')
+            ->select('id')
+            ->where('id_account', $id_account)
+            ->get()
+            ->getRowArray();
+    }   
 
 
     // Dates

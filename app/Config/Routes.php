@@ -700,7 +700,7 @@ $routes->get('getNotifCount', 'AtasanController::getNotifCount');
 
 // --- Atasan ---
 // $routes->get('atasan/dashboard', 'AtasanController::dashboard');
-$routes->get('atasan/kuesioner', 'AtasanKuesionerController::index', ['filter' => 'atasanFilter']);
+// $routes->get('atasan/kuesioner', 'AtasanKuesionerController::index', ['filter' => 'atasanFilter']);
 // =============== ATASAN ===============
 
 // $routes->get('/atasan/perusahaan', 'AtasanController::perusahaan');
@@ -723,13 +723,13 @@ $routes->get('/perusahaan/dashboard', 'PerusahaanController::dashboard');
 
 
 // --- Kuesioner Atasan ---
-$routes->group('atasan/kuesioner', ['namespace' => 'App\Controllers'], function ($routes) {
-    $routes->get('', 'AtasanKuesionerController::index');
-    $routes->get('mulai/(:num)', 'AtasanKuesionerController::mulai/$1');
-    $routes->get('lanjutkan/(:num)', 'AtasanKuesionerController::lanjutkan/$1');
-    $routes->get('lihat/(:num)', 'AtasanKuesionerController::lihat/$1');
-    $routes->post('save/(:num)', 'AtasanKuesionerController::save/$1');
-    $routes->get('responseLanding', 'AtasanKuesionerController::responseLanding');
+$routes->group('atasan/kuesioner', ['filter' => 'atasanFilter'], function($routes) {
+    $routes->get('/',                       'AtasanKuesionerController::index');
+    $routes->get('daftar-alumni/(:num)',    'AtasanKuesionerController::daftarAlumni/$1');
+    $routes->get('isi/(:num)/(:num)',       'AtasanKuesionerController::mulai/$1/$2');
+    $routes->get('lihat/(:num)/(:num)',     'AtasanKuesionerController::lihat/$1/$2');
+    $routes->get('lanjutkan/(:num)/(:num)', 'AtasanKuesionerController::lanjutkan/$1/$2');
+    
+    // SATU ROUTE AJA UNTUK AUTOSAVE + SUBMIT AKHIR
+    $routes->post('save-answer',            'AtasanKuesionerController::saveAnswer');
 });
-
-
