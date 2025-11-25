@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Models;
-
 use CodeIgniter\Model;
 
 class ResponseAtasanModel extends Model
@@ -11,6 +9,7 @@ class ResponseAtasanModel extends Model
     protected $allowedFields = [
         'id_questionnaire',
         'id_account',
+        'id_alumni',
         'answers',
         'status',
         'progress',
@@ -18,106 +17,118 @@ class ResponseAtasanModel extends Model
         'updated_at'
     ];
     protected $useTimestamps = true;
-    protected $createdField = 'created_at';
-    protected $updatedField = 'updated_at';
-    protected $returnType = 'array';
 
-    protected $validationRules = [
-        'id_questionnaire' => 'required|integer',
-        'id_account'       => 'required|integer',
-        'status'           => 'in_list[draft,completed]',
-        'progress'         => 'permit_empty|decimal'
-    ];
-
-    // Ambil jawaban responden
-    public function getAnswers($q_id, $account_id)
+    public function getAnswers($q_id, $account_id, $alumni_id)
     {
-        $data = $this->where([
+        $response = $this->where([
             'id_questionnaire' => $q_id,
-            'id_account'       => $account_id
+            'id_account' => $account_id,
+            'id_alumni' => $alumni_id
         ])->first();
-
-        return $data ? json_decode($data['answers'], true) ?? [] : [];
+        return $response ? json_decode($response['answers'], true) : [];
     }
 
-    // Simpan atau update jawaban tanpa overwrite updated_at manual
-    public function saveAnswers($q_id, $account_id, $answers)
+    public function saveAnswers($q_id, $account_id, $alumni_id, $answers)
     {
+        $data = [
+            'id_questionnaire' => $q_id,
+            'id_account' => $account_id,
+            'id_alumni' => $alumni_id,
+            'answers' => json_encode($answers),
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+
         $existing = $this->where([
             'id_questionnaire' => $q_id,
-            'id_account'       => $account_id
+            'id_account' => $account_id,
+            'id_alumni' => $alumni_id
         ])->first();
 
-        $json = json_encode($answers);
-
         if ($existing) {
-            return $this->update($existing['id'], [
-                'answers' => $json,
-                'status'  => 'draft'
-                // Hapus updated_at manual, biarkan CI handle
-            ]);
+            $this->update($existing['id'], $data);
+        } else {
+            $data['created_at'] = date('Y-m-d H:i:s');
+            $data['status'] = 'draft';
+            $data['progress'] = 0;
+            $this->insert($data);
         }
-
-        return $this->insert([
-            'id_questionnaire' => $q_id,
-            'id_account'       => $account_id,
-            'answers'          => $json,
-            'status'           => 'draft'
-        ]);
     }
 
-    // Hitung progress pengisian
-    public function calculateProgress($q_id, $account_id, $structure)
+    public function calculateProgress($q_id, $account_id, $alumni_id, $structure)
     {
-        $answers = $this->getAnswers($q_id, $account_id);
-        $total = count($structure);
-        if ($total === 0) return 0;
+        $answers = $this->getAnswers($q_id, $account_id, $alumni_id);
+        $totalQuestions = 0;
+        $answered = 0;
 
-        $filled = 0;
-        foreach ($structure as $q) {
-            $qid = $q['id'] ?? ($q['question_id'] ?? ($q['question']['id'] ?? null));
-            if ($qid && isset($answers[$qid]) && $answers[$qid] !== '') $filled++;
+        foreach ($structure['pages'] as $page) {
+            foreach ($page['sections'] as $section) {
+                foreach ($section['questions'] as $question) {
+                    if ($question['is_required']) {
+                        $totalQuestions++;
+                        if (isset($answers[$question['id']]) && !empty($answers[$question['id']])) {
+                            $answered++;
+                        }
+                    }
+                }
+            }
         }
 
-        $progress = round(($filled / $total) * 100, 2);
-
+        $progress = $totalQuestions > 0 ? ($answered / $totalQuestions) * 100 : 0;
         $this->where([
             'id_questionnaire' => $q_id,
-            'id_account'       => $account_id
+            'id_account' => $account_id,
+            'id_alumni' => $alumni_id
         ])->set('progress', $progress)->update();
 
         return $progress;
     }
 
-    public function getStatus($q_id, $account_id)
+    public function getStatus($q_id, $account_id, $alumni_id)
     {
-        $data = $this->where([
+        $response = $this->where([
             'id_questionnaire' => $q_id,
-            'id_account'       => $account_id
+            'id_account' => $account_id,
+            'id_alumni' => $alumni_id
         ])->first();
 
-        return $data['status'] ?? 'draft';
+        return $response ? $response['status'] : 'draft';
     }
 
-    public function isCompleted($q_id, $account_id)
+    public function isCompleted($q_id, $account_id, $alumni_id)
     {
-        $data = $this->where([
+        $response = $this->where([
             'id_questionnaire' => $q_id,
-            'id_account'       => $account_id
+            'id_account' => $account_id,
+            'id_alumni' => $alumni_id
         ])->first();
 
-        return $data && $data['status'] === 'completed';
+        return $response && $response['status'] === 'completed';
     }
 
-    // Set status completed / draft tanpa overwrite updated_at manual
-    public function setQuestionnaireCompleted($q_id, $account_id, $completed = true)
+    public function setQuestionnaireCompleted($q_id, $account_id, $alumni_id, $completed = true)
     {
         $status = $completed ? 'completed' : 'draft';
-
-        return $this->where([
+        $this->where([
             'id_questionnaire' => $q_id,
-            'id_account'       => $account_id
-        ])->set('status', $status)
-          ->update(); // updated_at otomatis
+            'id_account' => $account_id,
+            'id_alumni' => $alumni_id
+        ])->set('status', $status)->update();
+    }
+
+    public function getAlumniAssessmentStatus($q_id, $account_id, $alumni_id)
+    {
+        $response = $this->where([
+            'id_questionnaire' => $q_id,
+            'id_account' => $account_id,
+            'id_alumni' => $alumni_id
+        ])->first();
+
+        if (!$response) {
+            return 'not_started';
+        } elseif ($response['status'] === 'completed') {
+            return 'completed';
+        } else {
+            return 'in_progress';
+        }
     }
 }

@@ -1,346 +1,393 @@
 <?php
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
-use App\Models\AnswerModel;
-use App\Models\KuesionerModel;
-use App\Models\DetailaccountAtasan;
+use App\Models\QuestionnairModel;
+use App\Models\ResponseAtasanModel;
+use App\Models\DetailaccountAlumni;
+use App\Models\Accounts;
 use App\Models\Jurusan;
 use App\Models\Prodi;
 use App\Models\Provincies;
 use App\Models\Cities;
-use App\Models\AccountModel;
-use App\Models\LogActivityModel;
-use App\Models\ResponseAtasanModel;
+use CodeIgniter\I18n\Time;
+use App\Models\DetailaccountAtasan;
+use Config\Database;
+use App\Models\AtasanHelperModel;
+use App\Models\AnswerModel;
+
 
 class AtasanKuesionerController extends BaseController
 {
     protected $questionnaireModel;
-    protected $answerModel;
-    protected $detailAccountModel;
-    protected $accountModel;
-    protected $logActivityModel;
+    protected $answerModel; // ResponseAtasanModel
+    protected $detailAccountAlumniModel;
+    protected $detailAtasan;
+    protected $account;
+    protected $Atasanhelper;
 
     public function __construct()
     {
-        $this->questionnaireModel = new KuesionerModel();
-        $this->answerModel        = new ResponseAtasanModel();
-        $this->detailAccountModel = new DetailaccountAtasan();
-        $this->accountModel = new AccountModel();
-        $this->logActivityModel = new LogActivityModel();
+        $this->questionnaireModel = new QuestionnairModel();
+        $this->answerModel = new ResponseAtasanModel();
+        $this->detailAccountAlumniModel = new DetailaccountAlumni();
+        $this->detailAtasan           = new DetailaccountAtasan();
+        $this->account  = new Accounts();
+        $this->Atasanhelper = new AtasanHelperModel();
+        $this->answerModel = new AnswerModel();
     }
 
     public function index()
     {
         if (!session()->get('logged_in')) {
-            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
+            return redirect()->to('/login');
         }
 
-        $userId = session()->get('id_account');
-        $userData = session()->get();
+        $atasanId = session()->get('id_account');
 
-        // Filter kuesioner: hanya tampilkan jika role_id == 8 ada di conditional logic
-        $questionnaires = $this->questionnaireModel->getAccessibleQuestionnaires($userData);
-        $filteredQuestionnaires = [];
+        $allQuestionnaires = $this->questionnaireModel
+            ->where('is_active', 'active')    // BENAR!
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
 
-        foreach ($questionnaires as $q) {
-            $conditional = $q['conditional_logic'] ?? '';
-            if (empty($conditional) || $conditional === '[]') {
+        $data = [];
+        $db = \Config\Database::connect();
+
+        foreach ($allQuestionnaires as $q) {
+            $json = $q['conditional_logic'] ?? '';
+
+            if (empty($json) || trim($json) === '' || $json === '[]') {
                 continue;
             }
 
-            // Cek apakah role_id == 8 ada di conditional logic
-            $conditions = is_string($conditional) ? json_decode($conditional, true) : $conditional;
-            $hasRole8 = false;
-            foreach ($conditions as $condition) {
-                if ($condition['field'] === 'role_id' && $condition['operator'] === 'is' && $condition['value'] === '8') {
-                    $hasRole8 = true;
+            $cond = json_decode($json, true);
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($cond)) {
+                continue;
+            }
+
+            // SUPPORT KEDUA FORMAT: dengan "conditions" atau langsung array
+            $conditions = [];
+            if (isset($cond['conditions']) && is_array($cond['conditions'])) {
+                $conditions = $cond['conditions'];
+            } elseif (is_array($cond) && count($cond) > 0 && isset($cond[0]['field'])) {
+                $conditions = $cond;  // ← INI UNTUK FORMAT ANDA!
+            }
+
+            $bolehTampil = false;
+            foreach ($conditions as $c) {
+                if (
+                    ($c['field'] ?? '') === 'role_id' &&
+                    ($c['operator'] ?? '') === 'is' &&
+                    ($c['value'] ?? '') == '8'
+                ) {
+                    $bolehTampil = true;
                     break;
                 }
             }
 
-            if ($hasRole8 && $this->questionnaireModel->checkConditions($conditional, $userData)) {
-                $filteredQuestionnaires[] = $q;
+            if (!$bolehTampil) {
+                continue;
             }
-        }
 
-        $data = [];
-        foreach ($filteredQuestionnaires as $q) {
-            if ($q['is_active'] !== 'active') continue;
+            // Progress
+            $totalAlumni = $db->table('atasan_alumni')
+                ->where('id_atasan', $atasanId)
+                ->countAllResults();
 
-            $internalStatus = $this->answerModel->getStatus($q['id'], $userId) ?: 'draft';
-            $statusPengisian = $this->mapStatusForView($internalStatus, $q['id'], $userId);
-            $progress = $this->calculateProgressForView($statusPengisian, $q['id'], $userId, $userData);
+            $completedCount = $db->table('responses_atasan')
+                ->where([
+                    'id_questionnaire' => $q['id'],
+                    'id_account'       => $atasanId,
+                    'status'           => 'completed'
+                ])
+                ->countAllResults();
+
+            $progress = $totalAlumni > 0 ? round(($completedCount / $totalAlumni) * 100) : 0;
 
             $data[] = [
-                'id' => $q['id'],
-                'judul' => $q['title'],
-                'statusIsi' => $statusPengisian,
-                'progress' => $progress,
-                'is_active' => $q['is_active'],
+                'id'              => $q['id'],
+                'judul'           => $q['title'],
+                'total_alumni'    => $totalAlumni,
+                'completed_count' => $completedCount,
+                'progress'        => $progress,
             ];
         }
 
         return view('atasan/kuesioner/index', ['data' => $data]);
     }
 
-    public function mulai($q_id)
+    public function daftarAlumni($q_id)
     {
-        if (!session()->get('logged_in')) {
-            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
-        }
+        $answerModel = new \App\Models\AnswerModel();
+        $atasanId = session()->get('id_account');
 
-        $userId = session()->get('id_account');
-        $userData = session()->get();
-
-        // Validasi kuesioner
         $questionnaire = $this->questionnaireModel->find($q_id);
         if (!$questionnaire || $questionnaire['is_active'] !== 'active') {
-            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak ditemukan atau tidak aktif');
+            return redirect()->to('atasan/kuesioner');
         }
 
-        // Validasi akses: pastikan role_id == 8 ada di conditional
-        $conditional = $questionnaire['conditional_logic'] ?? '';
-        if (empty($conditional) || $conditional === '[]') {
-            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk atasan');
+        $detailAtasan = $this->detailAtasan->getDetailAtasanId($atasanId);
+
+        if (!$detailAtasan) {
+            $alumni = [];
+        } else {
+            $alumni = $this->detailAtasan->getAlumniBinaan($detailAtasan['id']);
         }
 
-        $conditions = is_string($conditional) ? json_decode($conditional, true) : $conditional;
-        $hasRole8 = false;
-        foreach ($conditions as $condition) {
-            if ($condition['field'] === 'role_id' && $condition['operator'] === 'is' && $condition['value'] === '8') {
-                $hasRole8 = true;
-                break;
-            }
-        }
-
-        if (!$hasRole8 || !$this->questionnaireModel->checkConditions($conditional, $userData)) {
-            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk Anda');
-        }
-
-        // Cek status kuesioner
-        $status = $this->answerModel->getStatus($q_id, $userId);
-        if ($status === 'completed') {
-            if (!empty($questionnaire['announcement'])) {
-                $announcement = $this->sanitizeAnnouncementContent($questionnaire['announcement']);
-                return view('atasan/kuesioner/announcement', ['announcement' => $announcement]);
-            }
-            return redirect()->to("atasan/kuesioner/lihat/$q_id");
-        }
-
-        // Ambil struktur kuesioner dan jawaban sebelumnya
-        $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $userData);
-        $previousAnswers = $this->answerModel->getAnswers($q_id, $userId);
-
-        // Cari halaman pertama yang memenuhi conditional logic
-        $currentPageId = $this->request->getGet('page');
-        if (!$currentPageId) {
-            foreach ($structure['pages'] as $page) {
-                if ($this->answerModel->evaluatePageConditions($page, $previousAnswers)) {
-                    $currentPageId = $page['id'];
-                    break;
-                }
-            }
-        }
-
-        if (!$currentPageId) {
-            log_message('error', "[AtasanKuesionerController] No valid page found for q_id: $q_id, user_id: $userId");
-            return redirect()->to('atasan/kuesioner')->with('error', 'Tidak ada halaman yang memenuhi kondisi.');
-        }
-
-        // Validasi halaman saat ini
-        $currentPage = null;
-        foreach ($structure['pages'] as $page) {
-            if ($page['id'] == $currentPageId && $this->answerModel->evaluatePageConditions($page, $previousAnswers)) {
-                $currentPage = $page;
-                break;
-            }
-        }
-
-        if (!$currentPage) {
-            $nextPageId = $this->answerModel->getNextPage($currentPageId, $q_id, $userId);
-            if ($nextPageId) {
-                return redirect()->to("atasan/kuesioner/mulai/$q_id?page=$nextPageId");
-            }
-            return redirect()->to('atasan/kuesioner')->with('error', 'Halaman tidak valid atau tidak memenuhi kondisi.');
-        }
-
-        $progress = $this->answerModel->calculateProgress($q_id, $userId, $structure);
-
-        return view('atasan/kuesioner/fill', [
-            'q_id' => $q_id,
-            'structure' => $structure,
-            'previous_answers' => $previousAnswers,
-            'progress' => $progress,
-            'announcement' => $questionnaire['announcement'] ? $this->sanitizeAnnouncementContent($questionnaire['announcement']) : null,
-            'current_page_id' => $currentPageId // Kirim current_page_id ke view untuk navigasi
+        return view('atasan/kuesioner/daftar_alumni', [
+            'q_id'          => $q_id,
+            'alumni'        => $alumni,
+            'questionnaire' => $questionnaire,
+            'pesan_kosong'  => empty($alumni) ? 'Belum ada alumni binaan.' : null
         ]);
     }
-
-    public function lanjutkan($q_id)
-    {
-        return $this->mulai($q_id); // Re-use mulai() logic
-    }
-
-    public function save($q_id)
+    public function mulai($q_id, $id_alumni_detail)
     {
         if (!session()->get('logged_in')) {
-            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
+            return redirect()->to('/login');
         }
 
-        $userId = session()->get('id_account');
-        $userData = session()->get();
+        $atasanAccountId = session()->get('id_account');
+        $atasanData      = session()->get();
 
-        // Validasi kuesioner
+        // 1. Cek relasi PAKAI MODEL (TANPA $db)
+        $relation = $this->Atasanhelper->cekRelasi($atasanAccountId, $id_alumni_detail);
+
+        if (!$relation) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menilai alumni ini.');
+        }
+
+        // 2. Ambil detail alumni PAKAI MODEL
+        $alumniDetail = $this->Atasanhelper->getAlumniDetail($id_alumni_detail);
+        if (!$alumniDetail) {
+            return redirect()->back()->with('error', 'Data alumni tidak ditemukan.');
+        }
+
+        $alumniAccountId = $alumniDetail['id_account'];
+
+        // 3. Ambil profil lengkap alumni
+        $alumniProfile = $alumniDetail;
+        $alumniProfileDisplay = $alumniDetail;
+
+        // Tambahkan email
+        $alumniAccount = $this->account->find($alumniAccountId);
+        if ($alumniAccount) {
+            $alumniProfile['email'] = $alumniAccount['email'];
+            $alumniProfileDisplay['email'] = $alumniAccount['email'];
+        }
+
+        // 4. Display name untuk FK
+        $jurusanModel = new \App\Models\Jurusan();
+        $prodiModel   = new \App\Models\Prodi();
+        $provinsiModel = new \App\Models\Provincies();
+        $citiesModel   = new \App\Models\Cities();
+
+        if (!empty($alumniProfile['id_jurusan'])) {
+            $j = $jurusanModel->find($alumniProfile['id_jurusan']);
+            $alumniProfileDisplay['id_jurusan_name'] = $j['nama_jurusan'] ?? '-';
+        }
+        if (!empty($alumniProfile['id_prodi'])) {
+            $p = $prodiModel->find($alumniProfile['id_prodi']);
+            $alumniProfileDisplay['id_prodi_name'] = $p['nama_prodi'] ?? '-';
+        }
+        if (!empty($alumniProfile['id_provinsi'])) {
+            $prov = $provinsiModel->find($alumniProfile['id_provinsi']);
+            $alumniProfileDisplay['id_provinsi_name'] = $prov['name'] ?? '-';
+        }
+        if (!empty($alumniProfile['id_cities'])) {
+            $city = $citiesModel->find($alumniProfile['id_cities']);
+            $alumniProfileDisplay['id_cities_name'] = $city['name'] ?? '-';
+        }
+
+        // 5. Options & mapping
+        $jurusanOptions = $jurusanModel->findAll();
+        $prodiOptions   = $prodiModel->findAll();
+        $provinsiOptions = $provinsiModel->findAll();
+        $citiesOptions   = $citiesModel->findAll();
+
+        $fieldFriendlyNames = [
+            'nama_lengkap' => 'Nama Lengkap', 'nim' => 'NIM', 'id_jurusan' => 'Jurusan',
+            'id_prodi' => 'Program Studi', 'angkatan' => 'Angkatan', 'tahun_kelulusan' => 'Tahun Kelulusan',
+            'ipk' => 'IPK', 'alamat' => 'Alamat', 'jenisKelamin' => 'Jenis Kelamin',
+            'notlp' => 'No. Telepon', 'id_provinsi' => 'Provinsi', 'id_cities' => 'Kota',
+            'email' => 'Email',
+        ];
+
+        $fieldTypes = [
+            'nama_lengkap' => 'text', 'nim' => 'number', 'angkatan' => 'number',
+            'tahun_kelulusan' => 'number', 'ipk' => 'decimal', 'notlp' => 'text',
+            'email' => 'email', 'id_jurusan' => 'foreign_key:jurusan',
+            'id_prodi' => 'foreign_key:prodi', 'id_provinsi' => 'foreign_key:provincies',
+            'id_cities' => 'foreign_key:cities',
+        ];
+
+        // 6. Kuesioner & jawaban
         $questionnaire = $this->questionnaireModel->find($q_id);
         if (!$questionnaire || $questionnaire['is_active'] !== 'active') {
-            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak ditemukan atau tidak aktif');
+            return redirect()->back()->with('error', 'Kuesioner tidak aktif.');
         }
 
-        // Validasi akses
-        $conditional = $questionnaire['conditional_logic'] ?? '';
-        if (empty($conditional) || $conditional === '[]') {
-            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk atasan');
+       $previousAnswers = $this->answerModel->getAnswers($q_id, $atasanAccountId, $alumniAccountId);
+        $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $alumniDetail, $previousAnswers, 'atasan');
+        $progress = $this->answerModel->calculateProgress($q_id, $atasanAccountId, $structure);
+      
+
+        session()->set('current_q_id', $q_id);
+        session()->set('current_alumni_detail_id', $id_alumni_detail);
+
+    //   // HITUNG HALAMAN TERAKHIR YANG ADA JAWABANNYA
+    //     $lastAnsweredPage = 0; // default halaman pertama (index 0)
+
+    //     if (!empty($oldAnswers)) {
+    //         foreach ($structure['pages'] as $pageIndex => $page) {
+    //             $pageHasAnswer = false;
+
+    //             foreach ($page['sections'] as $section) {
+    //                 foreach ($section['questions'] as $question) {
+    //                     $qid = $question['id'];
+    //                     if (isset($oldAnswers[$qid]) && $oldAnswers[$qid] !== '' && $oldAnswers[$qid] !== null) {
+    //                         $pageHasAnswer = true;
+    //                         break 3;
+    //                     }
+    //                 }
+    //             }
+
+    //             if ($pageHasAnswer) {
+    //                 $lastAnsweredPage = $pageIndex; // simpan index halaman yang punya jawaban
+    //             } else {
+    //                 break; // halaman berikutnya belum diisi
+    //             }
+    //         }
+    //     }
+        return view('atasan/kuesioner/fill', [
+            'q_id'                  => $q_id,
+            'id_alumni_detail'      => $id_alumni_detail,
+            'id_alumni_account'     => $alumniAccountId,
+            'structure'             => $structure,
+            'previous_answers'      => $previousAnswers,
+            'progress'              => $progress,
+            'alumni_profile'        => $alumniProfile,
+            'alumni_profile_display'=> $alumniProfileDisplay,
+            'field_friendly_names'  => $fieldFriendlyNames,
+            'field_types'           => $fieldTypes,
+            'jurusan_options'       => $jurusanOptions,
+            'detail_alumni'         => $alumniDetail,
+            'prodi_options'         => $prodiOptions,
+            'provinsi_options'      => $provinsiOptions,
+            'cities_options'        => $citiesOptions,
+            // 'oldAnswers'         => $oldAnswers,
+            // 'lastAnsweredPage'   => $lastAnsweredPage + 1,
+            'questionnaire_title'   => $questionnaire['title'] ?? 'Penilaian Atasan',
+
+            'isRequired'   => false,
+            'isReadonly'   => false,
+            'isAtasanMode' => true,
+        ]);
+    }
+    public function saveAnswer()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/login');
         }
 
-        $conditions = is_string($conditional) ? json_decode($conditional, true) : $conditional;
-        $hasRole8 = false;
-        foreach ($conditions as $condition) {
-            if ($condition['field'] === 'role_id' && $condition['operator'] === 'is' && $condition['value'] === '8') {
-                $hasRole8 = true;
-                break;
-            }
-        }
-
-        if (!$hasRole8 || !$this->questionnaireModel->checkConditions($conditional, $userData)) {
-            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk Anda');
-        }
-
-        // Handle file uploads
-        $files = $this->request->getFiles();
+        $q_id = $this->request->getPost('q_id');
+        $id_alumni_account = $this->request->getPost('id_alumni_account'); // tambahkan ini
         $answers = $this->request->getPost('answer') ?? [];
-        foreach ($files as $field => $file) {
-            if ($file->isValid() && !$file->hasMoved()) {
-                $newName = $file->getRandomName();
-                $file->move(FCPATH . 'Uploads/answers/', $newName);
-                $questionId = str_replace('files_', '', $field);
-                $answers[$questionId] = $newName;
+        $isLogicallyComplete = $this->request->getPost('is_logically_complete') === '1';
+        $atasanId = session()->get('id');
+        
+        if (empty($q_id) || empty($id_alumni_account)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Data alumni atau kuesioner tidak valid'
+                ]);
             }
-        }
+        $saveSuccess = false;
 
         // Simpan jawaban
-        $this->answerModel->saveAnswers($q_id, $userId, $answers);
+        foreach ($answers as $question_id => $answer) {
+            if ($answer === '' || $answer === null) continue;
 
-        // Log penyimpanan
-        log_message('debug', "[AtasanKuesionerController] Saved answers for q_id: $q_id, user_id: $userId, answers: " . json_encode($answers));
+            $value = is_array($answer) ? json_encode($answer) : $answer;
+            $this->answerModel->saveAnswer(
+                        $atasanId,
+                        $q_id,
+                        $question_id,
+                        $value,
+                        $id_alumni_account  
+                    );
+                $saveSuccess = true;
+        }
 
-        // Cek apakah kuesioner selesai
-        $currentPageId = $this->request->getPost('logical_end_page');
-        if ($this->request->getPost('is_logically_complete') === '1') {
-            if ($this->answerModel->setQuestionnaireCompleted($q_id, $userId, true)) {
-                if (!empty($questionnaire['announcement'])) {
-                    return redirect()->to("atasan/kuesioner/lihat/$q_id")->with('announcement', $questionnaire['announcement']);
-                }
-                return redirect()->to("atasan/kuesioner/lihat/$q_id")->with('success', 'Kuesioner selesai');
+                // Jika ini submit akhir
+           if ($saveSuccess && $isLogicallyComplete) {
+                // UPDATE STATUS DI responses_atasan JADI completed
+                $responseAtasanModel = new \App\Models\ResponseAtasanModel();
+                $responseAtasanModel->where([
+                    'id_questionnaire' => $q_id,
+                    'id_account'       => $atasanId,
+                    'id_alumni'        => $id_alumni_account
+                ])->set(['status' => 'completed'])->update();
+
+                // Juga update semua jawaban di tabel answers jadi completed
+                $this->answerModel->where([
+                    'questionnaire_id' => $q_id,
+                    'user_id'          => $atasanId,
+                    'alumni_id'       => $id_alumni_account
+                ])->set(['STATUS' => 'completed'])->update();
+
+                return $this->response->setJSON([
+                    'success' => true,
+                    'completed' => true,
+                    'message' => 'Penilaian berhasil diselesaikan!',
+                    'redirect' => base_url("atasan/kuesioner/daftar-alumni/{$q_id}")
+                ]);
             }
-            return redirect()->to("atasan/kuesioner/mulai/$q_id?page=$currentPageId")->with('error', 'Validasi kuesioner gagal.');
-        }
 
-        // Cari halaman berikutnya
-        $nextPageId = $this->answerModel->getNextPage($currentPageId, $q_id, $userId);
-        if ($nextPageId) {
-            log_message('debug', "[AtasanKuesionerController] Redirecting to next page: $nextPageId for q_id: $q_id");
-            return redirect()->to("atasan/kuesioner/mulai/$q_id?page=$nextPageId")->with('success', 'Jawaban disimpan');
-        }
-
-        // Jika tidak ada halaman berikutnya, anggap selesai
-        if ($this->answerModel->isCompleted($q_id, $userId)) {
-            if ($this->answerModel->setQuestionnaireCompleted($q_id, $userId, true)) {
-                if (!empty($questionnaire['announcement'])) {
-                    return redirect()->to("atasan/kuesioner/lihat/$q_id")->with('announcement', $questionnaire['announcement']);
-                }
-                return redirect()->to("atasan/kuesioner/lihat/$q_id")->with('success', 'Kuesioner selesai');
-            }
-        }
-
-        return redirect()->to("atasan/kuesioner/mulai/$q_id?page=$currentPageId")->with('success', 'Jawaban disimpan');
+            return $this->response->setJSON([
+                'success' => true,
+                'completed' => false,
+                'message' => 'Draft tersimpan otomatis'
+            ]);
     }
 
     public function lihat($q_id)
     {
-        if (!session()->get('logged_in')) {
-            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu');
-        }
-
         $userId = session()->get('id_account');
+        $alumniId = $this->request->getGet('id_alumni');
+
+        // Validate relation
+        $db = \Config\Database::connect();
+        $relation = $db->table('atasan_alumni')->where([
+            'id_atasan' => $userId,
+            'id_alumni' => $alumniId
+        ])->get()->getRow();
+        if (!$relation) {
+            return redirect()->back()->with('error', 'Invalid alumni access');
+        }
+
+        // Fetch alumni profile & display
+        $alumniProfile = $this->detailAccountAlumniModel->where('id_account', $alumniId)->first() ?? [];
+        $alumniProfileDisplay = []; // Same as in mulai()...
+
+        // Merge for structure
         $userData = session()->get();
+        $mergedUserData = array_merge($userData, $alumniProfile);
 
-        // Validasi kuesioner
-        $questionnaire = $this->questionnaireModel->find($q_id);
-        if (!$questionnaire || $questionnaire['is_active'] !== 'active') {
-            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak ditemukan atau tidak aktif');
-        }
+        $previousAnswers = $this->answerModel->getAnswers($q_id, $userId, $alumniId);
+        $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $mergedUserData, $previousAnswers, 'atasan');
 
-        // Validasi akses
-        $conditional = $questionnaire['conditional_logic'] ?? '';
-        if (empty($conditional) || $conditional === '[]') {
-            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk atasan');
-        }
-
-        $conditions = is_string($conditional) ? json_decode($conditional, true) : $conditional;
-        $hasRole8 = false;
-        foreach ($conditions as $condition) {
-            if ($condition['field'] === 'role_id' && $condition['operator'] === 'is' && $condition['value'] === '8') {
-                $hasRole8 = true;
-                break;
-            }
-        }
-
-        if (!$hasRole8 || !$this->questionnaireModel->checkConditions($conditional, $userData)) {
-            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner tidak diperuntukkan untuk Anda');
-        }
-
-        // Cek status kuesioner
-        $status = $this->answerModel->getStatus($q_id, $userId);
-        if ($status !== 'completed') {
-            return redirect()->to('atasan/kuesioner')->with('error', 'Kuesioner belum selesai');
-        }
-
-        // Ambil data untuk review
-        $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $userData);
-        $answers = $this->answerModel->getAnswers($q_id, $userId);
-        $progress = $this->answerModel->calculateProgress($q_id, $userId, $structure);
-
-        $announcement = session()->getFlashdata('announcement') ? $this->sanitizeAnnouncementContent(session()->getFlashdata('announcement')) : null;
+        // Field friendly names & types (same as mulai)
 
         return view('atasan/kuesioner/review', [
-            'q_id' => $q_id,
             'structure' => $structure,
-            'answers' => $answers,
-            'progress' => $progress,
-            'announcement' => $announcement
+            'previous_answers' => $previousAnswers,
+            'user_profile' => $alumniProfile,
+            'user_profile_display' => $alumniProfileDisplay,
+            // Add field_friendly_names, etc.
         ]);
     }
-
-       private function mapStatusForView($internalStatus, $questionnaireId, $userId)
+    public function lanjutkan($q_id,$id_alumni_detail)
     {
-        if ($internalStatus === 'completed') return 'Finish';
-
-        $progress = $this->answerModel->calculateProgress($questionnaireId, $userId, []);
-        return $progress > 0 ? 'On Going' : 'Belum Mengisi';
-    }
-
-    private function calculateProgressForView($viewStatus, $questionnaireId, $userId, $userData)
-    {
-        if ($viewStatus === 'Finish') {
-            return 100;
-        }
-        $structure = $this->questionnaireModel->getQuestionnaireStructure($questionnaireId, $userData);
-        return $this->answerModel->calculateProgress($questionnaireId, $userId, $structure);
-    }
-
-    private function sanitizeAnnouncementContent($content)
-    {
-        return esc($content, 'html');
+        return $this->mulai($q_id,$id_alumni_detail);
     }
 }
