@@ -41,4 +41,10 @@ class AtasanHelperModel extends Model
             ->get()
             ->getRowArray();
     }
+    public function countAlumniByAtasan($atasanId)
+    {
+        return $this->db->table('atasan_alumni')
+            ->where('id_atasan', $atasanId)
+            ->countAllResults();
+    }
 }

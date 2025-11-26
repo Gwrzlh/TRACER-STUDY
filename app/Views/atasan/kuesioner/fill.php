@@ -692,7 +692,7 @@ $progress               ??= 0;
                                                 <svg width="16" height="16" fill="currentColor" style="margin-right: 5px; vertical-align: middle;">
                                                     <path d="M13 3L5 11 2 8" stroke="currentColor" stroke-width="2" fill="none"/>
                                                 </svg>
-                                                Simpan & Selesaikan
+                                                Selesaikan penilaian 
                                             </button>
                                     <?php endif; ?>
                                 </div>
@@ -1206,21 +1206,16 @@ $progress               ??= 0;
                     processData: false,
                     contentType: false,
                     success: function(res) {
-                        // PASTIKAN INI: res.success && res.completed
                         if (res.success && res.completed === true) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'SELESAI!',
-                                text: res.message || 'Penilaian berhasil diselesaikan!',
-                                timer: 2000,
-                                showConfirmButton: false
-                            }).then(() => {
-                                // LANGSUNG REDIRECT — NO DEBUG, NO ANNOUNCEMENT, NO DELAY
-                                window.location.href = res.redirect || "<?= base_url('atasan/kuesioner') ?>";
-                            });
+                            if (res.announcement) {
+                                // Ganti seluruh halaman dengan announcement
+                                $('body').html(res.announcement);
+                            } else if (res.redirect) {
+                                // Kalau gak ada announcement → pake redirect lama
+                                window.location.href = res.redirect;
+                            }
                         } else {
-                            // Kalau gagal completed → tetap kasih info (bukan debug mentah)
-                            Swal.fire('Info', res.message || 'Draft tersimpan, tapi belum selesai.', 'info');
+                            Swal.fire('Info', res.message || 'Draft tersimpan', 'info');
                         }
                     },
                     error: function() {
@@ -1264,50 +1259,43 @@ $progress               ??= 0;
                 }
             });
         });
-      $(document).ready(function() {
-                console.log('[LANJUTKAN] Mencari halaman yang BELUM diisi...');
+        $(document).ready(function() {
+            const path = window.location.pathname;
+            const isLanjutkan = path.includes('/lanjutkan/');
 
-                steps.removeClass('active').hide();
+            steps.removeClass('active').hide();
 
-                let targetStep = 0;
+            let targetStep = 0;
 
-                // CARI HALAMAN PERTAMA YANG BELUM PUNYA JAWABAN (ATAU YANG VISIBLE TAPI KOSONG)
-                for (let i = 0; i < steps.length; i++) {
-                    if (showStep(i)) { // halaman ini visible berdasarkan conditional
-                        // Cek apakah ada 1 input pun yang sudah diisi di halaman ini
-                        const hasAnswer = $(steps[i]).find('input[name^="answer["], select[name^="answer["], textarea[name^="answer["]')
-                            .toArray()
-                            .some(el => {
-                                const val = $(el).val();
-                                return val && val !== '' && val !== '[]' && val !== null;
-                            });
+            if (isLanjutkan) {
+                // Cari halaman terakhir yang ADA jawaban (bukan user_field)
+                let highest = -1;
+                steps.each(function(index) {
+                    const hasRealAnswer = $(this).find('input[name^="answer["], select[name^="answer["], textarea[name^="answer["]').filter(function() {
+                        const val = $(this).val();
+                        const name = $(this).attr('name');
+                        // Abaikan user_field (karena otomatis terisi)
+                        if (name && name.includes('[user_field_')) return false;
+                        return val && val !== '' && val !== '[]' && val !== null;
+                    }).length > 0;
 
-                        if (!hasAnswer) {
-                            targetStep = i;
-                            console.log('[LANJUTKAN] Halaman pertama yang BELUM diisi: index ' + i);
-                            break;
-                        }
+                    if (hasRealAnswer) {
+                        highest = index;
                     }
-                }
+                });
+                if (highest >= 0) targetStep = highest;
+            }
+            // Kalau bukan lanjutkan → mulai dari 0 (halaman 1)
 
-                // Kalau semua halaman sudah diisi → buka halaman terakhir
-                if (targetStep === 0 && steps.length > 0) {
-                    let lastVisible = 0;
-                    for (let i = 0; i < steps.length; i++) {
-                        if (showStep(i)) lastVisible = i;
-                    }
-                    targetStep = lastVisible;
-                }
-
-                currentStep = targetStep;
-                showStep(currentStep);
-
-                // Trigger semua jawaban lama supaya conditional jalan
-                $('input[name^="answer["], select[name^="answer["], textarea[name^="answer["]').trigger('change');
-
-                updateNavigationButtons();
-                updateProgressBar();
-            });
+            currentStep = targetStep;
+            showStep(currentStep);
+            
+            // Trigger change supaya conditional logic jalan
+            $('input[name^="answer["], select[name^="answer["], textarea[name^="answer["]').trigger('change');
+            
+            updateNavigationButtons();
+            updateProgressBar();
+        });
             function updateScaleValue(qId) {
                 const slider = document.getElementById('scale-' + qId);
                 const badge = document.getElementById('scale-value-' + qId);

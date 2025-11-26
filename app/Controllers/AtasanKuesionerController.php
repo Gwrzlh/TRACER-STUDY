@@ -41,8 +41,21 @@ class AtasanKuesionerController extends BaseController
         if (!session()->get('logged_in')) {
             return redirect()->to('/login');
         }
+        $db = \Config\Database::connect();
 
         $atasanId = session()->get('id_account');
+
+        $atasanDetail = $db->table('detailaccount_atasan')
+        ->where('id_account', $atasanId)
+        ->get()
+        ->getRowArray();
+
+        if (!$atasanDetail) {
+            // Kalau gak ada detail atasan → total = 0
+            $atasanDetailId = 0;
+        } else {
+            $atasanDetailId = $atasanDetail['id']; // ini yang dipake di tabel atasan_alumni
+        }
 
         $allQuestionnaires = $this->questionnaireModel
             ->where('is_active', 'active')    // BENAR!
@@ -50,7 +63,6 @@ class AtasanKuesionerController extends BaseController
             ->findAll();
 
         $data = [];
-        $db = \Config\Database::connect();
 
         foreach ($allQuestionnaires as $q) {
             $json = $q['conditional_logic'] ?? '';
@@ -89,8 +101,9 @@ class AtasanKuesionerController extends BaseController
             }
 
             // Progress
+            // FINAL & TERBAIK — GUNAKAN MODEL (BIAR CONSISTENT + CEPET)
             $totalAlumni = $db->table('atasan_alumni')
-                ->where('id_atasan', $atasanId)
+                ->where('id_atasan', $atasanDetailId)
                 ->countAllResults();
 
             $completedCount = $db->table('responses_atasan')
@@ -289,101 +302,154 @@ class AtasanKuesionerController extends BaseController
             return redirect()->to('/login');
         }
 
-        $q_id = $this->request->getPost('q_id');
-        $id_alumni_account = $this->request->getPost('id_alumni_account'); // tambahkan ini
-        $answers = $this->request->getPost('answer') ?? [];
+        $q_id               = $this->request->getPost('q_id');
+        $id_alumni_account  = $this->request->getPost('id_alumni_account');
+        $answers            = $this->request->getPost('answer') ?? [];
         $isLogicallyComplete = $this->request->getPost('is_logically_complete') === '1';
-        $atasanId = session()->get('id');
-        
+        $atasanId           = session()->get('id');
+
         if (empty($q_id) || empty($id_alumni_account)) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Data alumni atau kuesioner tidak valid'
-                ]);
-            }
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Data alumni atau kuesioner tidak valid'
+            ]);
+        }
+
         $saveSuccess = false;
 
-        // Simpan jawaban
+        // Simpan jawaban — 100% SAMA PERSIS kayak yang lama
         foreach ($answers as $question_id => $answer) {
             if ($answer === '' || $answer === null) continue;
 
             $value = is_array($answer) ? json_encode($answer) : $answer;
             $this->answerModel->saveAnswer(
-                        $atasanId,
-                        $q_id,
-                        $question_id,
-                        $value,
-                        $id_alumni_account  
-                    );
-                $saveSuccess = true;
+                $atasanId,
+                $q_id,
+                $question_id,
+                $value,
+                $id_alumni_account
+            );
+            $saveSuccess = true;
         }
 
-                // Jika ini submit akhir
-           if ($saveSuccess && $isLogicallyComplete) {
-                // UPDATE STATUS DI responses_atasan JADI completed
-                $responseAtasanModel = new \App\Models\ResponseAtasanModel();
-                $responseAtasanModel->where([
-                    'id_questionnaire' => $q_id,
-                    'id_account'       => $atasanId,
-                    'id_alumni'        => $id_alumni_account
-                ])->set(['status' => 'completed'])->update();
+        // KALAU INI SUBMIT AKHIR → kita kasih 2 pilihan: announcement atau redirect biasa
+        if ($saveSuccess && $isLogicallyComplete) {
+            // Update status jadi completed — 100% SAMA kayak yang lama
+            $responseAtasanModel = new \App\Models\ResponseAtasanModel();
+            $responseAtasanModel->where([
+                'id_questionnaire' => $q_id,
+                'id_account'       => $atasanId,
+                'id_alumni'        => $id_alumni_account
+            ])->set(['status' => 'completed'])->update();
 
-                // Juga update semua jawaban di tabel answers jadi completed
-                $this->answerModel->where([
-                    'questionnaire_id' => $q_id,
-                    'user_id'          => $atasanId,
-                    'alumni_id'       => $id_alumni_account
-                ])->set(['STATUS' => 'completed'])->update();
+            $this->answerModel->where([
+                'questionnaire_id' => $q_id,
+                'user_id'          => $atasanId,
+                'alumni_id'       => $id_alumni_account
+            ])->set(['STATUS' => 'completed'])->update();
+
+            // BARU DITAMBAH: Cek apakah ada announcement di database
+            $questionnaire = $this->questionnaireModel->find($q_id);
+            $announcementContent = $questionnaire['announcement'] ?? null;
+
+            // KALAU ADA ANNOUNCEMENT → kirim HTML announcement
+            if (!empty(trim($announcementContent))) {
+                $announcementHtml = view('atasan/kuesioner/announcement', [
+                    'questionnaire_title'   => $questionnaire['title'] ?? 'Kuesioner Atasan',
+                    'announcement_content' => $announcementContent,
+                    'q_id'                 => $q_id
+                ]);
 
                 return $this->response->setJSON([
-                    'success' => true,
-                    'completed' => true,
-                    'message' => 'Penilaian berhasil diselesaikan!',
-                    'redirect' => base_url("atasan/kuesioner/daftar-alumni/{$q_id}")
+                    'success'      => true,
+                    'completed'    => true,
+                    'announcement' => $announcementHtml   // hanya muncul kalau ada announcement
                 ]);
             }
 
+            // KALAU GAK ADA ANNOUNCEMENT → tetep pake redirect lama kamu (AMAN!)
             return $this->response->setJSON([
-                'success' => true,
-                'completed' => false,
-                'message' => 'Draft tersimpan otomatis'
+                'success'   => true,
+                'completed' => true,
+                'message'   => 'Penilaian berhasil diselesaikan!',
+                'redirect'  => base_url("atasan/kuesioner/daftar-alumni/{$q_id}")
             ]);
-    }
-
-    public function lihat($q_id)
-    {
-        $userId = session()->get('id_account');
-        $alumniId = $this->request->getGet('id_alumni');
-
-        // Validate relation
-        $db = \Config\Database::connect();
-        $relation = $db->table('atasan_alumni')->where([
-            'id_atasan' => $userId,
-            'id_alumni' => $alumniId
-        ])->get()->getRow();
-        if (!$relation) {
-            return redirect()->back()->with('error', 'Invalid alumni access');
         }
 
-        // Fetch alumni profile & display
-        $alumniProfile = $this->detailAccountAlumniModel->where('id_account', $alumniId)->first() ?? [];
-        $alumniProfileDisplay = []; // Same as in mulai()...
+        // Draft biasa — 100% SAMA kayak yang lama
+        return $this->response->setJSON([
+            'success'   => true,
+            'completed' => false,
+            'message'   => 'Draft tersimpan otomatis'
+        ]);
+    }
 
-        // Merge for structure
-        $userData = session()->get();
-        $mergedUserData = array_merge($userData, $alumniProfile);
+   public function lihat($q_id, $id_alumni_detail = null)
+    {
+        $atasanId = session()->get('id_account'); // atau 'id' kalau kamu pake itu
 
-        $previousAnswers = $this->answerModel->getAnswers($q_id, $userId, $alumniId);
-        $structure = $this->questionnaireModel->getQuestionnaireStructure($q_id, $mergedUserData, $previousAnswers, 'atasan');
+        // Ambil alumni ID dari segment atau query string
+        $alumniId = $id_alumni_detail ?? $this->request->getGet('id_alumni') ?? $this->request->getGet('id');
 
-        // Field friendly names & types (same as mulai)
+        if (!$atasanId || !$alumniId || !$q_id) {
+            return redirect()->back()->with('error', 'Akses tidak valid');
+        }
+
+        // Validasi relasi
+        $relation = $this->Atasanhelper->cekRelasi($atasanId, $alumniId);
+        if (!$relation) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses ke alumni ini');
+        }
+
+        // Ambil detail alumni (sama kayak di mulai())
+        $alumniDetail = $this->Atasanhelper->getAlumniDetail($alumniId);
+        if (!$alumniDetail) {
+            return redirect()->back()->with('error', 'Data alumni tidak ditemukan');
+        }
+
+        $alumniAccountId = $alumniDetail['id_account'];
+
+        // Ambil jawaban
+        $previousAnswers = $this->answerModel->getAnswers($q_id, $atasanId, $alumniAccountId);
+
+        // Bangun struktur
+        $structure = $this->questionnaireModel->getQuestionnaireStructure(
+            $q_id,
+            $alumniDetail,
+            $previousAnswers,
+            'atasan'
+        );
+
+        // INI YANG PENTING: PAKE CARA YANG SAMA KAYAK DI mulai() — JANGAN DARI MODEL LANGSUNG
+        $fieldFriendlyNames = [
+            'nama_lengkap' => 'Nama Lengkap', 'nim' => 'NIM', 'id_jurusan' => 'Jurusan',
+            'id_prodi' => 'Program Studi', 'angkatan' => 'Angkatan', 'tahun_kelulusan' => 'Tahun Kelulusan',
+            'ipk' => 'IPK', 'alamat' => 'Alamat', 'jenisKelamin' => 'Jenis Kelamin',
+            'notlp' => 'No. Telepon', 'id_provinsi' => 'Provinsi', 'id_cities' => 'Kota',
+            'email' => 'Email',
+        ];
+
+        $fieldTypes = [
+            'nama_lengkap' => 'text', 'nim' => 'number', 'angkatan' => 'number',
+            'tahun_kelulusan' => 'number', 'ipk' => 'decimal', 'notlp' => 'text',
+            'email' => 'email', 'id_jurusan' => 'foreign_key:jurusan',
+            'id_prodi' => 'foreign_key:prodi', 'id_provinsi' => 'foreign_key:provincies',
+            'id_cities' => 'foreign_key:cities',
+        ];
+
+        $questionnaire = $this->questionnaireModel->find($q_id);
 
         return view('atasan/kuesioner/review', [
-            'structure' => $structure,
-            'previous_answers' => $previousAnswers,
-            'user_profile' => $alumniProfile,
-            'user_profile_display' => $alumniProfileDisplay,
-            // Add field_friendly_names, etc.
+            'structure'               => $structure,
+            'previous_answers'        => $previousAnswers,
+            'alumni_profile'          => $alumniDetail,
+            'alumni_profile_display'  => $alumniDetail,
+            'field_friendly_names'    => $fieldFriendlyNames,
+            'field_types'             => $fieldTypes,
+            'q_id'                    => $q_id,
+            'id_alumni_account'       => $alumniAccountId,
+            'id_alumni_detail'        => $alumniId,
+            'questionnaire_title'     => $questionnaire['title'] ?? 'Penilaian Atasan'
         ]);
     }
     public function lanjutkan($q_id,$id_alumni_detail)
