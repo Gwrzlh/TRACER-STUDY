@@ -66,7 +66,7 @@ $q_id = $q_id;
 
                                     if ($isCompleted) {
                                         $badge = '<span class="badge bg-success">Selesai</span>';
-                                        $button = '<a href="' . base_url("atasan/kuesioner/isi/{$q_id}/{$a['id']}") . '" class="btn btn-sm btn-success">Lihat</a>';
+                                        $button = '<a href="' . base_url("atasan/kuesioner/lihat/{$q_id}/{$a['id']}") . '" class="btn btn-sm btn-success">Lihat</a>';
                                     } elseif ($hasAnswer) {
                                         $badge = '<span class="badge bg-warning text-dark">Sedang Diisi</span>';
                                         $button = '<a href="' . base_url("atasan/kuesioner/lanjutkan/{$q_id}/{$a['id']}") . '" class="btn btn-sm btn-warning">Lanjutkan</a>';
