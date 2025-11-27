@@ -261,11 +261,6 @@
 <?php endif; ?>
 
 
-            <?php if (session()->getFlashdata('error')) : ?>
-                <div style="margin-bottom: 15px; padding: 12px; background-color: #fee2e2; color: #991b1b; border-radius: 6px; font-size: 14px;">
-                    <?= session()->getFlashdata('error') ?>
-                </div>
-            <?php endif; ?>
 
 
             <form action="<?= base_url('do-login') ?>" method="post">
