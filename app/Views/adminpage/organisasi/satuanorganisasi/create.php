@@ -27,7 +27,8 @@
 
          <div class="mb-3">
     <label for="id_prodi" class="form-label required">Prodi</label>
-    <select name="id_prodi" id="id_prodi" class="form-control" required>
+   <select name="id_prodi[]" id="id_prodi" class="form-control" multiple size="6" required>
+
         <option value="">-- Pilih Prodi --</option>
     </select>
 </div>
@@ -101,7 +102,7 @@ $('#id_jurusan').change(function() {
     $('#id_prodi').empty().append('<option value="">-- Pilih Prodi --</option>');
 
     if (jurusanId) {
-        $.getJSON("<?= base_url('satuanorganisasi/getProdiByJurusan') ?>/" + jurusanId, function(data) {
+        $.getJSON("<?= base_url('satuanorganisasi/getProdi') ?>/"  + jurusanId, function(data) {
             if (data && data.length > 0) {
                 data.forEach(function(prodi) {
                     $('#id_prodi').append(
