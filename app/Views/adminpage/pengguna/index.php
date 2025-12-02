@@ -69,14 +69,30 @@
                         <i class="fas fa-bug"></i> Riwayat Error
                     </a>
 
-                    <a href="<?= base_url('admin/pengguna/tambahPengguna') ?>" class="btn btn-primary btn-add">
-                        <i class="fas fa-user-plus"></i> <?= get_setting('pengguna_button_text', 'Tambah Pengguna') ?>
-                    </a>
+                    <a href="<?= base_url('admin/pengguna/tambahPengguna') ?>" 
+   class="btn btn-add"
+   style="
+       background-color: <?= esc(get_setting('pengguna_button_color')) ?>;
+       color: <?= esc(get_setting('pengguna_button_text_color')) ?>;
+   "
+   onmouseover="this.style.backgroundColor='<?= esc(get_setting('pengguna_button_hover_color')) ?>'"
+   onmouseout="this.style.backgroundColor='<?= esc(get_setting('pengguna_button_color')) ?>'"
+>
+    <i class="fas fa-user-plus"></i> <?= get_setting('pengguna_button_text', 'Tambah Pengguna') ?>
+</a>
 
-                    <a href="<?= base_url('admin/pengguna/import') ?>" class="btn btn-success btn-import">
-                        <i class="fas fa-file-import"></i> <?= get_setting('import_button_text', 'Import Akun') ?>
-                    </a>
 
+                  <a href="<?= base_url('admin/pengguna/import') ?>"
+   class="btn btn-import"
+   style="
+       background-color: <?= esc(get_setting('import_button_color')) ?>;
+       color: <?= esc(get_setting('import_button_text_color')) ?>;
+   "
+   onmouseover="this.style.backgroundColor='<?= esc(get_setting('import_button_hover_color')) ?>'"
+   onmouseout="this.style.backgroundColor='<?= esc(get_setting('import_button_color')) ?>'"
+>
+    <i class="fas fa-file-import"></i> <?= get_setting('import_button_text', 'Import Akun') ?>
+</a>
                     <form id="exportForm" action="<?= base_url('admin/pengguna/exportSelected') ?>" method="post" class="d-inline">
                         <?= csrf_field() ?>
                         <button type="button" id="btnExportSelected" class="btn btn-outline-info btn-export">

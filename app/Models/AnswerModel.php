@@ -12,7 +12,7 @@ class AnswerModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['questionnaire_id', 'user_id', 'question_id', 'answer_text', 'created_at', 'STATUS'];
+    protected $allowedFields    = ['questionnaire_id', 'user_id', 'question_id','alumni_id', 'answer_text', 'created_at', 'STATUS'];
 
     protected bool $allowEmptyInserts = false;
 
@@ -71,7 +71,7 @@ class AnswerModel extends Model
         return $result;
     }
 
-    public function saveAnswer($user_id, $questionnaire_id, $question_id, $answer)
+    public function saveAnswer($user_id, $questionnaire_id, $question_id, $answer, $id_alumni_account = null)
     {
         $now = Time::now('Asia/Jakarta', 'id_ID')->toDateTimeString();
 
@@ -82,50 +82,95 @@ class AnswerModel extends Model
             'answer_text'      => is_array($answer) ? json_encode($answer) : $answer,
             'STATUS'           => 'draft',
             'created_at'       => $now,
+            'updated_at'       => $now,
         ];
 
-        log_message('debug', '[saveAnswer] Saving answer for question_id: ' . $question_id . ', user: ' . $user_id . ', answer: ' . json_encode($answer));
+        // Kalau atasan → tambah alumni_id
+        if ($id_alumni_account !== null) {
+            $data['alumni_id'] = $id_alumni_account;
+        }
 
-        $existing = $this->where([
+        log_message('debug', '[AnswerModel] saveAnswer | user_id: ' . $user_id . ' | q_id: ' . $questionnaire_id . ' | question_id: ' . $question_id . ' | alumni_id: ' . ($alumni_id ?? 'NULL'));
+
+        // Query pencarian yang sesuai
+        $builder = $this->where([
             'user_id'          => $user_id,
             'questionnaire_id' => $questionnaire_id,
-            'question_id'      => $question_id
-        ])->first();
+            'question_id'      => $question_id,
+        ]);
+
+        // Hanya tambah filter alumni_id jika ada (untuk atasan)
+        if ($id_alumni_account !== null) {
+            $builder->where('alumni_id', $id_alumni_account);
+        }
+        // KALAU ALUMNI → alumni_id = null → otomatis cari yang NULL → BENAR!
+        // KALAU ATASAN → cari yang alumni_id = xxx → BENAR!
+
+        $existing = $builder->first();
 
         if ($existing) {
             $this->update($existing['id'], $data);
-            log_message('info', '[saveAnswer] Updated existing answer ID: ' . $existing['id']);
+            log_message('info', '[AnswerModel] Updated answer ID: ' . $existing['id']);
         } else {
             $this->insert($data);
-            log_message('info', '[saveAnswer] Inserted new answer ID: ' . $this->insertID());
+            log_message('info', '[AnswerModel] Inserted new answer ID: ' . $this->insertID());
         }
 
-        $responseModel = new \App\Models\ResponseModel();
-        $existingResponse = $responseModel->where('account_id', $user_id)
-            ->where('questionnaire_id', $questionnaire_id)
-            ->first();
+        // === UPDATE RESPONSE (ALUMNI vs ATASAN) ===
+        if ($id_alumni_account !== null) {
+            // ATASAN → pakai responses_atasan
+            $responseModel = new \App\Models\ResponseAtasanModel(); // pastikan nama modelnya benar
+            $where = [
+                'id_account'       => $user_id,
+                'id_questionnaire' => $questionnaire_id,
+                'id_alumni'        => $id_alumni_account,
+            ];
+        } else {
+            // ALUMNI → pakai responses (tabel lama)
+            $responseModel = new \App\Models\ResponseModel();
+            $where = [
+                'account_id'       => $user_id,
+                'questionnaire_id' => $questionnaire_id,
+            ];
+        }
+
+        $existingResponse = $responseModel->where($where)->first();
+
+        $responseData = [
+            'status'     => 'draft',
+            'updated_at' => $now,
+            'ip_address' => \Config\Services::request()->getIPAddress()
+        ];
 
         if ($existingResponse) {
             if ($existingResponse['status'] !== 'completed') {
-                $responseModel->update($existingResponse['id'], [
-                    'status'      => 'draft',
-                    'updated_at'  => $now,
-                    'ip_address'  => \Config\Services::request()->getIPAddress()
-                ]);
-                log_message('debug', '[saveAnswer] Updated response to draft ID: ' . $existingResponse['id']);
+                $responseModel->update($existingResponse['id'], $responseData);
             }
         } else {
-            $responseModel->insert([
-                'account_id'       => $user_id,
-                'questionnaire_id' => $questionnaire_id,
-                'status'           => 'draft',
-                'created_at'       => $now,
-                'ip_address'       => \Config\Services::request()->getIPAddress()
-            ]);
-            log_message('debug', '[saveAnswer] Created new response as draft');
+            $insertData = [
+                'status'      => 'draft',
+                'created_at'  => $now,
+                'ip_address'  => \Config\Services::request()->getIPAddress()
+            ];
+
+            if ($id_alumni_account !== null) {
+                // atasan
+                $insertData += [
+                    'id_account'       => $user_id,
+                    'id_questionnaire' => $questionnaire_id,
+                    'id_alumni'        => $id_alumni_account,
+                ];
+            } else {
+                // alumni
+                $insertData += [
+                    'account_id'       => $user_id,
+                    'questionnaire_id' => $questionnaire_id,
+                ];
+            }
+
+            $responseModel->insert($insertData);
         }
     }
-
     public function setQuestionnaireCompleted($questionnaire_id, $user_id, $validateBackend = false)
     {
         $now = Time::now('Asia/Jakarta', 'id_ID')->toDateTimeString();
@@ -356,9 +401,25 @@ class AnswerModel extends Model
     }
 
     // === METHOD BARU UNTUK ATASAN KUESIONER ===
-    public function getAnswers($questionnaireId, $userId)
+    public function getAnswers($questionnaireId, $userId, $alumniId = null)
     {
-        return $this->getUserAnswers($questionnaireId, $userId, true);
+        $builder = $this->where([
+            'questionnaire_id' => $questionnaireId,
+            'user_id'          => $userId,
+        ]);
+
+        if ($alumniId !== null) {
+            $builder->where('alumni_id', $alumniId);
+        }
+
+        $answers = $builder->findAll();
+
+        $result = [];
+        foreach ($answers as $ans) {
+            $result['q_' . $ans['question_id']] = $ans['answer_text']; // PAKAI q_ !!!!
+        }
+
+        return $result;
     }
 
     public function saveAnswers($questionnaireId, $userId, $answers)
@@ -502,7 +563,57 @@ class AnswerModel extends Model
 
         return $db->transStatus();
     }
+    // METHOD KHUSUS ATASAN 
+   
+  public function calculateProgressAtasan($q_id, $atasanAccountId, $alumniAccountId = null)
+    {
+        // AMBIL DATA ALUMNI DULU (INI YANG PENTING!)
+        $alumniModel = new \App\Models\DetailaccountAlumni();
+        $alumniDetail = $alumniModel->find($alumniAccountId); // atau sesuai model kamu
 
+        // KALAU GAK ADA, cari dari detail_alumni berdasarkan id_account
+        if (!$alumniDetail) {
+            $detailModel = new \App\Models\DetailaccountAlumni();
+            $alumniDetail = $detailModel->where('id_account', $alumniAccountId)->first();
+        }
+
+        // KALAU MASIH GAK ADA, return 0
+        if (!$alumniDetail) {
+            log_message('error', '[calculateProgressAtasan] Alumni detail tidak ditemukan untuk account ID: ' . $alumniAccountId);
+            return 0;
+        }
+
+        // AMBIL JAWABAN ATASAN
+        $userAnswers = $this->getAnswers($q_id, $atasanAccountId, $alumniAccountId);
+
+        // GUNAKAN DATA ALUMNI UNTUK EVALUASI CONDITIONAL
+        $structure = (new \App\Models\QuestionnairModel())
+            ->getQuestionnaireStructure($q_id, $alumniDetail, $userAnswers, 'atasan');
+
+        if (empty($structure) || empty($structure['pages'])) {
+            log_message('error', '[calculateProgressAtasan] No structure or pages found for questionnaire ' . $q_id);
+            return 0;
+        }
+
+        $totalRelevant = 0;
+        $answeredRelevant = 0;
+
+        foreach ($structure['pages'] as $page) {
+            $pageVisible = $this->evaluatePageConditions($page, $userAnswers, $alumniDetail);
+            if (!$pageVisible) continue;
+
+            foreach ($page['sections'] as $section) {
+                foreach ($section['questions'] as $question) {
+                    $totalRelevant++;
+                    if (isset($userAnswers['q_' . $question['id']]) && $userAnswers['q_' . $question['id']] !== '' && $userAnswers['q_' . $question['id']] !== null) {
+                        $answeredRelevant++;
+                    }
+                }
+            }
+        }
+
+        return $totalRelevant > 0 ? round(($answeredRelevant / $totalRelevant) * 100) : 0;
+    }
     // Dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';

@@ -33,7 +33,7 @@
             </div>
             
             <div class="announcement-actions">
-                <a href="<?= base_url('atasan/questionnaires') ?>" class="btn-continue">
+                <a href="<?= base_url('atasan/kuesioner/daftar-alumni/' . $q_id) ?>" class="btn-continue">
                     Kembali ke Daftar Kuesioner
                 </a>
             </div>
