@@ -8,17 +8,6 @@ $orgHover = get_setting('org_button_hover_color', '#218838');
 <?= $this->section('content') ?>
 
 <link rel="stylesheet" href="<?= base_url('css/organisasi/satuanorganisasi.css') ?>">
-<?php if (session()->getFlashdata('success')): ?>
-    <div class="alert alert-success">
-        <?= session()->getFlashdata('success') ?>
-    </div>
-<?php endif; ?>
-
-<?php if (session()->getFlashdata('error')): ?>
-    <div class="alert alert-danger">
-        <?= session()->getFlashdata('error') ?>
-    </div>
-<?php endif; ?>
 
 <!-- Main Container -->
 <div class="main-container">
@@ -139,13 +128,7 @@ $orgHover = get_setting('org_button_hover_color', '#218838');
             </div>
         </div>
 
-        <!-- Flashdata -->
-        <?php if(session()->getFlashdata('success')): ?>
-            <div class="alert alert-success">
-                <?= session()->getFlashdata('success') ?>
-            </div>
-        <?php endif; ?>
-
+       
     </div>
 </div>
 
