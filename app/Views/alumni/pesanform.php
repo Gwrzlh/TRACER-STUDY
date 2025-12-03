@@ -17,7 +17,7 @@
             <div class="message-card-header">
                 <h4 class="message-card-title">
                     <i class="bi bi-envelope"></i>
-                    Kirim Pesan ke <?= esc($penerima['nama'] ?? 'Alumni') ?>
+                    Kirim Pesan ke <?= esc($penerima['nama_lengkap'] ?? 'Alumni') ?>
                 </h4>
             </div>
             
@@ -46,10 +46,10 @@
                         <label class="form-label">Penerima</label>
                         <div class="recipient-info">
                             <div class="recipient-avatar">
-                                <?= strtoupper(substr($penerima['nama'] ?? 'A', 0, 1)) ?>
+                                <?= strtoupper(substr($penerima['nama_lengkap'] ?? 'A', 0, 1)) ?>
                             </div>
                             <div class="recipient-details">
-                                <h6><?= esc($penerima['nama'] ?? 'Alumni') ?></h6>
+                                <h6><?= esc($penerima['nama_lengkap'] ?? 'Alumni') ?></h6>
                                 <?php if (!empty($penerima['email'])): ?>
                                     <p class="email"><?= esc($penerima['email']) ?></p>
                                 <?php endif; ?>

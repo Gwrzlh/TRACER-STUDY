@@ -16,8 +16,8 @@
                     <tr>
                         <th style="width: 5%;">No</th>
                         <th style="width: 10%;">Foto</th>
-                        <th style="width: 25%;">Nama</th>
-                        <th style="width: 15%;">NIM</th>
+                        <th style="width: 25%;">Username</th>
+                        <th style="width: 15%;">Email</th>
                         <th style="width: 20%;">Status Kuesioner</th>
                         <th style="width: 20%;">Aksi</th>
                     </tr>
@@ -34,8 +34,8 @@
                                         class="rounded-circle border"
                                         style="width:45px; height:45px; object-fit:cover;">
                                 </td>
-                                <td><?= esc($t['nama_lengkap']) ?></td>
-                                <td><?= esc($t['nim']) ?></td>
+                                <td><?= esc($t['username']) ?></td>
+                                <td><?= esc($t['email']) ?></td>
                                 <td>
                                     <?php if ($t['status'] === 'Finish'): ?>
                                         <span class="badge bg-success">Finish</span>
