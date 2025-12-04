@@ -99,18 +99,17 @@ class KaprodiController extends Controller
 }
 
 
-    public function alumni()
-    {
-        // Cek role dan session
-        if (session()->get('role_id') != 6 || !session()->get('id_account')) {
-            return redirect()->to('/login')->with('error', 'Akses ditolak.');
-        }
+   public function alumni()
+{
+    if (session()->get('role_id') != 6 || !session()->get('id_account')) {
+        return redirect()->to('/login')->with('error', 'Akses ditolak.');
+    }
 
-        $idProdi = session()->get('id_prodi');
+    $idProdi = session()->get('id_prodi');
+    $keyword = $this->request->getGet('keyword');
 
-        // Ambil data alumni berdasarkan prodi Kaprodi
-        $alumni = $this->db->table('detailaccount_alumni da')
-            ->select('
+    $builder = $this->db->table('detailaccount_alumni da')
+        ->select('
             da.id,
             da.nama_lengkap,
             da.nim,
@@ -128,20 +127,35 @@ class KaprodiController extends Controller
             da.alamat2,
             da.jenisKelamin
         ')
-            ->join('account a', 'a.id = da.id_account', 'left') // perbaikan di sini
-            ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
-            ->join('prodi p', 'p.id = da.id_prodi', 'left')
-            ->join('provinces prov', 'prov.id = da.id_provinsi', 'left')
-            ->join('cities c', 'c.id = da.id_cities', 'left')
-            ->where('da.id_prodi', $idProdi)
-            ->orderBy('da.angkatan', 'DESC')
-            ->get()
-            ->getResultArray();
+        ->join('account a', 'a.id = da.id_account', 'left')
+        ->join('jurusan j', 'j.id = da.id_jurusan', 'left')
+        ->join('prodi p', 'p.id = da.id_prodi', 'left')
+        ->join('provinces prov', 'prov.id = da.id_provinsi', 'left')
+        ->join('cities c', 'c.id = da.id_cities', 'left')
+        ->where('da.id_prodi', $idProdi);
 
-        return view('kaprodi/alumni/index', [
-            'alumni' => $alumni
-        ]);
+    // 🔍 FILTER SEARCH
+    if (!empty($keyword)) {
+        $builder->groupStart()
+                ->like('da.nama_lengkap', $keyword)
+                ->orLike('a.email', $keyword)
+                ->orLike('a.username', $keyword)
+                ->orLike('da.nim', $keyword)
+                ->orLike('da.angkatan', $keyword)
+                ->orLike('da.tahun_kelulusan', $keyword)
+                  ->orLike('prov.name', $keyword)   // cari berdasarkan provinsi
+            ->orLike('c.name', $keyword)  
+                ->groupEnd();
     }
+
+    $alumni = $builder->orderBy('da.angkatan', 'DESC')->get()->getResultArray();
+
+    return view('kaprodi/alumni/index', [
+        'alumni' => $alumni,
+        'keyword' => $keyword, // untuk isi ulang input
+    ]);
+}
+
 
     public function exportAlumni()
     {
