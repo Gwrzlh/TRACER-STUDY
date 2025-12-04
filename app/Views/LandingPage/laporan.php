@@ -126,41 +126,42 @@
 <?= view('layout/navbar') ?>
 
 <!-- Hero -->
-<section class="hero animate__animated animate__fadeIn">
-  <h1 class="animate__animated animate__fadeInDown">Laporan Tracer Study</h1>
-  <p class="animate__animated animate__fadeInUp animate__delay-1s">Lihat laporan tracer study berdasarkan tahun</p>
+<section class="hero animate_animated animate_fadeIn">
+  <h1 class="animate_animated animate_fadeInDown">Laporan Tracer Study</h1>
+  <p class="animate_animated animatefadeInUp animate_delay-1s">Lihat laporan tracer study berdasarkan tahun</p>
 </section>
 
 <!-- Konten -->
 <main class="container">
-  <!-- Dropdown Tahun -->
-  <div class="d-flex justify-content-center mb-5 animate__animated animate__fadeInDown animate__delay-2s position-relative">
-    <div class="dropdown">
-      <button class="btn btn-primary dropdown-toggle shadow-sm px-4 py-2" type="button" data-bs-toggle="dropdown">
-        Pilih Tahun
-      </button>
-      <ul class="dropdown-menu mt-2 shadow">
-        <?php 
-          $currentYear = (int) $tahun;
-          $range = 5; 
-          $half = floor($range / 2);
-          $startYear = max(2018, $currentYear - $half);
-          $endYear   = min($maxYear, $currentYear + $half);
+ <!-- Dropdown Tahun -->
+<div class="d-flex justify-content-center mb-5 animate_animated animatefadeInDown animate_delay-2s position-relative" style="margin-bottom: 200px !important;">
+  <div class="dropdown">
+    <button class="btn btn-primary dropdown-toggle shadow-sm px-4 py-2" type="button" data-bs-toggle="dropdown">
+      Pilih Tahun
+    </button>
+    <ul class="dropdown-menu mt-2 shadow">
+      <?php 
+        $currentYear = (int) $tahun;
+        $range = 5; 
+        $half = floor($range / 2);
+        $startYear = max(2018, $currentYear - $half);
+        $endYear   = min($maxYear, $currentYear + $half);
 
-          if (($endYear - $startYear + 1) < $range) {
-              if ($startYear == 2018) {
-                  $endYear = min($maxYear, $startYear + $range - 1);
-              } elseif ($endYear == $maxYear) {
-                  $startYear = max(2018, $endYear - $range + 1);
-              }
-          }
+        if (($endYear - $startYear + 1) < $range) {
+            if ($startYear == 2018) {
+                $endYear = min($maxYear, $startYear + $range - 1);
+            } elseif ($endYear == $maxYear) {
+                $startYear = max(2018, $endYear - $range + 1);
+            }
+        }
 
-          for ($y = $endYear; $y >= $startYear; $y--): ?>
-            <li><a class="dropdown-item <?= ($y == $tahun) ? 'active' : '' ?>" href="<?= base_url('laporan/'.$y) ?>"><?= $y ?></a></li>
-        <?php endfor; ?>
-      </ul>
-    </div>
+        for ($y = $endYear; $y >= $startYear; $y--): ?>
+          <li><a class="dropdown-item <?= ($y == $tahun) ? 'active' : '' ?>" href="<?= base_url('laporan/'.$y) ?>"><?= $y ?></a></li>
+      <?php endfor; ?>
+    </ul>
   </div>
+</div>
+
 
   <!-- Daftar Laporan -->
   <div class="laporan-list">
@@ -169,7 +170,7 @@
         $delay = 3; 
         foreach ($laporan as $lap): 
       ?>
-        <div class="laporan-item animate__animated animate__fadeInUp animate__delay-<?= $delay ?>s">
+        <div class="laporan-item animate_animated animatefadeInUp animate_delay-<?= $delay ?>s">
           <div class="laporan-header">
             <h2><?= esc($lap['judul']) ?></h2>
           </div>
@@ -184,7 +185,7 @@
 
             <?php if (!empty($lap['file_pdf'])): ?>
               <a href="<?= base_url('uploads/pdf/'.$lap['file_pdf']) ?>" target="_blank" class="btn btn-outline-primary btn-download">
-                📄 Lihat PDF
+                Lihat PDF
               </a>
               <div class="pdf-container mt-3">
                 <embed src="<?= base_url('uploads/pdf/'.$lap['file_pdf']) ?>#toolbar=1&navpanes=0&scrollbar=1" 

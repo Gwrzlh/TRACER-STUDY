@@ -65,6 +65,15 @@ $routes->group('admin/relasi-atasan-alumni', ['filter' => 'adminAuth'], function
 });
 
 
+    // --- Tentang (Landing Page) ---
+$routes->group('/', function($routes) {
+    $routes->get('tentang', 'Tentang::index');
+    $routes->get('event', 'Event::index');
+    $routes->get('sop', 'Tentang::index');
+});
+
+
+
 // ===============================
 // ADMIN ROUTES
 // ===============================
@@ -127,10 +136,6 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
         $routes->post('delete/(:num)', 'TipeOrganisasiController::delete/$1');
     });
 
-    // --- Tentang (Landing Page) ---
-    $routes->get('tentang', 'Tentang::index');
-    $routes->get('event', 'Tentang::event');
-
     // --- Tentang (Admin) ---
     $routes->get('admin/tentang/edit', 'Tentang::edit');
     $routes->post('admin/tentang/update', 'Tentang::update');
@@ -172,12 +177,6 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     });
 
 
-
-
-    // Tentang
-    $routes->get('tentang', 'Tentang::index');
-    $routes->get('tentang/edit', 'Tentang::edit');
-    $routes->post('tentang/update', 'Tentang::update');
 
     // Laporan
     $routes->group('laporan', function ($routes) {

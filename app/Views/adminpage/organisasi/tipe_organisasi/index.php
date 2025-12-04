@@ -14,7 +14,7 @@ $tambah_hover = get_setting('tambah_button_hover_color', '#0b5ed7');
         <h1 class="page-title">Tipe Organisasi</h1>
         <div class="header-actions">
           
-<a href="<?= base_url('tipeorganisasi/tambah') ?>"
+<a href="<?= base_url('admin/tipeorganisasi/form') ?>"
    id="btnTambah"
    class="btn"
    style="background-color: <?= esc($tambah_color) ?>;
