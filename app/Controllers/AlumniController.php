@@ -173,156 +173,156 @@ class AlumniController extends BaseController
     //     ]);
     // }
 
-    // =============================
-    // 👔 PEKERJAAN
-    // =============================
-   public function pekerjaan($role = 'alumni')
-{
-    $session = session();
-    $idAccount = $session->get('id_account');
+//     // =============================
+//     // 👔 PEKERJAAN
+//     // =============================
+//    public function pekerjaan($role = 'alumni')
+// {
+//     $session = session();
+//     $idAccount = $session->get('id_account');
 
-    if (!$idAccount) {
-        return redirect()->to('/login')->with('error', 'Silakan login kembali.');
-    }
+//     if (!$idAccount) {
+//         return redirect()->to('/login')->with('error', 'Silakan login kembali.');
+//     }
 
-    // 🔹 Ambil data alumni
-    $alumni = $this->alumniModel->where('id_account', $idAccount)->first();
+//     // 🔹 Ambil data alumni
+//     $alumni = $this->alumniModel->where('id_account', $idAccount)->first();
 
-    // 🔹 Ambil daftar perusahaan (untuk dropdown)
-    $perusahaanModel = new \App\Models\DetailaccountPerusahaan();
-    $perusahaanList = $perusahaanModel->findAll();
+//     // 🔹 Ambil daftar perusahaan (untuk dropdown)
+//     $perusahaanModel = new \App\Models\DetailaccountPerusahaan();
+//     $perusahaanList = $perusahaanModel->findAll();
 
-    // 🔹 Ambil pekerjaan aktif alumni
-    $currentJobs = [];
-    if ($alumni) {
-        $currentJobs = $this->riwayatModel
-            ->where('id_alumni', $idAccount)
-            ->where('is_current', 1)
-            ->findAll();
-    }
+//     // 🔹 Ambil pekerjaan aktif alumni
+//     $currentJobs = [];
+//     if ($alumni) {
+//         $currentJobs = $this->riwayatModel
+//             ->where('id_alumni', $idAccount)
+//             ->where('is_current', 1)
+//             ->findAll();
+//     }
 
-    $layout = ($role === 'surveyor')
-        ? 'layout/sidebar_alumni2'
-        : 'layout/sidebar_alumni';
+//     $layout = ($role === 'surveyor')
+//         ? 'layout/sidebar_alumni2'
+//         : 'layout/sidebar_alumni';
 
-    // 🔹 Kirim data ke view
-    return view('alumni/profil/pekerjaan', [
-        'currentJobs'     => array_map(fn($r) => (object) $r, $currentJobs),
-        'layout'          => $layout,
-        'perusahaanList'  => $perusahaanList, // ✅ fix utama
-    ]);
-}
-
-
-
- public function savePekerjaan()
-{
-    $session   = session();
-    $idAccount = $session->get('id_account');
-
-    if (!$idAccount) {
-        return redirect()->to('/login')->with('error', 'Silakan login kembali.');
-    }
-
-    $idPerusahaan      = $this->request->getPost('id_perusahaan'); // dari dropdown
-    $jabatan           = $this->request->getPost('jabatan');
-    $tahun_masuk       = $this->request->getPost('tahun_masuk');
-    $tahun_keluar      = $this->request->getPost('tahun_keluar');
-    $alamat_perusahaan = $this->request->getPost('alamat_perusahaan');
-    $status_kerja      = $this->request->getPost('status_kerja'); // "masih" / "hingga"
-
-    // 🔹 Ambil data perusahaan berdasarkan ID
-    $perusahaanModel = new \App\Models\DetailaccountPerusahaan();
-    $perusahaanData  = $perusahaanModel->find($idPerusahaan);
-
-    if (!$perusahaanData) {
-        return redirect()->back()->with('error', 'Perusahaan tidak ditemukan.');
-    }
-
-    // ===================================================
-    // 🔹 Update pekerjaan lama (yang masih aktif → jadi riwayat)
-    // ===================================================
-    $oldJob = $this->riwayatModel
-        ->where('id_alumni', $idAccount)
-        ->where('is_current', 1)
-        ->first();
-
-    if ($oldJob) {
-        $this->riwayatModel->update($oldJob['id'], [
-            'is_current'   => 0,
-            'masih'        => 0,
-            'tahun_keluar' => ($oldJob['masih'] == 1 || $oldJob['tahun_keluar'] === '0000')
-                ? date('Y') // otomatis isi tahun sekarang
-                : $oldJob['tahun_keluar']
-        ]);
-    }
-
-    // ===================================================
-    // 🔹 Tambahkan pekerjaan baru
-    // ===================================================
-    $dataBaru = [
-        'id_alumni'         => $idAccount,
-        'id_perusahaan'     => $idPerusahaan,
-        'perusahaan'        => $perusahaanData['nama_perusahaan'],
-        'jabatan'           => $jabatan,
-        'tahun_masuk'       => $tahun_masuk,
-        'tahun_keluar'      => ($status_kerja === 'masih') ? '0000' : $tahun_keluar,
-        'alamat_perusahaan' => $perusahaanData['alamat1'],
-        'is_current'        => 1,
-        'masih'             => ($status_kerja === 'masih') ? 1 : 0,
-    ];
-
-    $this->riwayatModel->insert($dataBaru);
-
-    return redirect()->to('/alumni/profil')->with('success', 'Pekerjaan baru berhasil disimpan.');
-}
+//     // 🔹 Kirim data ke view
+//     return view('alumni/profil/pekerjaan', [
+//         'currentJobs'     => array_map(fn($r) => (object) $r, $currentJobs),
+//         'layout'          => $layout,
+//         'perusahaanList'  => $perusahaanList, // ✅ fix utama
+//     ]);
+// }
 
 
 
+//  public function savePekerjaan()
+// {
+//     $session   = session();
+//     $idAccount = $session->get('id_account');
 
-    // =============================
-    // 📜 RIWAYAT PEKERJAAN
-    // =============================
-    public function riwayatPekerjaan($role = 'alumni')
-    {
-        $session   = session();
-        $idAccount = $session->get('id_account');
+//     if (!$idAccount) {
+//         return redirect()->to('/login')->with('error', 'Silakan login kembali.');
+//     }
 
-        $riwayat = $this->riwayatModel
-            ->where('id_alumni', $idAccount)
-            ->where('is_current', 0)
-            ->orderBy('created_at', 'DESC')
-            ->findAll();
+//     $idPerusahaan      = $this->request->getPost('id_perusahaan'); // dari dropdown
+//     $jabatan           = $this->request->getPost('jabatan');
+//     $tahun_masuk       = $this->request->getPost('tahun_masuk');
+//     $tahun_keluar      = $this->request->getPost('tahun_keluar');
+//     $alamat_perusahaan = $this->request->getPost('alamat_perusahaan');
+//     $status_kerja      = $this->request->getPost('status_kerja'); // "masih" / "hingga"
 
-        // 🔹 Ubah semua array hasil query jadi object
-        $riwayat = array_map(fn($r) => (object) $r, $riwayat);
+//     // 🔹 Ambil data perusahaan berdasarkan ID
+//     $perusahaanModel = new \App\Models\DetailaccountPerusahaan();
+//     $perusahaanData  = $perusahaanModel->find($idPerusahaan);
 
-        $layout = ($role === 'surveyor') ? 'layout/sidebar_alumni2' : 'layout/sidebar_alumni';
+//     if (!$perusahaanData) {
+//         return redirect()->back()->with('error', 'Perusahaan tidak ditemukan.');
+//     }
 
-        return view('alumni/profil/riwayat_pekerjaan', [
-            'riwayat' => $riwayat,
-            'layout'  => $layout
-        ]);
-    }
+//     // ===================================================
+//     // 🔹 Update pekerjaan lama (yang masih aktif → jadi riwayat)
+//     // ===================================================
+//     $oldJob = $this->riwayatModel
+//         ->where('id_alumni', $idAccount)
+//         ->where('is_current', 1)
+//         ->first();
+
+//     if ($oldJob) {
+//         $this->riwayatModel->update($oldJob['id'], [
+//             'is_current'   => 0,
+//             'masih'        => 0,
+//             'tahun_keluar' => ($oldJob['masih'] == 1 || $oldJob['tahun_keluar'] === '0000')
+//                 ? date('Y') // otomatis isi tahun sekarang
+//                 : $oldJob['tahun_keluar']
+//         ]);
+//     }
+
+//     // ===================================================
+//     // 🔹 Tambahkan pekerjaan baru
+//     // ===================================================
+//     $dataBaru = [
+//         'id_alumni'         => $idAccount,
+//         'id_perusahaan'     => $idPerusahaan,
+//         'perusahaan'        => $perusahaanData['nama_perusahaan'],
+//         'jabatan'           => $jabatan,
+//         'tahun_masuk'       => $tahun_masuk,
+//         'tahun_keluar'      => ($status_kerja === 'masih') ? '0000' : $tahun_keluar,
+//         'alamat_perusahaan' => $perusahaanData['alamat1'],
+//         'is_current'        => 1,
+//         'masih'             => ($status_kerja === 'masih') ? 1 : 0,
+//     ];
+
+//     $this->riwayatModel->insert($dataBaru);
+
+//     return redirect()->to('/alumni/profil')->with('success', 'Pekerjaan baru berhasil disimpan.');
+// }
 
 
-   public function deleteRiwayat()
-{
-    $ids = $this->request->getPost('selected_ids');
 
-    if (empty($ids)) {
-        return redirect()->back()->with('error', 'Tidak ada data yang dipilih untuk dihapus.');
-    }
 
-    // pastikan array
-    if (!is_array($ids)) {
-        $ids = [$ids];
-    }
+//     // =============================
+//     // 📜 RIWAYAT PEKERJAAN
+//     // =============================
+//     public function riwayatPekerjaan($role = 'alumni')
+//     {
+//         $session   = session();
+//         $idAccount = $session->get('id_account');
 
-    $this->riwayatModel->whereIn('id', $ids)->delete();
+//         $riwayat = $this->riwayatModel
+//             ->where('id_alumni', $idAccount)
+//             ->where('is_current', 0)
+//             ->orderBy('created_at', 'DESC')
+//             ->findAll();
 
-    return redirect()->back()->with('success', 'Riwayat pekerjaan terpilih berhasil dihapus.');
-}
+//         // 🔹 Ubah semua array hasil query jadi object
+//         $riwayat = array_map(fn($r) => (object) $r, $riwayat);
+
+//         $layout = ($role === 'surveyor') ? 'layout/sidebar_alumni2' : 'layout/sidebar_alumni';
+
+//         return view('alumni/profil/riwayat_pekerjaan', [
+//             'riwayat' => $riwayat,
+//             'layout'  => $layout
+//         ]);
+//     }
+
+
+//    public function deleteRiwayat()
+// {
+//     $ids = $this->request->getPost('selected_ids');
+
+//     if (empty($ids)) {
+//         return redirect()->back()->with('error', 'Tidak ada data yang dipilih untuk dihapus.');
+//     }
+
+//     // pastikan array
+//     if (!is_array($ids)) {
+//         $ids = [$ids];
+//     }
+
+//     $this->riwayatModel->whereIn('id', $ids)->delete();
+
+//     return redirect()->back()->with('success', 'Riwayat pekerjaan terpilih berhasil dihapus.');
+// }
 
 
 
@@ -374,11 +374,13 @@ class AlumniController extends BaseController
     $limit = $limitSetting ? (int)$limitSetting['setting_value'] : 10; // default 10
 
     // 🔹 Ambil data teman sesuai jurusan & prodi, pakai pagination
-    $teman = $alumniModel
-        ->where('id_jurusan', $currentAlumni['id_jurusan'])
-        ->where('id_prodi', $currentAlumni['id_prodi'])
-        ->where('id_account !=', session('id'))
-        ->paginate($limit);
+   $teman = $alumniModel
+    ->select('detailaccount_alumni.*, account.username, account.email')
+    ->join('account', 'account.id = detailaccount_alumni.id_account')
+    ->where('detailaccount_alumni.id_jurusan', $currentAlumni['id_jurusan'])
+    ->where('detailaccount_alumni.id_prodi', $currentAlumni['id_prodi'])
+    ->where('detailaccount_alumni.id_account !=', session('id'))
+    ->paginate($limit);
 
     // 🔹 Ambil pager untuk pagination di view
     $pager = $alumniModel->pager;
@@ -422,11 +424,16 @@ class AlumniController extends BaseController
     public function pesan($idPenerima)
     {
         $db = db_connect();
-        $penerima = $db->table('account')->where('id', $idPenerima)->get()->getRowArray();
+        $penerima = $db->table('account')
+        ->select('account.id, account.email, detailaccount_alumni.nama_lengkap')
+        ->join('detailaccount_alumni', 'detailaccount_alumni.id_account = account.id')
+        ->where('account.id', $idPenerima)
+        ->get()
+        ->getRowArray();
 
-        if (!$penerima) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("User tidak ditemukan");
-        }
+    if (!$penerima) {
+        throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("User tidak ditemukan");
+    }
 
         return view('alumni/pesanform', [
             'penerima' => $penerima

@@ -33,34 +33,6 @@
   </div>
 </div>
 
-<!-- Pekerjaan Saat Ini -->
-<div class="bg-white rounded-xl shadow-md p-8 w-full max-w-7xl mx-auto mt-8">
-  <div class="flex items-center justify-between mb-4">
-    <h3 class="text-lg font-bold">Pekerjaan Saat Ini</h3>
-    <div class="flex gap-2">
-      <a href="<?= base_url('alumni/profil/riwayat') ?>" class="btn btn-success">Riwayat Pekerjaan</a>
-      <a href="<?= base_url('alumni/profil/pekerjaan') ?>" class="btn btn-primary">Tambah Pekerjaan</a>
-    </div>
-  </div>
-
-  <?php if (!empty($currentJobs)): ?>
-    <?php foreach ($currentJobs as $job): ?>
-      <div class="grid grid-cols-2 gap-4 border p-4 rounded mb-2">
-        <p><strong>Perusahaan:</strong> <?= esc($job->perusahaan) ?></p>
-        <p><strong>Jabatan:</strong> <?= esc($job->jabatan) ?></p>
-        <p><strong>Tahun Masuk:</strong> <?= esc($job->tahun_masuk) ?></p>
-        <p><strong>Tahun Keluar:</strong>
-          <?= ($job->masih == 1 || $job->tahun_keluar === '0000') ? 'Masih bekerja' : esc($job->tahun_keluar) ?>
-        </p>
-        <p class="col-span-2"><strong>Alamat Perusahaan:</strong> <?= esc($job->alamat_perusahaan) ?></p>
-      </div>
-    <?php endforeach; ?>
-  <?php else: ?>
-    <p class="text-gray-500">Belum ada pekerjaan saat ini.</p>
-  <?php endif; ?>
-
-</div>
-
 <!-- MODAL FOTO (Ubah Foto Profil) -->
 <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
   <div class="bg-white p-6 rounded-xl w-80 flex flex-col gap-4 shadow-lg relative z-50">
