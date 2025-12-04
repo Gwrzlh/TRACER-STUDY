@@ -1,8 +1,8 @@
 <?php
-namespace App\Controllers\LandingPage;
+namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\LandingPage\TentangModel;
+use App\Models\TentangModel;
 
 class Event extends BaseController
 {
@@ -13,14 +13,15 @@ class Event extends BaseController
         $this->tentangModel = new TentangModel();
     }
 
-   public function index()
-{
-    $tentang = [
-        'judul3' => 'Event Tracer Study',
-        'isi3'   => 'Daftar event terbaru ...',
-    ];
+    public function index()
+    {
+        // Data event (bisa nanti diganti ambil dari DB)
+        $tentang = [
+            'judul3'  => 'Event Tracer Study',
+            'isi3'    => 'Daftar event terbaru ...',
+            'gambar2' => '' // pastikan selalu ada untuk menghindari error
+        ];
 
-    return view('LandingPage/event', compact('tentang'));
-}
-
+        return view('LandingPage/event', compact('tentang'));
+    }
 }

@@ -1,0 +1,396 @@
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Container */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+/* ==================== PAGE HEADER ==================== */
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.header-icon {
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1f2937;
+    flex-shrink: 0;
+}
+
+.header-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.header-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+/* ==================== TABLE WRAPPER ==================== */
+.table-wrapper {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* ==================== TABLE ==================== */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+/* Table Header */
+.data-table thead {
+    background-color: #f3f4f6;
+}
+
+.data-table thead th {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.data-table thead th.text-center {
+    text-align: center;
+}
+
+/* Table Body */
+.data-table tbody td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    color: #1f2937;
+    vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tbody td.text-center {
+    text-align: center;
+}
+
+.data-table tbody td.font-medium {
+    font-weight: 500;
+}
+
+/* ==================== BADGES ==================== */
+.badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    white-space: nowrap;
+}
+
+.badge svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Badge Success - Hijau (Sudah Dinilai / Selesai) */
+.badge-success {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+/* Badge Warning - Kuning (Belum Dinilai) */
+.badge-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* Badge Secondary - Abu-abu (Belum ada kuesioner) */
+.badge-secondary {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Badge Danger - Merah (Belum Isi Kuesioner) */
+.badge-danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* ==================== RATING DISPLAY ==================== */
+.rating-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stars {
+    display: flex;
+    gap: 0.125rem;
+}
+
+.star-icon {
+    width: 16px;
+    height: 16px;
+    color: #d1d5db;
+}
+
+.star-icon.active {
+    color: #fbbf24;
+}
+
+.rating-text {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* ==================== BUTTONS ==================== */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-action svg {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-action.btn-primary {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.btn-action.btn-primary:hover {
+    background-color: #2563eb;
+}
+
+/* ==================== MODAL ==================== */
+.modal-content {
+    border-radius: 8px;
+    border: none;
+}
+
+.modal-header {
+    background-color: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modal-title-wrapper svg {
+    color: #3b82f6;
+}
+
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #e5e7eb;
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+/* Modal Footer Buttons - Ukuran lebih besar & tanpa icon */
+.modal-footer .btn-primary,
+.modal-footer .btn-secondary {
+    padding: 0.65rem 1.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.modal-footer .btn-primary {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.modal-footer .btn-primary:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+}
+
+.modal-footer .btn-secondary {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+.modal-footer .btn-secondary:hover {
+    background-color: #d1d5db;
+}
+
+/* ==================== RATING INPUT ==================== */
+.rating-group {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.rating-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.rating-stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.star-input {
+    width: 28px;
+    height: 28px;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.star-input:hover,
+.star-input.active {
+    color: #fbbf24;
+    transform: scale(1.1);
+}
+
+/* ==================== FORM ELEMENTS ==================== */
+.form-group {
+    margin-top: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.65rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ==================== UTILITIES ==================== */
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: #6b7280;
+}
+
+.empty-state {
+    padding: 2rem;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+    .data-table {
+        font-size: 0.875rem;
+    }
+    
+    .data-table thead th,
+    .data-table tbody td {
+        padding: 0.75rem 0.875rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .header-title {
+        font-size: 1.25rem;
+    }
+    
+    .table-wrapper {
+        overflow-x: auto;
+    }
+    
+    .data-table {
+        min-width: 1000px;
+    }
+    
+    .modal-dialog {
+        margin: 1rem;
+    }
+    
+    /* Button modal full width di mobile */
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+    
+    .modal-footer .btn-primary,
+    .modal-footer .btn-secondary {
+        width: 100%;
+    }
+}

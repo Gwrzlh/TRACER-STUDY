@@ -31,21 +31,20 @@
     gap: 0.5rem;
 }
 
-/* Filter Form */
+/* Filter Form - Grid Layout */
 .filter-form {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
     gap: 1rem;
     padding: 1.5rem 1.75rem;
     background: #f9fafb;
     border-bottom: 1px solid #e5e7eb;
-    flex-wrap: wrap;
     align-items: flex-end;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    min-width: 200px;
 }
 
 .form-label {
@@ -65,7 +64,7 @@
     background-color: #ffffff;
     transition: all 0.2s ease;
     cursor: pointer;
-    min-width: 250px;
+    width: 100%;
 }
 
 .form-select:hover {
@@ -78,21 +77,29 @@
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+/* Button Group */
 .form-group-button {
     display: flex;
+    gap: 0.75rem;
     align-items: flex-end;
 }
 
-.btn-filter {
+.btn-filter,
+.btn-clear {
     padding: 0.625rem 1.5rem;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    color: #ffffff;
     border: none;
     border-radius: 8px;
     font-weight: 600;
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap;
+    height: fit-content;
+}
+
+.btn-filter {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
     box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
 }
 
@@ -103,6 +110,19 @@
 }
 
 .btn-filter:active {
+    transform: translateY(0);
+}
+
+.btn-clear {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.btn-clear:hover {
+    background: #d1d5db;
+}
+
+.btn-clear:active {
     transform: translateY(0);
 }
 
@@ -294,24 +314,22 @@
 /* Responsive Design */
 @media (max-width: 1024px) {
     .filter-form {
-        flex-direction: column;
-        align-items: stretch;
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
     .form-group {
         width: 100%;
     }
     
-    .form-select {
-        min-width: 100%;
-    }
-    
     .form-group-button {
         width: 100%;
+        flex-direction: row;
     }
     
-    .btn-filter {
-        width: 100%;
+    .btn-filter,
+    .btn-clear {
+        flex: 1;
     }
 }
 
@@ -332,6 +350,10 @@
         font-size: 1.25rem;
     }
     
+    .filter-form {
+        padding: 1rem 1.25rem;
+    }
+    
     .table-container {
         padding: 1rem;
     }
@@ -340,5 +362,16 @@
     .data-table tbody tr td {
         padding: 0.75rem 1rem;
         font-size: 0.8125rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-group-button {
+        flex-direction: column;
+    }
+    
+    .btn-filter,
+    .btn-clear {
+        width: 100%;
     }
 }

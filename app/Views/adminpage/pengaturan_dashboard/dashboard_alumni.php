@@ -1,7 +1,7 @@
 <?= $this->extend('layout/sidebar') ?>
 <?= $this->section('content') ?>
 
-<link rel="stylesheet" href="<?= base_url('css/pengaturan_situs.css') ?>">
+<link rel="stylesheet" href="<?= base_url('css/pengaturan_dashboard.css') ?>">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="<?= base_url('tinymce/tinymce.min.js') ?>"></script>
 <!-- 🔹 Tabs Navigasi -->
