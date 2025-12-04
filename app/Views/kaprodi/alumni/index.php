@@ -10,6 +10,26 @@
         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow">
         <i class="fa fa-file-excel mr-1"></i> Unduh Excel
     </a>
+<form method="get" class="mb-4">
+    <div class="flex gap-2">
+        <input
+            type="text"
+            name="keyword"
+            value="<?= esc($keyword ?? '') ?>"
+            placeholder="Cari nama, email, NIM, angkatan, tahun lulus..."
+            class="border px-4 py-2 rounded-md w-1/3"
+        >
+        <button class="bg-blue-500 text-white px-4 py-2 rounded-md">
+            <i class="fa fa-search mr-1"></i> Cari
+        </button>
+         <?php if (!empty($keyword)): ?>
+            <a href="<?= base_url('kaprodi/alumni') ?>"
+                class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-md">
+                Clear
+            </a>
+        <?php endif; ?>
+    </div>
+</form>
 
     <div class="overflow-x-auto">
         <table class="min-w-full border border-gray-200 rounded-lg text-sm">
