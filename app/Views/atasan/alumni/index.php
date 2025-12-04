@@ -22,6 +22,23 @@ th {
     <h3 class="fw-bold text-primary mb-4">👥 Data Alumni Binaan Anda</h3>
 
     <div class="table-wrapper">
+        <form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="keyword" value="<?= esc($_GET['keyword'] ?? '') ?>"
+               class="form-control" placeholder="Cari nama, jurusan, NIM, prodi, angkatan, tahun lulus, IPK, provinsi, kota...">
+        
+        <button class="btn btn-primary">
+            <i class="fa fa-search"></i>
+        </button>
+
+        <?php if (!empty($_GET['keyword'])): ?>
+        <a href="<?= base_url('atasan/alumni') ?>" class="btn btn-secondary">
+            Clear
+        </a>
+        <?php endif; ?>
+    </div>
+</form>
+
         <table class="table table-bordered table-hover align-middle">
             <thead>
                 <tr>

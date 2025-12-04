@@ -74,33 +74,32 @@ public function dashboard()
         ->get()
         ->getResultArray();
 
-    // 🔹 Ambil data penilaian alumni (pakai sistem bintang baru)
-    $penilaian = $db->table('penilaian_alumni pa')
-        ->select('
-            da.nama_lengkap,
-            da.nim,
-            p.nama_prodi,
-            pa.kelengkapan,
-            pa.kejelasan,
-            pa.konsistensi,
-            pa.refleksi,
-            pa.catatan,
-            pa.created_at,
-            ROUND((pa.kelengkapan + pa.kejelasan + pa.konsistensi + pa.refleksi) / 4, 1) AS rata_rata
-        ')
-        ->join('detailaccount_alumni da', 'da.id = pa.id_alumni', 'left')
-        ->join('prodi p', 'p.id = da.id_prodi', 'left')
-        ->where('pa.id_atasan', $atasan->id)
-        ->orderBy('pa.created_at', 'DESC')
-        ->get()
-        ->getResultArray();
+    // // 🔹 Ambil data penilaian alumni (pakai sistem bintang baru)
+    // $penilaian = $db->table('penilaian_alumni pa')
+    //     ->select('
+    //         da.nama_lengkap,
+    //         da.nim,
+    //         p.nama_prodi,
+    //         pa.kelengkapan,
+    //         pa.kejelasan,
+    //         pa.konsistensi,
+    //         pa.refleksi,
+    //         pa.catatan,
+    //         pa.created_at,
+    //         ROUND((pa.kelengkapan + pa.kejelasan + pa.konsistensi + pa.refleksi) / 4, 1) AS rata_rata
+    //     ')
+    //     ->join('detailaccount_alumni da', 'da.id = pa.id_alumni', 'left')
+    //     ->join('prodi p', 'p.id = da.id_prodi', 'left')
+    //     ->where('pa.id_atasan', $atasan->id)
+    //     ->orderBy('pa.created_at', 'DESC')
+    //     ->get()
+    //     ->getResultArray();
 
     // 🔹 Siapkan data ke view
     $data = [
         'totalPerusahaan'   => $totalPerusahaan,
         'alumni'            => $alumni,
         'chartData'         => $chartData,
-        'penilaian'         => $penilaian,
         'judul_dashboard'   => $dashboard['judul'] ?? 'Dashboard Atasan',
         'deskripsi'         => $dashboard['deskripsi'] ?? 'Halo atasan 👋',
         'judul_kuesioner'   => $dashboard['judul_kuesioner'] ?? 'Total Perusahaan',
@@ -147,6 +146,7 @@ public function alumni()
 
     $db = \Config\Database::connect();
     $idAccount = session('id_account');
+    $keyword = $this->request->getGet('keyword');
 
     // Ambil data atasan
     $atasan = $db->table('detailaccount_atasan')
@@ -158,8 +158,8 @@ public function alumni()
         return redirect()->back()->with('error', 'Data atasan tidak ditemukan.');
     }
 
-    // Ambil alumni bawahan atasan
-    $alumni = $db->table('atasan_alumni aa')
+    // Query alumni
+    $builder = $db->table('atasan_alumni aa')
         ->select("
             al.*,
             j.nama_jurusan,
@@ -172,15 +172,31 @@ public function alumni()
         ->join('prodi p', 'p.id = al.id_prodi', 'left')
         ->join('provinces prov', 'prov.id = al.id_provinsi', 'left')
         ->join('cities ct', 'ct.id = al.id_cities', 'left')
-        ->where('aa.id_atasan', $atasan->id)
-        ->orderBy('al.nama_lengkap', 'ASC')
-        ->get()
-        ->getResultArray();
+        ->where('aa.id_atasan', $atasan->id);
+
+    // 🔍 FILTER SEARCH
+    if (!empty($keyword)) {
+        $builder->groupStart()
+            ->like('al.nama_lengkap', $keyword)
+            ->orLike('j.nama_jurusan', $keyword)
+            ->orLike('al.nim', $keyword)
+            ->orLike('p.nama_prodi', $keyword)
+            ->orLike('al.angkatan', $keyword)
+            ->orLike('al.tahun_kelulusan', $keyword)
+            ->orLike('al.ipk', $keyword)
+            ->orLike('prov.name', $keyword)
+            ->orLike('ct.name', $keyword)
+        ->groupEnd();
+    }
+
+    $alumni = $builder->orderBy('al.nama_lengkap', 'ASC')->get()->getResultArray();
 
     return view('atasan/alumni/index', [
-        'alumni' => $alumni
+        'alumni' => $alumni,
+        'keyword' => $keyword
     ]);
 }
+
 
 
 
