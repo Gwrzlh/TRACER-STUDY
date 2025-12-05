@@ -16,7 +16,17 @@ class Tentang extends BaseController
     // Halaman publik (Landing Page)
     public function index()
     {
-        $data['tentang'] = $this->tentangModel->first();
+        $data['tentang'] = $this->tentangModel->first() ?? [
+            'judul' => 'Judul belum diisi',
+            'isi' => 'Konten belum tersedia...',
+            'judul2' => '',
+            'isi2' => '',
+            'judul3' => '',
+            'isi3' => '',
+            'gambar' => null,
+            'gambar2' => null,
+        ];
+
         return view('LandingPage/tentang', $data);
     }
 

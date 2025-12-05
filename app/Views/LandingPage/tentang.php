@@ -116,7 +116,7 @@
 
 <!-- Hero -->
 <section class="hero animate__animated animate__fadeIn">
-  <h1 class="animate__animated animate__fadeInDown"><?= esc($tentang['judul']) ?></h1>
+  <h1 class="animate__animated animate__fadeInDown"><?= esc($tentang['judul'] ?? 'Judul belum diisi') ?></h1>
   <p class="animate__animated animate__fadeInUp animate__delay-1s">Kenali lebih dalam tentang kami</p>
 </section>
 
@@ -140,7 +140,7 @@
     <div class="card-content animate__animated animate__fadeInUp animate__delay-1s">
       <h4>Tentang Kami</h4>
       <div class="animate__animated animate__fadeIn animate__delay-2s">
-        <?= $tentang['isi'] ?>
+        <?= esc($tentang['isi'] ?? 'Belum ada isi') ?>
       </div>
     </div>
   </div>
